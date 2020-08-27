@@ -1,0 +1,120 @@
+LOCUS       .                       2831 bp    DNA     linear   UNK 01-JAN-1980
+DEFINITION  ..
+ACCESSION   .
+VERSION     .
+KEYWORDS    .
+SOURCE      .
+  ORGANISM  .
+            .
+FEATURES             Location/Qualifiers
+     CDS             1..1600
+                     /codon_start=1
+                     /product="nickase mutant of the Cas9 endonuclease from the
+                     Streptococcus pyogenes Type II CRISPR/Cas system"
+                     /label="Cas9(D10A)"
+                     /note="generates RNA-guided single strand nicks in DNA due
+                     to the D10A mutation in the RuvC catalytic domain"
+                     /translation="MDKKYSIGLAIGTNSVGWAVITDEYKVPSKKFKVLGNTDRHSIKK
+                     NLIGALLFDSGETAEATRLKRTARRRYTRRKNRICYLQEIFSNEMAKVDDSFFHRLEES
+                     FLVEEDKKHERHPIFGNIVDEVAYHEKYPTIYHLRKKLVDSTDKADLRLIYLALAHMIK
+                     FRGHFLIEGDLNPDNSDVDKLFIQLVQTYNQLFEENPINASGVDAKAILSARLSKSRRL
+                     ENLIAQLPGEKKNGLFGNLIALSLGLTPNFKSNFDLAEDAKLQLSKDTYDDDLDNLLAQ
+                     IGDQYADLFLAAKNLSDAILLSDILRVNTEITKAPLSASMIKRYDEHHQDLTLLKALVR
+                     QQLPEKYKEIFFDQSKNGYAGYIDGGASQEEFYKFIKPILEKMDGTEELLVKLNREDLL
+                     RKQRTFDNGSIPHQIHLGELHAILRRQEDFYPFLKDNREKIEKILTFRIPYYVGPLARG
+                     NSRFAWMTRKSEETITPWNFEEVVDKGASAQSFIERMTNFDKNLPNEKVLPKHSLLYEY
+                     FTVYNELTKVKYVTEGMRKPAFLSGEQKKAIVDLLFKTNRKVTVKQLKEDYFKKIECFD
+                     SVEISGVEDRFNASLGTYHDLLKIIKDKDFLDNEENEDILEDIVLTLTLFEDREMIEER
+                     LKTYAHLFDDKVMKQLKRRRYTGWGRLSRKLINGIRDKQSGKTILDFLKSDGFANRNFM
+                     QLIHDDSLTFKEDIQKAQVSGQGDSLHEHIANLAGSPAIKKGILQTVKVVDELVKVMGR
+                     HKPENIVIEMARENQTTQKGQKNSRERMKRIEEGIKELGSQILKEHPVENTQLQNEKLY
+                     LYYLQNGRDMYVDQELDINRLSDYDVDHIVPQSFLKDDSIDNKVLTRSDKNRGKSDNVP
+                     SEEVVKKMKNYWRQLLNAKLITQRKFDNLTKAERGGLSELDKAGFIKRQLVETRQITKH
+                     VAQILDSRMNTKYDENDKLIREVKVITLKSKLVSDFRKDFQFYKVREINNYHHAHDAYL
+                     NAVVGTALIKKYPKLESEFVYGDYKVYDVRKMIAKSEQEIGKATAKYFFYSNIMNFFKT
+                     EITLANGEIRKRPLIETNGETGEIVWDKGRDFATVRKVLSMPQVNIVKKTEVQTGGFSK
+                     ESILPKRNSDKLIARKKDWDPKKYGGFDSPTVAYSVLVVAKVEKGKSKKLKSVKELLGI
+                     TIMERSSFEKNPIDFLEAKGYKEVKKDLIIKLPKYSLFELENGRKRMLASAGELQKGNE
+                     LALPSKYVNFLYLASHYEKLKGSPEDNEQKQLFVEQHKHYLDEIIEQISEFSKRVILAD
+                     ANLDKVLSAYNKHRDKPIREQAENIIHLFTLTNLGAPAAFKYFDTTIDRKRYTSTKEVL
+                     DATLIHQSITGLYETRIDLSQLGGD"
+                     /note_dbrick="2505..4104:4104"
+     source          1..2818
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /note_dbrick="6450..9267:10419"
+     CDS             1613..1633
+                     /codon_start=1
+                     /product="nuclear localization signal of SV40 (simian virus
+                     40) large T antigen"
+                     /label="SV40 NLS"
+                     /translation="PKKKRKV"
+     CDS             1841..1906
+                     /codon_start=1
+                     /product="three tandem FLAG(R) epitope tags, followed by an
+                     enterokinase cleavage site"
+                     /label="3xFLAG"
+                     /translation="DYKDHDGDYKDHDIDYKDDDDK"
+     CDS             2540..2560
+                     /codon_start=1
+                     /product="nuclear localization signal of SV40 (simian virus
+                     40) large T antigen"
+                     /label="SV40 NLS"
+                     /translation="PKKKRKV"
+     CDS             2567..2818
+                     /codon_start=1
+                     /product="uracil-DNA glycosylase inhibitor from a Bacillus
+                     subtilis bacteriophage (Mol et al., 1995)"
+                     /label="UGI"
+                     /translation="MTNLSDIIEKETGKQLVIQESILMLPEEVEEVIGNKPESDILVHT
+                     AYDESTDENVMLLTSDAPEYKPWALVIQDSNGENKIKML"
+ORIGIN
+        1 ctacgacgtg gatcatatcg tgccccagtc ttttctcaaa gatgattcta ttgataataa
+       61 agtgttgaca agatccgata aaaatagagg gaagagtgat aacgtcccct cagaagaagt
+      121 tgtcaagaaa atgaaaaatt attggcggca gctgctgaac gccaaactga tcacacaacg
+      181 gaagttcgat aatctgacta aggctgaacg aggtggcctg tctgagttgg ataaagccgg
+      241 cttcatcaaa aggcagcttg ttgagacacg ccagatcacc aagcacgtgg cccaaattct
+      301 cgattcacgc atgaacacca agtacgatga aaatgacaaa ctgattcgag aggtgaaagt
+      361 tattactctg aagtctaagc tggtctcaga tttcagaaag gactttcagt tttataaggt
+      421 gagagagatc aacaattacc accatgcgca tgatgcctac ctgaatgcag tggtaggcac
+      481 tgcacttatc aaaaaatatc ccaagcttga atctgaattt gtttacggag actataaagt
+      541 gtacgatgtt aggaaaatga tcgcaaagtc tgagcaggaa ataggcaagg ccaccgctaa
+      601 gtacttcttt tacagcaata ttatgaattt tttcaagacc gagattacac tggccaatgg
+      661 agagattcgg aagcgaccac ttatcgaaac aaacggagaa acaggagaaa tcgtgtggga
+      721 caagggtagg gatttcgcga cagtccggaa ggtcctgtcc atgccgcagg tgaacatcgt
+      781 taaaaagacc gaagtacaga ccggaggctt ctccaaggaa agtatcctcc cgaaaaggaa
+      841 cagcgacaag ctgatcgcac gcaaaaaaga ttgggacccc aagaaatacg gcggattcga
+      901 ttctcctaca gtcgcttaca gtgtactggt tgtggccaaa gtggagaaag ggaagtctaa
+      961 aaaactcaaa agcgtcaagg aactgctggg catcacaatc atggagcgat caagcttcga
+     1021 aaaaaacccc atcgactttc tcgaggcgaa aggatataaa gaggtcaaaa aagacctcat
+     1081 cattaagctt cccaagtact ctctctttga gcttgaaaac ggccggaaac gaatgctcgc
+     1141 tagtgcgggc gagctgcaga aaggtaacga gctggcactg ccctctaaat acgttaattt
+     1201 cttgtatctg gccagccact atgaaaagct caaagggtct cccgaagata atgagcagaa
+     1261 gcagctgttc gtggaacaac acaaacacta ccttgatgag atcatcgagc aaataagcga
+     1321 attctccaaa agagtgatcc tcgccgacgc taacctcgat aaggtgcttt ctgcttacaa
+     1381 taagcacagg gataagccca tcagggagca ggcagaaaac attatccact tgtttactct
+     1441 gaccaacttg ggcgcgcctg cagccttcaa gtacttcgac accaccatag acagaaagcg
+     1501 gtacacctct acaaaggagg tcctggacgc cacactgatt catcagtcaa ttacggggct
+     1561 ctatgaaaca agaatcgacc tctctcagct cggtggagac agcagggctg accccaagaa
+     1621 gaagaggaag gtgggtggag gaggtaccgg cggtggaggc tcagcagaat acgtacgagc
+     1681 tctgtttgac ttcaatggga atgacgagga ggatctcccc tttaagaagg gcgatattct
+     1741 ccgcatcaga gataagcccg aagaacaatg gtggaatgcc gaggatagcg aagggaaaag
+     1801 gggcatgatt ctggtgccat atgtggagaa atattccggt gactacaaag accatgatgg
+     1861 ggattacaaa gaccacgaca tcgactacaa agacgacgac gataaatcag ggatgacaga
+     1921 cgccgagtac gtgcgcattc atgagaaact ggatatttac accttcaaga agcagttctt
+     1981 caacaacaag aaatctgtgt cacaccgctg ctacgtgctg tttgagttga agcgaagggg
+     2041 cgaaagaagg gcttgctttt ggggctatgc cgtcaacaag ccccaaagtg gcaccgagag
+     2101 aggaatacac gctgagatat tcagtatccg aaaggtggaa gagtatcttc gggataatcc
+     2161 tgggcagttt acgatcaact ggtattccag ctggagtcct tgcgctgatt gtgccgagaa
+     2221 aattctggaa tggtataatc aggaacttcg gggaaacggg cacacattga aaatctgggc
+     2281 ctgcaagctg tactacgaga agaatgcccg gaaccagata ggactctgga atctgaggga
+     2341 caatggtgta ggcctgaacg tgatggtttc cgagcactat cagtgttgtc ggaagatttt
+     2401 catccaaagc tctcataacc agctcaatga aaaccgctgg ttggagaaaa cactgaaacg
+     2461 tgcggagaag tggagatccg agctgagcat catgatccag gtcaagattc tgcataccac
+     2521 taagtctcca gccgttggtc ccaagaagaa aagaaaagtc ggtaccatga ccaacctttc
+     2581 cgacatcata gagaaggaaa caggcaaaca gttggtcatc caagagtcga tactcatgct
+     2641 tcctgaagaa gttgaggagg tcattgggaa taagccggaa agtgacattc tcgtacacac
+     2701 tgcgtatgat gagagcaccg atgagaacgt gatgctgctc acgtcagatg ccccagagta
+     2761 caaaccctgg gctctggtga ttcaggactc taatggagag aacaagatca agatgctata
+     2821 atgagtttaa a
+//

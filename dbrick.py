@@ -20,7 +20,9 @@ re_dict = Restriction.__dict__
 
 def substr(brick, start=0, end=0, feature_id=None):
     """
-    Extract record information within the specified region.a
+    Extract subsequence from the specified region in the genome.
+    All features within the subsequence including truncated features are also extracted.
+    The information that which regions were extracted is appended to the qualifiers of truncated features.
     """
     if feature_id != None:
         if type(feature_id) == list: 
@@ -43,7 +45,7 @@ def substr(brick, start=0, end=0, feature_id=None):
             sub_brick2 = substr(brick, 0, end)
             sub_brick  = join_dbricks(sub_brick1, sub_brick2, ovhg_check=False)
         else:
-            raise ValueError("When you extract specific region from linear dbrick object, start value should be larger than end value.")
+            raise ValueError("Start value should be larger than or equal to end value.")
     else:
         feats   = []
         new_features = [] 
@@ -269,7 +271,8 @@ def substr(brick, start=0, end=0, feature_id=None):
 
 def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_overlap=15, max_overlap=150):
     """    
-    Join the multiple DNA bricks. Each DNA brick should have a common overhang sequence with the adjacent element.  
+    Join Dbrick objects. 
+    When ovhg_check argument is True, adjacent Dbrick objects should have common overhang sequences.  
     """
     def slide(feats,slide):
         new_feats = []
@@ -300,7 +303,7 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
                             sticky_end = brick.left_end 
                         else:
                             sticky_end = construct.right_end
-                        print("Joined dbrick objects based on complementary sticky end of each DNA fragmment. Sticky end is '{}'".format(sticky_end)) 
+                        print("Joined Dbrick objects based on complementary sticky end of each DNA sequence. The sticky end is '{}'".format(sticky_end)) 
                         LIG = 1
                     
                     ovhg = brick.left_end
@@ -315,7 +318,7 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
                         ovhg = brick.left_end
                         new_brick = substr(brick, len(ovhg), len(brick.seq)) 
                         ovhgs.append(str(ovhg))
-                        print("Joined dbrick objects based on sequence homology at the end of each fragment. Overhang sequence is '{}'".format(ovhg)) 
+                        print("Joined Dbrick objects based on sequence homology at the end of each DNA sequence. The overhang sequence is '{}'".format(ovhg)) 
                     
                     else:
                         flag = 0 
@@ -329,15 +332,15 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
                             construct.right_end = brick.left_end 
                             new_brick = substr(brick, len(ovhg), len(brick.seq)) 
                             ovhgs.append(str(ovhg))
-                            print("Joined dbrick objects based on sequence homology at the end of each fragment. Overhang sequence is '{}'".format(ovhg)) 
+                            print("Joined Dbrick objects based on sequence homology at the end of each DNA sequence. The overhang sequence is '{}'".format(ovhg)) 
 
                         else:
-                            print("These DNA fragments cannot be joined. Please reconsider the design of the construction")
+                            print("The adjacent Dbrick objects were not able to be joined. Please set a common overhang sequence between the Dbrick objects.")
                             return False
                 else:
                     print(brick.left_end, brick.left_end_top, brick.left_end_bottom) 
                     print(brick.right_end, brick.right_end_top, brick.right_end_bottom)
-                    print("These DNA fragments cannot be joined. Please reconsider the design of the construction")
+                    print("The adjacent Dbrick objects were not able to be joined. Please set a common overhang sequence between the Dbrick objects")
                     return False
             else:
                 new_brick = brick
@@ -405,8 +408,8 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
             construct.topology      = "linear"
             ovhg = brick.right_end
     
-    if len(ovhgs) != len(set(ovhgs)): 
-        print("The same overhangs sequences were found from multiple joints. The process will generate unexpected constructs.") 
+    #if len(ovhgs) != len(set(ovhgs)): 
+    #    print("Same overhang sequences were detected from . The process will generate unexpected constructs.") 
 
     construct.features.sort(key=lambda x:x.location.parts[0].start.position)
     new_record          = SeqRecord(Seq(str(construct.seq),Alphabet.DNAAlphabet()))
@@ -425,9 +428,9 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
         construct.circularize(ovhg_check=ovhg_check)
     return construct
 
-def shell(brick, left="", right="", add=0): #top5 = 1, bottom5 = 1, top3 = 1, bottom3 = 1, add=0):
+def shell(brick, left="", right="", add=0):
     """
-    Set overhang sequence.
+    Set end sequence structures. 
     """
     def check_endseq(top,bottom):
         new_top    = ""
@@ -451,17 +454,17 @@ def shell(brick, left="", right="", add=0): #top5 = 1, bottom5 = 1, top3 = 1, bo
     if pattern1.fullmatch(left_end) != None and pattern2.search(left_end) == None and patternl1.search(left_end) == None and patternl2.search(left_end) == None:
         pass 
     else:
-        raise ValueError("Please sepcify a proper sequence pattern for 'left'") 
+        raise ValueError("Please sepcify a proper sequence pattern for the 'left' argument") 
     
     if pattern1.fullmatch(right_end) != None and pattern2.search(right_end) == None and patternr1.search(right_end) == None and patternr2.search(right_end) == None:
         pass
     else:
-        raise ValueError("Please sepcify a proper sequence pattern for 'right'") 
+        raise ValueError("Please sepcify a proper sequence pattern for the 'right' argument") 
 
     if "/" in left_end:
         left_end_top, left_end_bottom = left_end.split("/")
         if len(left_end_top) != len(left_end_bottom):
-            raise ValueError("Top strand length and bottom strand length should be same size")
+            raise ValueError("The length of top and bottom sequence should be same.")
         
         elif "-" in left_end:
             left_end_top, left_end_bottom = check_endseq(left_end_top, left_end_bottom)
@@ -488,7 +491,7 @@ def shell(brick, left="", right="", add=0): #top5 = 1, bottom5 = 1, top3 = 1, bo
                     left_end_bottom = -1
 
             else:
-                raise ValueError("Top strand and bottom strand should be complent each other.")
+                raise ValueError("The bottom strand sequence should be complent with the top strand sequence.")
         else:
             left_end_length = len(left_end_top) 
             left_length = len(left_end_top)
@@ -505,7 +508,7 @@ def shell(brick, left="", right="", add=0): #top5 = 1, bottom5 = 1, top3 = 1, bo
     if "/" in right_end:
         right_end_top, right_end_bottom = right_end.split("/")
         if len(right_end_top) != len(right_end_bottom):
-            raise ValueError("Top strand length and bottom strand length should be same size")
+            raise ValueError("The length of top and bottom sequence should be same.")
         
         elif "-" in right_end:
             right_end_top, right_end_bottom = check_endseq(right_end_top, right_end_bottom)
@@ -532,7 +535,7 @@ def shell(brick, left="", right="", add=0): #top5 = 1, bottom5 = 1, top3 = 1, bo
                     right_end_bottom = -1
 
             else:
-                raise ValueError("Top strand and bottom strand should be complent each other.")
+                raise ValueError("The bottom strand sequence should be complent with the top strand sequence.")
         else:
             right_end_length = len(right_end_top) 
             right_length = len(right_end_top)  
@@ -570,7 +573,7 @@ def shell(brick, left="", right="", add=0): #top5 = 1, bottom5 = 1, top3 = 1, bo
 
 def get_target(bricks, target_seq=None, target_annotation=None):
     """
-    Extract a DNA brick specified by the specific sequence or annotation from the multiple DNA elements. 
+    Extract a Dbrick object specified by the specific sequence or annotation. 
     """
     if target_seq != None:
         flag = 0 
@@ -598,6 +601,10 @@ def get_target(bricks, target_seq=None, target_annotation=None):
         return False
 
 def complement(brick):
+    """
+    Return reverse complement sequence. 
+    All feature information is also reversed with the sequence.
+    """
     if type(brick) == Dbrick:
         brick = copy.deepcopy(brick)
         seq  = brick.seq.translate(str.maketrans("ATGC","TACG"))[::-1]
@@ -631,7 +638,7 @@ def complement(brick):
 
 def digestion(brick, *enzymes, target_seq=None, target_annotation=None):
     """
-    Digest the DNA brick by specified restriction enzymes.
+    Digest the DNA sequences by specified restriction enzymes.
     """
     fragments = [] 
     brick = copy.deepcopy(brick)
@@ -791,15 +798,15 @@ def pcr(brick, fw=None, rv=None, adaptor_fw=None, adaptor_rv=None, name=None):
     amplicon   = substr(brick, start, end) 
     if len(adaptor_fw) > 0 and len(adaptor_rv) > 0:
         product = join_dbricks(adaptor_fw_brick, amplicon, adaptor_rv_brick, ovhg_check=False)
-        print("Start:{}, End:{}, Redundant sequneces were detected as both ends. Right redundant sequence is {}, Left redundant sequence is {}.".format(start+1, end, adaptor_fw, adaptor_rv))
+        print("Start:{}, End:{}, Adapter sequneces were detected at both ends. Right redundant sequence is {}, Left redundant sequence is {}.".format(start+1, end, adaptor_fw, adaptor_rv))
 
     elif len(adaptor_fw) > 0:
         product = join_dbricks(adaptor_fw_brick, amplicon, ovhg_check=False)
-        print("Start:{}, End:{}, Redundant sequnece was detected at right end. The sequence is {}.".format(start+1, end, adaptor_fw))
+        print("Start:{}, End:{}, Adapter sequnece was detected at right end. The sequence is {}.".format(start+1, end, adaptor_fw))
 
     elif len(adaptor_rv) > 0:
         product = join_dbricks(amplicon, adaptor_rv_brick, ovhg_check=False)
-        print("Start:{}, End:{}, Redundant sequnece was detected at left end. The nsequence is {}.".format(start+1, end, adaptor_rv))
+        print("Start:{}, End:{}, Adapter sequnece was detected at left end. The nsequence is {}.".format(start+1, end, adaptor_rv))
 
     else:
         product = amplicon       
@@ -1229,12 +1236,12 @@ class Dbrick():
         return feature_ids
    
     def view_features(self, feature_ids=None, detail=False, sep=None, o=None):
-        _ids   = ["Feature_ID"] 
-        labels = ["Label"]
-        types  = ["Type"] 
-        starts = ["Start"] 
-        ends   = ["End"] 
-
+        _ids    = ["Feature_ID"] 
+        labels  = ["Label"]
+        types   = ["Type"] 
+        starts  = ["Start"] 
+        ends    = ["End"] 
+        strands = ["Strand"]
         if feature_ids == None:
             feature_ids = list(range(len(self.features)))
         else:
@@ -1264,24 +1271,31 @@ class Dbrick():
             labels.append(str(label)) 
             types.append(str(feat.type)) 
             starts.append(str(start)) 
-            ends.append(str(end)) 
+            ends.append(str(end))
+            if feat.location.strand == 1:
+                strands.append("+")
+            elif feat.location.strand == 0:
+                strands.append("+") 
+            else:
+                strands.append("-")
             
-        _idmax   = max(list(map(len,_ids)))   + 2
-        labelmax = max(list(map(len,labels))) + 2
-        ftypemax = max(list(map(len,types)))  + 2
-        startmax = max(list(map(len,starts))) + 2
-        endmax   = max(list(map(len,ends)))   + 2
-        for n, (_id, label, ftype, start, end) in enumerate(zip(_ids, labels, types, starts, ends)):
+        _idmax    = max(list(map(len,_ids)))   + 2
+        labelmax  = max(list(map(len,labels))) + 2
+        ftypemax  = max(list(map(len,types)))  + 2
+        startmax  = max(list(map(len,starts))) + 2
+        endmax    = max(list(map(len,ends)))   + 2
+        strandmax = max(list(map(len,strands)))   + 2
+        for n, (_id, label, ftype, start, end, strand) in enumerate(zip(_ids, labels, types, starts, ends, strands)):
             if sep == None:
                 if o == io.TextIOWrapper:
-                    print(_id + " " * (_idmax-len(_id)) + label + " " * (labelmax-len(label)) + ftype + " " * (ftypemax-len(ftype)) + start + " " * (startmax-len(start)) + end + " " * (endmax-len(end)), file=o)
+                    print(_id + " " * (_idmax-len(_id)) + label + " " * (labelmax-len(label)) + ftype + " " * (ftypemax-len(ftype)) + start + " " * (startmax-len(start)) + end + " " * (endmax-len(end)) + strand + " " * (strandmax-len(strand)), file=o)
                 else:
-                    print(_id + " " * (_idmax-len(_id)) + label + " " * (labelmax-len(label)) + ftype + " " * (ftypemax-len(ftype)) + start + " " * (startmax-len(start)) + end + " " * (endmax-len(end)))
+                    print(_id + " " * (_idmax-len(_id)) + label + " " * (labelmax-len(label)) + ftype + " " * (ftypemax-len(ftype)) + start + " " * (startmax-len(start)) + end + " " * (endmax-len(end)) + strand + " " * (strandmax-len(strand)))
             else:
                 if o == io.TextIOWrapper:
-                    print(_id, label, ftype, start, end, sep=",", file=o)
+                    print(_id, label, ftype, start, end, strand, sep=",", file=o)
                 else:
-                    print(_id, label, ftype, start, end, sep=",") 
+                    print(_id, label, ftype, start, end, strand, sep=",") 
             
             if detail == True and n > 0:
                 feat = self.features[int(_id)]
@@ -1295,36 +1309,13 @@ class Dbrick():
 
     def reindex(self, zero_position):
         if self.topology == "linear":
-            print("The method cannot work for linear Dbrick object.")
+            print("The method cannot be used for linear Dbrick object.")
         else:
-            feats = [] 
-            for feat in self.features:
-                s = feat.location.parts[0].start.position 
-                e = feat.location.parts[-1].end.position
-                strand = feat.location.strand
-                
-                feat = copy.deepcopy(feat) 
-                new_start = ExactPosition(s - zero_position) 
-                new_end   = ExactPosition(e - zero_position) 
-                if new_start < 0:
-                    if new_end < 0:
-                        feat.location = FeatureLocation(len(self.seq) + new_start, len(self.seq) + new_end)
-                        feat.location.strand = strand 
-                    else:
-                        locations = [FeatureLocation(len(self.seq) + new_start, len(self.seq)), FeatureLocation(0, new_end)] 
-                        if strand == -1: 
-                            locations.reverse() 
-                        feat.location = CompoundLocation(locations)
-                        feat.location.strand = strand 
-                else:
-                    feat.location = FeatureLocation(new_start, new_end)
-                feats.append(feat)
+            abrick = self[zero_position:] + self[:zero_position] 
+            abrick.circularize(ovhg_check=False) 
+            for key in abrick.__dict__.keys():
+                self.__dict__[key] = abrick.__dict__[key] 
             
-            self.record.features = feats
-            self.features        = self.record.features
-            self.record.seq      = Seq(str(self.seq)[cor:] + str(self.seq)[:cor],Alphabet.DNAAlphabet())
-            self.seq             = str(self.record.seq)  
-
     def write(self, handle, format="genbank", reindex=0):
         self.record.id = self.name
         if reindex == 0:
@@ -1333,6 +1324,13 @@ class Dbrick():
             self.reindex(reindex)
             SeqIO.write(self.record, handle, format)
     
+    def linearize(self):
+        abrick = substr(self, 0, len(self.seq))
+        for key in abrick.__dict__.keys():
+            self.__dict__[key] = abrick.__dict__[key] 
+        self.topology = "linear"
+        self.record.annotations["topology"] = self.topology
+
     def circularize(self, ovhg_check=True):
         seq_origin = copy.deepcopy(self.seq)
         feats_origin = copy.deepcopy(self.features) 
@@ -1378,71 +1376,70 @@ class Dbrick():
         else:
             ovhg = ""
 
-        if len(ovhg) > 0:
-            remove_list = [] 
-            feats1      = [feat for feat in self.features if "note_dbrick" in feat.qualifiers]
-            for feat1 in feats1:
-                s1, e1 = feat1.location.parts[0].start.position, feat1.location.parts[-1].end.position
-                for feat2 in feats1:
-                    s2, e2 = feat2.location.parts[0].start.position, feat2.location.parts[-1].end.position
-                    if feat1 == feat2 or feat1 in remove_list:
-                        pass 
-                    elif feat1.type == feat2.type:
-                        flag = 0
-                        for key in feat1.qualifiers:
-                            if key == "note_dbrick":
-                                pass 
-                            elif key in feat2.qualifiers and feat1.qualifiers[key] == feat2.qualifiers[key]:
-                                flag = 1
-                            else:
-                                flag = 0
-                                break    
-                        if flag == 1:
-                            note1   = feat1.qualifiers["note_dbrick"]
-                            pos_s1  = int(note1.split(":")[0].split("..")[0])
-                            pos_e1  = int(note1.split(":")[0].split("..")[1]) 
-                            length1 = int(note1.split(":")[1])
-                            
-                            note2   = feat2.qualifiers["note_dbrick"] 
-                            pos_s2  = int(note2.split(":")[0].split("..")[0])
-                            pos_e2  = int(note2.split(":")[0].split("..")[1]) 
-                            length2 = int(note2.split(":")[1])
-                            
-                            if length1 == length2 and ((s1 == 0 and e2 == len(seq_origin)) or (s2 == 0 and e1 == len(seq_origin))):
-                                if "original" in feat1.__dict__ and "original" in feat2.__dict__ and feat1.original == feat2.original:
-                                    note     = "{}..{}:{}".format(pos_s1, pos_e2, length1)
-                                    new_seq  = seq_origin[s1:e1] + seq_origin[s2:e2] 
-                                    new_feat = copy.deepcopy(self.features[self.features.index(feat1)]) 
-                                    if s1 == 0:
-                                        new_feat.location = FeatureLocation(s2, e2 + (e1-len(ovhg)), feat1.strand)
-                                    else:
-                                        new_feat.location = FeatureLocation(s1, e1 + (e2-len(ovhg)), feat1.strand)
-                                    
-                                    if len(new_seq) - len(ovhg) <= len(feat1.original):
-                                        new_feat.qualifiers["note_dbrick"] = note
-                                        if len(new_seq) - len(ovhg) == length1:
-                                            del self.features[self.features.index(feat1)].qualifiers["note_dbrick"]
-                                        self.features[self.features.index(feat1)].location = new_feat.location
-                                        self.features.remove(feat2)  
-                                        remove_list.append(feat2) 
-                                        #print("delete", feat2) 
+        remove_list = [] 
+        feats1      = [feat for feat in self.features if "note_dbrick" in feat.qualifiers]
+        for feat1 in feats1:
+            s1, e1 = feat1.location.parts[0].start.position, feat1.location.parts[-1].end.position
+            for feat2 in feats1:
+                s2, e2 = feat2.location.parts[0].start.position, feat2.location.parts[-1].end.position
+                if feat1 == feat2 or feat1 in remove_list:
+                    pass 
+                elif feat1.type == feat2.type:
+                    flag = 0
+                    for key in feat1.qualifiers:
+                        if key == "note_dbrick":
+                            pass 
+                        elif key in feat2.qualifiers and feat1.qualifiers[key] == feat2.qualifiers[key]:
+                            flag = 1
+                        else:
+                            flag = 0
+                            break    
+                    if flag == 1:
+                        note1   = feat1.qualifiers["note_dbrick"]
+                        pos_s1  = int(note1.split(":")[0].split("..")[0])
+                        pos_e1  = int(note1.split(":")[0].split("..")[1]) 
+                        length1 = int(note1.split(":")[1])
+                        
+                        note2   = feat2.qualifiers["note_dbrick"] 
+                        pos_s2  = int(note2.split(":")[0].split("..")[0])
+                        pos_e2  = int(note2.split(":")[0].split("..")[1]) 
+                        length2 = int(note2.split(":")[1])
+                        
+                        if length1 == length2 and ((s1 == 0 and e2 == len(seq_origin)) or (s2 == 0 and e1 == len(seq_origin))):
+                            if "original" in feat1.__dict__ and "original" in feat2.__dict__ and feat1.original == feat2.original:
+                                note     = "{}..{}:{}".format(pos_s1, pos_e2, length1)
+                                new_seq  = seq_origin[s1:e1] + seq_origin[s2:e2] 
+                                new_feat = copy.deepcopy(self.features[self.features.index(feat1)]) 
+                                if s1 == 0:
+                                    new_feat.location = FeatureLocation(s2, e2 + (e1-len(ovhg)), feat1.strand)
+                                else:
+                                    new_feat.location = FeatureLocation(s1, e1 + (e2-len(ovhg)), feat1.strand)
+                                
+                                if len(new_seq) - len(ovhg) <= len(feat1.original):
+                                    new_feat.qualifiers["note_dbrick"] = note
+                                    if len(new_seq) - len(ovhg) == length1:
+                                        del self.features[self.features.index(feat1)].qualifiers["note_dbrick"]
+                                    self.features[self.features.index(feat1)].location = new_feat.location
+                                    self.features.remove(feat2)  
+                                    remove_list.append(feat2) 
+                                    #print("delete", feat2) 
             
-            for i in range(len(self.features)):    
-                if self.features[i].location.parts[-1].end.position > len(self.seq): #and feats_origin[i].type == "source":
-                    if self.features[i].location.parts[0].start.position >= len(self.seq):
-                        strand                    = self.features[i].location.strand
-                        self.features[i].location = FeatureLocation(self.features[i].location.parts[0].start.position-len(self.seq),self.features[i].location.parts[-1].end.position-len(self.seq))
-                        self.features[i].location.strand = strand
-                    else:
-                        strand    = self.features[i].location.strand
-                        locations = [FeatureLocation(self.features[i].location.parts[0].start.position,len(self.seq)), FeatureLocation(0,self.features[i].location.parts[-1].end.position-len(self.seq))]
-                        if strand == -1:
-                            locations.reverse() 
-                        self.features[i].location = CompoundLocation(locations)
-                        self.features[i].location.strand = strand
-                        #print(feats_origin[i].location) 
-            self.record.features = self.features
+        for i in range(len(self.features)):    
+            if self.features[i].location.parts[-1].end.position > len(self.seq): #and feats_origin[i].type == "source":
+                if self.features[i].location.parts[0].start.position >= len(self.seq):
+                    strand                    = self.features[i].location.strand
+                    self.features[i].location = FeatureLocation(self.features[i].location.parts[0].start.position-len(self.seq),self.features[i].location.parts[-1].end.position-len(self.seq))
+                    self.features[i].location.strand = strand
+                else:
+                    strand    = self.features[i].location.strand
+                    locations = [FeatureLocation(self.features[i].location.parts[0].start.position,len(self.seq)), FeatureLocation(0,self.features[i].location.parts[-1].end.position-len(self.seq))]
+                    if strand == -1:
+                        locations.reverse() 
+                    self.features[i].location = CompoundLocation(locations)
+                    self.features[i].location.strand = strand
+                    #print(feats_origin[i].location) 
         
+        self.record.features = self.features
         self.left_end  = ""
         self.left_end_top    = 0 
         self.left_end_bottom = 0 

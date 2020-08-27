@@ -1,6 +1,5 @@
 **README.md**
-
-#dbrick.py Installation and User Manual
+# dbrick.py Installation and User Manual
 
 dbrick.py is a Python module that enables users to design favored DNA sequences in silico. This module is composed Dbrick class and four fundamental methods that handling a DNA sequence as a brick. By using the methods, you can take partial fragments with sequence annotaion frorm genomic data such as GenBank, then generate new GenBank by combining their information. 
 

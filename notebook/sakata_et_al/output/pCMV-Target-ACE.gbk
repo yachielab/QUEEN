@@ -1,5 +1,5 @@
 LOCUS       None                    9856 bp    DNA     circular UNK 01-JAN-1980
-DEFINITION  ..
+DEFINITION  .
 ACCESSION   None
 VERSION     None
 KEYWORDS    .
@@ -10,7 +10,6 @@ FEATURES             Location/Qualifiers
      source          16..8683
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="5258..8727:8727"
      primer_bind     complement(38..55)
                      /label="BGH-rev"
                      /note="Bovine growth hormone terminator, reverse primer.

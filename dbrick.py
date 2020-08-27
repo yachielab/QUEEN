@@ -25,16 +25,30 @@ def substr(brick, start=0, end=0, feature_id=None):
     The information that which regions were extracted is appended to the qualifiers of truncated features.
     """
     if feature_id != None:
-        if type(feature_id) == list: 
+        if type(feature_id) == list:  
             feature_s = brick.features[int(feature_id[0])]
             feature_e = brick.features[int(feature_id[-1])]
-            start     = feature_s.location.parts[0].start.position + start
-            end       = feature_e.location.parts[-1].end.position + end
+            strand = feature_s.location.strand
+            if strand == -1:
+                start = feature_s.location.parts[-1].start.position + start
+            else:
+                start = feature_s.location.parts[0].start.position + start
+            
+            strand = feature_e.location.strand
+            if strand == -1:
+                end = feature_e.location.parts[0].end.position + end
+            else:
+                end = feature_e.location.parts[-1].end.position + end
 
         elif type(feature_id) == str and feature_id.isdecimal():
             feature = brick.features[int(feature_id)] 
-            start   = feature.location.parts[0].start.position + start
-            end     = feature.location.parts[-1].end.position + end
+            strand  = feature.location.strand
+            if strand == -1:
+                start   = feature.location.parts[-1].start.position + start
+                end     = feature.location.parts[0].end.position + end
+            else:
+                start   = feature.location.parts[0].start.position + start
+                end     = feature.location.parts[-1].end.position + end
 
         else:
             raise TypeError("Invalid value for 'feture_id'.'feature_id' should be specified as 'str' or 'list' object.")
@@ -50,9 +64,13 @@ def substr(brick, start=0, end=0, feature_id=None):
         feats   = []
         new_features = [] 
         for feat in brick.record.features:
-            s = feat.location.parts[0].start.position
-            e = feat.location.parts[-1].end.position
             strand = feat.location.strand
+            if strand == -1:
+                s = feat.location.parts[-1].start.position
+                e = feat.location.parts[0].end.position
+            else:
+                s = feat.location.parts[0].start.position
+                e = feat.location.parts[-1].end.position
             if "original" not in feat.__dict__:
                 if s > e:
                     feat.original = str(brick.seq)[s:len(brick.seq)] + str(brick.seq)[:e]
@@ -107,7 +125,7 @@ def substr(brick, start=0, end=0, feature_id=None):
 
                 length = len(brick.seq) - s + e
                 if "note_dbrick" not in feat1.qualifiers:
-                    feat1.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, len(brick.seq)-s, length) 
+                    feat1.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, len(brick.seq)-s, len(feat1.original)) 
                 else:
                     note   = feat.qualifiers["note_dbrick"]
                     pos_s  = int(note.split(":")[0].split("..")[0]) 
@@ -117,7 +135,7 @@ def substr(brick, start=0, end=0, feature_id=None):
                     feat1.qualifiers["note_dbrick"] = note
                 
                 if "note_dbrick" not in feat2.qualifiers:
-                    feat2.qualifiers["note_dbrick"] = "{}..{}:{}".format(len(brick.seq)-s+1, len(brick.seq)-s+e, length) 
+                    feat2.qualifiers["note_dbrick"] = "{}..{}:{}".format(len(brick.seq)-s+1, len(brick.seq)-s+e, len(feat2.original)) 
                 else:
                     note   = feat.qualifiers["note_dbrick"]
                     pos_s  = int(note.split(":")[0].split("..")[0]) 
@@ -131,16 +149,20 @@ def substr(brick, start=0, end=0, feature_id=None):
                 new_features.append(feat) 
 
         for feat in new_features:
-            s = feat.location.parts[0].start.position 
-            e = feat.location.parts[-1].end.position            
+            strand = feat.location.strand
+            if strand == -1:
+                s = feat.location.parts[-1].start.position
+                e = feat.location.parts[0].end.position
+            else:
+                s = feat.location.parts[0].start.position
+                e = feat.location.parts[-1].end.position 
             if len(feat.location.parts) == 1 and s <= e:
-                strand = feat.location.strand 
                 if e > start and s < end:
                     feat = copy.deepcopy(feat) 
                     if s - start <= 0:
                         feat.location.parts[0]._start = ExactPosition(0)
                         if "note_dbrick" not in feat.qualifiers:
-                            feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(abs(s-start)+1, e-s, e-s) 
+                            feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(abs(s-start)+1, e-s, len(feat.original)) 
                         else:
                             note   = feat.qualifiers["note_dbrick"]
                             pos_s  = int(note.split(":")[0].split("..")[0]) + abs(s-start) 
@@ -156,7 +178,7 @@ def substr(brick, start=0, end=0, feature_id=None):
                     if feat.location.parts[-1]._end > end-start:
                         feat.location.parts[-1]._end = ExactPosition(end - start)
                         if "note_dbrick" not in feat.qualifiers:
-                            feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, end-s, e-s) 
+                            feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, end-s, len(feat.original)) 
                         else:
                             s      = int(feat.location.parts[0].start.position)
                             note   = feat.qualifiers["note_dbrick"]
@@ -169,7 +191,6 @@ def substr(brick, start=0, end=0, feature_id=None):
                     feat.location.strand = strand
                     feats.append(feat)
             else:
-                strand = feat.location.strand
                 length = e-s
                 locations = []
                 sflag = 0 
@@ -193,7 +214,7 @@ def substr(brick, start=0, end=0, feature_id=None):
                     if s - start <= 0 and sflag == 1:
                         locations[0][0] = ExactPosition(0)
                         if "note_dbrick" not in feat.qualifiers:
-                            feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(abs(s-start)+1, e-s, length) 
+                            feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(abs(s-start)+1, e-s, len(feat.original)) 
                         else:
                             note   = feat.qualifiers["note_dbrick"]
                             pos_s  = int(note.split(":")[0].split("..")[0]) + abs(s-start) 
@@ -207,7 +228,7 @@ def substr(brick, start=0, end=0, feature_id=None):
                     if e > end-start and eflag == 1:
                         locations[-1][1] = ExactPosition(end-start)
                         if "note_dbrick" not in feat.qualifiers:
-                            feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, end-s, length) 
+                            feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, end-s, len(feat.original)) 
                         else:
                             s      = int(locations[0][0])
                             note   = feat.qualifiers["note_dbrick"]
@@ -277,12 +298,11 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
     def slide(feats,slide):
         new_feats = []
         for feat in feats:
-            feat = copy.deepcopy(feat) 
-            s = feat.location.parts[0].start.position 
-            e = feat.location.parts[-1].end.position
+            feat = copy.deepcopy(feat)
             strand = feat.location.strand
-            feat.location.parts[0]._start = ExactPosition(s + slide) 
-            feat.location.parts[-1]._end  = ExactPosition(e + slide) 
+            for p in range(len(feat.location.parts)):
+                feat.location.parts[p]._start = ExactPosition(feat.location.parts[p].start.position + slide)
+                feat.location.parts[p]._end   = ExactPosition(feat.location.parts[p].end.position + slide)
             feat.location.strand = strand
             new_feats.append(feat)
         return new_feats 
@@ -350,9 +370,16 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
             feats2 = [feat for feat in feats if "note_dbrick" in feat.qualifiers]
             if len(feats1) > 0 and len(feats2) > 0:
                 for feat1 in feats1:
-                    s1, e1 = feat1.location.parts[0].start.position, feat1.location.parts[-1].end.position
+                    if feat1.location.strand == -1:
+                        s1, e1 = feat1.location.parts[-1].start.position, feat1.location.parts[0].end.position
+                    else:
+                        s1, e1 = feat1.location.parts[0].start.position, feat1.location.parts[-1].end.position
+
                     for feat2 in feats2:
-                        s2, e2 = feat2.location.parts[0].start.position - (len(construct.seq) - len(ovhg)), feat2.location.parts[-1].end.position - (len(construct.seq) - len(ovhg))
+                        if feat2.location.strand == -1:
+                            s2, e2 = feat2.location.parts[-1].start.position - (len(construct.seq) - len(ovhg)), feat2.location.parts[0].end.position - (len(construct.seq) - len(ovhg))
+                        else:
+                            s2, e2 = feat2.location.parts[0].start.position - (len(construct.seq) - len(ovhg)), feat2.location.parts[-1].end.position - (len(construct.seq) - len(ovhg))
                         if feat1.type == feat2.type:
                             flag = 0
                             for key in feat1.qualifiers:
@@ -380,8 +407,7 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
                                         note     = "{}..{}:{}".format(pos_s1, pos_e2, length1)
                                         new_seq  = construct.seq[s1:e1] + brick.seq[s2:e2] 
                                         new_feat = copy.deepcopy(construct.features[construct.features.index(feat1)]) 
-                                        strand   = new_feat.location.strand
-                                        
+                                        strand = new_feat.location.strand
                                         if len(feat1.location.parts) == 1 and len(feat2.location.parts) == 1:
                                             new_feat.location = FeatureLocation(feat1.location.parts[0].start.position, feat2.location.parts[-1].end.position, feat1.strand)
                                             new_feat.location.strand = strand
@@ -391,11 +417,19 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
                                                 locations.reverse() 
                                             new_feat.location = CompoundLocation(locations) 
                                             new_feat.locaiton.strand = strand 
+                                        
+                                        if strand == -1:
+                                            s = new_feat.location.parts[-1].start.position
+                                            e = new_feat.location.parts[0].end.position
+                                        else:
+                                            s = new_feat.location.parts[0].start.position
+                                            e = new_feat.location.parts[-1].end.position
+                                        
                                         #print(len(new_seq) - len(ovhg), new_feat.location.parts[-1].end.position, new_feat.location.parts[0].start.position, feat1.original)  
-                                        if len(new_seq) - len(ovhg) == new_feat.location.parts[-1].end.position - new_feat.location.parts[0].start.position and len(new_seq) - len(ovhg) <= len(feat1.original):
+                                        if len(new_seq) - len(ovhg) == e - s and len(new_seq) - len(ovhg) <= len(feat1.original):
                                             new_feat.qualifiers["note_dbrick"] = note
-                                            if pos_s1 == 1 and pos_s2 == length1:
-                                                del construct.features[construct.features.index(feat1)].qualifiers["note_dbrick"]
+                                            #if (pos_s1 == 1 and pos_e2 == length1) or (pos_s2 == 1 and pos_e1 == length1):
+                                            #    del construct.features[construct.features.index(feat1)].qualifiers["note_dbrick"]
                                             construct.features[construct.features.index(feat1)].location = new_feat.location
                                             del feats[feats.index(feat2)] 
                                             #print("delete", feat2)  
@@ -412,12 +446,18 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
     #    print("Same overhang sequences were detected from . The process will generate unexpected constructs.") 
 
     construct.features.sort(key=lambda x:x.location.parts[0].start.position)
+    for feat in construct.features:
+        if "note_dbrick" in feat.qualifiers:
+             note = feat.qualifiers["note_dbrick"]
+             pos_s  = int(note.split(":")[0].split("..")[0])
+             pos_e  = int(note.split(":")[0].split("..")[1])
+             length = int(note.split(":")[1])
+             if pos_s == 1 and pos_e == length:
+                del feat.qualifiers["note_dbrick"]
     new_record          = SeqRecord(Seq(str(construct.seq),Alphabet.DNAAlphabet()))
     new_record.features = construct.features
     new_record.annotations["topology"] = topology
-    construct.record = new_record 
-
-    
+    construct.record = new_record     
     if name == None:
         pass
     else:
@@ -610,11 +650,11 @@ def complement(brick):
         seq  = brick.seq.translate(str.maketrans("ATGC","TACG"))[::-1]
         feats = [] 
         for feat in brick.record.features:
-            s = feat.location.parts[0].start.position
-            e = feat.location.parts[-1].end.position
             strand = feat.location.strand
-            feat.location.parts[0]._start = ExactPosition(len(brick.seq) - e) 
-            feat.location.parts[-1]._end  = ExactPosition(len(brick.seq) - s) 
+            for p in range(len(feat.location.parts)):
+                s, e = feat.location.parts[p].start.position, feat.location.parts[p].end.position
+                feat.location.parts[p]._start = ExactPosition(len(brick.seq) - e) 
+                feat.location.parts[p]._end   = ExactPosition(len(brick.seq) - s) 
             if strand == 1 or strand == -1:
                 feat.location.strand = -1 * feat.location.strand
             else:
@@ -773,16 +813,17 @@ def pcr(brick, fw=None, rv=None, adaptor_fw=None, adaptor_rv=None, name=None):
     
     seq = brick.seq + brick.seq[:len(fw)-1]
     if seq.count(fw) > 1:
-        raise ValueError("Any unique sequence was not detected in the first index.")
+        raise ValueError("First sequence was not unique.")
     elif seq.count(fw) == 0:
-        raise ValueError("Any seqeunce in the first index was not found in subject.")
+        raise ValueError("First seqeucne was not found.")
+
     start = seq.find(fw) 
     
     seq = brick.seq + brick.seq[:len(rv)-1]
     if seq.count(rv_rc) > 1:
-        raise ValueError("Any unique sequence was not detected in the second index.")
+        raise ValueError("Second seqeunce was not unique")
     elif seq.count(rv_rc) == 0: 
-        raise ValueError("Any seqeunce in the second index was not found in subject.")
+        raise ValueError("Second sequence was not found")
     
     end = seq.find(rv_rc) + len(rv) 
     if end > len(brick.seq):
@@ -956,10 +997,16 @@ class Dbrick():
             subbrick = substr(self,item,item+1) 
 
         elif type(item) == str:
-            subbrick = substr(self, -1*abs(strand), abs(strand), feature_id=item)
-
+            if item.isdecimal() == True: 
+                subbrick = substr(self, -1*abs(strand), abs(strand), feature_id=item)
+            else:
+                subbrick = pcr(self, item.upper(), item.upper().translate(str.maketrans("ATGC","TACG"))[::-1])
+        
+        elif type(item) == Seq:
+            item = str(item) 
+            subbrick = pcr(self, item.upper(), item.upper().translate(str.maketrans("ATGC","TACG"))[::-1])
         else:
-            raise ValueError("Dbrick class only accept slice index.") 
+            raise ValueError("Invalid index type was specified.") 
     
     def __setitem__(self, key, value):
         if (type(value)== str and set(value) <= set("ATGCNatgcn")) or type(value) == Seq or type(value) == Dbrick:
@@ -1126,34 +1173,47 @@ class Dbrick():
     def view_seq(self):
         pass 
 
-    def add_feature(self, start=0, end=0, seq=None, strand=1, feature_type="misc_feature", qualifiers={}):
-        if seq == None:
-            pass 
-        
-        elif (type(other) == str and set(other) <= set("ATGCNatgcn")):
-            i = 0 
-            starts, ends = [], [] 
-            while seq in self.seq[i:]:
-                tmp = self.seq[i:].find(seq) 
-                i = i + tmp + 1
-                starts.append(i + tmp)
-                ends.append(i + tmp + len(seq))
-            
-            for start, end in zip(starts, ends):
-                add_feature(self, start=start, end=end, seq=None, strand=strand, feature_type=feature_type, qualifiers={})
-                print("New feature was added. Start:{}, End:{}:".format(start,end)) 
-        else:
-            pass
-
+    def add_feature(self, start, end=None, strand=1, feature_type="misc_feature", qualifiers={}):
         if type(qualifiers) != dict:
             raise TypeError("Invalid type for 'qualifiers'. 'qualifiers' should be specified as 'dict' object.") 
 
-        if type(start) == int and type(end) == int:
+        if (type(start) == str and set(start) <= set("ATGCNatgcn")) or type(start) == Seq or type(start) == Dbrick:
+            if type(start) == Seq:
+                seq = str(start).upper() 
+            elif type(start) == Dbrick:
+                seq = str(start.seq).upper()
+            else:
+                seq = start.upper() 
+
+            if strand == -1:
+                seq = seq.translate(str.maketrans("ATGC","TACG"))[::-1]
+
+            i = 0 
+            subject = self.seq + self.seq[:len(seq)-1]
+            starts, ends = [], [] 
+            while seq in subject[i:]:
+                tmp = subject[i:].find(seq) 
+                starts.append(i + tmp)
+                if i + tmp + len(seq) > len(self.seq):
+                    ends.append(i + tmp + len(seq) - len(self.seq)) 
+                else:
+                    ends.append(i + tmp + len(seq))
+                i = i + tmp + 1
+            
+            for start, end in zip(starts, ends):
+                self.add_feature(start=start, end=end, strand=strand, feature_type=feature_type, qualifiers=qualifiers)
+                print("New feature was added in the range of start {} to end {}.".format(start,end))     
+            
+            if len(starts) == 0:
+                print("The sequence was not found.") 
+            return None
+        
+        elif type(start) == int and type(end) == int:
             if start > end:
                 if self.topology == "linear":
                     raise ValueError("When you add feature to linear dbrick object, start value should be larger than end value.")
                 else:
-                    locations = [FeatureLocation(start, len(self.length)), FeatureLocation(0, end)]
+                    locations = [FeatureLocation(start, len(self.seq)), FeatureLocation(0, end)]
                     if strand == -1:
                         locations.reverse() 
                     feat = SeqFeature(CompoundLocation(locations), type=feature_type)
@@ -1161,14 +1221,14 @@ class Dbrick():
             else:
                 feat = SeqFeature(FeatureLocation(start, end, strand=strand), type=feature_type)
         
-        if type(start) == list and type(end) == list:
+        elif type(start) == list and type(end) == list:
             locations = [] 
             for s,e in zip(start,end):
                 if s > e:
                     if self.topology == "linear":
                         raise ValueError("When you add feature to linear dbrick object, start value should be larger than end value.")
                     else:
-                        locations.append(FeatureLocation(start, len(self.length), strand=strand))
+                        locations.append(FeatureLocation(start, len(self.seq), strand=strand))
                         locations.append(FeatureLocation(0, end, strand=strand))
                 else:
                     locations.append(FeatureLocation(start, end, strand=strand))
@@ -1210,8 +1270,13 @@ class Dbrick():
         
         feats = [] 
         for feat in self.features:
-            s = feat.location.parts[0].start.position 
-            e = feat.location.parts[-1].end.position
+            strand = feat.location.strand
+            if strand == -1:
+                s = feat.location.parts[-1].start.position 
+                e = feat.location.parts[0].end.position
+            else:
+                s = feat.location.parts[0].start.position 
+                e = feat.location.parts[-1].end.position
             if e > start and s < end:
                 feats.append(feat) 
         
@@ -1263,18 +1328,22 @@ class Dbrick():
                     label = feat.qualifiers[key][0]
                 else:
                     label = feat.qualifiers[key]
-            
-            start = feat.location.parts[0].start.position
-            end   = feat.location.parts[-1].end.position 
+            strand = feat.location.strand
+            if strand == -1:
+                start = feat.location.parts[-1].start.position
+                end   = feat.location.parts[0].end.position 
+            else:
+                start = feat.location.parts[0].start.position
+                end   = feat.location.parts[-1].end.position 
             
             _ids.append(str(_id)) 
             labels.append(str(label)) 
             types.append(str(feat.type)) 
             starts.append(str(start)) 
             ends.append(str(end))
-            if feat.location.strand == 1:
+            if strand == 1:
                 strands.append("+")
-            elif feat.location.strand == 0:
+            elif strand == 0:
                 strands.append("+") 
             else:
                 strands.append("-")
@@ -1379,11 +1448,20 @@ class Dbrick():
         remove_list = [] 
         feats1      = [feat for feat in self.features if "note_dbrick" in feat.qualifiers]
         for feat1 in feats1:
-            s1, e1 = feat1.location.parts[0].start.position, feat1.location.parts[-1].end.position
+            if feat1.location.strand == -1:
+                s1, e1 = feat1.location.parts[-1].start.position, feat1.location.parts[0].end.position
+            else:
+                s1, e1 = feat1.location.parts[0].start.position, feat1.location.parts[-1].end.position
+            
             for feat2 in feats1:
-                s2, e2 = feat2.location.parts[0].start.position, feat2.location.parts[-1].end.position
+                if feat2.location.strand == -1:
+                    s2, e2 = feat2.location.parts[-1].start.position, feat2.location.parts[0].end.position
+                else:
+                    s2, e2 = feat2.location.parts[0].start.position, feat2.location.parts[-1].end.position
+                
                 if feat1 == feat2 or feat1 in remove_list:
                     pass 
+                
                 elif feat1.type == feat2.type:
                     flag = 0
                     for key in feat1.qualifiers:

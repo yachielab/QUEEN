@@ -1,5 +1,5 @@
 LOCUS       .                      10282 bp    DNA     circular UNK 01-JAN-1980
-DEFINITION  ..
+DEFINITION  .
 ACCESSION   .
 VERSION     .
 KEYWORDS    .
@@ -27,7 +27,7 @@ FEATURES             Location/Qualifiers
      source          join(8166..10282,1..6605)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="2480..3693:8811"
+                     /note_dbrick="2118..3330:8811"
      promoter        complement(229..333)
                      /gene="bla"
                      /label="AmpR promoter"
@@ -38,7 +38,6 @@ FEATURES             Location/Qualifiers
      enhancer        603..982
                      /label="CMV enhancer"
                      /note="human cytomegalovirus immediate early enhancer"
-                     /note_dbrick="1..249:380"
      promoter        983..1186
                      /label="CMV promoter"
                      /note="human cytomegalovirus (CMV) immediate early
@@ -148,7 +147,6 @@ FEATURES             Location/Qualifiers
                      /label="UGI"
                      /translation="TNLSDIIEKETGKQLVIQESILMLPEEVEEVIGNKPESDILVHTA
                      YDESTDENVMLLTSDAPEYKPWALVIQDSNGENKIKML"
-                     /note_dbrick="1..249:249"
      source          7569..8162
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"

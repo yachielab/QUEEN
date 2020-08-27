@@ -1,5 +1,5 @@
 LOCUS       None                    8752 bp    DNA     circular UNK 01-JAN-1980
-DEFINITION  ..
+DEFINITION  .
 ACCESSION   None
 VERSION     None
 KEYWORDS    .
@@ -7,6 +7,10 @@ SOURCE      .
   ORGANISM  .
             .
 FEATURES             Location/Qualifiers
+     primer          1..33
+                     /label="RS045"
+     primer          complement(join(8746..8752,1..25))
+                     /label="RS048"
      source          14..5386
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
@@ -48,7 +52,10 @@ FEATURES             Location/Qualifiers
                      LALPSKYVNFLYLASHYEKLKGSPEDNEQKQLFVEQHKHYLDEIIEQISEFSKRVILAD
                      ANLDKVLSAYNKHRDKPIREQAENIIHLFTLTNLGAPAAFKYFDTTIDRKRYTSTKEVL
                      DATLIHQSITGLYETRIDLSQLGGD"
-                     /note_dbrick="1..2532:4104"
+     primer          complement(2562..2596)
+                     /label="HM129"
+     primer          2569..2603
+                     /label="HM128"
      CDS             4181..4201
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
@@ -74,6 +81,10 @@ FEATURES             Location/Qualifiers
                      /label="UGI"
                      /translation="MTNLSDIIEKETGKQLVIQESILMLPEEVEEVIGNKPESDILVHT
                      AYDESTDENVMLLTSDAPEYKPWALVIQDSNGENKIKML"
+     primer          complement(5364..5399)
+                     /label="RS046"
+     primer          5375..5409
+                     /label="RS047"
      source          join(5390..8752,1..16)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"

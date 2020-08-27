@@ -1,5 +1,5 @@
 LOCUS       None                    3439 bp    DNA     linear   UNK 01-JAN-1980
-DEFINITION  ..
+DEFINITION  .
 ACCESSION   None
 VERSION     None
 KEYWORDS    .
@@ -10,7 +10,6 @@ FEATURES             Location/Qualifiers
      source          7..3439
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="5844..8811:8811"
      primer_bind     complement(29..46)
                      /label="BGH-rev"
                      /note="Bovine growth hormone terminator, reverse primer.
@@ -80,7 +79,6 @@ FEATURES             Location/Qualifiers
      enhancer        2726..3105
                      /label="CMV enhancer"
                      /note="human cytomegalovirus immediate early enhancer"
-                     /note_dbrick="1..249:380"
      promoter        3106..3309
                      /label="CMV promoter"
                      /note="human cytomegalovirus (CMV) immediate early

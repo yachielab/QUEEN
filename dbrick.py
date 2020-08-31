@@ -123,25 +123,43 @@ def substr(brick, start=0, end=0, feature_id=None):
                     feat2.location = CompoundLocation(new_locations)
                     feat2.location.strnad = strand 
 
-                length = len(brick.seq) - s + e
                 if "note_dbrick" not in feat1.qualifiers:
-                    feat1.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, len(brick.seq)-s, len(feat1.original)) 
+                    if strand >= 0:
+                        feat1.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, len(brick.seq)-s, len(feat1.original)) 
+                    else:
+                        feat1.qualifiers["note_dbrick"] = "{}..{}:{}".format(len(brick.seq)-s, 1, len(feat1.original)) 
                 else:
                     note   = feat.qualifiers["note_dbrick"]
-                    pos_s  = int(note.split(":")[0].split("..")[0]) 
-                    pos_e  = int(note.split(":")[0].split("..")[1]) 
-                    length = int(note.split(":")[1])
-                    note   = "{}..{}:{}".format(pos_s, pos_s + len(brick.seq)-s, length)
+                    if strand >= 0:
+                        pos_s  = int(note.split(":")[0].split("..")[0]) 
+                        pos_e  = int(note.split(":")[0].split("..")[1]) 
+                        length = int(note.split(":")[1])
+                        note   = "{}..{}:{}".format(pos_s, pos_s + len(brick.seq)-s, length)
+                    else:
+                        pos_s  = int(note.split(":")[0].split("..")[0]) 
+                        pos_e  = int(note.split(":")[0].split("..")[1]) 
+                        length = int(note.split(":")[1])
+                        note   = "{}..{}:{}".format(pos_s, pos_s - (len(brick.seq)-s), length)
                     feat1.qualifiers["note_dbrick"] = note
+
                 
                 if "note_dbrick" not in feat2.qualifiers:
-                    feat2.qualifiers["note_dbrick"] = "{}..{}:{}".format(len(brick.seq)-s+1, len(brick.seq)-s+e, len(feat2.original)) 
+                    if strand >= 0:
+                        feat2.qualifiers["note_dbrick"] = "{}..{}:{}".format(len(brick.seq)-s+1, len(brick.seq)-s+e, len(feat2.original)) 
+                    else:
+                        feat2.qualifiers["note_dbrick"] = "{}..{}:{}".format(len(brick.seq)-s+e, len(brick.seq)-s+1, len(feat2.original)) 
                 else:
                     note   = feat.qualifiers["note_dbrick"]
-                    pos_s  = int(note.split(":")[0].split("..")[0]) 
-                    pos_e  = int(note.split(":")[0].split("..")[1]) 
-                    length = int(note.split(":")[1])
-                    note   = "{}..{}:{}".format(pos_s + len(brick.seq)-s, pos_e, length)
+                    if strand >= 0:
+                        pos_s  = int(note.split(":")[0].split("..")[0]) 
+                        pos_e  = int(note.split(":")[0].split("..")[1]) 
+                        length = int(note.split(":")[1])
+                        note   = "{}..{}:{}".format(pos_s + len(brick.seq)-s, pos_e, length)
+                    else:
+                        pos_s  = int(note.split(":")[0].split("..")[0]) 
+                        pos_e  = int(note.split(":")[0].split("..")[1]) 
+                        length = int(note.split(":")[1])
+                        note   = "{}..{}:{}".format(pos_s - (len(brick.seq)-s), pos_e, length)
                     feat2.qualifiers["note_dbrick"] = note
                 new_features.append(feat1)
                 new_features.append(feat2)
@@ -162,13 +180,23 @@ def substr(brick, start=0, end=0, feature_id=None):
                     if s - start <= 0:
                         feat.location.parts[0]._start = ExactPosition(0)
                         if "note_dbrick" not in feat.qualifiers:
-                            feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(abs(s-start)+1, e-s, len(feat.original)) 
+                            if strand >= 0:
+                                feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(abs(s-start)+1, e-s, len(feat.original)) 
+                            else:
+                                feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(e-s, abs(s-start)+1, len(feat.original)) 
                         else:
-                            note   = feat.qualifiers["note_dbrick"]
-                            pos_s  = int(note.split(":")[0].split("..")[0]) + abs(s-start) 
-                            pos_e  = int(note.split(":")[0].split("..")[1]) 
-                            length = int(note.split(":")[1])
-                            note   = "{}..{}:{}".format(pos_s, pos_e, length)
+                            if strand >= 0:
+                                note   = feat.qualifiers["note_dbrick"]
+                                pos_s  = int(note.split(":")[0].split("..")[0]) + abs(s-start) 
+                                pos_e  = int(note.split(":")[0].split("..")[1]) 
+                                length = int(note.split(":")[1])
+                                note   = "{}..{}:{}".format(pos_s, pos_e, length)
+                            else:
+                                note   = feat.qualifiers["note_dbrick"]
+                                pos_s  = int(note.split(":")[0].split("..")[0]) - abs(s-start) 
+                                pos_e  = int(note.split(":")[0].split("..")[1]) 
+                                length = int(note.split(":")[1])
+                                note   = "{}..{}:{}".format(pos_s, pos_e, length)
                             feat.qualifiers["note_dbrick"] = note
                     else:
                         feat.location.parts[0]._start = ExactPosition(s - start) 
@@ -178,16 +206,25 @@ def substr(brick, start=0, end=0, feature_id=None):
                     if feat.location.parts[-1]._end > end-start:
                         feat.location.parts[-1]._end = ExactPosition(end - start)
                         if "note_dbrick" not in feat.qualifiers:
-                            feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, end-s, len(feat.original)) 
+                            if strand >= 0: 
+                                feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, end-s, len(feat.original)) 
+                            else:
+                                feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(end-s, 1, len(feat.original)) 
                         else:
-                            s      = int(feat.location.parts[0].start.position)
-                            note   = feat.qualifiers["note_dbrick"]
-                            pos_s  = int(note.split(":")[0].split("..")[0])
-                            pos_e  = int(note.split(":")[0].split("..")[1]) 
-                            length = int(note.split(":")[1])
-                            note   = "{}..{}:{}".format(pos_s, pos_s + (end-start-s) - 1, length)
+                            s = int(feat.location.parts[0].start.position)
+                            if strand >= 0:
+                                note   = feat.qualifiers["note_dbrick"]
+                                pos_s  = int(note.split(":")[0].split("..")[0])
+                                pos_e  = int(note.split(":")[0].split("..")[1]) 
+                                length = int(note.split(":")[1])
+                                note   = "{}..{}:{}".format(pos_s, pos_s + (end-start-s)-1, length)
+                            else:
+                                note   = feat.qualifiers["note_dbrick"]
+                                pos_s  = int(note.split(":")[0].split("..")[0])
+                                pos_e  = int(note.split(":")[0].split("..")[1]) 
+                                length = int(note.split(":")[1])
+                                note   = "{}..{}:{}".format(pos_s, pos_s - (end-start-s)+1, length)
                             feat.qualifiers["note_dbrick"] = note
-                    
                     feat.location.strand = strand
                     feats.append(feat)
             else:
@@ -214,13 +251,23 @@ def substr(brick, start=0, end=0, feature_id=None):
                     if s - start <= 0 and sflag == 1:
                         locations[0][0] = ExactPosition(0)
                         if "note_dbrick" not in feat.qualifiers:
-                            feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(abs(s-start)+1, e-s, len(feat.original)) 
+                            if strand >= 0:
+                                feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(abs(s-start)+1, e-s, len(feat.original)) 
+                            else:
+                                feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(e-s, abs(s-start)+1, len(feat.original)) 
                         else:
-                            note   = feat.qualifiers["note_dbrick"]
-                            pos_s  = int(note.split(":")[0].split("..")[0]) + abs(s-start) 
-                            pos_e  = int(note.split(":")[0].split("..")[1]) 
-                            length = int(note.split(":")[1])
-                            note   = "{}..{}:{}".format(pos_s, pos_e, length)
+                            if strand >= 0:
+                                note   = feat.qualifiers["note_dbrick"]
+                                pos_s  = int(note.split(":")[0].split("..")[0]) + abs(s-start) 
+                                pos_e  = int(note.split(":")[0].split("..")[1]) 
+                                length = int(note.split(":")[1])
+                                note   = "{}..{}:{}".format(pos_s, pos_e, length)
+                            else:
+                                note   = feat.qualifiers["note_dbrick"]
+                                pos_s  = int(note.split(":")[0].split("..")[0]) - abs(s-start) 
+                                pos_e  = int(note.split(":")[0].split("..")[1]) 
+                                length = int(note.split(":")[1])
+                                note   = "{}..{}:{}".format(pos_s, pos_e, length)
                             feat.qualifiers["note_dbrick"] = note
                     else:
                         locations[0][0] = ExactPosition(s - start)
@@ -231,11 +278,18 @@ def substr(brick, start=0, end=0, feature_id=None):
                             feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, end-s, len(feat.original)) 
                         else:
                             s      = int(locations[0][0])
-                            note   = feat.qualifiers["note_dbrick"]
-                            pos_s  = int(note.split(":")[0].split("..")[0])
-                            pos_e  = int(note.split(":")[0].split("..")[1]) 
-                            length = int(note.split(":")[1])
-                            note   = "{}..{}:{}".format(pos_s, pos_s + (end-start-s)-1, length)
+                            if strand  >= 0:
+                                note   = feat.qualifiers["note_dbrick"]
+                                pos_s  = int(note.split(":")[0].split("..")[0])
+                                pos_e  = int(note.split(":")[0].split("..")[1]) 
+                                length = int(note.split(":")[1])
+                                note   = "{}..{}:{}".format(pos_s, pos_s + (end-start-s)-1, length)
+                            else:
+                                note   = feat.qualifiers["note_dbrick"]
+                                pos_s  = int(note.split(":")[0].split("..")[0])
+                                pos_e  = int(note.split(":")[0].split("..")[1]) 
+                                length = int(note.split(":")[1])
+                                note   = "{}..{}:{}".format(pos_s, pos_s - (end-start-s)+1, length)
                             feat.qualifiers["note_dbrick"] = note
                     else:
                         locations[-1][1] = ExactPosition(e - start)
@@ -257,7 +311,8 @@ def substr(brick, start=0, end=0, feature_id=None):
                             locations.reverse()
                         feat.location = CompoundLocation(locations)
                     feats.append(feat)
-                    
+        
+       
         feats.sort(key=lambda x:(x.location.parts[0].start.position, x.location.parts[-1].end.position))
         sub_brick     = copy.deepcopy(brick)
         sub_brick.seq = brick.seq[start:end]
@@ -278,7 +333,7 @@ def substr(brick, start=0, end=0, feature_id=None):
             sub_brick.right_end_bottom   = brick.right_end_bottom
 
         else:
-            sub_brick.right_end          = sub_brick.seq[-20:0]
+            sub_brick.right_end          = sub_brick.seq[-20:]
             sub_brick.right_end_top      = 1
             sub_brick.right_end_bottom   = 1
 
@@ -323,7 +378,7 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
                             sticky_end = brick.left_end 
                         else:
                             sticky_end = construct.right_end
-                        print("Joined Dbrick objects based on complementary sticky end of each DNA sequence. The sticky end is '{}'".format(sticky_end)) 
+                        print("Based on complementary sticky end of each fragment, the Dbrick objects were joined. The sticky end is '{}'".format(sticky_end)) 
                         LIG = 1
                     
                     ovhg = brick.left_end
@@ -338,7 +393,7 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
                         ovhg = brick.left_end
                         new_brick = substr(brick, len(ovhg), len(brick.seq)) 
                         ovhgs.append(str(ovhg))
-                        print("Joined Dbrick objects based on sequence homology at the end of each DNA sequence. The overhang sequence is '{}'".format(ovhg)) 
+                        print("Based on sequence homology at the end of each fragment, the Dbrick objects were joined. The overhang sequence is '{}'".format(ovhg)) 
                     
                     else:
                         flag = 0 
@@ -352,7 +407,7 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
                             construct.right_end = brick.left_end 
                             new_brick = substr(brick, len(ovhg), len(brick.seq)) 
                             ovhgs.append(str(ovhg))
-                            print("Joined Dbrick objects based on sequence homology at the end of each DNA sequence. The overhang sequence is '{}'".format(ovhg)) 
+                            print("Based on sequence homology at the end of each fragment, the Dbrick objects were joined. The overhang sequence is '{}'".format(ovhg)) 
 
                         else:
                             print("The adjacent Dbrick objects were not able to be joined. Please set a common overhang sequence between the Dbrick objects.")
@@ -400,39 +455,32 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
                                 pos_s2  = int(note2.split(":")[0].split("..")[0])
                                 pos_e2  = int(note2.split(":")[0].split("..")[1]) 
                                 length2 = int(note2.split(":")[1])
-                                
-                                if length1 == length2:
-                                    #print(feat1,feat2,"original" in feat1.__dict__ and "original" in feat2.__dict__ and feat1.original == feat2.original)
-                                    if "original" in feat1.__dict__ and "original" in feat2.__dict__ and feat1.original == feat2.original and s2 == 0:
-                                        note     = "{}..{}:{}".format(pos_s1, pos_e2, length1)
-                                        new_seq  = construct.seq[s1:e1] + brick.seq[s2:e2] 
-                                        new_feat = copy.deepcopy(construct.features[construct.features.index(feat1)]) 
-                                        strand = new_feat.location.strand
-                                        if len(feat1.location.parts) == 1 and len(feat2.location.parts) == 1:
-                                            new_feat.location = FeatureLocation(feat1.location.parts[0].start.position, feat2.location.parts[-1].end.position, feat1.strand)
-                                            new_feat.location.strand = strand
-                                        else:
-                                            locations = feat1.location.parts[0:-1] + [FeatureLocation(feat1.location.parts[-1].start.position, feat2.location.parts[0].end.position, feat1.strand)] + feat2.location.parts[0:-1]
-                                            if strand == -1:
-                                                locations.reverse() 
-                                            new_feat.location = CompoundLocation(locations) 
-                                            new_feat.locaiton.strand = strand 
-                                        
+                                if length1 == length2 and "original" in feat1.__dict__ and "original" in feat2.__dict__ and feat1.original == feat2.original and s2 == 0 and feat1.location.strand == feat2.location.strand:
+                                    note     = "{}..{}:{}".format(pos_s1, pos_e2, length1)
+                                    new_seq  = construct.seq[s1:e1] + brick.seq[s2:e2] 
+                                    new_feat = copy.deepcopy(construct.features[construct.features.index(feat1)]) 
+                                    strand = new_feat.location.strand
+                                    if len(feat1.location.parts) == 1 and len(feat2.location.parts) == 1:
+                                        new_feat.location = FeatureLocation(feat1.location.parts[0].start.position, feat2.location.parts[-1].end.position, feat1.strand)
+                                        new_feat.location.strand = strand
+                                    else:
+                                        locations = feat1.location.parts[0:-1] + [FeatureLocation(feat1.location.parts[-1].start.position, feat2.location.parts[0].end.position, feat1.strand)] + feat2.location.parts[0:-1]
                                         if strand == -1:
-                                            s = new_feat.location.parts[-1].start.position
-                                            e = new_feat.location.parts[0].end.position
-                                        else:
-                                            s = new_feat.location.parts[0].start.position
-                                            e = new_feat.location.parts[-1].end.position
-                                        
-                                        #print(len(new_seq) - len(ovhg), new_feat.location.parts[-1].end.position, new_feat.location.parts[0].start.position, feat1.original)  
-                                        if len(new_seq) - len(ovhg) == e - s and len(new_seq) - len(ovhg) <= len(feat1.original):
-                                            new_feat.qualifiers["note_dbrick"] = note
-                                            #if (pos_s1 == 1 and pos_e2 == length1) or (pos_s2 == 1 and pos_e1 == length1):
-                                            #    del construct.features[construct.features.index(feat1)].qualifiers["note_dbrick"]
-                                            construct.features[construct.features.index(feat1)].location = new_feat.location
-                                            del feats[feats.index(feat2)] 
-                                            #print("delete", feat2)  
+                                            locations.reverse() 
+                                        new_feat.location = CompoundLocation(locations) 
+                                        new_feat.locaiton.strand = strand 
+                                    
+                                    if strand == -1:
+                                        s = new_feat.location.parts[-1].start.position
+                                        e = new_feat.location.parts[0].end.position
+                                    else:
+                                        s = new_feat.location.parts[0].start.position
+                                        e = new_feat.location.parts[-1].end.position
+                                    
+                                    if len(new_seq) - len(ovhg) == e - s and len(new_seq) - len(ovhg) <= len(feat1.original):
+                                        construct.features[construct.features.index(feat1)].qualifiers["note_dbrick"] = note
+                                        construct.features[construct.features.index(feat1)].location = new_feat.location
+                                        del feats[feats.index(feat2)] 
             construct.features = construct.features + feats
             construct.seq               = construct.seq + new_brick.seq 
             construct.right_end         = brick.right_end
@@ -442,9 +490,6 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
             construct.topology      = "linear"
             ovhg = brick.right_end
     
-    #if len(ovhgs) != len(set(ovhgs)): 
-    #    print("Same overhang sequences were detected from . The process will generate unexpected constructs.") 
-
     construct.features.sort(key=lambda x:x.location.parts[0].start.position)
     for feat in construct.features:
         if "note_dbrick" in feat.qualifiers:
@@ -452,7 +497,7 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
              pos_s  = int(note.split(":")[0].split("..")[0])
              pos_e  = int(note.split(":")[0].split("..")[1])
              length = int(note.split(":")[1])
-             if pos_s == 1 and pos_e == length:
+             if (pos_s == 1 and pos_e == length) or (pos_s == length and pos_e == 1):
                 del feat.qualifiers["note_dbrick"]
     new_record          = SeqRecord(Seq(str(construct.seq),Alphabet.DNAAlphabet()))
     new_record.features = construct.features
@@ -588,19 +633,16 @@ def shell(brick, left="", right="", add=0):
         right_length = len(right_end)
         rihgt_end_top    = 1 
         right_end_bottom = 1
-    #print(brick.seq[left_end_length-left_length:left_end_length-left_length+len(left_end)], str(brick[len(brick.seq)-right_end_length + right_length - len(right_end):len(brick.seq)-right_end_length + right_length].seq))
+    
     if add == 1 or (left_end != brick.seq[left_end_length-left_length:left_end_length-left_length+len(left_end)] or right_end != str(brick[len(brick.seq)-right_end_length + right_length - len(right_end):len(brick.seq)-right_end_length + right_length].seq)):
-        #print(1, left_end_length, right_end_length, len(brick.seq))
         left_end  = Dbrick(seq=left_end) 
         right_end = Dbrick(seq=right_end) 
         brick     = join_dbricks(left_end, brick, right_end, ovhg_check=False)
         brick.left_end  = left_end.seq
         brick.right_end = right_end.seq
     else:
-        #print(2, left_end_length, right_end_length)
         left_end  = Dbrick(seq=left_end) 
         right_end = Dbrick(seq=right_end)
-        #brick = join_dbricks(left_end, brick[left_end_length-left_length+len(left_end.seq):len(brick.seq)-right_end_length + right_length - len(right_end.seq)], right_end, ovhg_check=False)
         brick = brick[left_end_length-left_length:len(brick.seq)-right_end_length + right_length]
         brick.left_end  = left_end.seq
         brick.right_end = right_end.seq
@@ -640,7 +682,7 @@ def get_target(bricks, target_seq=None, target_annotation=None):
         print("Please specify the arguments 'target_seq' or 'target_annotation'.")
         return False
 
-def complement(brick):
+def reverse_complement(brick):
     """
     Return reverse complement sequence. 
     All feature information is also reversed with the sequence.
@@ -657,6 +699,13 @@ def complement(brick):
                 feat.location.parts[p]._end   = ExactPosition(len(brick.seq) - s) 
             if strand == 1 or strand == -1:
                 feat.location.strand = -1 * feat.location.strand
+                if "note_dbrick" in feat.qualifiers:
+                    note = feat.qualifiers["note_dbrick"]
+                    pos_s  = int(note.split(":")[0].split("..")[0])
+                    pos_e  = int(note.split(":")[0].split("..")[1])
+                    length = int(note.split(":")[1])
+                    note = "{}..{}:{}".format(pos_e, pos_s, length)
+                    feat.qualifiers["note_dbrick"] = note
             else:
                 feat.location.strand = strand
             feats.append(feat)
@@ -834,24 +883,24 @@ def pcr(brick, fw=None, rv=None, adaptor_fw=None, adaptor_rv=None, name=None):
     
     if len(adaptor_rv) > 0:     
         adaptor_rv_brick = substr(rv_brick, start = 0,  end = len(adaptor_rv))
-        adaptor_rv_brick = complement(adaptor_rv_brick) 
+        adaptor_rv_brick = reverse_complement(adaptor_rv_brick) 
     
     amplicon   = substr(brick, start, end) 
     if len(adaptor_fw) > 0 and len(adaptor_rv) > 0:
         product = join_dbricks(adaptor_fw_brick, amplicon, adaptor_rv_brick, ovhg_check=False)
-        print("Start:{}, End:{}, Adapter sequneces were detected at both ends. Right redundant sequence is {}, Left redundant sequence is {}.".format(start+1, end, adaptor_fw, adaptor_rv))
+        print("The region from start {} to end {} was extracted. Adapter sequneces were detected at both ends. Right redundant sequence is {}, Left redundant sequence is {}.".format(start+1, end, adaptor_fw, adaptor_rv))
 
     elif len(adaptor_fw) > 0:
         product = join_dbricks(adaptor_fw_brick, amplicon, ovhg_check=False)
-        print("Start:{}, End:{}, Adapter sequnece was detected at right end. The sequence is {}.".format(start+1, end, adaptor_fw))
+        print("The region from start {} to end {} was extracted. Adapter sequnece was detected at right end. The sequence is {}.".format(start+1, end, adaptor_fw))
 
     elif len(adaptor_rv) > 0:
         product = join_dbricks(amplicon, adaptor_rv_brick, ovhg_check=False)
-        print("Start:{}, End:{}, Adapter sequnece was detected at left end. The nsequence is {}.".format(start+1, end, adaptor_rv))
+        print("The region from start {} to end {} was extracted. Adapter sequnece was detected at left end. The nsequence is {}.".format(start+1, end, adaptor_rv))
 
     else:
         product = amplicon       
-        print("Start:{}, End:{}".format(start+1, end))
+        print("The region from start {} to end {} was extracted.".format(start+1, end))
 
     return product
 
@@ -989,7 +1038,7 @@ class Dbrick():
             
             subbrick.source = self
             if strand == -1 or strand < 0:
-                return complement(subbrick)
+                return reverse_complement(subbrick)
             else:
                return subbrick 
         
@@ -1079,7 +1128,7 @@ class Dbrick():
             elif type(start) == str and type(end) == str and set(start) <= set("ATGCNatgcn") and set(end) <= set("ATGCNatgcn"):
                 _end  = end
                 start = str(self.seq).find(start) 
-                end   = str(self.seq).find(str(complement(_end).seq)) + len(_end) 
+                end   = str(self.seq).find(str(reverse_complement(_end).seq)) + len(_end) 
                 if start < 0:
                     raise ValueError("First index was not found in the sequence of the 'Dbrick' object.") 
                 
@@ -1170,8 +1219,42 @@ class Dbrick():
         else:
             return join_dbricks(other, self, ovhg_check=True, min_overlap=Dbrick.min_overlap, max_overlap=Dbrick.max_overlap) 
 
-    def view_seq(self):
-        pass 
+    def view_seq(self, whole=False, flength=None):
+        if flength == None:
+            if len(self.seq) - len(self.right_end) - len(self.left_end) > 100:
+                flength = 5 
+            elif len(self.seq) - len(self.right_end) - len(self.left_end) > 10:
+                flength = 2 
+            else:
+                flength = 0 
+            
+        seq_rc = self.seq.translate(str.maketrans("ATGC","TACG"))[::-1]
+        if self.left_end_top == 1:
+            left_end_top = self.seq[:len(self.left_end)+flength]
+        else:
+            left_end_top = " " * len(self.left_end) + self.seq[len(self.left_end):len(self.left_end)+flength] 
+        
+        if self.left_end_bottom == 1:
+            left_end_bottom = self.seq[:len(self.left_end)+flength].translate(str.maketrans("ATGC","TACG")) 
+        else:
+            left_end_bottom = " " * len(self.left_end) + self.seq[len(self.left_end):len(self.left_end)+flength].translate(str.maketrans("ATGC","TACG"))
+        
+        if self.right_end_top == 1:
+            right_end_top = self.seq[len(self.seq)-len(self.right_end)-flength:]
+        else:
+            right_end_top = self.seq[len(self.seq)-len(self.right_end)-flength:len(self.seq)-len(self.right_end)] + " " * len(self.right_end) 
+        
+        if self.right_end_bottom == 1:
+            right_end_bottom = self.seq[len(self.seq)-len(self.right_end)-flength:].translate(str.maketrans("ATGC","TACG"))
+        else:
+            right_end_bottom = self.seq[len(self.seq)-len(self.right_end)-flength:len(self.seq)-len(self.right_end)].translate(str.maketrans("ATGC","TACG")) + " " * len(right_end)        
+        
+        if whole == False:
+            print("{}...{}".format(left_end_top, right_end_top))
+            print("{}...{}".format(left_end_bottom, right_end_bottom))
+        else:
+            print("{}{}{}".format(left_end_top, self.seq[len(self.left_end)+flength:len(self.seq)-len(self.right_end)-flength], right_end_top))
+            print("{}{}{}".format(left_end_bottom, self.seq[len(self.left_end)+flength:len(self.seq)-len(self.right_end)-flength].translate(str.maketrans("ATGC","TACG")), right_end_bottom))
 
     def add_feature(self, start, end=None, strand=1, feature_type="misc_feature", qualifiers={}):
         if type(qualifiers) != dict:
@@ -1385,14 +1468,21 @@ class Dbrick():
             for key in abrick.__dict__.keys():
                 self.__dict__[key] = abrick.__dict__[key] 
             
-    def write(self, handle, format="genbank", reindex=0):
+    def write(self, handle, format="genbank"):
+        features = copy.deepcopy(self.features)
+        for feat in features:
+            if "note_dbrick" in feat.qualifiers:
+                note = feat.qualifiers["note_dbrick"]
+                pos_s  = int(note.split(":")[0].split("..")[0])
+                pos_e  = int(note.split(":")[0].split("..")[1])
+                length = int(note.split(":")[1])
+                if (pos_s == 1 and pos_e == length) or (pos_s == length and pos_e == 1):
+                    del feat.qualifiers["note_dbrick"]
+        self.record.features = features 
         self.record.id = self.name
-        if reindex == 0:
-            SeqIO.write(self.record, handle, format)
-        else:
-            self.reindex(reindex)
-            SeqIO.write(self.record, handle, format)
-    
+        SeqIO.write(self.record, handle, format)
+        self.record.features = self.features
+
     def linearize(self):
         abrick = substr(self, 0, len(self.seq))
         for key in abrick.__dict__.keys():
@@ -1408,14 +1498,14 @@ class Dbrick():
 
         if ovhg_check == True:
             if str(self.right_end) == str(self.left_end) and (self.right_end_top * self.left_end_bottom == 1 and self.right_end_bottom * self.left_end_top == 1) and len(self.right_end) > 0:
-                print("Circularization based on complementary sticky end between 3' end and 5' end. Sticky end is '{}'".format(self.left_end)) 
+                print("Based on complementary sticky end between 3' end and 5' end, the Dbrick object was circularized. The sticky end is '{}'".format(self.left_end)) 
                 ovhg = self.right_end
                 brick = substr(self, 0, len(self.seq)-len(self.right_end))
                 self.seq      = brick.seq
                 self.record   = brick.record
 
             elif str(self.right_end) == str(self.left_end) and len(self.right_end) > 0 and self.right_end_top == 1 and self.right_end_bottom == 1 and self.left_end_top == 1 and self.left_end_bottom == 1:
-                print("Circularization based on sequence homology between 3' end and 5' end. Overhang sequence is '{}'.".format(self.left_end)) 
+                print("Based on sequence homology between 3' end and 5' end, the Dbrick object was circularized. The overhang sequence is '{}'.".format(self.left_end)) 
                 ovhg = self.right_end
                 brick = substr(self, 0, len(self.seq)-len(self.right_end))
                 self.seq      = brick.seq
@@ -1423,7 +1513,6 @@ class Dbrick():
             
             elif self.right_end_top == 1 and self.right_end_bottom == 1 and self.left_end_top == 1 and self.left_end_bottom == 1:
                 #Gibson assembly
-
                 flag = 0
                 for i in range(Dbrick.min_overlap,Dbrick.max_overlap):
                     if self.seq[:i] == self.seq[-1*i:]:
@@ -1436,7 +1525,7 @@ class Dbrick():
                     brick  = substr(self, 0, len(self.seq)-i)
                     self.seq      = brick.seq
                     self.record   = brick.record
-                    print("Circularization based on sequence homology between 3' end and 5' end. Overhang sequence is '{}'".format(ovhg))
+                    print("Based on sequence homology between 3' end and 5' end, the Dbrick object was circularized. The overhang sequence is '{}'".format(ovhg))
                 else:
                     return False
             
@@ -1500,7 +1589,6 @@ class Dbrick():
                                     self.features[self.features.index(feat1)].location = new_feat.location
                                     self.features.remove(feat2)  
                                     remove_list.append(feat2) 
-                                    #print("delete", feat2) 
             
         for i in range(len(self.features)):    
             if self.features[i].location.parts[-1].end.position > len(self.seq): #and feats_origin[i].type == "source":
@@ -1515,7 +1603,6 @@ class Dbrick():
                         locations.reverse() 
                     self.features[i].location = CompoundLocation(locations)
                     self.features[i].location.strand = strand
-                    #print(feats_origin[i].location) 
         
         self.record.features = self.features
         self.left_end  = ""
@@ -1527,5 +1614,5 @@ class Dbrick():
         self.right_end_bottom = 0 
 
         self.topology = "circular"
-        self.record.seq      = Seq(str(self.seq),Alphabet.DNAAlphabet())
+        self.record.seq = Seq(str(self.seq),Alphabet.DNAAlphabet())
         self.record.annotations["topology"] = self.topology

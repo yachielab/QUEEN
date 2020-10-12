@@ -1,7 +1,7 @@
-LOCUS       None                    8332 bp    DNA     circular UNK 01-JAN-1980
+LOCUS       .                       8332 bp    DNA     circular UNK 01-JAN-1980
 DEFINITION  ..
-ACCESSION   None
-VERSION     None
+ACCESSION   .
+VERSION     .
 KEYWORDS    .
 SOURCE      .
   ORGANISM  .
@@ -9,16 +9,16 @@ SOURCE      .
 FEATURES             Location/Qualifiers
      primer          1..50
                      /label="RS760"
-                     /note_dbrick="5..54:54"
+                     /note_dbrick="RS760:5..54:54"
      regulatory      33
                      /regulatory_class="other"
                      /note="vertebrate consensus sequence for strong initiation
                      of translation (Kozak, 1987)"
-                     /note_dbrick="10..10:10"
+                     /note_dbrick="regulatory:10..10:10"
      source          33..749
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="4760..5476:7435"
+                     /note_dbrick=".:4760..5476:7435"
      CDS             33..749
                      /codon_start=1
                      /product="enhanced GFP"
@@ -29,7 +29,7 @@ FEATURES             Location/Qualifiers
                      GNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIK
                      VNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLL
                      EFVTAAGITLGMDELYK"
-                     /note_dbrick="4..720:720"
+                     /note_dbrick="EGFP:4..720:720"
      primer_bind     complement(75..96)
                      /label="EGFP-N"
                      /note="EGFP, reverse primer"
@@ -41,11 +41,11 @@ FEATURES             Location/Qualifiers
                      /note="EGFP, forward primer"
      primer          complement(730..754)
                      /label="SI680"
-                     /note_dbrick="26..2:30"
+                     /note_dbrick="SI680:26..2:30"
      source          join(751..8332,1..4)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="2836..10421:7614"
+                     /note_dbrick=".:2836..10421:7614"
      promoter        765..1264
                      /label="PGK promoter"
                      /note="mouse phosphoglycerate kinase 1 promoter"

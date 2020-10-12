@@ -9,16 +9,16 @@ SOURCE      .
 FEATURES             Location/Qualifiers
      primer          1..45
                      /label="BC2_FW"
-                     /note_dbrick="5..49:49"
+                     /note_dbrick="BC2_FW:5..49:49"
      regulatory      27..29
                      /regulatory_class="other"
                      /note="vertebrate consensus sequence for strong initiation
                      of translation (Kozak, 1987)"
-                     /note_dbrick="8..10:10"
+                     /note_dbrick="regulatory:8..10:10"
      source          27..745
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="4758..5476:7435"
+                     /note_dbrick=".:4758..5476:7435"
      CDS             27..745
                      /codon_start=1
                      /product="enhanced GFP"
@@ -29,7 +29,7 @@ FEATURES             Location/Qualifiers
                      GNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIK
                      VNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLL
                      EFVTAAGITLGMDELYK"
-                     /note_dbrick="2..720:720"
+                     /note_dbrick="EGFP:2..720:720"
      primer_bind     complement(71..92)
                      /label="EGFP-N"
                      /note="EGFP, reverse primer"
@@ -41,11 +41,11 @@ FEATURES             Location/Qualifiers
                      /note="EGFP, forward primer"
      primer          complement(726..750)
                      /label="SI680"
-                     /note_dbrick="26..2:30"
+                     /note_dbrick="SI680:26..2:30"
      source          join(747..8328,1..4)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="2836..10421:7614"
+                     /note_dbrick=".:2836..10421:7614"
      promoter        761..1260
                      /label="PGK promoter"
                      /note="mouse phosphoglycerate kinase 1 promoter"

@@ -874,7 +874,7 @@ def reverse_complement(brick):
                 feat.location.strand = -1 * feat.location.strand
                 if "note_dbrick" in feat.qualifiers:
                     note   = feat.qualifiers["note_dbrick"]
-                    label  = note(":")[0]
+                    label  = note.split(":")[0]
                     pos_s  = int(note.split(":")[1].split("..")[0])
                     pos_e  = int(note.split(":")[1].split("..")[1])
                     length = int(note.split(":")[2])

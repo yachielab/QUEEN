@@ -120,6 +120,10 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                 note   = feat.qualifiers["note_dbrick"]
                 if type(note) == list:
                     note   = feat.qualifiers["note_dbrick"][0]
+                
+                pos_s  = int(note.split(":")[1].split("..")[0]) 
+                pos_e  = int(note.split(":")[1].split("..")[1])
+                feat_length = int(note.split(":")[2])
                 if (pos_s != 1 or pos_e != feat_length):
                     label = note
 

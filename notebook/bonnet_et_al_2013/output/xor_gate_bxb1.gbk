@@ -1,7 +1,7 @@
-LOCUS       None                    4935 bp    DNA     circular UNK 01-JAN-1980
+LOCUS       xor_gate_bxb1           4935 bp    DNA     circular UNK 01-JAN-1980
 DEFINITION  ..
-ACCESSION   None
-VERSION     None
+ACCESSION   xor_gate_bxb1
+VERSION     xor_gate_bxb1
 KEYWORDS    .
 SOURCE      .
   ORGANISM  .
@@ -10,10 +10,10 @@ FEATURES             Location/Qualifiers
      source          complement(1..193)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="345..153:4935"
+                     /note_dbrick="addgene_44453:345..153:4935"
      misc_feature    1..26
                      /label="bxb1_attp"
-                     /note_dbrick="1..26:53"
+                     /note_dbrick="bxb1_attp:1..26:53"
      terminator      complement(39..66)
                      /label="T7Te terminator"
                      /note="phage T7 early transcription terminator"
@@ -23,14 +23,14 @@ FEATURES             Location/Qualifiers
                      gene"
      misc_feature    complement(168..193)
                      /label="bxb1_attb"
-                     /note_dbrick="49..24:49"
+                     /note_dbrick="bxb1_attb:49..24:49"
      misc_feature    complement(192..220)
                      /label="bxb1_attp"
-                     /note_dbrick="53..25:53"
+                     /note_dbrick="bxb1_attp:53..25:53"
      source          join(192..4935,1..2)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="344..154:4935"
+                     /note_dbrick="addgene_44453:344..154:4935"
      misc_feature    complement(221..270)
                      /label="tp901_attp"
      misc_RNA        273..322
@@ -112,7 +112,7 @@ FEATURES             Location/Qualifiers
                      /label="tp901_attb"
      misc_feature    join(4913..4935,1..2)
                      /label="bxb1_attb"
-                     /note_dbrick="1..25:49"
+                     /note_dbrick="bxb1_attb:1..25:49"
 ORIGIN
         1 gtctcagtgg tgtacggtac aaacccatgc attataaacg cagaaaggcc cacccgaagg
        61 tgagccagtg tgactctagt agagagcgtt caccgacaaa caacagataa aacgaaaggc

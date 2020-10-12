@@ -1,7 +1,7 @@
-LOCUS       None                    8752 bp    DNA     circular UNK 01-JAN-1980
-DEFINITION  .
-ACCESSION   None
-VERSION     None
+LOCUS       pTarget-AID             8752 bp    DNA     circular UNK 01-JAN-1980
+DEFINITION  ..
+ACCESSION   pTarget-AID
+VERSION     pTarget-AID
 KEYWORDS    .
 SOURCE      .
   ORGANISM  .
@@ -14,7 +14,7 @@ FEATURES             Location/Qualifiers
      source          14..5386
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="3895..6477:10419"
+                     /note_dbrick="addgene_79620:3895..9267:10419"
      CDS             20..40
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
@@ -88,7 +88,7 @@ FEATURES             Location/Qualifiers
      source          join(5390..8752,1..16)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="5258..8636:8727"
+                     /note_dbrick="addgene_102919:5258..8636:8727"
      primer_bind     complement(5412..5429)
                      /label="BGH-rev"
                      /note="Bovine growth hormone terminator, reverse primer.

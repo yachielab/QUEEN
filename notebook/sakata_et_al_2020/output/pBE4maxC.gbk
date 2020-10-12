@@ -1,7 +1,7 @@
-LOCUS       .                       9094 bp    DNA     circular UNK 01-JAN-1980
+LOCUS       addgene_112093          9094 bp    DNA     circular UNK 01-JAN-1980
 DEFINITION  ..
-ACCESSION   .
-VERSION     .
+ACCESSION   addgene_112093
+VERSION     addgene_112093
 KEYWORDS    .
 SOURCE      .
   ORGANISM  .
@@ -10,7 +10,7 @@ FEATURES             Location/Qualifiers
      primer_bind     1..10
                      /label="Amp-R"
                      /note="Ampicillin resistance gene, reverse primer"
-                     /note_dbrick="11..20:20"
+                     /note_dbrick="Amp-R:11..20:20"
      CDS             complement(join(8462..9094,1..228))
                      /codon_start=1
                      /gene="bla"
@@ -27,7 +27,7 @@ FEATURES             Location/Qualifiers
      source          join(6978..9094,1..1316)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="7961..465:8811"
+                     /note_dbrick="addgene_112095:7961..465:8811"
      promoter        complement(229..333)
                      /gene="bla"
                      /label="AmpR promoter"
@@ -60,7 +60,7 @@ FEATURES             Location/Qualifiers
      source          1316..5417
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="1245..5346:8961"
+                     /note_dbrick="addgene_112093:1245..5346:8961"
      CDS             1317..5417
                      /codon_start=1
                      /product="nickase mutant of the Cas9 endonuclease from the
@@ -100,7 +100,7 @@ FEATURES             Location/Qualifiers
                      /label="GenScript J9270EH080-1"
                      /ApEinfo_revcolor="#c6c9d1"
                      /ApEinfo_fwdcolor="#c6c9d1"
-                     /note_dbrick="1..273:1188"
+                     /note_dbrick="GenScript J9270EH080-1:1..273:1188"
      misc_feature    5448..5618
                      /label="GS_Mutated SH3 domain"
                      /ApEinfo_revcolor="#9eafd2"
@@ -109,18 +109,18 @@ FEATURES             Location/Qualifiers
                      /label="SG_3x FLAG"
                      /ApEinfo_revcolor="#f8d3a9"
                      /ApEinfo_fwdcolor="#f8d3a9"
-                     /note_dbrick="1..72:78"
+                     /note_dbrick="SG_3x FLAG:1..72:78"
      CDS             5696
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
                      40) large T antigen"
                      /label="SV40 NLS"
                      /translation="PKKKRKV"
-                     /note_dbrick="21..21:21"
+                     /note_dbrick="SV40 NLS:21..21:21"
      source          5696..6380
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="465..1149:8961"
+                     /note_dbrick="addgene_112093:465..1149:8961"
      CDS             5697..6380
                      /codon_start=1
                      /product="cytidine deaminase (C to U editing enzyme) from
@@ -142,7 +142,7 @@ FEATURES             Location/Qualifiers
      source          6381..6974
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="5377..5970:8961"
+                     /note_dbrick="addgene_112093:5377..5970:8961"
      CDS             6660..6908
                      /codon_start=1
                      /product="uracil-DNA glycosylase inhibitor from a Bacillus
@@ -160,7 +160,7 @@ FEATURES             Location/Qualifiers
                      /label="GenScript J9270EH080-1"
                      /ApEinfo_revcolor="#c6c9d1"
                      /ApEinfo_fwdcolor="#c6c9d1"
-                     /note_dbrick="1188..1188:1188"
+                     /note_dbrick="GenScript J9270EH080-1:1188..1188:1188"
      primer_bind     complement(7000..7017)
                      /label="BGH-rev"
                      /note="Bovine growth hormone terminator, reverse primer.

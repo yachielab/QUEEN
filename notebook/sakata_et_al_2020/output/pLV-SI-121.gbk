@@ -41,7 +41,7 @@ FEATURES             Location/Qualifiers
                      /note="EGFP, forward primer"
      primer          complement(730..754)
                      /label="SI680"
-                     /note_dbrick="1..25:30"
+                     /note_dbrick="26..2:30"
      source          join(751..8332,1..4)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"

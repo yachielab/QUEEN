@@ -1,7 +1,7 @@
-LOCUS       None                    8328 bp    DNA     circular UNK 01-JAN-1980
+LOCUS       .                       8328 bp    DNA     circular UNK 01-JAN-1980
 DEFINITION  ..
-ACCESSION   None
-VERSION     None
+ACCESSION   .
+VERSION     .
 KEYWORDS    .
 SOURCE      .
   ORGANISM  .
@@ -41,7 +41,7 @@ FEATURES             Location/Qualifiers
                      /note="EGFP, forward primer"
      primer          complement(726..750)
                      /label="SI680"
-                     /note_dbrick="1..25:30"
+                     /note_dbrick="26..2:30"
      source          join(747..8328,1..4)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"

@@ -1,16 +1,16 @@
-LOCUS       .                       9913 bp    DNA     circular UNK 01-JAN-1980
-DEFINITION  .
-ACCESSION   .
-VERSION     .
+LOCUS       pTarget-ACEmax          9913 bp    DNA     circular UNK 01-JAN-1980
+DEFINITION  ..
+ACCESSION   pTarget-ACEmax
+VERSION     pTarget-ACEmax
 KEYWORDS    .
 SOURCE      .
   ORGANISM  .
             .
 FEATURES             Location/Qualifiers
-     source          1..5392
+     source          join(6584..9913,1..5392)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="363..5754:8811"
+                     /note_dbrick="addgene_112095:363..5754:8811"
      promoter        15..33
                      /label="T7 promoter"
                      /note="promoter for bacteriophage T7 RNA polymerase"
@@ -82,9 +82,6 @@ FEATURES             Location/Qualifiers
                      /label="GS_UGI"
                      /ApEinfo_revcolor="#c7b0e3"
                      /ApEinfo_fwdcolor="#c7b0e3"
-     source          join(6584..9913,1..103)
-                     /organism="synthetic DNA construct"
-                     /mol_type="other DNA"
      primer_bind     complement(6606..6623)
                      /label="BGH-rev"
                      /note="Bovine growth hormone terminator, reverse primer.

@@ -1,7 +1,7 @@
-LOCUS       None                    8725 bp    DNA     circular UNK 01-JAN-1980
-DEFINITION  .
-ACCESSION   None
-VERSION     None
+LOCUS       pTarget-AIDmax          8725 bp    DNA     circular UNK 01-JAN-1980
+DEFINITION  ..
+ACCESSION   pTarget-AIDmax
+VERSION     pTarget-AIDmax
 KEYWORDS    .
 SOURCE      .
   ORGANISM  .
@@ -10,7 +10,7 @@ FEATURES             Location/Qualifiers
      source          22..4123
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="1245..5346:8961"
+                     /note_dbrick="addgene_112093:1245..5346:8961"
      CDS             23..4123
                      /codon_start=1
                      /product="nickase mutant of the Cas9 endonuclease from the
@@ -73,6 +73,7 @@ FEATURES             Location/Qualifiers
      source          join(5315..8725,1..22)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
+                     /note_dbrick="addgene_112095:5844..465:8811"
      primer_bind     complement(5337..5354)
                      /label="BGH-rev"
                      /note="Bovine growth hormone terminator, reverse primer.

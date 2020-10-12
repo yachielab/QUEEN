@@ -18,334 +18,501 @@ from Bio.SeqFeature import SeqFeature, FeatureLocation, CompoundLocation
 amb     = IUPACAmbiguousDNA()
 re_dict = Restriction.__dict__
 
-def substr(brick, start=0, end=0, feature_id=None):
+def substr(brick, start=0, end=0, target=None, min_match=None):
     """
     Extract subsequence from the specified region in the genome.
     All features within the subsequence including truncated features are also extracted.
     The information that which regions were extracted is appended to the qualifiers of truncated features.
     """
-    if feature_id != None:
-        if type(feature_id) == list:  
-            feature_s = brick.features[int(feature_id[0])]
-            feature_e = brick.features[int(feature_id[-1])]
-            strand = feature_s.location.strand
-            if strand == -1:
-                start = feature_s.location.parts[-1].start.position + start
-            else:
-                start = feature_s.location.parts[0].start.position + start
-            
-            strand = feature_e.location.strand
-            if strand == -1:
-                end = feature_e.location.parts[0].end.position + end
-            else:
-                end = feature_e.location.parts[-1].end.position + end
+    if target != None:
+        if type(target) == list or type(target) == tuple:
+            if (type(target[0]) == str and target[0].isdecimal()) or type(target[0]) == int:
+                feature_s = brick.features[int(target[0])]
+                feature_e = brick.features[int(target[-1])]
+                strand    = feature_s.location.strand
+                if strand == -1:
+                    start = feature_s.location.parts[-1].start.position + start
+                else:
+                    start = feature_s.location.parts[0].start.position + start
 
-        elif type(feature_id) == str and feature_id.isdecimal():
-            feature = brick.features[int(feature_id)] 
+                strand = feature_e.location.strand
+                if strand == -1:
+                    end = feature_e.location.parts[0].end.position + end
+                else:
+                    end = feature_e.location.parts[-1].end.position + end
+            
+            elif type(target[0]) == Seq or (type(target[0]) == str and set(target[0]) <= set("ATGCNatgcn")) or type(target[0]) == Dbrick:
+                target = list(target)
+                if type(target[0]) == Dbrick:
+                    target[0] = str(target[0].seq).upper()
+                else:
+                    target[0] = str(target[0]).upper() 
+                
+                if brick.topology == "circular":
+                    seq = brick.seq + brick.seq[:len(brick.seq)-1]
+                else: 
+                    seq = brick.seq
+                
+                s = seq.find(target[0])
+                if s == -1:
+                    s = seq.find(target[0].translate(str.maketrans("ATGC","TACG"))[::-1])
+                    if s == -1:
+                        raise ValueError("The sequence was not found.")
+                
+                if s > len(brick.seq):
+                    s = s - len(brick.seq)
+                    
+                if type(target[-1]) == Dbrick:
+                    target[-1] = str(target[-1].seq).upper()
+                else:
+                    target[-1] = str(target[-1]).upper()                 
+
+                e = seq.find(target[-1])
+                if e == -1:
+                    e = seq.find(target[-1].translate(str.maketrans("ATGC","TACG"))[::-1])
+                    if e == -1:
+                        raise ValueError("The sequence was not found.")
+                
+                e = e + len(target[-1]) 
+                if e > len(brick.seq):
+                    e = e - len(brick.seq)
+                
+                start = s + start
+                end   = e + end 
+        elif (type(target) == str and target.isdecimal()) or type(target) == int:
+            feature = brick.features[int(target)] 
             strand  = feature.location.strand
             if strand == -1:
-                start   = feature.location.parts[-1].start.position + start
-                end     = feature.location.parts[0].end.position + end
+                start = feature.location.parts[-1].start.position + start
+                end   = feature.location.parts[0].end.position + end
             else:
-                start   = feature.location.parts[0].start.position + start
-                end     = feature.location.parts[-1].end.position + end
-
-        else:
-            raise TypeError("Invalid value for 'feture_id'.'feature_id' should be specified as 'str' or 'list' object.")
+                start = feature.location.parts[0].start.position + start
+                end   = feature.location.parts[-1].end.position + end
+        
+        elif type(target) == Seq or (type(target) == str and set(target) <= set("ATGCNatgcn")) or type(target) == Dbrick:
+            if type(target) == Dbrick:
+                target = str(target.seq).upper()
+            else:
+                target = str(target).upper() 
             
-    if start > end:
-        if brick.topology == "circular":
-            sub_brick1 = substr(brick, start, len(brick.seq))
-            sub_brick2 = substr(brick, 0, end)
-            sub_brick  = join_dbricks(sub_brick1, sub_brick2, ovhg_check=False)
+            if brick.topology == "circular":
+                seq = brick.seq + brick.seq[:len(brick.seq)-1]
+            else: 
+                seq = brick.seq
+            
+            s   = seq.find(target)
+            if s == -1:
+                s = seq.find(target.translate(str.maketrans("ATGC","TACG"))[::-1])
+                if s == -1:
+                    raise ValueError("The sequence was not found.")
+            
+            if s > len(brick.seq):
+                s = s - len(brick.seq)
+            
+            start = s + start
+            end   = s + len(target) + end
         else:
-            raise ValueError("Start value should be larger than or equal to end value.")
+            raise TypeError("Invalid value for 'target'. 'target' should be specified as 'str' or 'list' object.")
+        
+        if brick.topology == "linear":
+            start = 0 if start < 0 else start
+            end   = len(brick.seq) if end > len(brick.seq) else end
+        else:
+            start = start + len(brick.seq) if start < 0 else start
+            end   = end - len(brick.seq) if end > len(brick.seq) else end
+    
+    if (type(start) == str or type(start) == Seq or type(start) == Dbrick) and (type(end) == str or type(end) == Seq or type(end) == Dbrick):
+        sub_brick = pcr(brick, start, end)
+    
     else:
-        feats   = []
-        new_features = [] 
-        for feat in brick.record.features:
-            strand = feat.location.strand
-            if strand == -1:
-                s = feat.location.parts[-1].start.position
-                e = feat.location.parts[0].end.position
+        start = len(brick.seq) + start if start < 0 else start
+        end   = end - len(brick.seq) if end > len(brick.seq) else end
+        if start > end:
+            if brick.topology == "circular":
+                sub_brick1 = substr(brick, start, len(brick.seq))
+                sub_brick2 = substr(brick, 0, end)
+                sub_brick  = join_dbricks(sub_brick1, sub_brick2, ovhg_check=False)
+                sub_brick.start = start 
+                sub_brick.end = end
             else:
-                s = feat.location.parts[0].start.position
-                e = feat.location.parts[-1].end.position
-            if "original" not in feat.__dict__:
-                if s > e:
-                    feat.original = str(brick.seq)[s:len(brick.seq)] + str(brick.seq)[:e]
-                else:
-                    feat.original = str(brick.seq)[s:e].upper() 
-            if s > e:
-                if len(feat.location.parts) == 1:
-                    length = len(brick.seq) - s + e
-                    locations = [FeatureLocation(s,len(brick.seq)),FeatureLocation(0,e)] 
-                    if strand == -1:
-                        locations.reverse()  
-                    feat.location = CompoundLocation(locations)
-                    feat.location.strand = strand
-                
+                raise ValueError("Start value should be larger than or equal to end value.")
+        else:
+            feats   = []
+            new_features = [] 
+            for feat in brick.record.features:
                 strand = feat.location.strand
-                if len(feat.location.parts) == 2:
-                    feat1 = copy.deepcopy(feat)
-                    feat1.location = feat.location.parts[0] 
-                    feat1.location.strand = feat.location.strand
-                    feat2 = copy.deepcopy(feat)
-                    feat2.location = feat.location.parts[1]
-                    feat2.location.strand = feat.location.strand
-                                    
+                if strand == -1:
+                    s = feat.location.parts[-1].start.position
+                    e = feat.location.parts[0].end.position
                 else:
-                    feat1 = copy.deepcopy(feat)
-                    new_locations = []
-                    for part in feat1.location.parts:
-                        if part.start.position > part.end.postion:
-                            new_locations.append(FeatureLocation(part.start.position, len(brick.seq)))   
-                            break
-                        else:
-                            new_locations.append(part)
-                    if strand == -1:
-                        new_locations.reverse() 
-                    feat1.location = CompoundLocation(new_locations)
-                    feat1.location.strand = strand 
-                    flag  = 0 
-                    feat2 = copy.deepcopy(feat)
-                    new_locations = []
-                    for part in feat1.location.parts:
-                        if part.start.position > part.end.postion:
-                            new_locations.append(FeatureLocation(0, part.end.position))   
-                            flag = 1
-
-                        if flag == 1:
-                            new_locations.append(part)   
-                    
-                    if strand == -1:
-                        new_locations.reverse() 
-                    feat2.location = CompoundLocation(new_locations)
-                    feat2.location.strnad = strand 
-
-                if "note_dbrick" not in feat1.qualifiers:
-                    if strand >= 0:
-                        feat1.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, len(brick.seq)-s, len(feat1.original)) 
+                    s = feat.location.parts[0].start.position
+                    e = feat.location.parts[-1].end.position
+                if "original" not in feat.__dict__:
+                    if s > e:
+                        feat.original = str(brick.seq)[s:len(brick.seq)] + str(brick.seq)[:e]
                     else:
-                        feat1.qualifiers["note_dbrick"] = "{}..{}:{}".format(len(brick.seq)-s, 1, len(feat1.original)) 
-                else:
-                    note   = feat.qualifiers["note_dbrick"]
-                    if strand >= 0:
-                        pos_s  = int(note.split(":")[0].split("..")[0]) 
-                        pos_e  = int(note.split(":")[0].split("..")[1]) 
-                        length = int(note.split(":")[1])
-                        note   = "{}..{}:{}".format(pos_s, pos_s + len(brick.seq)-s, length)
-                    else:
-                        pos_s  = int(note.split(":")[0].split("..")[0]) 
-                        pos_e  = int(note.split(":")[0].split("..")[1]) 
-                        length = int(note.split(":")[1])
-                        note   = "{}..{}:{}".format(pos_s, pos_s - (len(brick.seq)-s), length)
-                    feat1.qualifiers["note_dbrick"] = note
-
-                
-                if "note_dbrick" not in feat2.qualifiers:
-                    if strand >= 0:
-                        feat2.qualifiers["note_dbrick"] = "{}..{}:{}".format(len(brick.seq)-s+1, len(brick.seq)-s+e, len(feat2.original)) 
-                    else:
-                        feat2.qualifiers["note_dbrick"] = "{}..{}:{}".format(len(brick.seq)-s+e, len(brick.seq)-s+1, len(feat2.original)) 
-                else:
-                    note   = feat.qualifiers["note_dbrick"]
-                    if strand >= 0:
-                        pos_s  = int(note.split(":")[0].split("..")[0]) 
-                        pos_e  = int(note.split(":")[0].split("..")[1]) 
-                        length = int(note.split(":")[1])
-                        note   = "{}..{}:{}".format(pos_s + len(brick.seq)-s, pos_e, length)
-                    else:
-                        pos_s  = int(note.split(":")[0].split("..")[0]) 
-                        pos_e  = int(note.split(":")[0].split("..")[1]) 
-                        length = int(note.split(":")[1])
-                        note   = "{}..{}:{}".format(pos_s - (len(brick.seq)-s), pos_e, length)
-                    feat2.qualifiers["note_dbrick"] = note
-                new_features.append(feat1)
-                new_features.append(feat2)
-            else:
-                new_features.append(feat) 
-
-        for feat in new_features:
-            strand = feat.location.strand
-            if strand == -1:
-                s = feat.location.parts[-1].start.position
-                e = feat.location.parts[0].end.position
-            else:
-                s = feat.location.parts[0].start.position
-                e = feat.location.parts[-1].end.position 
-            if len(feat.location.parts) == 1 and s <= e:
-                if e > start and s < end:
-                    feat = copy.deepcopy(feat) 
-                    if s - start <= 0:
-                        feat.location.parts[0]._start = ExactPosition(0)
-                        if "note_dbrick" not in feat.qualifiers:
-                            if strand >= 0:
-                                feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(abs(s-start)+1, e-s, len(feat.original)) 
-                            else:
-                                feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(e-s, abs(s-start)+1, len(feat.original)) 
-                        else:
-                            if strand >= 0:
-                                note   = feat.qualifiers["note_dbrick"]
-                                pos_s  = int(note.split(":")[0].split("..")[0]) + abs(s-start) 
-                                pos_e  = int(note.split(":")[0].split("..")[1]) 
-                                length = int(note.split(":")[1])
-                                note   = "{}..{}:{}".format(pos_s, pos_e, length)
-                            else:
-                                note   = feat.qualifiers["note_dbrick"]
-                                pos_s  = int(note.split(":")[0].split("..")[0]) - abs(s-start) 
-                                pos_e  = int(note.split(":")[0].split("..")[1]) 
-                                length = int(note.split(":")[1])
-                                note   = "{}..{}:{}".format(pos_s, pos_e, length)
-                            feat.qualifiers["note_dbrick"] = note
-                    else:
-                        feat.location.parts[0]._start = ExactPosition(s - start) 
-                
-                    #s = int(feat.location.parts[0].start.position) 
-                    feat.location.parts[-1]._end = ExactPosition(e - start)  
-                    if feat.location.parts[-1]._end > end-start:
-                        feat.location.parts[-1]._end = ExactPosition(end - start)
-                        if "note_dbrick" not in feat.qualifiers:
-                            if strand >= 0: 
-                                feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, end-s, len(feat.original)) 
-                            else:
-                                feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(end-s, 1, len(feat.original)) 
-                        else:
-                            s = int(feat.location.parts[0].start.position)
-                            if strand >= 0:
-                                note   = feat.qualifiers["note_dbrick"]
-                                pos_s  = int(note.split(":")[0].split("..")[0])
-                                pos_e  = int(note.split(":")[0].split("..")[1]) 
-                                length = int(note.split(":")[1])
-                                note   = "{}..{}:{}".format(pos_s, pos_s + (end-start-s)-1, length)
-                            else:
-                                note   = feat.qualifiers["note_dbrick"]
-                                pos_s  = int(note.split(":")[0].split("..")[0])
-                                pos_e  = int(note.split(":")[0].split("..")[1]) 
-                                length = int(note.split(":")[1])
-                                note   = "{}..{}:{}".format(pos_s, pos_s - (end-start-s)+1, length)
-                            feat.qualifiers["note_dbrick"] = note
-                    feat.location.strand = strand
-                    feats.append(feat)
-            else:
-                length = e-s
-                locations = []
-                sflag = 0 
-                eflag = 0
-                for lbrick in feat.location.parts:
-                    s = lbrick.start.position 
-                    e = lbrick.end.position
-                    if e > start and s <= end:
-                        feat = copy.deepcopy(feat) 
-                        _start = ExactPosition(s)
-                        if s - start <= 0:
-                            sflag = 1
-                        _end = ExactPosition(e) 
-                        if _end > end-start:
-                            eflag = 1
-                        locations.append([_start,_end,feat.location.strand])
-                
-                if len(locations) > 0:
-                    s = int(locations[0][0])
-                    e = int(locations[-1][1])
-                    if s - start <= 0 and sflag == 1:
-                        locations[0][0] = ExactPosition(0)
-                        if "note_dbrick" not in feat.qualifiers:
-                            if strand >= 0:
-                                feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(abs(s-start)+1, e-s, len(feat.original)) 
-                            else:
-                                feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(e-s, abs(s-start)+1, len(feat.original)) 
-                        else:
-                            if strand >= 0:
-                                note   = feat.qualifiers["note_dbrick"]
-                                pos_s  = int(note.split(":")[0].split("..")[0]) + abs(s-start) 
-                                pos_e  = int(note.split(":")[0].split("..")[1]) 
-                                length = int(note.split(":")[1])
-                                note   = "{}..{}:{}".format(pos_s, pos_e, length)
-                            else:
-                                note   = feat.qualifiers["note_dbrick"]
-                                pos_s  = int(note.split(":")[0].split("..")[0]) - abs(s-start) 
-                                pos_e  = int(note.split(":")[0].split("..")[1]) 
-                                length = int(note.split(":")[1])
-                                note   = "{}..{}:{}".format(pos_s, pos_e, length)
-                            feat.qualifiers["note_dbrick"] = note
-                    else:
-                        locations[0][0] = ExactPosition(s - start)
-                    
-                    if e > end-start and eflag == 1:
-                        locations[-1][1] = ExactPosition(end-start)
-                        if "note_dbrick" not in feat.qualifiers:
-                            feat.qualifiers["note_dbrick"] = "{}..{}:{}".format(1, end-s, len(feat.original)) 
-                        else:
-                            s      = int(locations[0][0])
-                            if strand  >= 0:
-                                note   = feat.qualifiers["note_dbrick"]
-                                pos_s  = int(note.split(":")[0].split("..")[0])
-                                pos_e  = int(note.split(":")[0].split("..")[1]) 
-                                length = int(note.split(":")[1])
-                                note   = "{}..{}:{}".format(pos_s, pos_s + (end-start-s)-1, length)
-                            else:
-                                note   = feat.qualifiers["note_dbrick"]
-                                pos_s  = int(note.split(":")[0].split("..")[0])
-                                pos_e  = int(note.split(":")[0].split("..")[1]) 
-                                length = int(note.split(":")[1])
-                                note   = "{}..{}:{}".format(pos_s, pos_s - (end-start-s)+1, length)
-                            feat.qualifiers["note_dbrick"] = note
-                    else:
-                        locations[-1][1] = ExactPosition(e - start)
-                
-                                                
-                    if len(locations) == 1:
-                        feat.location = FeatureLocation(*locations[0])
-                    else:
-                        for l in range(len(locations)):
-                            if l == 0:
-                                locations[l][1] = locations[l][1] - start
-                            elif l == len(locations) - 1:
-                                locations[l][0] = locations[l][0] - start
-                            else:
-                                locations[l][0] = locations[l][0] - start
-                                locations[l][1] = locations[l][1] - start
-                        locations = [FeatureLocation(*loc) for loc in locations] 
+                        feat.original = str(brick.seq)[s:e].upper() 
+                if s > e:
+                    if len(feat.location.parts) == 1:
+                        length = len(brick.seq) - s + e
+                        locations = [FeatureLocation(s,len(brick.seq)),FeatureLocation(0,e)] 
                         if strand == -1:
-                            locations.reverse()
+                            locations.reverse()  
                         feat.location = CompoundLocation(locations)
-                    feats.append(feat)
+                        feat.location.strand = strand
+                    
+                    strand = feat.location.strand
+                    if len(feat.location.parts) == 2:
+                        feat1 = copy.deepcopy(feat)
+                        feat1.location = feat.location.parts[0] 
+                        feat1.location.strand = feat.location.strand
+                        feat2 = copy.deepcopy(feat)
+                        feat2.location = feat.location.parts[1]
+                        feat2.location.strand = feat.location.strand
+                                        
+                    else:
+                        feat1 = copy.deepcopy(feat)
+                        new_locations = []
+                        for part in feat1.location.parts:
+                            if part.start.position > part.end.postion:
+                                new_locations.append(FeatureLocation(part.start.position, len(brick.seq)))   
+                                break
+                            else:
+                                new_locations.append(part)
+                        if strand == -1:
+                            new_locations.reverse() 
+                        feat1.location = CompoundLocation(new_locations)
+                        feat1.location.strand = strand 
+                        flag  = 0 
+                        feat2 = copy.deepcopy(feat)
+                        new_locations = []
+                        for part in feat1.location.parts:
+                            if part.start.position > part.end.postion:
+                                new_locations.append(FeatureLocation(0, part.end.position))   
+                                flag = 1
+
+                            if flag == 1:
+                                new_locations.append(part)   
+                        
+                        if strand == -1:
+                            new_locations.reverse() 
+                        feat2.location = CompoundLocation(new_locations)
+                        feat2.location.strnad = strand 
+
+                    if "note_dbrick" not in feat1.qualifiers: 
+                        if feat1.type == "source":
+                            label = brick.name
+                        else:
+                            flag = 0
+                            for key in ["label", "gene", "product"]:
+                                if key in feat1.qualifiers:
+                                    label = feat1.qualifiers[key][0]
+                                    flag  = 1
+                                    break 
+                            if flag == 0:
+                                label = feat1.type
+                        
+                        if strand >= 0:
+                            feat1.qualifiers["note_dbrick"] = "{}:{}..{}:{}".format(label, 1, len(brick.seq)-s, len(feat1.original)) 
+                        else:
+                            feat1.qualifiers["note_dbrick"] = "{}:{}..{}:{}".format(label, len(brick.seq)-s, 1, len(feat1.original)) 
+                    
+                    else:
+                        note   = feat.qualifiers["note_dbrick"]
+                        if strand >= 0:
+                            label  = note.split(":")[0]
+                            pos_s  = int(note.split(":")[1].split("..")[0]) 
+                            pos_e  = int(note.split(":")[1].split("..")[1]) 
+                            length = int(note.split(":")[2])
+                            note   = "{}:{}..{}:{}".format(label, pos_s, pos_s + len(brick.seq)-s, length)
+                        else:
+                            label  = note.split(":")[0]
+                            pos_s  = int(note.split(":")[1].split("..")[0]) 
+                            pos_e  = int(note.split(":")[1].split("..")[1]) 
+                            length = int(note.split(":")[2])
+                            note   = "{}:{}..{}:{}".format(label, pos_s, pos_s - (len(brick.seq)-s), length)
+                        feat1.qualifiers["note_dbrick"] = note
+
+                    
+                    if "note_dbrick" not in feat2.qualifiers:
+                        if feat2.type == "source":
+                            label = brick.name
+                        else:
+                            flag = 0
+                            for key in ["label", "gene", "product"]:
+                                if key in feat2.qualifiers:
+                                    label = feat2.qualifiers[key][0]
+                                    flag  = 1
+                                    break 
+                            if flag == 0:
+                                label = feat2.type
+
+                        if strand >= 0:
+                            feat2.qualifiers["note_dbrick"] = "{}:{}..{}:{}".format(label, len(brick.seq)-s+1, len(brick.seq)-s+e, len(feat2.original)) 
+                        else:
+                            feat2.qualifiers["note_dbrick"] = "{}:{}..{}:{}".format(label, len(brick.seq)-s+e, len(brick.seq)-s+1, len(feat2.original)) 
+                    else:
+                        note   = feat.qualifiers["note_dbrick"]
+                        if strand >= 0:
+                            label  = note.split(":")[0]
+                            pos_s  = int(note.split(":")[1].split("..")[0]) 
+                            pos_e  = int(note.split(":")[1].split("..")[1]) 
+                            length = int(note.split(":")[2])
+                            note   = "{}:{}..{}:{}".format(label, pos_s + len(brick.seq)-s, pos_e, length)
+                        else:
+                            label  = note.split(":")[0]
+                            pos_s  = int(note.split(":")[1].split("..")[0]) 
+                            pos_e  = int(note.split(":")[1].split("..")[1]) 
+                            length = int(note.split(":")[2])
+                            note   = "{}:{}..{}:{}".format(label, pos_s - (len(brick.seq)-s), pos_e, length)
+                        feat2.qualifiers["note_dbrick"] = note
+                    new_features.append(feat1)
+                    new_features.append(feat2)
+                else:
+                    new_features.append(feat) 
+
+            for feat in new_features:
+                strand = feat.location.strand
+                if strand == -1:
+                    s = feat.location.parts[-1].start.position
+                    e = feat.location.parts[0].end.position
+                else:
+                    s = feat.location.parts[0].start.position
+                    e = feat.location.parts[-1].end.position 
+                
+                if len(feat.location.parts) == 1 and s <= e:
+                    if e > start and s < end:
+                        feat = copy.deepcopy(feat) 
+                        if s - start <= 0:
+                            feat.location.parts[0]._start = ExactPosition(0)
+                            if "note_dbrick" not in feat.qualifiers:
+                                if feat.type == "source":
+                                    label = brick.name
+                                else:
+                                    flag = 0
+                                    for key in ["label", "gene", "product"]:
+                                        if key in feat.qualifiers:
+                                            label = feat.qualifiers[key][0]
+                                            flag  = 1
+                                            break 
+                                    if flag == 0:
+                                        label = feat.type
+                                
+                                if strand >= 0:
+                                    feat.qualifiers["note_dbrick"] = "{}:{}..{}:{}".format(label, abs(s-start)+1, e-s, len(feat.original)) 
+                                else:
+                                    feat.qualifiers["note_dbrick"] = "{}:{}..{}:{}".format(label, e-s, abs(s-start)+1, len(feat.original)) 
+                            else:
+                                if strand >= 0:
+                                    note   = feat.qualifiers["note_dbrick"]
+                                    label  = note.split(":")[0]
+                                    pos_s  = int(note.split(":")[1].split("..")[0]) + abs(s-start) 
+                                    pos_e  = int(note.split(":")[1].split("..")[1]) 
+                                    length = int(note.split(":")[2])
+                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_e, length)
+                                else:
+                                    note   = feat.qualifiers["note_dbrick"]
+                                    label  = note.split(":")[0]
+                                    pos_s  = int(note.split(":")[1].split("..")[0]) - abs(s-start) 
+                                    pos_e  = int(note.split(":")[1].split("..")[1]) 
+                                    length = int(note.split(":")[2])
+                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_e, length)
+                                feat.qualifiers["note_dbrick"] = note
+                        else:
+                            feat.location.parts[0]._start = ExactPosition(s - start) 
+                    
+                        #s = int(feat.location.parts[0].start.position) 
+                        feat.location.parts[-1]._end = ExactPosition(e - start)  
+                        if feat.location.parts[-1]._end > end-start:
+                            feat.location.parts[-1]._end = ExactPosition(end - start)
+                            if "note_dbrick" not in feat.qualifiers:
+                                if feat.type == "source":
+                                    label = brick.name
+                                else:
+                                    flag = 0
+                                    for key in ["label", "gene", "product"]:
+                                        if key in feat.qualifiers:
+                                            label = feat.qualifiers[key][0]
+                                            flag  = 1
+                                            break 
+                                    if flag == 0:
+                                        label = feat.type
+
+                                if strand >= 0: 
+                                    feat.qualifiers["note_dbrick"] = "{}:{}..{}:{}".format(label, 1, end-s, len(feat.original)) 
+                                else:
+                                    feat.qualifiers["note_dbrick"] = "{}:{}..{}:{}".format(label, end-s, 1, len(feat.original)) 
+                            else:
+                                s = int(feat.location.parts[0].start.position)
+                                if strand >= 0:
+                                    note   = feat.qualifiers["note_dbrick"]
+                                    label  = note.split(":")[0]
+                                    pos_s  = int(note.split(":")[1].split("..")[0])
+                                    pos_e  = int(note.split(":")[1].split("..")[1]) 
+                                    length = int(note.split(":")[2])
+                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_s + (end-start-s)-1, length)
+                                else:
+                                    note   = feat.qualifiers["note_dbrick"]
+                                    label  = note.split(":")[0]
+                                    pos_s  = int(note.split(":")[1].split("..")[0])
+                                    pos_e  = int(note.split(":")[1].split("..")[1]) 
+                                    length = int(note.split(":")[2])
+                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_s - (end-start-s)+1, length)
+                                feat.qualifiers["note_dbrick"] = note
+                        feat.location.strand = strand
+                        feats.append(feat)
+                else:
+                    length = e-s
+                    locations = []
+                    sflag = 0 
+                    eflag = 0
+                    for apart in feat.location.parts:
+                        s = apart.start.position 
+                        e = apart.end.position
+                        if e > start and s <= end:
+                            feat = copy.deepcopy(feat) 
+                            _start = ExactPosition(s)
+                            if s - start <= 0:
+                                sflag = 1
+                            _end = ExactPosition(e) 
+                            if _end > end-start:
+                                eflag = 1
+                            locations.append([_start,_end,feat.location.strand])
+                    
+                    if len(locations) > 0:
+                        s = int(locations[0][0])
+                        e = int(locations[-1][1])
+                        if s - start <= 0 and sflag == 1:
+                            locations[0][0] = ExactPosition(0)
+                            if "note_dbrick" not in feat.qualifiers:
+                                if feat.type == "source":
+                                    label = brick.name
+                                else:
+                                    flag = 0
+                                    for key in ["label", "gene", "product"]:
+                                        if key in feat.qualifiers:
+                                            label = feat.qualifiers[key][0]
+                                            flag  = 1
+                                            break 
+                                    if flag == 0:
+                                        label = feat.type
+
+                                if strand >= 0:
+                                    feat.qualifiers["note_dbrick"] = "{}:{}..{}:{}".format(label, abs(s-start)+1, e-s, len(feat.original)) 
+                                else:
+                                    feat.qualifiers["note_dbrick"] = "{}:{}..{}:{}".format(label, e-s, abs(s-start)+1, len(feat.original)) 
+                            else:
+                                if strand >= 0:
+                                    note   = feat.qualifiers["note_dbrick"]
+                                    label  = note.split(":")[0]
+                                    pos_s  = int(note.split(":")[1].split("..")[0]) + abs(s-start) 
+                                    pos_e  = int(note.split(":")[1].split("..")[1]) 
+                                    length = int(note.split(":")[2])
+                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_e, length)
+                                else:
+                                    note   = feat.qualifiers["note_dbrick"]
+                                    label  = note.split(":")[0]
+                                    pos_s  = int(note.split(":")[1].split("..")[0]) - abs(s-start) 
+                                    pos_e  = int(note.split(":")[1].split("..")[1]) 
+                                    length = int(note.split(":")[2])
+                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_e, length)
+                                feat.qualifiers["note_dbrick"] = note
+                        else:
+                            locations[0][0] = ExactPosition(s - start)
+                        
+                        if e > end-start and eflag == 1:
+                            locations[-1][1] = ExactPosition(end-start)
+                            if "note_dbrick" not in feat.qualifiers:
+                                if feat.type == "source":
+                                    label = brick.name
+                                else:
+                                    flag = 0
+                                    for key in ["label", "gene", "product"]:
+                                        if key in feat.qualifiers:
+                                            label = feat.qualifiers[key][0]
+                                            flag  = 1
+                                            break 
+                                    if flag == 0:
+                                        label = feat.type
+                                feat.qualifiers["note_dbrick"] = "{}:{}..{}:{}".format(label, 1, end-s, len(feat.original)) 
+                            else:
+                                s      = int(locations[0][0])
+                                if strand  >= 0:
+                                    label  = note.split(":")[0]
+                                    note   = feat.qualifiers["note_dbrick"]
+                                    pos_s  = int(note.split(":")[1].split("..")[0])
+                                    pos_e  = int(note.split(":")[1].split("..")[1]) 
+                                    length = int(note.split(":")[2])
+                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_s + (end-start-s)-1, length)
+                                else:
+                                    label  = note.split(":")[0]
+                                    note   = feat.qualifiers["note_dbrick"]
+                                    pos_s  = int(note.split(":")[1].split("..")[0])
+                                    pos_e  = int(note.split(":")[1].split("..")[1]) 
+                                    length = int(note.split(":")[2])
+                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_s - (end-start-s)+1, length)
+                                feat.qualifiers["note_dbrick"] = note
+                        else:
+                            locations[-1][1] = ExactPosition(e - start)
+                    
+                                                    
+                        if len(locations) == 1:
+                            feat.location = FeatureLocation(*locations[0])
+                        else:
+                            for l in range(len(locations)):
+                                if l == 0:
+                                    locations[l][1] = locations[l][1] - start
+                                elif l == len(locations) - 1:
+                                    locations[l][0] = locations[l][0] - start
+                                else:
+                                    locations[l][0] = locations[l][0] - start
+                                    locations[l][1] = locations[l][1] - start
+                            locations = [FeatureLocation(*loc) for loc in locations] 
+                            if strand == -1:
+                                locations.reverse()
+                            feat.location = CompoundLocation(locations)
+                        feats.append(feat)
         
        
-        feats.sort(key=lambda x:(x.location.parts[0].start.position, x.location.parts[-1].end.position))
-        sub_brick     = copy.deepcopy(brick)
-        sub_brick.seq = brick.seq[start:end]
-        sub_brick.features       = feats
-        sub_brick.topology       = "linear"
-        if start == 0:
-            sub_brick.left_end            = brick.left_end
-            sub_brick.left_end_top      = brick.left_end_top
-            sub_brick.left_end_bottom   = brick.left_end_bottom
-        else:
-            sub_brick.left_end          = sub_brick.seq[0:20] 
-            sub_brick.left_end_top      = 1
-            sub_brick.left_end_bottom   = 1
-        
-        if end == len(brick.seq):
-            sub_brick.right_end          = brick.right_end
-            sub_brick.right_end_top      = brick.right_end_top
-            sub_brick.right_end_bottom   = brick.right_end_bottom
+            feats.sort(key=lambda x:(x.location.parts[0].start.position, x.location.parts[-1].end.position))
+            sub_brick     = copy.deepcopy(brick)
+            sub_brick.seq = brick.seq[start:end]
+            sub_brick.features       = feats
+            sub_brick.topology       = "linear"
+            if start == 0:
+                sub_brick._left_end          = brick._left_end
+                sub_brick._left_end_top      = brick._left_end_top
+                sub_brick._left_end_bottom   = brick._left_end_bottom
+            else:
+                sub_brick._left_end          = sub_brick.seq[0:20] 
+                sub_brick._left_end_top      = 1
+                sub_brick._left_end_bottom   = 1
+            
+            if end == len(brick.seq):
+                sub_brick._right_end          = brick._right_end
+                sub_brick._right_end_top      = brick._right_end_top
+                sub_brick._right_end_bottom   = brick._right_end_bottom
 
-        else:
-            sub_brick.right_end          = sub_brick.seq[-20:]
-            sub_brick.right_end_top      = 1
-            sub_brick.right_end_bottom   = 1
+            else:
+                sub_brick._right_end          = sub_brick.seq[-20:]
+                sub_brick._right_end_top      = 1
+                sub_brick._right_end_bottom   = 1
 
-        new_rec          = copy.deepcopy(brick.record)
-        new_rec.seq      = Seq(brick.seq[start:end],Alphabet.DNAAlphabet()) 
-        new_rec.features = sub_brick.features
-        new_rec.annotations["topology"] = sub_brick.topology
-        sub_brick.record  = new_rec
-        sub_brick.source  = brick
+            new_rec          = copy.deepcopy(brick.record)
+            new_rec.seq      = Seq(brick.seq[start:end],Alphabet.DNAAlphabet()) 
+            new_rec.features = sub_brick.features
+            new_rec.annotations["topology"] = sub_brick.topology
+            sub_brick.record = new_rec
+            sub_brick.source = brick
+            sub_brick.start  = start 
+            sub_brick.end    = end 
+            
+            if target != None:
+                print("The region from start {} to end {} was extracted.".format(start, end)) 
+
     return sub_brick 
 
-def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_overlap=15, max_overlap=150):
+def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_overlap=None, max_overlap=None):
     """    
     Join Dbrick objects. 
     When ovhg_check argument is True, adjacent Dbrick objects should have common overhang sequences.  
@@ -361,10 +528,16 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
             feat.location.strand = strand
             new_feats.append(feat)
         return new_feats 
-        
+    
+    if min_overlap == None:
+        min_overlap = Dbrick.min_overlap
+    
+    if max_overlap == None:
+        max_overlap = Dbrick.max_overlap
+
     LIG = 0
     GIB = 0 
-    ovhg  = bricks[0].right_end
+    ovhg  = bricks[0]._right_end
     ovhgs = [] 
     construct = copy.deepcopy(bricks[0])
 
@@ -372,28 +545,28 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
         for brick in bricks[1:]:
             feats   = brick.features 
             if ovhg_check == True:
-                if brick.left_end == construct.right_end and (brick.left_end_top * construct.right_end_bottom == 1 or brick.left_end_bottom * construct.right_end_top == 1):
+                if brick._left_end == construct._right_end and (brick._left_end_top * construct._right_end_bottom == 1 or brick._left_end_bottom * construct._right_end_top == 1):
                     if LIG == 0:
-                        if brick.left_end_top == 1:
-                            sticky_end = brick.left_end 
+                        if brick._left_end_top == 1:
+                            sticky_end = brick._left_end 
                         else:
-                            sticky_end = construct.right_end
-                        print("Based on complementary sticky end of each fragment, the Dbrick objects were joined. The sticky end is '{}'".format(sticky_end)) 
+                            sticky_end = construct._right_end
+                        print("The Dbrick objects were joined based on complementary sticky end of each fragment. The sticky end is '{}'".format(sticky_end)) 
                         LIG = 1
                     
-                    ovhg = brick.left_end
+                    ovhg = brick._left_end
                     new_brick = substr(brick, len(ovhg), len(brick.seq)) 
                     ovhgs.append(str(ovhg)) 
 
-                elif brick.left_end_top == 1 and brick.left_end_bottom == 1 and brick.right_end_top == 1 and brick.right_end_bottom == 1:
+                elif brick._left_end_top == 1 and brick._left_end_bottom == 1 and brick._right_end_top == 1 and brick._right_end_bottom == 1:
                     if GIB == 0:
                         GIB = 1
                     
-                    if brick.left_end == construct.right_end:
-                        ovhg = brick.left_end
+                    if brick._left_end == construct._right_end:
+                        ovhg = brick._left_end
                         new_brick = substr(brick, len(ovhg), len(brick.seq)) 
                         ovhgs.append(str(ovhg))
-                        print("Based on sequence homology at the end of each fragment, the Dbrick objects were joined. The overhang sequence is '{}'".format(ovhg)) 
+                        print("The Dbrick objects were joined based on sequence homology at the end of each fragment. The overhang sequence is '{}'".format(ovhg)) 
                     
                     else:
                         flag = 0 
@@ -402,19 +575,19 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
                                 flag = 1
                                 break
                         if flag == 1:
-                            brick.left_end = brick.seq[:i]
-                            ovhg       = brick.left_end 
-                            construct.right_end = brick.left_end 
+                            brick._left_end = brick.seq[:i]
+                            ovhg       = brick._left_end 
+                            construct._right_end = brick._left_end 
                             new_brick = substr(brick, len(ovhg), len(brick.seq)) 
                             ovhgs.append(str(ovhg))
-                            print("Based on sequence homology at the end of each fragment, the Dbrick objects were joined. The overhang sequence is '{}'".format(ovhg)) 
+                            print("The Dbrick objects were joined based on sequence homology at the end of each fragment. The overhang sequence is '{}'".format(ovhg)) 
 
                         else:
                             print("The adjacent Dbrick objects were not able to be joined. Please set a common overhang sequence between the Dbrick objects.")
                             return False
                 else:
-                    print(brick.left_end, brick.left_end_top, brick.left_end_bottom) 
-                    print(brick.right_end, brick.right_end_top, brick.right_end_bottom)
+                    print(brick._left_end, brick._left_end_top, brick._left_end_bottom) 
+                    print(brick._right_end, brick._right_end_top, brick._right_end_bottom)
                     print("The adjacent Dbrick objects were not able to be joined. Please set a common overhang sequence between the Dbrick objects")
                     return False
             else:
@@ -447,16 +620,17 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
                                     break    
                             if flag == 1:
                                 note1   = feat1.qualifiers["note_dbrick"]
-                                pos_s1  = int(note1.split(":")[0].split("..")[0])
-                                pos_e1  = int(note1.split(":")[0].split("..")[1]) 
-                                length1 = int(note1.split(":")[1])
+                                label   = note1.split(":")[0] 
+                                pos_s1  = int(note1.split(":")[1].split("..")[0])
+                                pos_e1  = int(note1.split(":")[1].split("..")[1]) 
+                                length1 = int(note1.split(":")[2])
                                 
                                 note2   = feat2.qualifiers["note_dbrick"] 
-                                pos_s2  = int(note2.split(":")[0].split("..")[0])
-                                pos_e2  = int(note2.split(":")[0].split("..")[1]) 
-                                length2 = int(note2.split(":")[1])
+                                pos_s2  = int(note2.split(":")[1].split("..")[0])
+                                pos_e2  = int(note2.split(":")[1].split("..")[1]) 
+                                length2 = int(note2.split(":")[2])
                                 if length1 == length2 and "original" in feat1.__dict__ and "original" in feat2.__dict__ and feat1.original == feat2.original and s2 == 0 and feat1.location.strand == feat2.location.strand:
-                                    note     = "{}..{}:{}".format(pos_s1, pos_e2, length1)
+                                    note     = "{}:{}..{}:{}".format(label, pos_s1, pos_e2, length1)
                                     new_seq  = construct.seq[s1:e1] + brick.seq[s2:e2] 
                                     new_feat = copy.deepcopy(construct.features[construct.features.index(feat1)]) 
                                     strand = new_feat.location.strand
@@ -481,36 +655,40 @@ def join_dbricks(*bricks, topology="linear", name=None, ovhg_check=True, min_ove
                                         construct.features[construct.features.index(feat1)].qualifiers["note_dbrick"] = note
                                         construct.features[construct.features.index(feat1)].location = new_feat.location
                                         del feats[feats.index(feat2)] 
+            
             construct.features = construct.features + feats
             construct.seq               = construct.seq + new_brick.seq 
-            construct.right_end         = brick.right_end
-            construct.right_end_top     = brick.right_end_top
-            construct.right_end_bottom  = brick.right_end_bottom
+            construct._right_end         = brick._right_end
+            construct._right_end_top     = brick._right_end_top
+            construct._right_end_bottom  = brick._right_end_bottom
             construct.source            = brick.source
             construct.topology      = "linear"
-            ovhg = brick.right_end
+            ovhg = brick._right_end
     
     construct.features.sort(key=lambda x:x.location.parts[0].start.position)
     for feat in construct.features:
         if "note_dbrick" in feat.qualifiers:
              note = feat.qualifiers["note_dbrick"]
-             pos_s  = int(note.split(":")[0].split("..")[0])
-             pos_e  = int(note.split(":")[0].split("..")[1])
-             length = int(note.split(":")[1])
+             pos_s  = int(note.split(":")[1].split("..")[0])
+             pos_e  = int(note.split(":")[1].split("..")[1])
+             length = int(note.split(":")[2])
              if (pos_s == 1 and pos_e == length) or (pos_s == length and pos_e == 1):
                 del feat.qualifiers["note_dbrick"]
     new_record          = SeqRecord(Seq(str(construct.seq),Alphabet.DNAAlphabet()))
     new_record.features = construct.features
     new_record.annotations["topology"] = topology
     construct.record = new_record     
-    if name == None:
+    if name is None:
         pass
     else:
         new_record.id = name
         construct.name = name 
     
     if topology == "circular":
-        construct.circularize(ovhg_check=ovhg_check)
+        construct = circularize(construct, ovhg_check=ovhg_check)
+    
+    construct.start = 0 
+    construct.end = len(construct.seq) 
     return construct
 
 def shell(brick, left="", right="", add=0):
@@ -536,121 +714,116 @@ def shell(brick, left="", right="", add=0):
     patternr1 = re.compile(patternr1)
     patternr2 = re.compile(patternr2)
     left_end, right_end  = left, right
-    if pattern1.fullmatch(left_end) != None and pattern2.search(left_end) == None and patternl1.search(left_end) == None and patternl2.search(left_end) == None:
+    if pattern1.fullmatch(left_end) != None and pattern2.search(left_end) is None and patternl1.search(left_end) is None and patternl2.search(left_end) is None:
         pass 
     else:
         raise ValueError("Please sepcify a proper sequence pattern for the 'left' argument") 
     
-    if pattern1.fullmatch(right_end) != None and pattern2.search(right_end) == None and patternr1.search(right_end) == None and patternr2.search(right_end) == None:
+    if pattern1.fullmatch(right_end) != None and pattern2.search(right_end) is None and patternr1.search(right_end) is None and patternr2.search(right_end) is None:
         pass
     else:
         raise ValueError("Please sepcify a proper sequence pattern for the 'right' argument") 
-
+    
     if "/" in left_end:
         left_end_top, left_end_bottom = left_end.split("/")
-        if len(left_end_top) != len(left_end_bottom):
-            raise ValueError("The length of top and bottom sequence should be same.")
-        
-        elif "-" in left_end:
-            left_end_top, left_end_bottom = check_endseq(left_end_top, left_end_bottom)
-            if left_end_top != False:
-                left_end_length = len(left_end_top)
-                if "*" in left_end_top or "*" in left_end_bottom:
-                    if set(left_end_top) <= set(["*","-"]) and set(left_end_bottom) <= set(["*","-"]):
-                        left_end_top    = "".join([s if q != "-" else "-" for s,q in zip(brick.seq[:left_end_length], left_end_top)])
-                        left_end_bottom = "".join([s if q != "-" else "-" for s,q in zip(brick.seq[:left_end_length].translate(str.maketrans("ATGC","TACG")), left_end_bottom)])
-                    else:
-                        print("'*' cannot be used wih 'ATGCN'.")
-                
-                left_end_top, left_end_bottom = left_end_top.replace("-",""), left_end_bottom.replace("-","") 
-                if len(left_end_top) < len(left_end_bottom):
-                    left_length     = len(left_end_bottom)
-                    left_end        = left_end_bottom[0:len(left_end_bottom)-1*len(left_end_top)].translate(str.maketrans("ATGC","TACG")) 
-                    left_end_top    = -1
-                    left_end_bottom = 1
+    else:
+        left_end_top, left_end_bottom = left_end, left_end.translate(str.maketrans("ATGC","TACG"))
 
+    if len(left_end_top) != len(left_end_bottom):
+        raise ValueError("The length of top and bottom sequence should be same.")
+    
+    elif "-" in left_end:
+        left_end_top, left_end_bottom = check_endseq(left_end_top, left_end_bottom)
+        if left_end_top != False:
+            left_end_length = len(left_end_top)
+            if "*" in left_end_top or "*" in left_end_bottom:
+                if set(left_end_top) <= set(["*","-"]) and set(left_end_bottom) <= set(["*","-"]):
+                    left_end_top    = "".join([s if q != "-" else "-" for s,q in zip(brick.seq[:left_end_length], left_end_top)])
+                    left_end_bottom = "".join([s if q != "-" else "-" for s,q in zip(brick.seq[:left_end_length].translate(str.maketrans("ATGC","TACG")), left_end_bottom)])
                 else:
-                    left_length     = len(left_end_top)
-                    left_end        = left_end_top[0:len(left_end_top)-1*len(left_end_bottom)]
-                    left_end_top    = 1
-                    left_end_bottom = -1
+                    print("'*' cannot be used wih 'ATGCN'.")
+            
+            left_end_top, left_end_bottom = left_end_top.replace("-",""), left_end_bottom.replace("-","") 
+            if len(left_end_top) < len(left_end_bottom):
+                left_length     = len(left_end_bottom)
+                left_end        = left_end_bottom[0:len(left_end_bottom)-1*len(left_end_top)].translate(str.maketrans("ATGC","TACG")) 
+                left_end_top    = -1
+                left_end_bottom = 1
 
             else:
-                raise ValueError("The bottom strand sequence should be complent with the top strand sequence.")
-        else:
-            left_end_length = len(left_end_top) 
-            left_length = len(left_end_top)
-            left_end = left_end_top
-            left_end_top    = 1
-            left_end_bottom = 1
+                left_length     = len(left_end_top)
+                left_end        = left_end_top[0:len(left_end_top)-1*len(left_end_bottom)]
+                left_end_top    = 1
+                left_end_bottom = -1
 
+        else:
+            raise ValueError("The bottom strand sequence should be complent with the top strand sequence.")
     else:
-        left_end_length = len(left_end) 
-        left_lengh = len(left_end)
-        left_end_top    = 1 
+        left_end_length = len(left_end_top) 
+        left_length = len(left_end_top)
+        left_end = left_end_top
+        left_end_top    = 1
         left_end_bottom = 1
-    
+
     if "/" in right_end:
         right_end_top, right_end_bottom = right_end.split("/")
-        if len(right_end_top) != len(right_end_bottom):
-            raise ValueError("The length of top and bottom sequence should be same.")
-        
-        elif "-" in right_end:
-            right_end_top, right_end_bottom = check_endseq(right_end_top, right_end_bottom)
-            if right_end_top != False:
-                right_end_length = len(right_end_top)
-                if "*" in right_end_top or "*" in right_end_bottom:
-                    if set(right_end_top) <= set(["*","-"]) and set(right_end_bottom) <= set(["*","-"]):
-                        right_end_top    = "".join([s if q != "-" else "-" for s,q in zip(brick.seq[-1*right_end_length:], right_end_top)])
-                        right_end_bottom = "".join([s if q != "-" else "-" for s,q in zip(brick.seq[-1*right_end_length:].translate(str.maketrans("ATGC","TACG")), right_end_bottom)])
-                    else:
-                        print("'*' cannot be used wih 'ATGCN'.")
+    else:
+        right_end_top, right_end_bottom = right_end, right_end.translate(str.maketrans("ATGC","TACG"))
 
-                right_end_top, right_end_bottom = right_end_top.replace("-",""), right_end_bottom.replace("-","") 
-                if len(right_end_top) < len(right_end_bottom):
-                    right_length     = len(right_end_bottom)
-                    right_end        = right_end_bottom[len(right_end_top):].translate(str.maketrans("ATGC","TACG")) 
-                    right_end_top    = -1
-                    right_end_bottom = 1
-
+    if len(right_end_top) != len(right_end_bottom):
+        raise ValueError("The length of top and bottom sequence should be same.")
+    
+    elif "-" in right_end:
+        right_end_top, right_end_bottom = check_endseq(right_end_top, right_end_bottom)
+        if right_end_top != False:
+            right_end_length = len(right_end_top)
+            if "*" in right_end_top or "*" in right_end_bottom:
+                if set(right_end_top) <= set(["*","-"]) and set(right_end_bottom) <= set(["*","-"]):
+                    right_end_top    = "".join([s if q != "-" else "-" for s,q in zip(brick.seq[-1*right_end_length:], right_end_top)])
+                    right_end_bottom = "".join([s if q != "-" else "-" for s,q in zip(brick.seq[-1*right_end_length:].translate(str.maketrans("ATGC","TACG")), right_end_bottom)])
                 else:
-                    right_length     = len(right_end_top)
-                    right_end        = right_end_top[len(right_end_bottom):] 
-                    right_end_top    = 1
-                    right_end_bottom = -1
+                    print("'*' cannot be used wih 'ATGCN'.")
+
+            right_end_top, right_end_bottom = right_end_top.replace("-",""), right_end_bottom.replace("-","") 
+            if len(right_end_top) < len(right_end_bottom):
+                right_length     = len(right_end_bottom)
+                right_end        = right_end_bottom[len(right_end_top):].translate(str.maketrans("ATGC","TACG")) 
+                right_end_top    = -1
+                right_end_bottom = 1
 
             else:
-                raise ValueError("The bottom strand sequence should be complent with the top strand sequence.")
-        else:
-            right_end_length = len(right_end_top) 
-            right_length = len(right_end_top)  
-            right_end = right_end_top
-            right_end_top    = 1
-            right_end_bottom = 1
+                right_length     = len(right_end_top)
+                right_end        = right_end_top[len(right_end_bottom):] 
+                right_end_top    = 1
+                right_end_bottom = -1
 
+        else:
+            raise ValueError("The bottom strand sequence should be complent with the top strand sequence.")
     else:
-        right_end_length = len(right_end)
-        right_length = len(right_end)
-        rihgt_end_top    = 1 
+        right_end_length = len(right_end_top) 
+        right_length = len(right_end_top)  
+        right_end = right_end_top
+        right_end_top    = 1
         right_end_bottom = 1
+
     
     if add == 1 or (left_end != brick.seq[left_end_length-left_length:left_end_length-left_length+len(left_end)] or right_end != str(brick[len(brick.seq)-right_end_length + right_length - len(right_end):len(brick.seq)-right_end_length + right_length].seq)):
         left_end  = Dbrick(seq=left_end) 
         right_end = Dbrick(seq=right_end) 
         brick     = join_dbricks(left_end, brick, right_end, ovhg_check=False)
-        brick.left_end  = left_end.seq
-        brick.right_end = right_end.seq
+        brick._left_end  = left_end.seq
+        brick._right_end = right_end.seq
     else:
         left_end  = Dbrick(seq=left_end) 
         right_end = Dbrick(seq=right_end)
         brick = brick[left_end_length-left_length:len(brick.seq)-right_end_length + right_length]
-        brick.left_end  = left_end.seq
-        brick.right_end = right_end.seq
+        brick._left_end  = left_end.seq
+        brick._right_end = right_end.seq
     
-    brick.left_end_top     = left_end_top 
-    brick.left_end_bottom  = left_end_bottom
-    brick.right_end_top    = right_end_top
-    brick.right_end_bottom = right_end_bottom
+    brick._left_end_top     = left_end_top 
+    brick._left_end_bottom  = left_end_bottom
+    brick._right_end_top    = right_end_top
+    brick._right_end_bottom = right_end_bottom
     return brick
 
 def get_target(bricks, target_seq=None, target_annotation=None):
@@ -685,7 +858,7 @@ def get_target(bricks, target_seq=None, target_annotation=None):
 def reverse_complement(brick):
     """
     Return reverse complement sequence. 
-    All feature information is also reversed with the sequence.
+    All feature infomation is also reversed with the sequence.
     """
     if type(brick) == Dbrick:
         brick = copy.deepcopy(brick)
@@ -700,11 +873,12 @@ def reverse_complement(brick):
             if strand == 1 or strand == -1:
                 feat.location.strand = -1 * feat.location.strand
                 if "note_dbrick" in feat.qualifiers:
-                    note = feat.qualifiers["note_dbrick"]
-                    pos_s  = int(note.split(":")[0].split("..")[0])
-                    pos_e  = int(note.split(":")[0].split("..")[1])
-                    length = int(note.split(":")[1])
-                    note = "{}..{}:{}".format(pos_e, pos_s, length)
+                    note   = feat.qualifiers["note_dbrick"]
+                    label  = note(":")[0]
+                    pos_s  = int(note.split(":")[1].split("..")[0])
+                    pos_e  = int(note.split(":")[1].split("..")[1])
+                    length = int(note.split(":")[2])
+                    note = "{}:{}..{}:{}".format(label, pos_e, pos_s, length)
                     feat.qualifiers["note_dbrick"] = note
             else:
                 feat.location.strand = strand
@@ -719,11 +893,154 @@ def reverse_complement(brick):
     comp = Dbrick(seq=seq) 
     comp.features = feats
     comp.record.features = feats 
-    comp.right_end, comp.left_end = brick.left_end.translate(str.maketrans("ATGC","TACG"))[::-1], brick.right_end.translate(str.maketrans("ATGC","TACG"))[::-1]
-    comp.right_end_top, comp.left_end_bottom = brick.left_end_bottom, brick.right_end_top
-    comp.right_end_bottom, comp.left_end_top = brick.left_end_top, brick.right_end_bottom
+    comp._right_end, comp._left_end = brick._left_end.translate(str.maketrans("ATGC","TACG"))[::-1], brick._right_end.translate(str.maketrans("ATGC","TACG"))[::-1]
+    comp._right_end_top, comp._left_end_bottom = brick._left_end_bottom, brick._right_end_top
+    comp._right_end_bottom, comp._left_end_top = brick._left_end_top, brick._right_end_bottom
     return comp
+    
+def circularize(brick, ovhg_check=True):
+    brick = copy.deepcopy(brick)
+    seq_origin = brick.seq
+    feats_origin = brick.features
+    if brick.topology == "circular" and brick.record.annotations["topology"] == "circular":
+        print("The dbrick object is already circularized")
 
+    if ovhg_check == True:
+        if str(brick._right_end) == str(brick._left_end) and (brick._right_end_top * brick._left_end_bottom == 1 and brick._right_end_bottom * brick._left_end_top == 1) and len(brick._right_end) > 0:
+            print("The Dbrick object was circularized based on complementary sticky end between 3' end and 5' end. The sticky end is '{}'".format(brick._left_end)) 
+            ovhg = brick._right_end
+            subbrick = substr(brick, 0, len(brick.seq)-len(brick._right_end))
+            brick.seq      = subbrick.seq
+            brick.record   = subbrick.record
+
+        elif str(brick._right_end) == str(brick._left_end) and len(brick._right_end) > 0 and brick._right_end_top == 1 and brick._right_end_bottom == 1 and brick._left_end_top == 1 and brick._left_end_bottom == 1:
+            print("The Dbrick object was circularized based on sequence homology between 3' end and 5' end. The overhang sequence is '{}'.".format(brick._left_end)) 
+            ovhg = brick._right_end
+            subbrick = substr(brick, 0, len(brick.seq)-len(brick._right_end))
+            brick.seq      = subbrick.seq
+            brick.record   = subbrick.record
+        
+        elif brick._right_end_top == 1 and brick._right_end_bottom == 1 and brick._left_end_top == 1 and brick._left_end_bottom == 1:
+            #Gibson assembly
+            flag = 0
+            for i in range(Dbrick.min_overlap,Dbrick.max_overlap):
+                if brick.seq[:i] == brick.seq[-1*i:]:
+                    flag = 1
+                    break
+                else:
+                    pass
+            if flag == 1:
+                ovhg = brick.seq[:i] 
+                subbrick  = substr(brick, 0, len(brick.seq)-i)
+                brick.seq      = subbrick.seq
+                brick.record   = subbrick.record
+                print("The Dbrick object was circularized based on sequence homology between 3' end and 5' end. The overhang sequence is '{}'".format(ovhg))
+            else:
+                return False
+        
+        else:
+            return False
+    else:
+        ovhg = ""
+
+    remove_list = [] 
+    feats1      = [feat for feat in brick.features if "note_dbrick" in feat.qualifiers]
+    for feat1 in feats1:
+        if feat1.location.strand == -1:
+            s1, e1 = feat1.location.parts[-1].start.position, feat1.location.parts[0].end.position
+        else:
+            s1, e1 = feat1.location.parts[0].start.position, feat1.location.parts[-1].end.position
+        
+        for feat2 in feats1:
+            if feat2.location.strand == -1:
+                s2, e2 = feat2.location.parts[-1].start.position, feat2.location.parts[0].end.position
+            else:
+                s2, e2 = feat2.location.parts[0].start.position, feat2.location.parts[-1].end.position
+            
+            if feat1 == feat2 or feat1 in remove_list:
+                pass 
+            
+            elif feat1.type == feat2.type:
+                flag = 0
+                for key in feat1.qualifiers:
+                    if key == "note_dbrick":
+                        pass 
+                    elif key in feat2.qualifiers and feat1.qualifiers[key] == feat2.qualifiers[key]:
+                        flag = 1
+                    else:
+                        flag = 0
+                        break    
+                if flag == 1:
+                    note1   = feat1.qualifiers["note_dbrick"]
+                    label   = note1.split(":")[0]
+                    pos_s1  = int(note1.split(":")[1].split("..")[0])
+                    pos_e1  = int(note1.split(":")[1].split("..")[1]) 
+                    length1 = int(note1.split(":")[2])
+                    
+                    note2   = feat2.qualifiers["note_dbrick"] 
+                    pos_s2  = int(note2.split(":")[1].split("..")[0])
+                    pos_e2  = int(note2.split(":")[1].split("..")[1]) 
+                    length2 = int(note2.split(":")[2])
+                    
+                    if length1 == length2 and ((s1 == 0 and e2 == len(seq_origin)) or (s2 == 0 and e1 == len(seq_origin))):
+                        if "original" in feat1.__dict__ and "original" in feat2.__dict__ and feat1.original == feat2.original:
+                            note     = "{}:{}..{}:{}".format(label, pos_s1, pos_e2, length1)
+                            new_seq  = seq_origin[s1:e1] + seq_origin[s2:e2] 
+                            new_feat = copy.deepcopy(brick.features[brick.features.index(feat1)]) 
+                            if s1 == 0:
+                                new_feat.location = FeatureLocation(s2, e2 + (e1-len(ovhg)), feat1.strand)
+                            else:
+                                new_feat.location = FeatureLocation(s1, e1 + (e2-len(ovhg)), feat1.strand)
+                            
+                            if len(new_seq) - len(ovhg) <= len(feat1.original):
+                                new_feat.qualifiers["note_dbrick"] = note
+                                if len(new_seq) - len(ovhg) == length1:
+                                    del brick.features[brick.features.index(feat1)].qualifiers["note_dbrick"]
+                                brick.features[brick.features.index(feat1)].location = new_feat.location
+                                brick.features.remove(feat2)  
+                                remove_list.append(feat2) 
+        
+    for i in range(len(brick.features)):    
+        if brick.features[i].location.parts[-1].end.position > len(brick.seq): #and feats_origin[i].type == "source":
+            if brick.features[i].location.parts[0].start.position >= len(brick.seq):
+                strand                    = brick.features[i].location.strand
+                brick.features[i].location = FeatureLocation(brick.features[i].location.parts[0].start.position-len(brick.seq),brick.features[i].location.parts[-1].end.position-len(brick.seq))
+                brick.features[i].location.strand = strand
+            else:
+                strand    = brick.features[i].location.strand
+                locations = [FeatureLocation(brick.features[i].location.parts[0].start.position,len(brick.seq)), FeatureLocation(0,brick.features[i].location.parts[-1].end.position-len(brick.seq))]
+                if strand == -1:
+                    locations.reverse() 
+                brick.features[i].location = CompoundLocation(locations)
+                brick.features[i].location.strand = strand
+    
+    brick.record.features = brick.features
+    brick._left_end  = ""
+    brick._left_end_top    = 0 
+    brick._left_end_bottom = 0 
+
+    brick._right_end = ""
+    brick._right_end_top    = 0 
+    brick._right_end_bottom = 0 
+
+    brick.topology = "circular"
+    brick.record.seq = Seq(str(brick.seq),Alphabet.DNAAlphabet())
+    brick.record.annotations["topology"] = brick.topology
+    return brick
+
+def linearize(brick, zero_position=0):
+    if brick.topology == "lienar":
+        print("The method cannot be used for linear Dbrick object.") 
+    if zero_position > 0:
+        abrick = brick[zero_position:] + brick[:zero_position] 
+        abrick = circularize(abrick, ovhg_check=False)
+        new_brick = substr(abrick, 0, len(self.seq))
+    else:    
+        new_brick = substr(brick, 0, len(self.seq))
+
+    new_brick.topology = "linear"
+    new_brick.record.annotations["topology"] = brick.topology
+    return new_brick  
 
 def digestion(brick, *enzymes, target_seq=None, target_annotation=None):
     """
@@ -793,10 +1110,10 @@ def digestion(brick, *enzymes, target_seq=None, target_annotation=None):
         fragment = substr(brick, start-len(left_end), end+len(right_end))
         #print("{}/{}".format(left_end_top,left_end_bottom), "{}/{}".format(right_end_top, right_end_bottom).format()) 
         fragment = shell(fragment, "{}/{}".format(left_end_top,left_end_bottom), "{}/{}".format(right_end_top, right_end_bottom), add=0)
-        #print(fragment.left_end, fragment.right_end) 
+        #print(fragment._left_end, fragment._right_end) 
         fragments.append(fragment)
 
-    if target_annotation == None and target_seq == None:
+    if target_annotation is None and target_seq is None:
         if len(fragments) > 1 :    
             print("Return multiple fragments") 
             return fragments
@@ -805,24 +1122,31 @@ def digestion(brick, *enzymes, target_seq=None, target_annotation=None):
     else:
         return get_target(fragments, taget_seq=target_seq, target_annotation=target_annotation)
 
-def pcr(brick, fw=None, rv=None, adaptor_fw=None, adaptor_rv=None, name=None):
+def pcr(brick, fw=None, rv=None, adaptor_fw=None, adaptor_rv=None, name=None, min_match=None):
     """
     Amplify specific region in the DNA brick.
     """
+    if min_match is None:
+        min_match = Dbrick.min_match
+
     brick = copy.deepcopy(brick) 
-    if type(fw) == str:
-        fw_brick = Dbrick(seq=fw) 
-    else:
-        fw_brick = fw
-        fw = str(fw.seq) 
+    if type(fw) == str or type(fw) == Seq:
+        fw = str(fw) 
+        fw_brick = Dbrick(seq=fw)
     
-    if type(rv) == str:
+    elif type(fw) == Dbrick:
+        fw_brick = fw
+        fw = str(fw.seq)
+    
+    if type(rv) == str or type(rv) == Seq:
+        rv = str(rv) 
         rv_brick = Dbrick(seq=rv) 
-    else:
+    
+    elif type(rv) == Dbrick:
         rv_brick = rv
         rv = str(rv.seq) 
-    rv_rc = rv.translate(str.maketrans("ATGC","TACG"))[::-1] 
-
+        
+    rv_rc = rv.translate(str.maketrans("ATGC","TACG"))[::-1]  
     if brick.topology == "circular":
         seq = brick.seq + brick.seq 
     else:
@@ -832,7 +1156,7 @@ def pcr(brick, fw=None, rv=None, adaptor_fw=None, adaptor_rv=None, name=None):
     if fw in seq:
         adaptor_fw = ""
     
-    elif adaptor_fw == None:
+    elif adaptor_fw is None:
         for i in range(len(fw)):
             if fw[i:] in seq:
                 adaptor_fw = fw[0:i] 
@@ -845,7 +1169,7 @@ def pcr(brick, fw=None, rv=None, adaptor_fw=None, adaptor_rv=None, name=None):
     if rv_rc in seq:
         adaptor_rv = ""
     
-    elif adaptor_rv == None:
+    elif adaptor_rv is None:
         for i in range(len(rv)):
             if rv_rc[:len(rv)-i] in seq: 
                 adaptor_rv = rv[:i]
@@ -853,9 +1177,10 @@ def pcr(brick, fw=None, rv=None, adaptor_fw=None, adaptor_rv=None, name=None):
                 break
     else:
         pass
-    rv_rc = rv.translate(str.maketrans("ATGC","TACG"))[::-1] 
+    
 
-    if name == None:
+    rv_rc = rv.translate(str.maketrans("ATGC","TACG"))[::-1] 
+    if name is None:
         name = "_" + brick.name
     else:
         name = "_" + name
@@ -888,43 +1213,51 @@ def pcr(brick, fw=None, rv=None, adaptor_fw=None, adaptor_rv=None, name=None):
     amplicon   = substr(brick, start, end) 
     if len(adaptor_fw) > 0 and len(adaptor_rv) > 0:
         product = join_dbricks(adaptor_fw_brick, amplicon, adaptor_rv_brick, ovhg_check=False)
-        print("The region from start {} to end {} was extracted. Adapter sequneces were detected at both ends. Right redundant sequence is {}, Left redundant sequence is {}.".format(start+1, end, adaptor_fw, adaptor_rv))
+        print("The region from start {} to end {} was extracted. Adapter sequneces were detected at both ends. Right redundant sequence is {}, Left redundant sequence is {}.".format(start, end, adaptor_fw, adaptor_rv))
 
     elif len(adaptor_fw) > 0:
         product = join_dbricks(adaptor_fw_brick, amplicon, ovhg_check=False)
-        print("The region from start {} to end {} was extracted. Adapter sequnece was detected at right end. The sequence is {}.".format(start+1, end, adaptor_fw))
+        print("The region from start {} to end {} was extracted. Adapter sequnece was detected at right end. The sequence is {}.".format(start, end, adaptor_fw))
 
     elif len(adaptor_rv) > 0:
         product = join_dbricks(amplicon, adaptor_rv_brick, ovhg_check=False)
-        print("The region from start {} to end {} was extracted. Adapter sequnece was detected at left end. The nsequence is {}.".format(start+1, end, adaptor_rv))
+        print("The region from start {} to end {} was extracted. Adapter sequnece was detected at left end. The nsequence is {}.".format(start, end, adaptor_rv))
 
     else:
         product = amplicon       
         print("The region from start {} to end {} was extracted.".format(start+1, end))
-
+    
+    if len(adaptor_fw) > 0 or len(adaptor_rv) > 0:
+        product.start = 0 
+        product.end   = len(product.seq)
+    else:
+        product.start = start
+        product.end   = end
+    product.name = amplicon.name
+    product.record.id = amplicon.name
     return product
 
 class Dbrick():
     order_qualifiers = ["label","gene","product"]
     min_overlap      = 10 
-    max_overlap      = 500
-
+    max_overlap      = 300
+    min_match        = 10
     def __init__(self, record=None, seq=None, name="None", topology="linear", format=None):
-        if seq == None and record == None:
+        if seq is None and record is None:
             self.seq            = None
             self.record         = None
             self.features       = None
-            self.right_end      = None 
-            self.left_end       = None
-            self.left_end_top      = 0 
-            self.left_end_bottom   = 0
-            self.right_end_top     = 0 
-            self.right_end_bottom  = 0
-            self.topology          = topology
-            self.source            = None
-            self.name              = name
-        
-        elif seq == None:
+            self._right_end     = None 
+            self._left_end      = None
+            self.topology       = topology
+            self.source         = None
+            self.name           = name
+            self._left_end_top      = 1
+            self._left_end_bottom   = 1
+            self._right_end_top     = 1 
+            self._right_end_bottom  = 1
+
+        elif seq is None:
             if type(record) == str:
                 if format != None:
                     fmt = format
@@ -937,9 +1270,11 @@ class Dbrick():
                         fmt = "genbank"
                 record = SeqIO.parse(record,fmt)
                 record = next(record) 
+            else:
+                fmt = None
             self.seq      = str(record.seq).upper()
             self.record   = record
-            if fmt == "genbank":
+            if len(record.features) > 0:
                 self.features = record.features 
             else:
                 self.features = []
@@ -950,47 +1285,145 @@ class Dbrick():
                 self.topology = topology
             
             if self.topology == "linear":
-                self.right_end         = self.seq[0:10] 
-                self.left_end          = self.seq[-10:]
+                self._right_end = self.seq[0:10] 
+                self._left_end  = self.seq[-10:]
             else:
-                self.right_end          = ""
-                self.left_end          = ""
+                self._right_end = ""
+                self._left_end  = ""
             
-            self.left_end_top      = 1
-            self.left_end_bottom   = 1
-            self.right_end_top     = 1
-            self.right_end_bottom  = 1
             self.source = None
             self.name = record.id  
+            self._left_end_top      = 1
+            self._left_end_bottom   = 1
+            self._right_end_top     = 1 
+            self._right_end_bottom  = 1
 
-        elif record == None:
-            self.seq      = str(seq).upper() 
-            self.record   = SeqRecord(Seq(str(seq),Alphabet.DNAAlphabet()))
-            self.features = self.record.features
-            self.topology = topology
-            if self.topology == "linear":
-                self.right_end          = self.seq[0:10] 
-                self.left_end          = self.seq[-10:]
+        elif record is None:
+            def check_seq(seq):
+                top, bottom = seq.split("/") 
+                new_seq     = ""
+                new_top     = ""
+                new_bottom  = ""
+                if len(top) != len(bottom):
+                    return False, False, False
+
+                for t,b in zip(top,bottom):
+                    if t != b.translate(str.maketrans("ATGC","TACG")) and (t != "-" and b != "-"):
+                        return False, False, False
+                    else:
+                        new_top    += t
+                        new_bottom += b
+                        if t == "-":
+                            new_seq += b.translate(str.maketrans("ATGC","TACG"))
+                        else:
+                            new_seq += t
+                return new_top, new_bottom, new_seq 
+            
+            sticky   = False
+            pattern1 = "[ATGCNatgcn*-]+/?[ATGCNatgcn*-]*"
+            pattern2 = "[ATGCNatgcn]+-+[ATGCNatgcn]+"
+            pattern1 = re.compile(pattern1)   
+            pattern2 = re.compile(pattern2)   
+            if pattern1.fullmatch(seq) != None: 
+                if "/" in seq:
+                    top, bottom, seq = check_seq(seq)
+                    if "-" in top or "-" in bottom:
+                        if top !=False and pattern2.search(top) is None and pattern2.search(bottom) is None:
+                            sticky = True
+                        else:
+                            raise TypeError("Invaild sequence pattern was detected.")
+                    else: 
+                        sticky = False
+
+                self.seq      = str(seq).upper()
+                self.record   = SeqRecord(Seq(str(seq),Alphabet.DNAAlphabet()))
+                self.features = self.record.features
+                self.topology = topology
+                
+                if sticky == True:
+                    self.topology   = "linear"
+                    self._left_end  = "" 
+                    self._right_end = "" 
+                    if top[0] == "-":
+                        for c, char in enumerate(top):
+                            if char != "-":
+                                break 
+                            else:
+                                self._left_end += bottom[c].translate(str.maketrans("ATGC","TACG"))
+                        self._left_end_top    = -1
+                        self._left_end_bottom = 1
+                    
+                    else:
+                        if bottom[0] == "-":
+                            for c, char in enumerate(bottom):
+                                if char != "-":
+                                    break 
+                                else:
+                                    self._left_end += top[c]
+                            self._left_end_bottom = -1
+                            self._left_end_top    = 1
+                        
+                        else:
+                            self._left_end  = ""
+                            self._left_end_bottom = 1
+                            self._left_end_top    = 1
+
+                    if top[-1] == "-":
+                        for c, char in enumerate(top[::-1]):
+                            if char != "-":
+                                break 
+                            else:
+                                self._right_end += bottom[::-1][c].translate(str.maketrans("ATGC","TACG"))
+                        self._right_end = self._right_end[::-1]
+                        self._right_end_top    = -1
+                        self._right_end_bottom = 1
+
+                    else:
+                        if bottom[-1] ==  "-":
+                            for c, char in enumerate(bottom[::-1]):
+                                if char != "-":
+                                    break 
+                                else:
+                                    self._right_end += top[::-1][c]
+                            self._right_end = self._right_end[::-1]
+                            self._right_end_bottom = -1
+                            self._right_end_top    = 1
+                        
+                        else:
+                            self._right_end  = ""
+                            self._right_end_bottom = 1
+                            self._right_end_top    = 1
+
+                else:
+                    #if self.topology == "linear":
+                    #    self._right_end = self.seq[0:10] 
+                    #    self._left_end  = self.seq[-10:]
+                    #else:
+                    self._right_end = ""
+                    self._left_end  = ""
+                    self.source = None
+                    self.name = name
+                    self._left_end_top      = 1
+                    self._left_end_bottom   = 1
+                    self._right_end_top     = 1 
+                    self._right_end_bottom  = 1
+
             else:
-                self.right_end       = ""
-                self.left_end        = ""
-            self.left_end_top      = 1
-            self.left_end_bottom   = 1
-            self.right_end_top     = 1
-            self.right_end_bottom  = 1
-            self.source = None
-            self.name = name
-        
+                raise TypeError("Invaild sequence pattern was detected.")
+
+        self.start = 0 
+        self.end   = len(self.seq) 
+    
     def __getitem__(self, item):
         if type(item) == slice:
-            if item.step == None:
+            if item.step is None:
                 strand = 1
             elif type(item.step) != int:
                 raise TypeError("Invalid type for index.")
             else:
                 strand = item.step
 
-            if item.start == None:
+            if item.start is None:
                 start = 0 
             else:
                 if type(item.start) == int:
@@ -1000,12 +1433,12 @@ class Dbrick():
                     start = str(item.start)
                         
                 elif type(item.start) == Dbrick:
-                    start = str(item.start.seq) 
+                    start = item.start 
 
                 else:
                     raise TypeError("Invalid type was detected in index. Please specify proper index.")
            
-            if item.stop == None:
+            if item.stop is None:
                 end = len(self.seq) 
             else:
                 if type(item.stop) == int:
@@ -1015,7 +1448,7 @@ class Dbrick():
                     end = str(item.stop)
                         
                 elif type(item.stop) == Dbrick:
-                    end = item.stop.seq
+                    end = item.stop
                 
                 else:
                     raise TypeError("Invalid type was detected in index. Please specify proper index.") 
@@ -1026,12 +1459,12 @@ class Dbrick():
                 if end < 0: 
                     end = len(self.seq) - abs(end) 
                 subbrick = substr(self,start,end)
-                
-            elif type(start) == str and type(end) == str and set(start) <= set("ATGCNatgcn") and set(end) <= set("ATGCNatgcn"):
-                subbrick = pcr(self,start.upper(),end.upper())
-            
+                            
             elif type(start) == str and type(end) == str and start.isdecimal() and end.isdecimal():
                 subbrick = substr(self, -1*abs(strand), abs(strand), feature_id=[start,end])
+            
+            elif (type(start) == str or type(start) == Seq or type(start) == Dbrick) or (type(end) == str or type(end) == Seq or type(end) == Dbrick):
+                subbrick = substr(self, start, end)
 
             else:
                 raise TypeError("Invalid type was detected in index. Please specify proper index.")
@@ -1040,125 +1473,27 @@ class Dbrick():
             if strand == -1 or strand < 0:
                 return reverse_complement(subbrick)
             else:
-               return subbrick 
+                return subbrick 
         
         elif type(item) == int:
             subbrick = substr(self,item,item+1) 
-
-        elif type(item) == str:
-            if item.isdecimal() == True: 
-                subbrick = substr(self, -1*abs(strand), abs(strand), feature_id=item)
-            else:
-                subbrick = pcr(self, item.upper(), item.upper().translate(str.maketrans("ATGC","TACG"))[::-1])
+            return subbrick
         
-        elif type(item) == Seq:
-            item = str(item) 
-            subbrick = pcr(self, item.upper(), item.upper().translate(str.maketrans("ATGC","TACG"))[::-1])
+        elif type(item) == str and item.isdecimal() == True: 
+            subbrick = substr(self, 0, 0, target=item)
+            return subbrick
+        
+        elif type(item) == Seq or (type(item) == str and set(item) <= set("ATGCNatgcn")) or type(item) == Dbrick: 
+            if type(item) == Dbrick: 
+                item = str(item.seq) 
+            else:
+                item = str(item)
+            subbrick = substr(self, 0, 0, target=item)
+            return subbrick
+        
         else:
             raise ValueError("Invalid index type was specified.") 
     
-    def __setitem__(self, key, value):
-        if (type(value)== str and set(value) <= set("ATGCNatgcn")) or type(value) == Seq or type(value) == Dbrick:
-            if (type(value)== str and set(value) <= set("ATGCNatgcn")) or type(value) == Seq:
-                value = Dbrick(seq=value) 
-            else:
-                pass
-        else:
-            raise TypeError("Invalid type for 'value'. 'value' should be specified as 'str', 'Seq', or 'Dbrick' object.") 
-
-        if type(key) == int:
-            if len(value.seq) == 1:
-                origin = str(self.seq)[key]
-                self.seq = self.seq[:key] + value.seq + self.seq[key+1:]
-                self.record.seq = Seq(str(self.seq), Alphabet.DNAAlphabet())
-                rec = SeqFeature(FeatureLocation(key,key,strand=0), type="misc_feature")
-                rec.qualifiers = {"note":["{}>{}".foramt(origin, str(value.seq))]}
-                self.features.append(rec) 
-                self.features.sort(key=lambda x:x.location.parts[0].start.position)
-                self.record.features = self.features
-
-            else:
-                raise TypeError("The length of the sequence must be one in case of assignment to a single position.")
-
-        elif type(key) == str and key.isdecimal():
-            start = self.features[int(key)].location.parts[0].start  
-            end   = self.features[int(key)].location.parts[-1].end 
-        
-        elif type(key) == slice:
-            if key.step == None:
-                strand = 1
-            elif type(key.step) != int:
-                raise TypeError("Invalid type for index.")
-            else:
-                strand = key.step
-
-            if key.start == None:
-                start = 0 
-            else:
-                if type(key.start) == int:
-                    start = key.start
-
-                elif type(key.start) == str or type(key.start) == Seq:
-                    start = str(key.start)
-                        
-                elif type(key.start) == Dbrick:
-                    start = str(key.start.seq) 
-
-                else:
-                    raise TypeError("Invalid type was detected in index.")
-           
-            if key.stop == None:
-                end = len(key.seq) 
-            else:
-                if type(key.stop) == int:
-                    end = key.stop
-                
-                elif type(key.stop) == str or type(key.stop) == Seq:
-                    end = str(key.stop)
-                        
-                elif type(key.stop) == Dbrick:
-                    end = key.stop.seq
-
-                else:
-                    raise TypeError("Invalid type was detected in index.") 
-            
-            if type(start) == int and type(end) == int:
-                pass                 
-            
-            elif type(start) == str and type(end) == str and set(start) <= set("ATGCNatgcn") and set(end) <= set("ATGCNatgcn"):
-                _end  = end
-                start = str(self.seq).find(start) 
-                end   = str(self.seq).find(str(reverse_complement(_end).seq)) + len(_end) 
-                if start < 0:
-                    raise ValueError("First index was not found in the sequence of the 'Dbrick' object.") 
-                
-                if end < len(_end):
-                    raise ValueError("Second index was not found in the sequence of the 'Dbrick' object.") 
-                
-            if start > end:
-                if self.topology == "linear":
-                    raise ValueError("When you assign 'Dbrick' obejct into the other linear 'dbrick' object, start value should be larger than end value.")
-                else:
-                    origin = str((self[start:] + self[:end]).seq)
-                    brick  = self[end:start] + value 
-                    brick.circularize(ovhg_check=False)
-                    rec = SeqFeature(FeatureLocation(len(brick.seq)-len(value.seq), len(brick.seq), strand=0), type="misc_feature")
-                    rec.qualifiers = {"note":["{}>{}".format(origin, str(value.seq))]}
-
-            else:
-                origin = str(self[start:end].seq) 
-                brick  = self[0:start] + value + self[end:]
-                rec = SeqFeature(FeatureLocation(start, start+len(value.seq), strand=0), type="misc_feature")
-                rec.qualifiers = {"note":["{}>{}".format(origin, str(value.seq))]}
-            
-            brick.topology = self.topology
-            brick.record.annotations["topology"] = self.topology
-            for key in brick.__dict__:
-                self.__dict__[key] = brick.__dict__[key]
-            self.features.append(rec) 
-            self.features.sort(key=lambda x:x.location.parts[0].start.position)
-            self.record.features = self.features
-
     def __add__(self, other):
         if (type(other) == str and set(other) <= set("ATGCNatgcn")) or type(other) == Seq:
             other = Dbrick(seq=other) 
@@ -1219,42 +1554,56 @@ class Dbrick():
         else:
             return join_dbricks(other, self, ovhg_check=True, min_overlap=Dbrick.min_overlap, max_overlap=Dbrick.max_overlap) 
 
-    def view_seq(self, whole=False, flength=None):
-        if flength == None:
-            if len(self.seq) - len(self.right_end) - len(self.left_end) > 100:
-                flength = 5 
-            elif len(self.seq) - len(self.right_end) - len(self.left_end) > 10:
-                flength = 2 
+    def print_dsdna(self, whole=False, end_length=10):
+        if end_length is None:
+            if len(self.seq) - len(self._right_end) - len(self._left_end) > 100:
+                end_length = 5 
+            elif len(self.seq) - len(self._right_end) - len(self._left_end) > 10:
+                end_length = 2 
             else:
-                flength = 0 
-            
+                end_length = 0 
+        
+        if end_length > 0.5 * len(self.seq):
+            end_length = int(0.5 * len(self.seq)) 
+            whole = True
+
         seq_rc = self.seq.translate(str.maketrans("ATGC","TACG"))[::-1]
-        if self.left_end_top == 1:
-            left_end_top = self.seq[:len(self.left_end)+flength]
+        if len(self._left_end) > end_length:
+            left_length = end_length
         else:
-            left_end_top = " " * len(self.left_end) + self.seq[len(self.left_end):len(self.left_end)+flength] 
+            left_length = len(self._left_end)
+
+        if self._left_end_top == 1:
+            left_end_top = self.seq[:end_length]
+        else:
+            left_end_top = " " * left_length + self.seq[left_length:end_length] 
         
-        if self.left_end_bottom == 1:
-            left_end_bottom = self.seq[:len(self.left_end)+flength].translate(str.maketrans("ATGC","TACG")) 
+        if self._left_end_bottom == 1:
+            left_end_bottom = self.seq[:end_length].translate(str.maketrans("ATGC","TACG")) 
         else:
-            left_end_bottom = " " * len(self.left_end) + self.seq[len(self.left_end):len(self.left_end)+flength].translate(str.maketrans("ATGC","TACG"))
+            left_end_bottom = " " * left_length + self.seq[left_length:end_length].translate(str.maketrans("ATGC","TACG"))
         
-        if self.right_end_top == 1:
-            right_end_top = self.seq[len(self.seq)-len(self.right_end)-flength:]
+        if len(self._right_end) > end_length:
+            right_length = end_length
         else:
-            right_end_top = self.seq[len(self.seq)-len(self.right_end)-flength:len(self.seq)-len(self.right_end)] + " " * len(self.right_end) 
+            right_length = len(self._right_end)
+
+        if self._right_end_top == 1:
+            right_end_top = self.seq[len(self.seq)-end_length:]
+        else:
+            right_end_top = self.seq[len(self.seq)-end_length:len(self.seq)-right_length] + " " * right_length 
         
-        if self.right_end_bottom == 1:
-            right_end_bottom = self.seq[len(self.seq)-len(self.right_end)-flength:].translate(str.maketrans("ATGC","TACG"))
+        if self._right_end_bottom == 1:
+            right_end_bottom = self.seq[len(self.seq)-end_length:].translate(str.maketrans("ATGC","TACG"))
         else:
-            right_end_bottom = self.seq[len(self.seq)-len(self.right_end)-flength:len(self.seq)-len(self.right_end)].translate(str.maketrans("ATGC","TACG")) + " " * len(right_end)        
+            right_end_bottom = self.seq[len(self.seq)-end_length:len(self.seq)-right_length].translate(str.maketrans("ATGC","TACG")) + " " * right_length     
         
         if whole == False:
             print("{}...{}".format(left_end_top, right_end_top))
             print("{}...{}".format(left_end_bottom, right_end_bottom))
         else:
-            print("{}{}{}".format(left_end_top, self.seq[len(self.left_end)+flength:len(self.seq)-len(self.right_end)-flength], right_end_top))
-            print("{}{}{}".format(left_end_bottom, self.seq[len(self.left_end)+flength:len(self.seq)-len(self.right_end)-flength].translate(str.maketrans("ATGC","TACG")), right_end_bottom))
+            print("{}{}{}".format(left_end_top, self.seq[end_length:len(self.seq)-end_length], right_end_top))
+            print("{}{}{}".format(left_end_bottom, self.seq[end_length:len(self.seq)-end_length].translate(str.maketrans("ATGC","TACG")), right_end_bottom))
 
     def add_feature(self, start, end=None, strand=1, feature_type="misc_feature", qualifiers={}):
         if type(qualifiers) != dict:
@@ -1333,8 +1682,10 @@ class Dbrick():
 
     def remove_feature(self, feature_ids):
         tmp_features = copy.copy(self.features)
+        if type(feature_ids) is str:
+            feature_ids = [feature_ids]
         for _id in feature_ids:
-            tmp_features.remove(self.features[_id]) 
+            tmp_features.remove(self.features[int(_id)]) 
         self.features = tmp_features 
         self.record.features = tmp_features
    
@@ -1345,10 +1696,10 @@ class Dbrick():
             all = True
         else:
             all = False
-        if start == None:
+        if start is None:
             start = 0 
 
-        if end == None:
+        if end is None:
             end = len(self.seq) 
         
         feats = [] 
@@ -1383,236 +1734,157 @@ class Dbrick():
             print("There was no features that corresponded to the search")
         return feature_ids
    
-    def view_features(self, feature_ids=None, detail=False, sep=None, o=None):
-        _ids    = ["Feature_ID"] 
-        labels  = ["Label"]
-        types   = ["Type"] 
-        starts  = ["Start"] 
-        ends    = ["End"] 
-        strands = ["Strand"]
-        if feature_ids == None:
+    def print_features(self, sep=None, output=None, feature_types=None, detail=False, with_seq=False, zero_index=True, feature_ids=None):
+        _ids      = ["Feature_ID"] 
+        labels    = ["Label"]
+        types     = ["Type"] 
+        starts    = ["Start"] 
+        ends      = ["End"] 
+        strands   = ["Strand"]
+        sequences = ["Seq"]
+        others_dict = {}
+
+        if feature_ids is None:
             feature_ids = list(range(len(self.features)))
         else:
-            feature_ids = list(map(int, feature_ids))
+            feature_ids = list(map(int, feature_ids)) 
         for _id in feature_ids:
-            feat = self.features[_id]
-            flag = 0 
-            
-            for key in Dbrick.order_qualifiers:
-                if key in feat.qualifiers:
-                    flag = 1
-                    break 
+            feat = self.features[_id] 
+            if feature_types is None or feat.type in feature_types:
+                flag  = 0  
+                label_keys = []
+                for key in feat.qualifiers:
+                    if key == "label" or key == "note_dbrick":
+                        pass 
+                    elif key not in others_dict:
+                        others_dict[key] = [key]
+
+                    if key in  Dbrick.order_qualifiers:
+                        label_keys.append((Dbrick.order_qualifiers.index(key),key))
+                        flag = 1
+                
+                if flag == 0:
+                    label = feat.type
                 else:
-                    pass 
-            if flag == 0:
-                label = feat.type
-            else:
-                if type(feat.qualifiers[key]) == list:
-                    label = feat.qualifiers[key][0]
-                else:
-                    label = feat.qualifiers[key]
-            strand = feat.location.strand
-            if strand == -1:
-                start = feat.location.parts[-1].start.position
-                end   = feat.location.parts[0].end.position 
-            else:
-                start = feat.location.parts[0].start.position
-                end   = feat.location.parts[-1].end.position 
-            
-            _ids.append(str(_id)) 
-            labels.append(str(label)) 
-            types.append(str(feat.type)) 
-            starts.append(str(start)) 
-            ends.append(str(end))
-            if strand == 1:
-                strands.append("+")
-            elif strand == 0:
-                strands.append("+") 
-            else:
-                strands.append("-")
-            
-        _idmax    = max(list(map(len,_ids)))   + 2
-        labelmax  = max(list(map(len,labels))) + 2
-        ftypemax  = max(list(map(len,types)))  + 2
-        startmax  = max(list(map(len,starts))) + 2
-        endmax    = max(list(map(len,ends)))   + 2
-        strandmax = max(list(map(len,strands)))   + 2
-        for n, (_id, label, ftype, start, end, strand) in enumerate(zip(_ids, labels, types, starts, ends, strands)):
-            if sep == None:
-                if o == io.TextIOWrapper:
-                    print(_id + " " * (_idmax-len(_id)) + label + " " * (labelmax-len(label)) + ftype + " " * (ftypemax-len(ftype)) + start + " " * (startmax-len(start)) + end + " " * (endmax-len(end)) + strand + " " * (strandmax-len(strand)), file=o)
-                else:
-                    print(_id + " " * (_idmax-len(_id)) + label + " " * (labelmax-len(label)) + ftype + " " * (ftypemax-len(ftype)) + start + " " * (startmax-len(start)) + end + " " * (endmax-len(end)) + strand + " " * (strandmax-len(strand)))
-            else:
-                if o == io.TextIOWrapper:
-                    print(_id, label, ftype, start, end, strand, sep=",", file=o)
-                else:
-                    print(_id, label, ftype, start, end, strand, sep=",") 
-            
-            if detail == True and n > 0:
-                feat = self.features[int(_id)]
-                for key,value in feat.qualifiers.items():
-                    if type(value) == list:
-                        for v in value:
-                            print(" " * (_idmax) + "  ", "{}:{}".format(key,v)) 
+                    label_keys.sort()
+                    label_key = label_keys[0][1]
+                    if type(feat.qualifiers[label_key]) == list:
+                        label = feat.qualifiers[label_key][0]
                     else:
-                        print(" " * (_idmax) + "  ",  "{}:{}".format(key,value))
-                print() 
+                        label = feat.qualifiers[label_key]
+                
+                if "note_dbrick" in feat.qualifiers:
+                    note   = feat.qualifiers["note_dbrick"]
+                    label  = note.split(":")[0]
+                    pos_s  = int(note.split(":")[1].split("..")[0])
+                    pos_e  = int(note.split(":")[1].split("..")[1])
+                    length = int(note.split(":")[2])
+                    if (pos_s == 1 and pos_e == length) or (pos_s == length and pos_e == 1):
+                        pass 
+                    else:
+                        label = note
+
+                strand = feat.location.strand
+                if strand == -1:
+                    start = feat.location.parts[-1].start.position
+                    end   = feat.location.parts[0].end.position 
+                    seq   = substr(self,start,end).seq.translate(str.maketrans("ATGC","TACG"))[::-1]
+                else:
+                    start = feat.location.parts[0].start.position
+                    end   = feat.location.parts[-1].end.position 
+                    seq   = substr(self,start,end).seq
+                
+                if zero_index == False:
+                    start += 1 
+
+                if detail == True:
+                    for key in others_dict:
+                        if key == "label" or key == "note_dbrick":
+                            pass 
+                        elif key in feat.qualifiers:
+                            if type(feat.qualifiers[key]) == list:
+                                others_dict[key].append(":".join(feat.qualifiers[key]))
+                            else:
+                                others_dict[key].append(feat.qualifiers[key])
+                        else:
+                            others_dict[key].append("N.A.")
+
+                _ids.append(str(_id)) 
+                labels.append(str(label)) 
+                types.append(str(feat.type)) 
+                starts.append(str(start)) 
+                ends.append(str(end))
+                sequences.append(seq) 
+
+                if strand == 1:
+                    strands.append("+")
+                elif strand == 0:
+                    strands.append("+") 
+                else:
+                    strands.append("-")
+            
+        _idmax       = max(list(map(len,_ids))) + 2
+        labelmax     = max(list(map(len,labels))) + 2
+        ftypemax     = max(list(map(len,types)))  + 2
+        startmax     = max(list(map(len,starts))) + 2
+        endmax       = max(list(map(len,ends)))   + 2
+        strandmax    = max(list(map(len,strands))) + 2
+        sequencemax  = max(list(map(len,sequences))) + 2
+        other_maxes = [max(list(map(len,others_dict[key]))) + 2 for key in others_dict]
+        
+        if detail == True:
+            rows  = [_ids, labels, types, starts, ends, strands] + list(others_dict.values()) 
+            maxes = [_idmax, labelmax, ftypemax, startmax, endmax, strandmax] + other_maxes
+        else:
+            rows  = [_ids, labels, types, starts, ends, strands] 
+            maxes = [_idmax, labelmax, ftypemax, startmax, endmax, strandmax] 
+
+        if with_seq == True:
+            rows.append(sequences) 
+            maxes.append(sequencemax) 
+
+        for n, row in enumerate(zip(*rows)):
+            if type(output) is str:
+                output = open(output,"w") 
+            
+            if sep is None:
+                text = ""
+                for m, x in enumerate(row):
+                    text += x + " " * (maxes[m]-len(x)) 
+                print(text, file=output) 
+            
+            else:
+                print(*row, sep=",", file=output)
+            
+            
 
     def reindex(self, zero_position):
         if self.topology == "linear":
             print("The method cannot be used for linear Dbrick object.")
         else:
             abrick = self[zero_position:] + self[:zero_position] 
-            abrick.circularize(ovhg_check=False) 
+            abrick = circularize(abrick, ovhg_check=False) 
             for key in abrick.__dict__.keys():
                 self.__dict__[key] = abrick.__dict__[key] 
             
-    def write(self, handle, format="genbank"):
+    def write(self, handle, format="genbank", record_id=None):
         features = copy.deepcopy(self.features)
         for feat in features:
             if "note_dbrick" in feat.qualifiers:
                 note = feat.qualifiers["note_dbrick"]
-                pos_s  = int(note.split(":")[0].split("..")[0])
-                pos_e  = int(note.split(":")[0].split("..")[1])
-                length = int(note.split(":")[1])
+                pos_s  = int(note.split(":")[1].split("..")[0])
+                pos_e  = int(note.split(":")[1].split("..")[1])
+                length = int(note.split(":")[2])
                 if (pos_s == 1 and pos_e == length) or (pos_s == length and pos_e == 1):
                     del feat.qualifiers["note_dbrick"]
         self.record.features = features 
-        self.record.id = self.name
+        if record_id is None:
+            self.record.id = self.name
+        else:
+            self.record.id = record_id
+        self.record.seq = Seq(str(self.seq),Alphabet.DNAAlphabet()) 
         SeqIO.write(self.record, handle, format)
         self.record.features = self.features
 
-    def linearize(self):
-        abrick = substr(self, 0, len(self.seq))
-        for key in abrick.__dict__.keys():
-            self.__dict__[key] = abrick.__dict__[key] 
-        self.topology = "linear"
-        self.record.annotations["topology"] = self.topology
+    
 
-    def circularize(self, ovhg_check=True):
-        seq_origin = copy.deepcopy(self.seq)
-        feats_origin = copy.deepcopy(self.features) 
-        if self.topology == "circular" and self.record.annotations["topology"] == "circular":
-            print("The dbrick object is already circularized")
-
-        if ovhg_check == True:
-            if str(self.right_end) == str(self.left_end) and (self.right_end_top * self.left_end_bottom == 1 and self.right_end_bottom * self.left_end_top == 1) and len(self.right_end) > 0:
-                print("Based on complementary sticky end between 3' end and 5' end, the Dbrick object was circularized. The sticky end is '{}'".format(self.left_end)) 
-                ovhg = self.right_end
-                brick = substr(self, 0, len(self.seq)-len(self.right_end))
-                self.seq      = brick.seq
-                self.record   = brick.record
-
-            elif str(self.right_end) == str(self.left_end) and len(self.right_end) > 0 and self.right_end_top == 1 and self.right_end_bottom == 1 and self.left_end_top == 1 and self.left_end_bottom == 1:
-                print("Based on sequence homology between 3' end and 5' end, the Dbrick object was circularized. The overhang sequence is '{}'.".format(self.left_end)) 
-                ovhg = self.right_end
-                brick = substr(self, 0, len(self.seq)-len(self.right_end))
-                self.seq      = brick.seq
-                self.record   = brick.record
-            
-            elif self.right_end_top == 1 and self.right_end_bottom == 1 and self.left_end_top == 1 and self.left_end_bottom == 1:
-                #Gibson assembly
-                flag = 0
-                for i in range(Dbrick.min_overlap,Dbrick.max_overlap):
-                    if self.seq[:i] == self.seq[-1*i:]:
-                        flag = 1
-                        break
-                    else:
-                        pass
-                if flag == 1:
-                    ovhg = self.seq[:i] 
-                    brick  = substr(self, 0, len(self.seq)-i)
-                    self.seq      = brick.seq
-                    self.record   = brick.record
-                    print("Based on sequence homology between 3' end and 5' end, the Dbrick object was circularized. The overhang sequence is '{}'".format(ovhg))
-                else:
-                    return False
-            
-            else:
-                return False
-        else:
-            ovhg = ""
-
-        remove_list = [] 
-        feats1      = [feat for feat in self.features if "note_dbrick" in feat.qualifiers]
-        for feat1 in feats1:
-            if feat1.location.strand == -1:
-                s1, e1 = feat1.location.parts[-1].start.position, feat1.location.parts[0].end.position
-            else:
-                s1, e1 = feat1.location.parts[0].start.position, feat1.location.parts[-1].end.position
-            
-            for feat2 in feats1:
-                if feat2.location.strand == -1:
-                    s2, e2 = feat2.location.parts[-1].start.position, feat2.location.parts[0].end.position
-                else:
-                    s2, e2 = feat2.location.parts[0].start.position, feat2.location.parts[-1].end.position
-                
-                if feat1 == feat2 or feat1 in remove_list:
-                    pass 
-                
-                elif feat1.type == feat2.type:
-                    flag = 0
-                    for key in feat1.qualifiers:
-                        if key == "note_dbrick":
-                            pass 
-                        elif key in feat2.qualifiers and feat1.qualifiers[key] == feat2.qualifiers[key]:
-                            flag = 1
-                        else:
-                            flag = 0
-                            break    
-                    if flag == 1:
-                        note1   = feat1.qualifiers["note_dbrick"]
-                        pos_s1  = int(note1.split(":")[0].split("..")[0])
-                        pos_e1  = int(note1.split(":")[0].split("..")[1]) 
-                        length1 = int(note1.split(":")[1])
-                        
-                        note2   = feat2.qualifiers["note_dbrick"] 
-                        pos_s2  = int(note2.split(":")[0].split("..")[0])
-                        pos_e2  = int(note2.split(":")[0].split("..")[1]) 
-                        length2 = int(note2.split(":")[1])
-                        
-                        if length1 == length2 and ((s1 == 0 and e2 == len(seq_origin)) or (s2 == 0 and e1 == len(seq_origin))):
-                            if "original" in feat1.__dict__ and "original" in feat2.__dict__ and feat1.original == feat2.original:
-                                note     = "{}..{}:{}".format(pos_s1, pos_e2, length1)
-                                new_seq  = seq_origin[s1:e1] + seq_origin[s2:e2] 
-                                new_feat = copy.deepcopy(self.features[self.features.index(feat1)]) 
-                                if s1 == 0:
-                                    new_feat.location = FeatureLocation(s2, e2 + (e1-len(ovhg)), feat1.strand)
-                                else:
-                                    new_feat.location = FeatureLocation(s1, e1 + (e2-len(ovhg)), feat1.strand)
-                                
-                                if len(new_seq) - len(ovhg) <= len(feat1.original):
-                                    new_feat.qualifiers["note_dbrick"] = note
-                                    if len(new_seq) - len(ovhg) == length1:
-                                        del self.features[self.features.index(feat1)].qualifiers["note_dbrick"]
-                                    self.features[self.features.index(feat1)].location = new_feat.location
-                                    self.features.remove(feat2)  
-                                    remove_list.append(feat2) 
-            
-        for i in range(len(self.features)):    
-            if self.features[i].location.parts[-1].end.position > len(self.seq): #and feats_origin[i].type == "source":
-                if self.features[i].location.parts[0].start.position >= len(self.seq):
-                    strand                    = self.features[i].location.strand
-                    self.features[i].location = FeatureLocation(self.features[i].location.parts[0].start.position-len(self.seq),self.features[i].location.parts[-1].end.position-len(self.seq))
-                    self.features[i].location.strand = strand
-                else:
-                    strand    = self.features[i].location.strand
-                    locations = [FeatureLocation(self.features[i].location.parts[0].start.position,len(self.seq)), FeatureLocation(0,self.features[i].location.parts[-1].end.position-len(self.seq))]
-                    if strand == -1:
-                        locations.reverse() 
-                    self.features[i].location = CompoundLocation(locations)
-                    self.features[i].location.strand = strand
-        
-        self.record.features = self.features
-        self.left_end  = ""
-        self.left_end_top    = 0 
-        self.left_end_bottom = 0 
-
-        self.right_end = ""
-        self.right_end_top    = 0 
-        self.right_end_bottom = 0 
-
-        self.topology = "circular"
-        self.record.seq = Seq(str(self.seq),Alphabet.DNAAlphabet())
-        self.record.annotations["topology"] = self.topology

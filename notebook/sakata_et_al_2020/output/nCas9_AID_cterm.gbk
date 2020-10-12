@@ -1,7 +1,7 @@
-LOCUS       .                       2831 bp    DNA     linear   UNK 01-JAN-1980
-DEFINITION  .
-ACCESSION   .
-VERSION     .
+LOCUS       addgene_79620           2831 bp    DNA     linear   UNK 01-JAN-1980
+DEFINITION  ..
+ACCESSION   addgene_79620
+VERSION     addgene_79620
 KEYWORDS    .
 SOURCE      .
   ORGANISM  .
@@ -38,11 +38,11 @@ FEATURES             Location/Qualifiers
                      LALPSKYVNFLYLASHYEKLKGSPEDNEQKQLFVEQHKHYLDEIIEQISEFSKRVILAD
                      ANLDKVLSAYNKHRDKPIREQAENIIHLFTLTNLGAPAAFKYFDTTIDRKRYTSTKEVL
                      DATLIHQSITGLYETRIDLSQLGGD"
-                     /note_dbrick="2505..4104:4104"
+                     /note_dbrick="Cas9(D10A):2505..4104:4104"
      source          1..2818
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="6450..9267:10419"
+                     /note_dbrick="addgene_79620:6450..9267:10419"
      CDS             1613..1633
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus

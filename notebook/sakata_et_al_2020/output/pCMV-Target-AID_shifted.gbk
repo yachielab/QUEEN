@@ -1,7 +1,7 @@
-LOCUS       None                    8752 bp    DNA     circular UNK 01-JAN-1980
-DEFINITION  .
-ACCESSION   None
-VERSION     None
+LOCUS       pTarget-AID             8752 bp    DNA     circular UNK 01-JAN-1980
+DEFINITION  ..
+ACCESSION   pTarget-AID
+VERSION     pTarget-AID
 KEYWORDS    .
 SOURCE      .
   ORGANISM  .
@@ -41,7 +41,7 @@ FEATURES             Location/Qualifiers
      source          join(6766..8752,1..3386)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="5882..6477:10419"
+                     /note_dbrick="addgene_79620:5882..9267:10419"
      primer          complement(562..596)
                      /label="HM129"
      primer          569..603
@@ -78,7 +78,7 @@ FEATURES             Location/Qualifiers
      source          3390..6768
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dbrick="5258..8621:8727"
+                     /note_dbrick="addgene_102919:5258..8636:8727"
      primer_bind     complement(3412..3429)
                      /label="BGH-rev"
                      /note="Bovine growth hormone terminator, reverse primer.

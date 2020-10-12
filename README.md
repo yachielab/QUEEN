@@ -71,8 +71,8 @@ Biopython SeqRecord object that has an optional description and annotation for t
 ##### Methods
 - `.print_dsdna(self, whole=False, end_length=10)`  
   Print double strand DNA sequence. It the `whole` argument is True or the sequence length is less than end length, print the full length of the DNA sequence. If it is `False`, display the `end_length` bp sequence at both ends.   
+  
   **Example 1 : Dbrick object of blunt end DNA sequence**  
-
   ```Python
   #Source code#
   from dbrick import *
@@ -85,7 +85,6 @@ Biopython SeqRecord object that has an optional description and annotation for t
   ````
   
   **Example 2 : Dbrick object of stickey end DNA sequence**
-  
   ````Python
   #Source code#
   from dbrick import *
@@ -353,9 +352,9 @@ The dbrick.py provides 6 fundamental functions to handle Dbrick objects.
    - `right_end` : str  
      The right end sequence of the Dbrck object.  The way to specify the parameter is shown in the following examples.
 
-   **Example 1: Set sticky ends at both ends **
-   You can specify end structures by using "`*`" and "` -`" and "`/`."  
-   The left side of "/" means the top strand of the sequence, and the right side means the bottom strand. The "`-`" means the truncating nucleotides, and the "* `*`" means the remaining nucleotides at the end. 
+   **Example 1: Set sticky ends at both ends**  
+   You can specify end structures by using "`*`" and "`-`," "`/`."  
+   The left side of "/" means the top strand of the sequence, and the right side means the bottom strand. The "`-`" means the truncating nucleotides, and the " `*`" means the remaining nucleotides at the end. 
 
    ````Python
    #Source code (continued from previous one)#

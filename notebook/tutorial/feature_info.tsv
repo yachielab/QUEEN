@@ -1,0 +1,22 @@
+Feature_ID	Label	Type	Start	End	Strand	organism	mol_type	note	bound_moiety	codon_start	gene	product	translation	direction
+0	pUC19	source	0	2686	+	synthetic DNA construct	other DNA	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+100	pBR322ori-F	primer_bind	117	137	+	N.A.	N.A.	pBR322 origin, forward primer	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+200	L4440	primer_bind	370	388	+	N.A.	N.A.	L4440 vector, forward primer	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+300	CAP binding site	protein_bind	504	526	+	N.A.	N.A.	CAP binding activates transcription in the presence of cAMP.	E. coli catabolite activator protein	N.A.	N.A.	N.A.	N.A.	N.A.
+400	lac promoter	promoter	540	571	+	N.A.	N.A.	promoter for the E. coli lac operon	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+500	lac operator	protein_bind	578	595	+	N.A.	N.A.	The lac repressor binds to the lac operator to inhibit transcription in E. coli. This inhibition can be relieved by adding lactose or isopropyl-beta-D-thiogalactopyranoside (IPTG).	lac repressor encoded by lacI	N.A.	N.A.	N.A.	N.A.	N.A.
+600	M13/pUC Reverse	primer_bind	583	606	+	N.A.	N.A.	In lacZ gene	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+700	M13 rev	primer_bind	602	619	+	N.A.	N.A.	common sequencing primer, one of multiple similar variants	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+800	M13 Reverse	primer_bind	602	619	+	N.A.	N.A.	In lacZ gene. Also called M13-rev	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+900	lacZ-alpha	CDS	614	938	+	N.A.	N.A.	N.A.	N.A.	1	lacZ fragment	LacZ-alpha fragment of beta-galactosidase	MTMITPSLHACRSTLEDPRVPSSNSLAVVLQRRDWENPGVTQLNRLAAHPPFASWRNSEEARTDRPSQQLRSLNGEWRLMRYFLLTHLCGISHRIWCTLSTICSDAA	N.A.
+1000	MCS	misc_feature	631	688	+	N.A.	N.A.	pUC18/19 multiple cloning site	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+1100	M13 Forward	primer_bind	688	706	-	N.A.	N.A.	In lacZ gene. Also called M13-F20 or M13 (-21) Forward	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+1200	M13 fwd	primer_bind	688	705	-	N.A.	N.A.	common sequencing primer, one of multiple similar variants	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+1300	M13/pUC Forward	primer_bind	697	720	-	N.A.	N.A.	In lacZ gene	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+1400	pRS-marker	primer_bind	913	933	-	N.A.	N.A.	pRS vectors, use to sequence yeast selectable marker	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+1500	pGEX 3'	primer_bind	1032	1055	+	N.A.	N.A.	pGEX vectors, reverse primer	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+1600	pBRforEco	primer_bind	1092	1111	-	N.A.	N.A.	pBR322 vectors, upsteam of EcoRI site, forward primer	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+1700	AmpR promoter	promoter	1178	1283	+	N.A.	N.A.	N.A.	N.A.	N.A.	bla	N.A.	N.A.	N.A.
+1800	AmpR	CDS	1283	2144	+	N.A.	N.A.	confers resistance to ampicillin, carbenicillin, and related antibiotics	N.A.	1	bla	beta-lactamase	MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW	N.A.
+1900	Amp-R	primer_bind	1501	1521	-	N.A.	N.A.	Ampicillin resistance gene, reverse primer	N.A.	N.A.	N.A.	N.A.	N.A.	N.A.
+2000	ori	rep_origin	2314	217	+	N.A.	N.A.	high-copy-number ColE1/pMB1/pBR322/pUC origin of replication	N.A.	N.A.	N.A.	N.A.	N.A.	RIGHT

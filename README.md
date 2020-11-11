@@ -1,7 +1,6 @@
 **README.md**
 # dbrick.py Installation and User Manual
-dbrick.py is a Python module that enables users to design favored DNA sequences in silico. This module provides six fundamental methods (`substr`,`join_dbricks`,`shell`,`reverse_complement`,`linearize`,`circularize`) to handle the Dbrick object that represents a DNA sequence with genetic information.
-By using the methods, you can take partial fragments with sequence annotaion from genomic data such as GenBank, then generate new GenBank by combining their information. 
+The dna.py is a Python module that enables users to handle double-stranded DNA sequences in silico. In the dna.py, all manipulation of DNA engineering was converged only four fundamental methods cut, join, end modification, and flip. By using the four methods, users can design and construct any DNA sequences. The module also gives some functions to read and edit the GenBank file, then constructed sequences are can be output as GenBank format with sequence annotation.　
 
 ## Software dependency
 Python 3.7.0 or later
@@ -17,46 +16,47 @@ Python 3.7.0 or later
 3. Set PYTHONPATH to the directory where you cloned the repository.
 
 ## Usage
-The python module provides Dbrick class to handle a double-stranded DNA sequence with genomic annotations. Dbrick objects can be joined, split, and transformed by using the six fundamental methods. The usage of Dbrick objects and the six methods are explained in the following section. 
+The module provides “DNA class” to handle a double-stranded DNA sequence with sequence annotations. The usage of DNA objects and the four fundamental methods are described in the following section.
 
 ### Dbrick class
-Dbrick objects can be created from Python string or Biopython Seq object specifying a DNA sequence. By giving a Fasta or GenBank format file, you can also create a Dbrick object with additional information for the DNA sequence.
+DNA class object can be created from Python string specifying a DNA sequence or sequence data in GenBank/FASTA format.
+
+**Example 1: Create DNA object from python string (blunt end DNA sequence).**
 
 ```Python
-#Source code#
-from dbrick import *
-from Bio.Alphabet import generic_dna
-from Bio.Seq import Seq
-
-#Create Dbrick object from Python string. 
-brick1 = Dbrick(seq="ATGC")
-
-#Create Dbrick object from Bio.Seq.Seq object.  
-seq   = Seq("ATGC", generic_dna)
-brick2 = Dbrick(seq=seq)
-
-#Create Dbrick object from GenBank or Fasta format file.  
-brick3 = Dbrick(record="example.gbk")
-
-#Create Dbrick object from GenBank or Fasta format file.  
-brick4 = Dbrick(record="example.gbk")
+#Soruce code#
+from DNA import * 
+brick  = DNA(seq="ATGC") 
 ```
-Dbrick object also can take a DNA sequence with sticky ends as follows. The ''-'' 
+
+**Example 2: Create DNA object from python string (sticky end sequence).**  
+You can also specify a DNA sequence with sticky ends as follows. 
+
 ```Python
-#Source code#
-from dbrick import *
-brick = Dbrick(seq="CCGGTATGCG----/----ATACGCAGCT")
+#Soruce code#
+from DNA import * 
+brick  = DNA(seq="CCGGTATGCG----/----ATACGCAGCT") 
+```
+
+The left side of "/" means the top strand of the sequence, and the right side means the bottom strand. The "-" indicated the region of the gap nucleotides. The bottom strand sequence should be a complementary sequence to the top strand, excluding the gap region in the format.
+
+**Example 3: Create DNA object from GenBank format file.**  
+
+```Python
+from DNA import * 
+brick  = Dbrick(seq="ATGC") 
+
 ```
 
 #### Properties and methods
 Dbrick objects have some properties and methods to confirm and edit annotation information for the DNA sequences.  
 
 ##### Properties 
-- `.name`  
+- `.project`  
 An identifier of the Dbrick object. If a dbrick object is created from GenBank or Fasta format file, its identifier used as `.name`. 
 
 - `.seq`  
-A top strand DNA sequence of the Dbrick object. Even If the bottom strand sequence has a sticky end, the digested nucleotides on the top strand are complemented based on the bottom strand. When you confirm the dsDNA sequence structure with sticky ends, please use the `.view_seq` method described in the following section.
+A top strand DNA sequence of the Dbrick object. Even If the bottom strand sequence has a sticky end, the digested nucleotides on the top strand are complemented based on the bottom strand. When you confirm the dsDNA sequence structure with sticky ends, please use the `.printdnaseq` method described in the following section.
   
 - `.topology`  
 DNA sequence topology of the Dbrick object. Dbrick object can take `linear` or `circular` topology.
@@ -69,7 +69,7 @@ https://biopython.org/docs/dev/api/Bio.SeqFeature.html
 Biopython SeqRecord object that has an optional description and annotation for the DNA sequence. Please refer to the following URL for the detailed explanation of the SeqRecord object.
 
 ##### Methods
-- `.print_dsdna(self, whole=False, end_length=10)`  
+- `.printdnaseq(self, whole=False, end_length=10)`  
   Print double strand DNA sequence. It the `whole` argument is True or the sequence length is less than end length, print the full length of the DNA sequence. If it is `False`, display the `end_length` bp sequence at both ends.   
   
   **Example 1 : Dbrick object of blunt end DNA sequence**  
@@ -77,7 +77,7 @@ Biopython SeqRecord object that has an optional description and annotation for t
   #Source code#
   from dbrick import *
   brick = Dbrick(seq="CCGGTATGCGTCGA")
-  brick.print_dsdna()
+  brick.printdnaseq()
   ````
   ````
   CCGGTATGCGTCGA
@@ -96,7 +96,7 @@ Biopython SeqRecord object that has an optional description and annotation for t
       ATACGCAGCT
   ````
   
-- `.print_features(self, sep=None, output=None, feature_types= None, detail=False, with_seq=False, zero_index=True)`  
+- `.printdnafeature(self, sep=None, output=None, feature_types= None, detail=False, with_seq=False, zero_index=True)`  
   Print a table with the features information of the Dbrick object.  Default columns of the table are composed of `Feature ID`,  `Label`, `Type`, `Start`, `End`, `Strand`.  The `Feature ID` is the index of each feature in the .features.
 
   **Parameters**
@@ -122,7 +122,7 @@ Biopython SeqRecord object that has an optional description and annotation for t
   ````python
   #Source code#
   from dbrick import *
-  brick = Dbrick(record="pUC19.gbk")
+  brick = DNA(record="pUC19.gbk")
   brick.print_features(with_seq=True, feature_types=["primer_bind"])
   ````
   ```
@@ -141,15 +141,15 @@ Biopython SeqRecord object that has an optional description and annotation for t
   19          Amp-R            primer_bind  1501   1521  -       ATAATACCGCGCCACATAGC  
   ```
 
-- `.add_features(self, start, end=None, strand=1, feature_type="misc_feature", qualifiers={})`  
+- `.adddnafeatures(self, start, end, strand=1, feature_type="misc_feature", qualifiers={})`  
   Add feature(s) on the specified location(s).
 
   **Parameters**
   - `start` (int or str)  
-    If the start is specified by an integer, it indicates the start position of the feature. You can also set it by the DNA sequence on the strand specified by the strand parameter. In this case, the feature is set for all regions composed of this DNA sequence.   
-    
+    Start position of the feature. 
+ 
   - `end` (int)  
-    End position of the feature. If the `start` is specified by the DNA seqeunce, the `end` value is ignored.  
+    End position of the feature.
     
   - `strand` (1 or -1)  
     Direction of the feature.   
@@ -163,40 +163,40 @@ Biopython SeqRecord object that has an optional description and annotation for t
   **Example: Add new features** 
   ````Python
   #Source code#
-  from dbrick import *
-  brick = Dbrick(record="pUC19.gbk")
-  brick.print_features(feature_types=["misc_feature"], with_seq=True)
+  from dna import *
+  brick = DNA(record="pUC19.gbk")
+  brick.printdnafeature(feature_types=["misc_feature"], with_seq=True)
   ````
   ````
   Feature_ID  Label  Type          Start  End  Strand  Seq                                                        
-  10          MCS    misc_feature  631    688  +       AAGCTTGCATGCCTGCAGGTCGACTCTAGAGGATCCCCGGGTACCGAGCTCGAATTC 
+  1000        MCS    misc_feature  631    688  +       AAGCTTGCATGCCTGCAGGTCGACTCTAGAGGATCCCCGGGTACCGAGCTCGAATTC  
   ````
+  
   ````Python 
   #Source code (continued from previous one)#
-  brick.add_feature(100, 120, qualifiers={"label":"feat1"}) 
-  brick.add_feature(2680, 10, qualifiers={"label":"feat2"}) #feat on origin
-  brick.add_feature("GGATCC", qualifiers={"label":"BamHI"})
-  brick.print_features(feature_types=["misc_feature"], with_seq=True)           
+  brick.adddnafeature(100, 120, qualifiers={"label":"feat1"}) 
+  brick.adddnafeature(2680, 10, qualifiers={"label":"feat2"}) #feat on origin
+  brick.adddnafeature(*brick.finddna("GGATCC")[0].sspan, qualifiers={"label":"BamHI"})
+  brick.printdnafeature(feature_types=["misc_feature"], with_seq=True)        
   ````
   
   ````
-  New feature was added in the range of start 661 to end 667.
   Feature_ID  Label  Type          Start  End  Strand  Seq                                                        
-  1           feat1  misc_feature  100    120  +       ACGAGGGAGCTTCCAGGGGG                                       
-  11          MCS    misc_feature  631    688  +       AAGCTTGCATGCCTGCAGGTCGACTCTAGAGGATCCCCGGGTACCGAGCTCGAATTC  
-  12          BamHI  misc_feature  661    667  +       GGATCC                                                     
-  23          feat2  misc_feature  2680   10   +       CGAACTGAGATACCTA        
+  2001        feat1  misc_feature  100    120  +       ACGAGGGAGCTTCCAGGGGG                                       
+  1000        MCS    misc_feature  631    688  +       AAGCTTGCATGCCTGCAGGTCGACTCTAGAGGATCCCCGGGTACCGAGCTCGAATTC  
+  801         BamHI  misc_feature  661    667  +       GGATCC                                                     
+  1901        feat2  misc_feature  2680   10   +       CGAACTGAGATACCTA           
   ````
   
-- `.remove_feature(self, feature_id)`
-
+  
+- `.remove_feature(self, feature_id)`  
   Remove a feature specified by the `feature_id`.
 
   **Example: Remove a feature** 
   ````python
   #Source code (continued from previous one)#
-  brick.remove_feature("12")
-  brick.print_features(feature_types=["misc_feature"], with_seq=True)
+  brick.removednafeature("101")
+  brick.printdnafeature(feature_types=["misc_feature"], with_seq=True)
   ````
   
   ````
@@ -211,28 +211,25 @@ Biopython SeqRecord object that has an optional description and annotation for t
 ### Fudamental functions
 The dbrick.py provides 6 fundamental functions to handle Dbrick objects. 
 
-- `substr(brick, start, end, target=None)`   
+- `cropdna(brick, start, end)`   
    The `substr` method extracts sub-Dbrick object within the specific range. All feature information in the area, including features on the boundaries, is carried over to the extracted fragments. It adds the cropped part's report for the features on the edges. 
-
-   **Parameters**
-   - `brick ` : A Dbrick object  
+   
+ **Parameters**
+   - `brick ` : A DNA object  
 
    - `start` : int or str  (DNA sequence)  
-     If the start is specified by an integer, it indicates the start position of the region you want to extract. You can also set the DNA sequence on the forward strand of the Dbrick object. In this case, the start of the DNA sequence is the start position of the region, and the DNA sequence should be unique on the forward strand. 
-
+     If the start is specified by an integer, it indicates the start position of the region you want to extract.
+     
    - `end` : int or str (DNA sequence)  
-     If the start is specified by an integer, it indicates the start position of the region you want to extract. You can also set the DNA sequence on the reverse complement strand of the Dbrick object. In this case, the start of the DNA sequence is the start position of the region, and the DNA sequence should be unique on the reverse complement strand. 
-
-   - `target`:  int (Feature ID), list (Feature IDs)  or str (DNA seqeunce)  
-     If you want to extract the specific area with the flanking region, please use this parameter. You can set Feature_ID (s) or the DNA sequence on the forward strand to the parameter. In that case, it extracts the area, including the feature(s) or the sequence, with the flanking region. The flanking length at both ends are specified by the `start` and `end` parameters, respectively. 
-
-   **Example 1 : Extraction of a region specified by the position**     
+     If the start is specified by an integer, it indicates the start position of the region you want to extract.
+     
+ **Example 1 : Extraction of a specific region**   
    ````Python
    #Source code (continued from previous one)#
    sub_brick = substr(brick, 1000, 2000)
-   brick.print_features
+   brick.printdnafeature()
    print()
-   sub_brick.print_features() 
+   sub_brick.printdnafeature()
    ````
 
    ````
@@ -270,75 +267,11 @@ The dbrick.py provides 6 fundamental functions to handle Dbrick objects.
     5           Amp-R                   primer_bind  501    521   -      
    ````
 
-    For the features on the boundary, the information about the cropped region is recorded according to the following format. 
+   For the features on the boundary, the information about the cropped region is recorded according to the following format. 
 
-   ```  Feature identifier```:```Relative start position in the original feature```..```Relative end position in the original feature```:```The length of the original feature```
+   ```Feature identifier```:```Relative start position in the original feature```..```Relative end position in the original feature```:```The length of the original feature```
    
-    **Example 2 : Extraction of a region specified by the DNA sequence** 
-    Extract the region between M13_Forward and M13_reverse. 
-   
-    ````Python
-   #Source code (continued from previous one)#
-   sub_brick = substr(brick, "CAGGAAACAGCTATGAC", "TGTAAAACGACGGCCAGT")
-   sub_brick.print_dsdna(whole=True)
-   sub_brick.print_features() 
-    ````
-   
-    ````
-   The region from start 603 to end 706 was extracted.
-   CAGGAAACAGCTATGACCATGATTACGCCAAGCTTGCATGCCTGCAGGTCGACTCTAGAGGATCCCCGGGTACCGAGCTCGAATTCACTGGCCGTCGTTTTACA
-   GTCCTTTGTCGATACTGGTACTAATGCGGTTCGAACGTACGGACGTCCAGCTGAGATCTCCTAGGGGCCCATGGCTCGAGCTTAAGTGACCGGCAGCAAAATGT
-   Feature_ID  Label                      Type          Start  End  Strand  
-   0           M13/pUC Reverse:20..23:23  primer_bind   0      4    +       
-   1           M13 rev                    primer_bind   0      17   +       
-   2           M13 Reverse                primer_bind   0      17   +       
-   3           source:603..706:2686       source        0      104  +       
-   4           lacZ-alpha:1..92:324       CDS           12     104  +       
-   5           MCS                        misc_feature  29     86   +       
-   6           M13 fwd                    primer_bind   86     103  -       
-   7           M13 Forward                primer_bind   86     104  -       
-   8           M13/pUC Forward:9..1:23    primer_bind   95     104  -    
-    ````
-   
-   The methods allow the specified sequences to include an extra sequence that doesn't exist in the sequence of the Dbrick object. However, the specified sequence should include unique seqeunce in the sequence of Dbrick object. 
-   
-   ````Python
-   #Source code (continued from previous one)#
-   sub_brick = substr(brick, "TTTTTCAGGAAACAGCTATGAC", "GGGGGTGTAAAACGACGGCCAGT")
-   sub_brick.print_dsdna(whole=True)
-   ````
-   
-   `````
-   The region from start 602 to end 706 was extracted. Adapter sequneces were detected at both ends. Right redundant sequence is TTTTT, Left redundant sequence is GGGGG.
-   TTTTTCAGGAAACAGCTATGACCATGATTACGCCAAGCTTGCATGCCTGCAGGTCGACTCTAGAGGATCCCCGGGTACCGAGCTCGAATTCACTGGCCGTCGTTTTACACCCCC
-   AAAAAGTCCTTTGTCGATACTGGTACTAATGCGGTTCGAACGTACGGACGTCCAGCTGAGATCTCCTAGGGGCCCATGGCTCGAGCTTAAGTGACCGGCAGCAAAATGTGGGGG
-   `````
-   
-    **Example 3 : Extraction of a specific area with flanking region**  
-    Extract the region of the MCS with 100 bp flanking length. 
-   
-    ````Python
-    #Source code (continued from previous one)#
-    sub_brick = substr(brick, -100, +100, target="11")
-    sub_brick.print_features()
-    ````
-   
-    ````
-    The region from start 531 to end 788 was extracted.
-    Feature_ID  Label                  Type          Start  End  Strand  
-    0           source:532..788:2686   source        0      257  +       
-    1           lac promoter           promoter      9      40   +       
-    2           lac operator           protein_bind  47     64   +       
-    3           M13/pUC Reverse        primer_bind   52     75   +       
-    4           M13 rev                primer_bind   71     88   +       
-    5           M13 Reverse            primer_bind   71     88   +       
-    6           lacZ-alpha:1..174:324  CDS           83     257  +       
-    7           MCS                    misc_feature  100    157  +       
-    8           M13 fwd                primer_bind   157    174  -       
-    9           M13 Forward            primer_bind   157    175  -       
-    10          M13/pUC Forward        primer_bind   166    189  -   
-    ````
-   
+
 - `shell(brick, left_end=None, right_end=None)`
 
    The shell methods set sequence structures at both ends of the Dbrick object.  The end sequences are used when the Dbrick object is assembled with the other Dbrick object. 

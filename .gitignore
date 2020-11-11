@@ -1,2 +1,4 @@
 .DS_Store
 *.pyc
+/notebook/tutorial/.ipynb_checkpoints/
+/notebook/sakata_et_al_2020/.ipynb_checkpoints/

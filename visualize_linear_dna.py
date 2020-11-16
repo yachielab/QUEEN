@@ -24,6 +24,15 @@ matplotlib.rcParams['xtick.major.size']  = 4
 matplotlib.rcParams['ytick.major.size']  = 4
 color_dict = {"G":"#f2f059", "C":"#74b2d7", "A":"#79E5B7", "T":"#ff776c", "N":"#FFFFFF", "-":"#FFFFFF"}
 
+feature_color_dict = collections.defaultdict(list)
+feature_color_dict["CDS"]          = [('#92c6ff', '#4c72b0'), ('#97f0aa', '#55a868'), ('#ff9f9a', '#c44e52'), ('#d0bbff', '#8172b2'), ('#fffea3', '#ccb974')]  
+feature_color_dict["primer_bind"]  = [('#a6cee3', '#1f78b4'), ('#b2df8a', '#33a02c'), ('#fb9a99', '#e31a1c'), ('#fdbf6f', '#ff7f00'), ('#cab2d6', '#6a3d9a')] 
+feature_color_dict["primer"]       = [('#a6cee3', '#1f78b4'), ('#b2df8a', '#33a02c'), ('#fb9a99', '#e31a1c'), ('#fdbf6f', '#ff7f00'), ('#cab2d6', '#6a3d9a')] 
+feature_color_dict["promoter"]     = [('#b0e0e6', '#64b5cd'), ('#92c6ff', '#4c72b0'), ('#97f0aa', '#55a868')]  
+feature_color_dict["rep_origin"]   = [('#fff2ae', '#ffd92f')]
+feature_color_dict["misc_feature"] = [('#fbb4ae', '#e41a1c'), ('#b3cde3', '#377eb8'), ('#ccebc5', '#4daf4a'), ('#decbe4', '#984ea3'), ('#fed9a6', '#ff7f00')]  
+misc_colors = [('#ffffcc', '#d9d927'), ('#e5d8bd', '#a65628'), ('#fddaec', '#f781bf'), ('#f2f2f2', '#999999'), ('#fbb4ae', '#e41a1c')]
+
 def hex_to_rgb(value):
     value = value.lstrip('#')
     lv = len(value)
@@ -222,6 +231,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
     renderer     = fig.canvas.get_renderer()
     coordinate  = ax.transData.inverted() 
     for label, tx, ty, gs, ge, hl, ec, fc in label_position_list:
+        fc = "#ffffec" #facecolor 
         text      = ax.text(tx, ty, label, ha="center", va="center")
         bbox_text = text.get_window_extent(renderer=renderer)
         bbox_text = Bbox(coordinate.transform(bbox_text))
@@ -314,6 +324,64 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, un
     ceil = 0   
     fig       = plt.figure(figsize=(3,0.35))
     axes_list = [] 
+    
+    visible   = 1
+    unvisible = 1 
+    if len(unvisible_types) == 0:
+        visible   = 1
+        unvisible = 1
+    else:
+        unvisible = 0
+    
+    if len(visible_types) == 0:
+        visible = 1
+    else:
+        visible   = 0 
+        unvisible = 0
+        unvisible_types = []
+    
+    misc_color_count    = 0 
+    label_color_dict    = {} 
+    feature_color_count = collections.defaultdict(int) 
+    for i, feat in enumerate(brick.dnafeature):
+        if feat.type in unvisible_types:
+            pass 
+        
+        elif visible == 1 or feat.type in visible_types:
+            flag = 0 
+            if "label" in feat.qualifiers:
+                if type(feat.qualifiers["label"]) == list:
+                    label = feat.qualifiers["label"][0]
+                else:
+                    label = feat.qualifiers["label"]
+                flag = 1
+            else:
+                label = feat.type
+
+            if "facecolor_dna.py" not in feat.qualifiers and "edgecolor_dna.py" not in feat.qualifiers:
+                if label in label_color_dict:
+                    feat.qualifiers["edgecolor_dna.py"] = [label_color_dict[label][1]]
+                    feat.qualifiers["facecolor_dna.py"] = [label_color_dict[label][0]] 
+                
+                else:
+                    cflag = 0 
+                    for _type in feature_color_dict:
+                        if feat.type == _type:
+                            feat.qualifiers["edgecolor_dna.py"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][1]]
+                            feat.qualifiers["facecolor_dna.py"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][0]]
+                            feature_color_count[_type] += 1 
+                            cflag = 1
+                            break
+                        else:
+                            pass
+                    if cflag == 0:
+                        feat.qualifiers["edgecolor_dna.py"] = [misc_colors[misc_color_count%len(misc_colors)][1]]
+                        feat.qualifiers["facecolor_dna.py"] = [misc_colors[misc_color_count%len(misc_colors)][0]] 
+                        misc_color_count += 1 
+                
+                if flag == 1:
+                    label_color_dict[label] = (feat.qualifiers["facecolor_dna.py"][0], feat.qualifiers["edgecolor_dna.py"][0]) 
+
     for num, sub_start in enumerate(list(range(start, end, width))):
         sub_end = sub_start + width
         if sub_end >= end:

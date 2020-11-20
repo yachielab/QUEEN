@@ -574,6 +574,95 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0):
     """
     Set end sequence structures. 
     """
+    def parse(seq,count=0):
+        l_bracket = re.compile("\(")
+        r_bracket = re.compile("\)")
+        l_brace   = re.compile("\{")
+        r_brace   = re.compile("\}")
+        if set(str(seq)) <= set("0123456789ATGCRYKMSWBDHVNatgcnrykmswbdhv{}()/-*"):
+            lbk_list = [l.start() for l in re.finditer(l_bracket,seq)]
+            lbc_list = [l.start() for l in re.finditer(l_brace,seq)]
+            rbc_list = [l.start() for l in re.finditer(r_brace,seq)]
+            rbk_list = []
+            for bk in lbk_list:
+                n = 0
+                p = bk
+                for c in seq[bk:]:
+                    if c == "(":
+                        n += 1
+                    elif c == ")":
+                        n -= 1
+                    if n == 0:
+                        rbk_list.append(p)
+                        break
+                    p += 1
+                    
+            if len(lbk_list) == len(rbk_list):
+                bk_set  = list(zip(lbk_list,rbk_list))
+                bc_set  = list(zip(lbc_list,rbc_list))
+                if len(bk_set) > 0:
+                    for bks in bk_set:
+                        new_seq = seq[bks[0]+1:bks[1]] 
+                        if "(" not in new_seq:                   
+                            num  = 0
+                            flag = 0
+                            sub_lbc_list = [l.start() for l in re.finditer(l_brace,new_seq)]
+                            sub_rbc_list = [l.start() for l in re.finditer(r_brace,new_seq)]
+                            sub_bc_set  = list(zip(sub_lbc_list, sub_rbc_list))
+                            new_new_seq = new_seq
+                            sub_bc_set.sort()
+                            for bcs in sub_bc_set:
+                                try:
+                                    num = int(new_seq[bcs[0]+1:bcs[1]])
+                                except:
+                                    return False
+                                if num > 0:
+                                    new_new_seq = new_new_seq[:new_new_seq.find("{")-1] + new_seq[bcs[0]-1] * num + new_seq[bcs[1]+1:] 
+                                else:
+                                    pass
+                            new_seq = new_new_seq
+                            num = 0
+                            for bcs in bc_set:
+                                if bcs[0] == bks[1]+1:
+                                    try:
+                                        num = int(seq[bcs[0]+1:bcs[1]])
+                                    except:
+                                        return False
+                                    break
+                                else:
+                                    pass
+                            if num > 0:
+                                new_seq = new_seq * num
+                            else:
+                                pass
+                            break
+                        else:
+                            pass
+                    new_seq = seq[:bks[0]] + new_seq + seq[bcs[1]+1:]
+                
+                else:
+                    new_seq = seq
+                    bc_set.sort()
+                    for bcs in bc_set:
+                        try:
+                            num = int(seq[bcs[0]+1:bcs[1]])
+                        except:
+                            return False
+                        if num > 0:
+                            new_seq = new_seq[:new_seq.find("{")-1] + seq[bcs[0]-1] * num + seq[bcs[1]+1:] 
+                        else:
+                            pass
+                
+                if set(str(new_seq)) <= set("ATGCRYKMSWBDHVNatgcnrykmswbdhv/-*"):
+                    pass
+                else:
+                    new_seq = parse(new_seq,count+1)
+                return new_seq
+            else:
+                return False
+        else:
+            return False
+    
     def check_endseq(top,bottom):
         new_top    = ""
         new_bottom = ""
@@ -590,7 +679,8 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0):
     if right == "":
         right = "*/*"
 
-    left, right = left.upper(), right.upper() 
+    left, right = parse(left.upper()), parse(right.upper())
+    left, rihgt = str(left), str(right) 
     pattern1, pattern2, patternl1, patternl2, patternr1, patternr2 = "[ATGCRYKMSWBDHVN*-]*/?[ATGCRYKMSWBDHVN*-]*", "[ATGCRYKMSWBDHVN*]+-+[ATGCRYKMSWBDHVN*]+", "^[ATGCRYKMSWBDHVN*]+-+/", "/[ATGCRYKMSWBDHVN*]+-+$", "^-+[ATGCRYKMSWBDHVN*]+/", "/-+[ATGCRYKMSWBDHVN*]+$" 
     pattern1  = re.compile(pattern1) 
     pattern2  = re.compile(pattern2) 

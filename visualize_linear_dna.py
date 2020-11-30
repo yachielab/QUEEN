@@ -87,6 +87,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
     for i, feat in enumerate(feats):
         if feat.type in unvisible_types:
             pass
+        
         elif visible == 1 or feat.type in visible_types:
             if "label" in feat.qualifiers:
                 if type(feat.qualifiers["label"]) == list:

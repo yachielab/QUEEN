@@ -7,10 +7,16 @@ SOURCE      .
   ORGANISM  .
             .
 FEATURES             Location/Qualifiers
+     source          1..15
+                     /label="None"
+     source          1..3403
+                     /label="None"
      source          16..3394
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dna.py="pCMV_ABE:5258..8636:8727"
+                     /label="pCMV_ABE"
+                     /crop_info_dna.py="[pCMV_ABE:pCMV_ABE:0..8727]:5258..8636:8
+                     727"
      primer_bind     complement(38..55)
                      /label="BGH-rev"
                      /note="Bovine growth hormone terminator, reverse primer.
@@ -93,10 +99,18 @@ FEATURES             Location/Qualifiers
      primer_bind     3360..3379
                      /label="T7"
                      /note="T7 promoter, forward primer"
+     source          3379..3391
+                     /label="None"
+     source          3379..5974
+                     /label="None"
      source          join(3392..8752,1..12)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /note_dna.py="nCas9_AID_source:3895..9267:10419"
+                     /label="nCas9_AID_source"
+                     /crop_info_dna.py="[nCas9_AID_source:nCas9_AID_source:0..10
+                     419]:3895..9267:10419"
+     source          3395..3403
+                     /label="None"
      CDS             3398..3418
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
@@ -134,6 +148,8 @@ FEATURES             Location/Qualifiers
                      LALPSKYVNFLYLASHYEKLKGSPEDNEQKQLFVEQHKHYLDEIIEQISEFSKRVILAD
                      ANLDKVLSAYNKHRDKPIREQAENIIHLFTLTNLGAPAAFKYFDTTIDRKRYTSTKEVL
                      DATLIHQSITGLYETRIDLSQLGGD"
+     source          join(5947..8752,1..25)
+                     /label="nCas9_AID_source"
      CDS             7559..7579
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
@@ -159,6 +175,10 @@ FEATURES             Location/Qualifiers
                      /label="UGI"
                      /translation="MTNLSDIIEKETGKQLVIQESILMLPEEVEEVIGNKPESDILVHT
                      AYDESTDENVMLLTSDAPEYKPWALVIQDSNGENKIKML"
+     source          13..25
+                     /label="None"
+     source          1..8752
+                     /label="pCMV-Target-AID"
 ORIGIN
         1 atcaagatgc tataatgagt ttaaacccgc tgatcagcct cgactgtgcc ttctagttgc
        61 cagccatctg ttgtttgccc ctcccccgtg ccttccttga ccctggaagg tgccactccc

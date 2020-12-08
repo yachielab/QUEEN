@@ -1032,11 +1032,11 @@ class SourceDNA():
         self.dna     = None
         
 class DNA():
-    order_qualifiers = ["label","gene","product"]
-    min_overlap      = 10 
-    max_overlap      = 300
-    min_match        = 10
-    
+    def __repr__(self):
+        out = "<dna.DNA object; project='{}', sequence length='{} bp', topology='{}'>\n".format(self.project, len(self.seq), self.topology)
+        out += self.printdnaseq(whole=False, end_length=max([10, len(str(self._left_end)), len(str(self._right_end))]), linebreak=None, display=False)
+        return out 
+
     def __init__(self, seq=None, record=None, project="None", topology="linear", format=None):
         if seq is None and record is None:
             self.seq                = None
@@ -1649,7 +1649,7 @@ class DNA():
         else:
             return joindna(other, self) 
     
-    def printdnaseq(self, whole=True, end_length=10, linebreak=None):
+    def printdnaseq(self, whole=True, end_length=10, linebreak=None, display=True):
         if linebreak is None:
             width = len(self.seq) + 1
         else:
@@ -1697,22 +1697,36 @@ class DNA():
         else:
             right_end_bottom = self.seq[len(self.seq)-end_length:len(self.seq)-right_length].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")) + "-" * right_length     
         
+        out = ""
         if whole == False:
-            print("5' {}...{} 3'".format(left_end_top, right_end_top))
-            print("3' {}...{} 5'".format(left_end_bottom, right_end_bottom))
-        else:
+            if display == True:
+                print("5' {}...{} 3'".format(left_end_top, right_end_top))
+                print("3' {}...{} 5'".format(left_end_bottom, right_end_bottom))
+            out += "5' {}...{} 3'\n".format(left_end_top, right_end_top)
+            out += "3' {}...{} 5'".format(left_end_bottom, right_end_bottom)
+        else:    
             top = left_end_top + self.seq[end_length:len(self.seq)-end_length] + right_end_top
             bottom = left_end_bottom + self.seq[end_length:len(self.seq)-end_length].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")) + right_end_bottom 
             if len(top) < width:
-                print("5' {} 3'".format(top))
-                print("3' {} 5'".format(bottom))
+                if display == True:
+                    print("5' {} 3'".format(top))
+                    print("3' {} 5'".format(bottom))
+                out += "5' {} 3'\n".format(top)
+                out += "3' {} 5'\n".format(bottom)
             else:
                 for i in range(0, len(top), width):
-                    print("5' {} 3'".format(top[i:i+width]))
-                    print("3' {} 5'".format(bottom[i:i+width]))
-                    print()
-        print()
-    
+                    if display == True:
+                        print("5' {} 3'".format(top[i:i+width]))
+                        print("3' {} 5'".format(bottom[i:i+width]))
+                        print()
+                    out += "5' {} 3'\n".format(top[i:i+width]) 
+                    out += "3' {} 5'\n".format(bottom[i:i+width])
+                    out += "\n"
+                out = out.rstrip()
+        if display == True:
+            print()
+        return out 
+        
     def editfeature(self, feature_id=None, start=None, end=None, strand=1, feature_type="misc_featurte", seq=None, qualifier=None, overwrite_qualifier=True):
         if str(feature_id) not in list(self._features_dict):
             if start is None or end is None:

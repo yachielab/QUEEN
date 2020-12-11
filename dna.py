@@ -1033,8 +1033,8 @@ class SourceDNA():
         
 class DNA():
     def __repr__(self):
-        out = "<dna.DNA object; project='{}', sequence length='{} bp', topology='{}'>\n".format(self.project, len(self.seq), self.topology)
-        out += self.printdnaseq(whole=False, end_length=max([10, len(str(self._left_end)), len(str(self._right_end))]), linebreak=None, display=False)
+        out = "<dna.DNA object; project='{}', sequence length='{} bp', topology='{}'>".format(self.project, len(self.seq), self.topology)
+        #out += self.printdnaseq(whole=False, end_length=max([10, len(str(self._left_end)), len(str(self._right_end))]), linebreak=None, display=False)
         return out 
 
     def __init__(self, seq=None, record=None, project="None", topology="linear", format=None):
@@ -1725,7 +1725,9 @@ class DNA():
                 out = out.rstrip()
         if display == True:
             print()
-        return out 
+            return None
+        else:
+            return out 
         
     def editfeature(self, feature_id=None, start=None, end=None, strand=1, feature_type="misc_featurte", seq=None, qualifier=None, overwrite_qualifier=True):
         if str(feature_id) not in list(self._features_dict):
@@ -1845,11 +1847,11 @@ class DNA():
     def getdnafeature(feature_id):
         return self._features_dict[str(feature_id)] 
 
-    def printfeature(self, separation=None, output=None, detail=False, seq=False, feature_type=None, feature_id=None, attribute=None, zero_based_index=True):
-        #“feature ID,” “qualifier:label,” “feature type,” “start position,” “end position,” and “strand.” 
+    def printfeature(self, separation=None, output=None, feature_type=None, feature_id=None, attribute=["feature ID", "feature type", "qualifier:label", "start position", "end position"], detail=False, zero_based_index=True):
+        #“feature ID,” “qualifier:label,” “feature type,” “start position,” “end position,” and “strand"] 
         _ids        = ["feature ID"] 
-        labels      = ["qualifier:label"]
         types       = ["feature type"] 
+        labels      = ["qualifier:label"]
         starts      = ["start position"] 
         ends        = ["end position"] 
         strands     = ["strand"]
@@ -1857,9 +1859,14 @@ class DNA():
         sep         = separation
         others_dict = {}
         
-        if attribute is None:
-            attribute = [] 
-        with_seq = seq 
+        new_attribute = [] 
+        for att in attribute:
+            if att == "$DEFAULT":
+                new_attribute += ["feature ID", "feature type", "qualifier:label", "start position", "end position", "strand"]
+            else:
+                new_attribute.append(att)
+        
+        attribute = new_attribute
         feature_id_list = feature_id
 
         if feature_id_list is None:
@@ -1876,29 +1883,14 @@ class DNA():
                 label_keys = []
                 for key in feat.qualifiers:
                     if key == "label":
-                        pass 
-                    elif key not in others_dict and (key.replace("qualifier:","") in attribute or detail==True):
-                        others_dict[key.replace("qualifier:","")] = ["qualifier:" + key] + (len(labels)-1) * ["N.A."]
-                    if key == "label":
                         label = feat.qualifiers["label"][0] 
                         flag  = 1
-                
+                    elif ("qualifier:") + key not in others_dict and ((key in attribute or ("qualifier:" + key) in attribute) or detail==True):
+                        others_dict["qualifier:" + key] = ["qualifier:" + key] + (len(labels)-1) * ["N.A."]
+                                     
                 if flag == 0:
                     label = "N.A."
                 
-                #if "crop_info_dna.py" in feat.qualifiers:
-                #    note   = feat.qualifiers["crop_info_dna.py"]
-                #    label  = note.split(":")[0]
-                #    pos_s  = int(note.split(":")[1].split("..")[0])
-                #    pos_e  = int(note.split(":")[1].split("..")[1])
-                #    length = int(note.split(":")[2])
-                #    if (pos_s == 1 and pos_e == length) or (pos_s == length and pos_e == 1):
-                #        pass 
-                #    else:
-                #        if pos_e > length:
-                #            note = label + ":" + str(pos_s) + ".." + str(pos_e-length) + ":" + str(length)
-                #        label = note
-
                 strand = feat.location.strand
                 if strand == -1:
                     start = feat.location.parts[-1].start.position
@@ -1912,15 +1904,15 @@ class DNA():
                 if zero_based_index == False:
                     start += 1 
 
-                if detail == True or len(attribute) > 0:
+                if len(attribute) > 0:
                     for key in others_dict:
                         if key == "label":
                             pass 
-                        elif key in feat.qualifiers:
-                            if type(feat.qualifiers[key]) == list:
-                                others_dict[key].append(":".join(feat.qualifiers[key]))
+                        elif key in feat.qualifiers or key.replace("qualifier:","") in feat.qualifiers:
+                            if type(feat.qualifiers[key.replace("qualifier:","")]) == list:
+                                others_dict[key].append(":".join(feat.qualifiers[key.replace("qualifier:","")]))
                             else:
-                                others_dict[key].append(feat.qualifiers[key])
+                                others_dict[key].append(feat.qualifiers[key.replace("qualifier:","")])
                         else:
                             others_dict[key].append("N.A.")
 
@@ -1947,17 +1939,26 @@ class DNA():
         sequencemax  = max(list(map(len,sequences))) + 2
         other_maxes = [max(list(map(len,others_dict[key]))) + 2 for key in others_dict]
         
-        if detail == True or len(attribute) > 0:
-            rows  = [_ids, labels, types, starts, ends, strands] + list(others_dict.values()) 
-            maxes = [_idmax, labelmax, ftypemax, startmax, endmax, strandmax] + other_maxes
+        dkeys   = ["feature ID", "feature type", "qualifier:label", "start position", "end position", "strand"] + list(others_dict.keys())
+        dvalues = [_ids, labels, types, starts, ends, strands] + list(others_dict.values())
+        dmaxes  = [_idmax, labelmax, ftypemax, startmax, endmax, strandmax] + other_maxes
+        hogera = list(zip(dkeys, dvalues, dmaxes))
+        rows   = [] 
+        maxes  = []
+        if detail == False:
+            for key, value, max_w in zip(dkeys, dvalues, dmaxes):
+                if key.replace("qualifier:","") in attribute or key in attribute:
+                    rows.append(value) 
+                    maxes.append(max_w) 
         else:
-            rows  = [_ids, labels, types, starts, ends, strands] 
-            maxes = [_idmax, labelmax, ftypemax, startmax, endmax, strandmax] 
+            rows  = [_ids, labels, types, starts, ends, strands] + list(others_dict.values())
+            maxes = [_idmax, labelmax, ftypemax, startmax, endmax, strandmax] + other_maxes
+            attribute.append("sequence")
 
-        if with_seq == True:
+        if "sequence" in attribute:
             rows.append(sequences) 
             maxes.append(sequencemax) 
-        
+
         if type(output) is str:
             output = open(output,"w")
             if sep == ",":
@@ -1975,6 +1976,7 @@ class DNA():
                     output.writerow(row) 
                 else:
                     print(*row, sep=sep, file=output)
+        
         if output is None:
             print() 
 

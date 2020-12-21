@@ -1033,7 +1033,10 @@ class SourceDNA():
         
 class DNA():
     def __repr__(self):
-        out = "<dna.DNA object; project='{}', sequence length='{} bp', topology='{}'>".format(self.project, len(self.seq), self.topology)
+        if len(self.seq) > 50:
+            out = "<dna.DNA object; project='{}', length='{} bp', topology='{}'>".format(self.project, len(self.seq), self.topology)
+        else:
+            out = "<dna.DNA object; project='{}', length='{} bp', sequence='{}', topology='{}'>".format(self.project, len(self.seq), self.seq, self.topology)
         #out += self.printdnaseq(whole=False, end_length=max([10, len(str(self._left_end)), len(str(self._right_end))]), linebreak=None, display=False)
         return out 
 
@@ -1224,9 +1227,14 @@ class DNA():
     def _get_matchlist_normal(query, subject, strand, topology, min_match, error, seq_mismatch, constant):
         match_list      = []
         subject_origin  = subject 
-        sub_regex     = "(?e)({}){{s<={},i<={},d<={},e<={}}}".format(query, error, 1, 1, error)
-        ins_regex     = "(?e)({}){{s<={},i<={},d<={},e<={}}}".format(query, 1, error, 1, error)
-        del_regex     = "(?e)({}){{s<={},i<={},d<={},e<={}}}".format(query, 1, 1, error, error)
+        if error < 2:
+            sub_regex     = "(?e)({}){{s<={},i<={},d<={},e<={}}}".format(query, error, 0, 0, error)
+            ins_regex     = "(?e)({}){{s<={},i<={},d<={},e<={}}}".format(query, 0, error, 0, error)
+            del_regex     = "(?e)({}){{s<={},i<={},d<={},e<={}}}".format(query, 0, 0, error, error)
+        else:
+            sub_regex     = "(?e)({}){{s<={},i<={},d<={},e<={}}}".format(query, error, 1, 1, error)
+            ins_regex     = "(?e)({}){{s<={},i<={},d<={},e<={}}}".format(query, 1, error, 1, error)
+            del_regex     = "(?e)({}){{s<={},i<={},d<={},e<={}}}".format(query, 1, 1, error, error)
         sub_regex     = re.compile(sub_regex)
         ins_regex     = re.compile(ins_regex)
         del_regex     = re.compile(del_regex)
@@ -1244,10 +1252,11 @@ class DNA():
                 subject = subject.upper() + subject_origin[0:len(query)-1].upper()
             else:
                 subject = subject.upper()
-
+        
         reg = re.compile("[ATGCRYKMSWBDHV]+([ATGCRYKMSWBDHV]*-{{0,{}}})[ATGCRYKMSWBDHV]+".format(seq_mismatch))
         while 1:
             results  = [re.search(sub_regex, subject[i:]),re.search(ins_regex, subject[i:]),re.search(del_regex, subject[i:])]
+            starts   = [] 
             for result in results:
                 if result is not None:
                     match = MatchDNA()
@@ -1269,7 +1278,7 @@ class DNA():
                         if match.send >= len(subject_origin):
                             match.send = match.send - len(subject_origin)    
                     
-                    i = i + result.start() + 1 
+                    starts.append(result.start() + 1) 
                     if constant in match.sseq_na:
                         match_count = max([len(match.sseq_na), len(match.qseq_na)]) - Levenshtein.distance(match.sseq_na, match.qseq_na)
                         if match_count >= min_match:
@@ -1310,9 +1319,11 @@ class DNA():
                                     match.sspan = (match.sstart, match.send)
                                     match.qspan = (match.qstart, match.qend)
                                     match_list.append(match)
-            else:
+            
+            if i >= len(subject) or len(starts) == 0:
                 break
-        
+            i = i + min(starts)
+
         if len(match_list) > 0:
             match_list.sort(key=lambda x: x.match_count*-1.0)
             top_match      = match_list[0] 
@@ -1420,17 +1431,27 @@ class DNA():
                     dna_list = new_dna_list
             return new_dna_list
 
-        if attribute == "start" and attribute == "end" and attribute == "strand":
+        if attribute == "start" and attribute == "end":
             raise TypeError("Numerical value cannot be specified in attrribute on 'finddna.'") 
         
         dna_list = [] 
         if attribute is None:
             attribute = "sequence"
-        
-        if attribute == "sequence":
+       
+        if attribute[0:8] == "sequence":
             match_list = [] 
+            attribute_regex = re.compile("sequence:\|[0-9]+\.\.[0-9]+\|")
+            if attribute == "sequence":
+                s = 0
+                subject = self.seq
+            elif attribute_regex.fullmatch(attribute) != None:
+                s,e = tuple(map(int,attribute[10:-1].split("..")))
+                subject = cropdna(self, s, e).seq
+            else: 
+                raise ValueError("Invalid attribute was detected.")
+
             if type(query) == DNA:
-                query = query.seq
+                query = query.seq 
             
             if set(str(query)) <= set("ATGCRYKMSWBDHVNatgcnrykmswbdhv"):
                 mode = "normal"
@@ -1445,18 +1466,18 @@ class DNA():
                 else:
                     pass 
                 constant = ""
-                match_list = DNA._get_matchlist_normal(query, self.seq, 1, self.topology, min_match, error, seq_mismatch, constant) 
-                match_list.extend(DNA._get_matchlist_normal(query, self.seq, -1, self.topology, min_match, error, seq_mismatch, constant)) 
+                match_list = DNA._get_matchlist_normal(query, subject, 1, self.topology, min_match, error, seq_mismatch, constant) 
+                match_list.extend(DNA._get_matchlist_normal(query, subject, -1, self.topology, min_match, error, seq_mismatch, constant)) 
                 match_list.sort(key=lambda x: x.score*-1.0)
                 querydna = DNA(seq=query) 
 
             elif mode == "regex":
                 constant = "" 
-                match_list = DNA._get_matchlist_regex(query, self.seq, 1, self.topology, constant) 
-                match_list.extend(DNA._get_matchlist_regex(query, self.seq, -1, self.topology, constant))
+                match_list = DNA._get_matchlist_regex(query, subject, 1, self.topology, constant) 
+                match_list.extend(DNA._get_matchlist_regex(query, subject, -1, self.topology, constant))
             
             for match in match_list: 
-                dna = cropdna(self, match.sstart, match.send) 
+                dna = cropdna(self, match.sstart + s, match.send + s) 
                 if match.strand == -1:
                     dna = flipdna(dna) 
                 
@@ -1555,7 +1576,7 @@ class DNA():
                             dna_list.append(dna) 
                         break
         else:
-            raise ValueError("Invalid attribute was specified") 
+            raise ValueError("Invalid attribute was detected.") 
         
         return dna_list 
 

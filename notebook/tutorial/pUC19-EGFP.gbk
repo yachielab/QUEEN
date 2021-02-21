@@ -1,4 +1,4 @@
-LOCUS       pUC19-EGFP              3745 bp    DNA     circular UNK 01-JAN-1980
+LOCUS       pUC19-EGFP              3727 bp    DNA     circular UNK 01-JAN-1980
 DEFINITION  .
 ACCESSION   pUC19-EGFP
 VERSION     pUC19-EGFP
@@ -13,7 +13,7 @@ FEATURES             Location/Qualifiers
                      /label="EGFP"
                      /description="Record of editing history"
                      /construction_history_9="DNA.dna_dict['EGFP_2'] =
-                     modifyends(DNA.dna_dict['EGFP_1'], left='TCGAC/----G',
+                     modifyends(DNA.dna_dict['EGFP_1'], left='AGCTT/----A',
                      right='GAGCT/C----', project='EGFP')"
      source          6..1085
                      /label="EGFP"
@@ -33,15 +33,38 @@ FEATURES             Location/Qualifiers
                      destructive=False, project='EGFP')"
      misc_feature    6..1085
                      /label="EGFP"
-     source          join(1087..3745,1..4)
+     misc_feature    1087..1097
+                     /label="MCS"
+                     /note="pUC18/19 multiple cloning site"
+                     /cropped_region="[pUC19:MCS:631..688]:47..57:57"
+     CDS             1087..1347
+                     /codon_start=1
+                     /gene="lacZ fragment"
+                     /product="LacZ-alpha fragment of beta-galactosidase"
+                     /label="lacZ-alpha"
+                     /translation="MTMITPSLHACRSTLEDPRVPSSNSLAVVLQRRDWENPGVTQLNR
+                     LAAHPPFASWRNSEEARTDRPSQQLRSLNGEWRLMRYFLLTHLCGISHRIWCTLSTICS
+                     DAA"
+                     /cropped_region="[pUC19:lacZ-alpha:614..938]:64..324:324"
+     source          join(1087..3727,1..4)
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /cropped_region="[pUC19:N.A:0..2686]:678..636:2686"
+     source          join(1087..3727,1..4)
                      /label="pUC19"
                      /description="Record of editing history"
-                     /construction_history_4="DNA.dna_dict['pUC19_0'] =
-                     cropdna(DNA.dna_dict['pUC19'], start=677, end=654,
-                     project='pUC19')"
+                     /construction_history_1="DNA.dna_dict['pUC19'] =
+                     DNA(seq=None, record='pUC19.gbk', project='pUC19',
+                     topology='linear', format=None)"
+                     /cropped_region="[pUC19:pUC19:0..2686]:678..636:2686"
+                     /construction_history_5="DNA.dna_dict['pUC19_0'] =
+                     cropdna(DNA.dna_dict['pUC19'], start=(681, 677), end=(632,
+                     636), project='pUC19')"
                      /construction_history_11="DNA.dna_dict['pUC19-EGFP'] =
                      joindna(*[DNA.dna_dict['EGFP_2'],DNA.dna_dict['pUC19_0']],
                      topology='circular', project='pUC19-EGFP')"
+     source          join(1087..3727,1..4)
+                     /label="pUC19"
      primer_bind     complement(1098..1114)
                      /label="M13 fwd"
                      /note="common sequencing primer, one of multiple similar
@@ -83,20 +106,11 @@ FEATURES             Location/Qualifiers
      primer_bind     complement(1911..1930)
                      /label="Amp-R"
                      /note="Ampicillin resistance gene, reverse primer"
-     rep_origin      join(2724..3095,3096..3312)
+     rep_origin      2724..3312
                      /direction=RIGHT
                      /label="ori"
                      /note="high-copy-number ColE1/pMB1/pBR322/pUC origin of
                      replication"
-     source          join(3096..3771,1087..3095)
-                     /organism="synthetic DNA construct"
-                     /mol_type="other DNA"
-     source          join(3096..3771,1087..3095)
-                     /label="pUC19"
-                     /description="Record of editing history"
-                     /construction_history_1="DNA.dna_dict['pUC19'] =
-                     DNA(seq=None, record='pUC19.gbk', project='pUC19',
-                     topology='linear', format=None)"
      primer_bind     3213..3232
                      /label="pBR322ori-F"
                      /note="pBR322 origin, forward primer"
@@ -128,7 +142,7 @@ FEATURES             Location/Qualifiers
      primer_bind     3698..3714
                      /label="M13 Reverse"
                      /note="In lacZ gene. Also called M13-rev"
-     CDS             join(3710..3771,1087..1347)
+     CDS             join(3710..3727,1..4)
                      /codon_start=1
                      /gene="lacZ fragment"
                      /product="LacZ-alpha fragment of beta-galactosidase"
@@ -136,13 +150,15 @@ FEATURES             Location/Qualifiers
                      /translation="MTMITPSLHACRSTLEDPRVPSSNSLAVVLQRRDWENPGVTQLNR
                      LAAHPPFASWRNSEEARTDRPSQQLRSLNGEWRLMRYFLLTHLCGISHRIWCTLSTICS
                      DAA"
-     misc_feature    join(3727..3771,1087..1097)
+                     /cropped_region="[pUC19:lacZ-alpha:614..938]:1..22:324"
+     misc_feature    join(3727,1..4)
                      /label="MCS"
                      /note="pUC18/19 multiple cloning site"
-     source          1..3745
+                     /cropped_region="[pUC19:MCS:631..688]:1..5:57"
+     source          1..3727
                      /label="pUC19-EGFP"
 ORIGIN
-        1 tcgacatgtc caccaactta tcagtgataa agaatccgcg cgttcaatcg gaccagcgga
+        1 agcttatgtc caccaactta tcagtgataa agaatccgcg cgttcaatcg gaccagcgga
        61 ggctggtccg gaggccagac gtgaaaccca acatacccct gatcgtaatt ctgaggtcga
       121 ctctagagga tccccgggta ccggtcgcca ccatggtgag caagggcgag gagctgttca
       181 ccggggtggt gcccatcctg ggtcgagctg gacggcgacg taaacggcca caagttcagc
@@ -204,5 +220,5 @@ ORIGIN
      3541 taatgcagct ggcacgacag gtttcccgac tggaaagcgg gcagtgagcg caacgcaatt
      3601 aatgtgagtt agctcactca ttaggcaccc caggctttac actttatgct tccggctcgt
      3661 atgttgtgtg gaattgtgag cggataacaa tttcacacag gaaacagcta tgaccatgat
-     3721 tacgccaagc ttgcatgcct gcagg
+     3721 tacgcca
 //

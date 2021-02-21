@@ -8,15 +8,39 @@ SOURCE      .
             .
 FEATURES             Location/Qualifiers
      source          1..15
-                     /label="None"
+                     /label="dna"
+                     /description="Record of editing history"
+                     /construction_history_5="DNA.dna_dict['dna'] =
+                     DNA(seq='ATCAAGATGCTATAA', record=None, project='dna',
+                     topology='linear', format=None)"
      source          1..3403
-                     /label="None"
+                     /label="dna"
+     source          1..3403
+                     /label="dna"
+                     /description="Record of editing history"
+                     /construction_history_7="DNA.dna_dict['dna_1'] =
+                     joindna(*[DNA.dna_dict['dna'],DNA.dna_dict['pCMV_ABE_0'],DN
+                     A.dna_dict['dna_0']], topology='linear', project='dna')"
+                     /construction_history_13="DNA.dna_dict['dna_7'] =
+                     modifyends(DNA.dna_dict['dna_1'],
+                     left='*************************/-------------------------',
+                     right='-------------------------/*************************'
+                     , project='dna')"
      source          16..3394
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
+                     /cropped_region="[pCMV_ABE:N.A:0..8727]:5258..8636:8727"
+     source          16..3394
                      /label="pCMV_ABE"
-                     /crop_info_dna.py="[pCMV_ABE:pCMV_ABE:0..8727]:5258..8636:8
-                     727"
+                     /description="Record of editing history"
+                     /construction_history_1="DNA.dna_dict['pCMV_ABE'] =
+                     DNA(seq=None, record='input/addgene_102919.gbk',
+                     project='pCMV_ABE', topology='linear', format=None)"
+                     /cropped_region="[pCMV_ABE:pCMV_ABE:0..8727]:5258..8636:872
+                     7"
+                     /construction_history_3="DNA.dna_dict['pCMV_ABE_0'] =
+                     cropdna(DNA.dna_dict['pCMV_ABE'], start=5257, end=8636,
+                     project='pCMV_ABE')"
      primer_bind     complement(38..55)
                      /label="BGH-rev"
                      /note="Bovine growth hormone terminator, reverse primer.
@@ -100,17 +124,47 @@ FEATURES             Location/Qualifiers
                      /label="T7"
                      /note="T7 promoter, forward primer"
      source          3379..3391
-                     /label="None"
+                     /label="dna"
+                     /description="Record of editing history"
+                     /construction_history_8="DNA.dna_dict['dna_2'] =
+                     DNA(seq='GAGAGCCGCCACC', record=None, project='dna',
+                     topology='linear', format=None)"
      source          3379..5974
-                     /label="None"
+                     /label="dna"
+     source          3379..5974
+                     /label="dna"
+                     /description="Record of editing history"
+                     /construction_history_9="DNA.dna_dict['dna_3'] =
+                     joindna(*[DNA.dna_dict['dna_2'],DNA.dna_dict['nCas9_AID_sou
+                     rce_0']], topology='linear', project='dna')"
+                     /construction_history_14="DNA.dna_dict['dna_10'] =
+                     modifyends(DNA.dna_dict['dna_3'],
+                     left='*************************/-------------------------',
+                     right='----------------------------/***********************
+                     *****', project='dna')"
      source          join(3392..8752,1..12)
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
+                     /cropped_region="[nCas9_AID_source:N.A:0..10419]:3895..9267
+                     :10419"
+     source          3392..5974
                      /label="nCas9_AID_source"
-                     /crop_info_dna.py="[nCas9_AID_source:nCas9_AID_source:0..10
-                     419]:3895..9267:10419"
+                     /description="Record of editing history"
+                     /construction_history_1="DNA.dna_dict['nCas9_AID_source'] =
+                     DNA(seq=None, record='input/addgene_79620.gbk',
+                     project='nCas9_AID_source', topology='linear',
+                     format=None)"
+                     /cropped_region="[nCas9_AID_source:nCas9_AID_source:0..1041
+                     9]:3895..6477:10419"
+                     /construction_history_4="DNA.dna_dict['nCas9_AID_source_0']
+                     = cropdna(DNA.dna_dict['nCas9_AID_source'], start=3894,
+                     end=6477, project='nCas9_AID_source')"
      source          3395..3403
-                     /label="None"
+                     /label="dna"
+                     /description="Record of editing history"
+                     /construction_history_6="DNA.dna_dict['dna_0'] =
+                     DNA(seq='GCACCGAAG', record=None, project='dna',
+                     topology='linear', format=None)"
      CDS             3398..3418
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
@@ -148,8 +202,33 @@ FEATURES             Location/Qualifiers
                      LALPSKYVNFLYLASHYEKLKGSPEDNEQKQLFVEQHKHYLDEIIEQISEFSKRVILAD
                      ANLDKVLSAYNKHRDKPIREQAENIIHLFTLTNLGAPAAFKYFDTTIDRKRYTSTKEVL
                      DATLIHQSITGLYETRIDLSQLGGD"
+     source          join(5947..8752,1..12)
+                     /label="nCas9_AID_source"
+                     /description="Record of editing history"
+                     /construction_history_1="DNA.dna_dict['nCas9_AID_source'] =
+                     DNA(seq=None, record='input/addgene_79620.gbk',
+                     project='nCas9_AID_source', topology='linear',
+                     format=None)"
+                     /cropped_region="[nCas9_AID_source:nCas9_AID_source:0..1041
+                     9]:6450..9267:10419"
+                     /construction_history_5="DNA.dna_dict['nCas9_AID_source_1']
+                     = cropdna(DNA.dna_dict['nCas9_AID_source'], start=6449,
+                     end=9267, project='nCas9_AID_source')"
      source          join(5947..8752,1..25)
                      /label="nCas9_AID_source"
+     source          join(5947..8752,1..25)
+                     /label="nCas9_AID_source"
+                     /description="Record of editing history"
+                     /construction_history_11="DNA.dna_dict['nCas9_AID_source_2'
+                     ] =
+                     joindna(*[DNA.dna_dict['nCas9_AID_source_1'],DNA.dna_dict['
+                     dna_4']], topology='linear', project='nCas9_AID_source')"
+                     /construction_history_15="DNA.dna_dict['nCas9_AID_source_3'
+                     ] = modifyends(DNA.dna_dict['nCas9_AID_source_2'],
+                     left='****************************/------------------------
+                     ----',
+                     right='-------------------------/*************************'
+                     , project='nCas9_AID_source')"
      CDS             7559..7579
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
@@ -176,9 +255,20 @@ FEATURES             Location/Qualifiers
                      /translation="MTNLSDIIEKETGKQLVIQESILMLPEEVEEVIGNKPESDILVHT
                      AYDESTDENVMLLTSDAPEYKPWALVIQDSNGENKIKML"
      source          13..25
-                     /label="None"
+                     /label="dna"
+                     /description="Record of editing history"
+                     /construction_history_10="DNA.dna_dict['dna_4'] =
+                     DNA(seq='TAATGAGTTTAAA', record=None, project='dna',
+                     topology='linear', format=None)"
      source          1..8752
                      /label="pCMV-Target-AID"
+     source          1..8752
+                     /label="pCMV-Target-AID"
+                     /description="Record of editing history"
+                     /construction_history_15="DNA.dna_dict['pCMV-Target-AID'] =
+                     joindna(*[DNA.dna_dict['dna_7'],DNA.dna_dict['dna_10'],DNA.
+                     dna_dict['nCas9_AID_source_3']], topology='circular',
+                     project='pCMV-Target-AID')"
 ORIGIN
         1 atcaagatgc tataatgagt ttaaacccgc tgatcagcct cgactgtgcc ttctagttgc
        61 cagccatctg ttgtttgccc ctcccccgtg ccttccttga ccctggaagg tgccactccc

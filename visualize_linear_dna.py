@@ -156,19 +156,18 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                 else:
                     edgecolor = "#CCCCCC"
                 
-            if "note_dna.py" in feat.qualifiers:
-                note   = feat.qualifiers["note_dna.py"]
+            if "cropped_region" in feat.qualifiers:
+                note   = feat.qualifiers["cropped_region"]
                 if type(note) == list:
-                    note   = feat.qualifiers["note_dna.py"][0]
-                
-                pos_s  = int(note.split(":")[1].split("..")[0]) 
-                pos_e  = int(note.split(":")[1].split("..")[1])
-                feat_length = int(note.split(":")[2])
+                    note   = feat.qualifiers["cropped_region"][0]
+                pos_s  = int(note.split(":")[3].split("..")[0]) 
+                pos_e  = int(note.split(":")[3].split("..")[1])
+                feat_length = int(note.split(":")[4])
                 if (pos_s != 1 or pos_e != feat_length):
-                    label = note
+                    label = note.split(":")[1]
 
             if strand == 1:
-                if "note_dna.py" in feat.qualifiers:
+                if "cropped_region" in feat.qualifiers:
                     if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
                         if gs == 0 and ge >= length:
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
@@ -187,7 +186,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                     ax.arrow(x=gs+margin1, y=-1*y, dx=ge-gs-(margin1+margin2), dy=0, width=wd2, head_width=wd2, head_length=hl2, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
             
             elif strand == -1:
-                if "note_dna.py" in feat.qualifiers:
+                if "cropped_region" in feat.qualifiers:
                     if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
                         if gs == 0 and ge >= length:
                             ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
@@ -206,7 +205,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                     ax.arrow(x=ge-margin1, y=-1*y, dx=gs-ge+(margin1+margin2), dy=0, width=wd2, head_width=wd2, head_length=hl2, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
             
             else:
-                if "note_dna.py" in feat.qualifiers:
+                if "cropped_region" in feat.qualifiers:
                     if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
                         if gs == 0 and ge >= length:
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
@@ -445,7 +444,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, un
        
         positions   = [p+zero_position-len(brick.seq) if p+zero_position > len(brick.seq) else p+zero_position for p in range(0, len(sub_brick.seq))] 
         ticks       = [x for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % int(std/(2*enlarge_w)) == 0 or p == 1] 
-        tick_labels = [str(p) if p != 1 else "" for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % int(std/(2*enlarge_w)) == 0 or  p == 1]
+        tick_labels = [str(p) if p != 1 else "1" for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % int(std/(2*enlarge_w)) == 0 or  p == 1]
         if with_seq == True: 
             ax.set_xticks([]) 
             ax.set_xticklabels([])

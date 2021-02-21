@@ -10,7 +10,7 @@ from scipy import stats
 from  Bio import SeqIO
 from matplotlib.transforms import Bbox
 
-matplotlib.rcParams['font.sans-serif']   = ["Helvetica","Arial","Lucida Sans","DejaVu Sans","Lucida Grande","Verdana"]
+matplotlib.rcParams['font.sans-serif']   = ["Arial","Lucida Sans","DejaVu Sans","Lucida Grande","Verdana"]
 matplotlib.rcParams['font.family']       = 'sans-serif'
 matplotlib.rcParams['font.size']         = 8.0
 matplotlib.rcParams["axes.labelcolor"]   = "#000000"
@@ -31,7 +31,7 @@ feature_color_dict["rep_origin"]   = [('#fff2ae', '#ffd92f')]
 feature_color_dict["misc_feature"] = [('#fbb4ae', '#e41a1c'), ('#b3cde3', '#377eb8'), ('#ccebc5', '#4daf4a'), ('#decbe4', '#984ea3'), ('#fed9a6', '#ff7f00')]  
 misc_colors = [('#ffffcc', '#d9d927'), ('#e5d8bd', '#a65628'), ('#fddaec', '#f781bf'), ('#f2f2f2', '#999999'), ('#fbb4ae', '#e41a1c')]
 
-def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.02, unvisible_types=["source"], visible_types=[], enlarge=1.0, format=1, bottom=400):
+def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_types=["source"], visible_types=[], enlarge=1.0, format=1, bottom=400):
     if format == 0 or format == 1:
         outer    = 60
         inner    = 44
@@ -421,19 +421,17 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.02, unvisible_ty
                 gs_origin, ge_origin = int(new_gs_origin), int(new_ge_origin) 
                 for char, (theta, height, y, pos, x, btw) in zip(label, new_pos_list):
                     ax.text(theta, height, char, ha="center", va="center", rotation=rotation(theta), zorder=10)
-             
-                
-       
+              
                 if width > 1.2 * head_length:
                     if strand == 1:
                         ax.bar([gs], [outer], bottom=y*lane_h+bottom_h-outer/2, width=width-hl*0.98, align="edge", fc=edgecolor, lw=0.0, zorder=1)
                         ax.bar([gs+mg], [inner], bottom=y*lane_h+bottom_h-inner/2, width=width-mg-hl*0.98, align="edge", fc=facecolor, lw=0.0, zorder=2)
-                        ax.arrow(x=ge-hl, y=y*lane_h+bottom_h, dx=hl, dy=0, width=outer, head_width=outer, head_length=hl, length_includes_head=True, fc=edgecolor, lw=0.0, zorder=3)
+                        ax.arrow(x=ge-hl, y=y*lane_h+bottom_h, dx=hl*1.05, dy=0, width=outer, head_width=outer, head_length=hl, length_includes_head=True, fc=edgecolor, lw=0.0, zorder=3)
                         ax.arrow(x=ge-hl, y=y*lane_h+bottom_h, dx=hl-mg*1.4, dy=0, width=inner, head_width=inner, head_length=hl-mg*1.4, length_includes_head=True, fc=facecolor, lw=0.0, zorder=4)
                     elif strand == -1:
                         ax.bar([gs+hl*0.98], [outer], bottom=y*lane_h+bottom_h-outer/2, width=width-hl*0.98, align="edge", fc=edgecolor, lw=0.0, zorder=1)
                         ax.bar([gs+hl*0.98], [inner], bottom=y*lane_h+bottom_h-inner/2, width=width-mg-hl*0.98, align="edge", fc=facecolor, lw=0.0, zorder=2)
-                        ax.arrow(x=gs+hl, y=y*lane_h+bottom_h, dx=-1*hl, dy=0, width=outer, head_width=outer, head_length=hl, length_includes_head=True, fc=edgecolor, lw=0.0, zorder=3) 
+                        ax.arrow(x=gs+hl, y=y*lane_h+bottom_h, dx=-1*hl*1.05, dy=0, width=outer, head_width=outer, head_length=hl, length_includes_head=True, fc=edgecolor, lw=0.0, zorder=3) 
                         ax.arrow(x=gs+hl, y=y*lane_h+bottom_h, dx=-1*(hl-mg*1.4), dy=0, width=inner, head_width=inner, head_length=hl-mg*1.4, length_includes_head=True, fc=facecolor, lw=0.0, zorder=4)
                     else:
                         ax.bar([gs], [outer], bottom=y*lane_h+bottom_h-outer/2, width=width, align="edge", fc=edgecolor, lw=0.0)
@@ -750,8 +748,8 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.02, unvisible_ty
     ax.bar([gs], [8], bottom=ylim-lane_h-4, width=2*np.pi, align="edge", fc="#606060", ec=edgecolor, lw=0.0, zorder=0)
     for pos in range(0, length, space):
         ax.plot([2*np.pi*(pos/length), 2*np.pi*(pos/length)], [ylim-lane_h-0.02*(ylim-lane_h), ylim-lane_h], color="k", lw=1)
-        if pos  == 0:
-            pass 
+        if pos == 0:
+            ax.text(2*np.pi*(pos/length), ylim-lane_h-0.045*(ylim-lane_h), str(1), ha="center", va="center",  rotation=-1*180/np.pi*(2*np.pi*(pos/length)), fontsize=8)
         else:
             if 2*np.pi*(pos/length) < 0.5 * np.pi or  2*np.pi*(pos/length) > 1.5 * np.pi: 
                 ax.text(2*np.pi*(pos/length), ylim-lane_h-0.045*(ylim-lane_h), str(pos), ha="center", va="center",  rotation=-1*180/np.pi*(2*np.pi*(pos/length)), fontsize=8)

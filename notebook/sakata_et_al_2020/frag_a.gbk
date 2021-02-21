@@ -1,0 +1,230 @@
+LOCUS       dna                     3403 bp    DNA     linear   UNK 01-JAN-1980
+DEFINITION  .
+ACCESSION   dna
+VERSION     dna
+KEYWORDS    .
+SOURCE      .
+  ORGANISM  .
+            .
+FEATURES             Location/Qualifiers
+     source          1..15
+                     /label="dna"
+                     /description="Record of editing history"
+                     /construction_history_5="DNA.dna_dict['dna'] =
+                     DNA(seq='ATCAAGATGCTATAA', record=None, project='dna',
+                     topology='linear', format=None)"
+     source          16..3394
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /cropped_region="[pCMV_ABE:N.A:0..8727]:5258..8636:8727"
+     source          16..3394
+                     /label="pCMV_ABE"
+                     /description="Record of editing history"
+                     /construction_history_1="DNA.dna_dict['pCMV_ABE'] =
+                     DNA(seq=None, record='input/addgene_102919.gbk',
+                     project='pCMV_ABE', topology='linear', format=None)"
+                     /cropped_region="[pCMV_ABE:pCMV_ABE:0..8727]:5258..8636:872
+                     7"
+                     /construction_history_3="DNA.dna_dict['pCMV_ABE_0'] =
+                     cropdna(DNA.dna_dict['pCMV_ABE'], start=5257, end=8636,
+                     project='pCMV_ABE')"
+     primer_bind     complement(38..55)
+                     /label="BGH-rev"
+                     /note="Bovine growth hormone terminator, reverse primer.
+                     Also called BGH reverse"
+                     /edgecolor_dna.py="#1f78b4"
+                     /facecolor_dna.py="#a6cee3"
+     polyA_signal    44..268
+                     /label="bGH poly(A) signal"
+                     /note="bovine growth hormone polyadenylation signal"
+                     /edgecolor_dna.py="#d9d927"
+                     /facecolor_dna.py="#ffffcc"
+     primer_bind     complement(339..355)
+                     /label="M13 rev"
+                     /note="common sequencing primer, one of multiple similar
+                     variants"
+                     /edgecolor_dna.py="#33a02c"
+                     /facecolor_dna.py="#b2df8a"
+     primer_bind     complement(339..355)
+                     /label="M13 Reverse"
+                     /note="In lacZ gene. Also called M13-rev"
+                     /edgecolor_dna.py="#e31a1c"
+                     /facecolor_dna.py="#fb9a99"
+     primer_bind     complement(352..374)
+                     /label="M13/pUC Reverse"
+                     /note="In lacZ gene"
+                     /edgecolor_dna.py="#ff7f00"
+                     /facecolor_dna.py="#fdbf6f"
+     protein_bind    363..379
+                     /label="lac operator"
+                     /bound_moiety="lac repressor encoded by lacI"
+                     /note="The lac repressor binds to the lac operator to
+                     inhibit transcription in E. coli. This inhibition can be
+                     relieved by adding lactose or
+                     isopropyl-beta-D-thiogalactopyranoside (IPTG)."
+                     /edgecolor_dna.py="#a65628"
+                     /facecolor_dna.py="#e5d8bd"
+     promoter        complement(387..417)
+                     /label="lac promoter"
+                     /note="promoter for the E. coli lac operon"
+                     /edgecolor_dna.py="#64b5cd"
+                     /facecolor_dna.py="#b0e0e6"
+     protein_bind    432..453
+                     /label="CAP binding site"
+                     /bound_moiety="E. coli catabolite activator protein"
+                     /note="CAP binding activates transcription in the presence
+                     of cAMP."
+                     /edgecolor_dna.py="#f781bf"
+                     /facecolor_dna.py="#fddaec"
+     primer_bind     complement(570..587)
+                     /label="L4440"
+                     /note="L4440 vector, forward primer"
+                     /edgecolor_dna.py="#6a3d9a"
+                     /facecolor_dna.py="#cab2d6"
+     rep_origin      complement(741..1329)
+                     /direction=LEFT
+                     /label="ori"
+                     /note="high-copy-number ColE1/pMB1/pBR322/pUC origin of
+                     replication"
+                     /edgecolor_dna.py="#ffd92f"
+                     /facecolor_dna.py="#fff2ae"
+     primer_bind     complement(821..840)
+                     /label="pBR322ori-F"
+                     /note="pBR322 origin, forward primer"
+                     /edgecolor_dna.py="#1f78b4"
+                     /facecolor_dna.py="#a6cee3"
+     CDS             complement(1500..2360)
+                     /codon_start=1
+                     /gene="bla"
+                     /product="beta-lactamase"
+                     /label="AmpR"
+                     /note="confers resistance to ampicillin, carbenicillin, and
+                     related antibiotics"
+                     /translation="MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYI
+                     ELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYS
+                     PVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRW
+                     EPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSA
+                     LPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGAS
+                     LIKHW"
+                     /edgecolor_dna.py="#4c72b0"
+                     /facecolor_dna.py="#92c6ff"
+     primer_bind     2123..2142
+                     /label="Amp-R"
+                     /note="Ampicillin resistance gene, reverse primer"
+                     /edgecolor_dna.py="#33a02c"
+                     /facecolor_dna.py="#b2df8a"
+     promoter        complement(2361..2465)
+                     /gene="bla"
+                     /label="AmpR promoter"
+                     /edgecolor_dna.py="#4c72b0"
+                     /facecolor_dna.py="#92c6ff"
+     primer_bind     complement(2544..2563)
+                     /label="pRS-marker"
+                     /note="pRS vectors, use to sequence yeast selectable
+                     marker"
+                     /edgecolor_dna.py="#e31a1c"
+                     /facecolor_dna.py="#fb9a99"
+     enhancer        2735..3114
+                     /label="CMV enhancer"
+                     /note="human cytomegalovirus immediate early enhancer"
+                     /edgecolor_dna.py="#999999"
+                     /facecolor_dna.py="#f2f2f2"
+     promoter        3115..3318
+                     /label="CMV promoter"
+                     /note="human cytomegalovirus (CMV) immediate early
+                     promoter"
+                     /edgecolor_dna.py="#55a868"
+                     /facecolor_dna.py="#97f0aa"
+     primer_bind     3269..3289
+                     /label="CMV-F"
+                     /note="Human CMV immediate early promoter, forward primer"
+                     /edgecolor_dna.py="#ff7f00"
+                     /facecolor_dna.py="#fdbf6f"
+     promoter        3360..3378
+                     /label="T7 promoter"
+                     /note="promoter for bacteriophage T7 RNA polymerase"
+                     /edgecolor_dna.py="#64b5cd"
+                     /facecolor_dna.py="#b0e0e6"
+     primer_bind     3360..3379
+                     /label="T7"
+                     /note="T7 promoter, forward primer"
+                     /edgecolor_dna.py="#6a3d9a"
+                     /facecolor_dna.py="#cab2d6"
+     source          3395..3403
+                     /label="dna"
+                     /description="Record of editing history"
+                     /construction_history_6="DNA.dna_dict['dna_0'] =
+                     DNA(seq='GCACCGAAG', record=None, project='dna',
+                     topology='linear', format=None)"
+     source          1..3403
+                     /label="dna"
+     source          1..3403
+                     /label="dna"
+                     /description="Record of editing history"
+                     /construction_history_7="DNA.dna_dict['dna_1'] =
+                     joindna(*[DNA.dna_dict['dna'],DNA.dna_dict['pCMV_ABE_0'],DN
+                     A.dna_dict['dna_0']], topology='linear', project='dna')"
+                     /construction_history_13="DNA.dna_dict['dna_7'] =
+                     modifyends(DNA.dna_dict['dna_1'],
+                     left='*************************/-------------------------',
+                     right='-------------------------/*************************'
+                     , project='dna')"
+ORIGIN
+        1 atcaagatgc tataatgagt ttaaacccgc tgatcagcct cgactgtgcc ttctagttgc
+       61 cagccatctg ttgtttgccc ctcccccgtg ccttccttga ccctggaagg tgccactccc
+      121 actgtccttt cctaataaaa tgaggaaatt gcatcgcatt gtctgagtag gtgtcattct
+      181 attctggggg gtggggtggg gcaggacagc aagggggagg attgggaaga caatagcagg
+      241 catgctgggg atgcggtggg ctctatggct tctgaggcgg aaagaaccag ctggggctcg
+      301 ataccgtcga cctctagcta gagcttggcg taatcatggt catagctgtt tcctgtgtga
+      361 aattgttatc cgctcacaat tccacacaac atacgagccg gaagcataaa gtgtaaagcc
+      421 tagggtgcct aatgagtgag ctaactcaca ttaattgcgt tgcgctcact gcccgctttc
+      481 cagtcgggaa acctgtcgtg ccagctgcat taatgaatcg gccaacgcgc ggggagaggc
+      541 ggtttgcgta ttgggcgctc ttccgcttcc tcgctcactg actcgctgcg ctcggtcgtt
+      601 cggctgcggc gagcggtatc agctcactca aaggcggtaa tacggttatc cacagaatca
+      661 ggggataacg caggaaagaa catgtgagca aaaggccagc aaaaggccag gaaccgtaaa
+      721 aaggccgcgt tgctggcgtt tttccatagg ctccgccccc ctgacgagca tcacaaaaat
+      781 cgacgctcaa gtcagaggtg gcgaaacccg acaggactat aaagatacca ggcgtttccc
+      841 cctggaagct ccctcgtgcg ctctcctgtt ccgaccctgc cgcttaccgg atacctgtcc
+      901 gcctttctcc cttcgggaag cgtggcgctt tctcatagct cacgctgtag gtatctcagt
+      961 tcggtgtagg tcgttcgctc caagctgggc tgtgtgcacg aaccccccgt tcagcccgac
+     1021 cgctgcgcct tatccggtaa ctatcgtctt gagtccaacc cggtaagaca cgacttatcg
+     1081 ccactggcag cagccactgg taacaggatt agcagagcga ggtatgtagg cggtgctaca
+     1141 gagttcttga agtggtggcc taactacggc tacactagaa gaacagtatt tggtatctgc
+     1201 gctctgctga agccagttac cttcggaaaa agagttggta gctcttgatc cggcaaacaa
+     1261 accaccgctg gtagcggtgg tttttttgtt tgcaagcagc agattacgcg cagaaaaaaa
+     1321 ggatctcaag aagatccttt gatcttttct acggggtctg acgctcagtg gaacgaaaac
+     1381 tcacgttaag ggattttggt catgagatta tcaaaaagga tcttcaccta gatcctttta
+     1441 aattaaaaat gaagttttaa atcaatctaa agtatatatg agtaaacttg gtctgacagt
+     1501 taccaatgct taatcagtga ggcacctatc tcagcgatct gtctatttcg ttcatccata
+     1561 gttgcctgac tccccgtcgt gtagataact acgatacggg agggcttacc atctggcccc
+     1621 agtgctgcaa tgataccgcg agacccacgc tcaccggctc cagatttatc agcaataaac
+     1681 cagccagccg gaagggccga gcgcagaagt ggtcctgcaa ctttatccgc ctccatccag
+     1741 tctattaatt gttgccggga agctagagta agtagttcgc cagttaatag tttgcgcaac
+     1801 gttgttgcca ttgctacagg catcgtggtg tcacgctcgt cgtttggtat ggcttcattc
+     1861 agctccggtt cccaacgatc aaggcgagtt acatgatccc ccatgttgtg caaaaaagcg
+     1921 gttagctcct tcggtcctcc gatcgttgtc agaagtaagt tggccgcagt gttatcactc
+     1981 atggttatgg cagcactgca taattctctt actgtcatgc catccgtaag atgcttttct
+     2041 gtgactggtg agtactcaac caagtcattc tgagaatagt gtatgcggcg accgagttgc
+     2101 tcttgcccgg cgtcaatacg ggataatacc gcgccacata gcagaacttt aaaagtgctc
+     2161 atcattggaa aacgttcttc ggggcgaaaa ctctcaagga tcttaccgct gttgagatcc
+     2221 agttcgatgt aacccactcg tgcacccaac tgatcttcag catcttttac tttcaccagc
+     2281 gtttctgggt gagcaaaaac aggaaggcaa aatgccgcaa aaaagggaat aagggcgaca
+     2341 cggaaatgtt gaatactcat actcttcctt tttcaatatt attgaagcat ttatcagggt
+     2401 tattgtctca tgagcggata catatttgaa tgtatttaga aaaataaaca aataggggtt
+     2461 ccgcgcacat ttccccgaaa agtgccacct gacgtcgacg gatcgggaga tcgatctccc
+     2521 gatcccctag ggtcgactct cagtacaatc tgctctgatg ccgcatagtt aagccagtat
+     2581 ctgctccctg cttgtgtgtt ggaggtcgct gagtagtgcg cgagcaaaat ttaagctaca
+     2641 acaaggcaag gcttgaccga caattgcatg aagaatctgc ttagggttag gcgttttgcg
+     2701 ctgcttcgcg atgtacgggc cagatatacg cgttgacatt gattattgac tagttattaa
+     2761 tagtaatcaa ttacggggtc attagttcat agcccatata tggagttccg cgttacataa
+     2821 cttacggtaa atggcccgcc tggctgaccg cccaacgacc cccgcccatt gacgtcaata
+     2881 atgacgtatg ttcccatagt aacgccaata gggactttcc attgacgtca atgggtggag
+     2941 tatttacggt aaactgccca cttggcagta catcaagtgt atcatatgcc aagtacgccc
+     3001 cctattgacg tcaatgacgg taaatggccc gcctggcatt atgcccagta catgacctta
+     3061 tgggactttc ctacttggca gtacatctac gtattagtca tcgctattac catggtgatg
+     3121 cggttttggc agtacatcaa tgggcgtgga tagcggtttg actcacgggg atttccaagt
+     3181 ctccacccca ttgacgtcaa tgggagtttg ttttggcacc aaaatcaacg ggactttcca
+     3241 aaatgtcgta acaactccgc cccattgacg caaatgggcg gtaggcgtgt acggtgggag
+     3301 gtctatataa gcagagctgg tttagtgaac cgtcagatcc gctagagatc cgcggccgct
+     3361 aatacgactc actataggga gagccgccac catggcaccg aag
+//

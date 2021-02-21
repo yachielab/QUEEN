@@ -1,0 +1,208 @@
+LOCUS       pUC19-EGFP              3745 bp    DNA     circular UNK 01-JAN-1980
+DEFINITION  .
+ACCESSION   pUC19-EGFP
+VERSION     pUC19-EGFP
+KEYWORDS    .
+SOURCE      .
+  ORGANISM  .
+            .
+FEATURES             Location/Qualifiers
+     source          1..1090
+                     /label="dna"
+     source          1..1090
+                     /label="EGFP"
+                     /description="Record of editing history"
+                     /construction_history_9="DNA.dna_dict['EGFP_2'] =
+                     modifyends(DNA.dna_dict['EGFP_1'], left='TCGAC/----G',
+                     right='GAGCT/C----', project='EGFP')"
+     source          6..1085
+                     /label="EGFP"
+                     /description="Record of editing history"
+                     /construction_history_5="DNA.dna_dict['EGFP'] =
+                     DNA(seq=None, record='EGFP.fasta', project='EGFP',
+                     topology='linear', format=None)"
+                     /construction_history_8="DNA.dna_dict['EGFP_0'] =
+                     editdna(DNA.dna_dict['EGFP'], key_attribute='sequence',
+                     query=None, target_attribute='feature ID',
+                     operation=createdna(value='Ins_1'), comment='',
+                     destructive=False, project='EGFP')"
+                     /construction_history_9="DNA.dna_dict['EGFP_1'] =
+                     editdna(DNA.dna_dict['EGFP_0'], key_attribute='feature ID',
+                     query='Ins_1', target_attribute='qualifier:label',
+                     operation=createdna(value='EGFP'), comment='',
+                     destructive=False, project='EGFP')"
+     misc_feature    6..1085
+                     /label="EGFP"
+     source          join(1087..3745,1..4)
+                     /label="pUC19"
+                     /description="Record of editing history"
+                     /construction_history_4="DNA.dna_dict['pUC19_0'] =
+                     cropdna(DNA.dna_dict['pUC19'], start=677, end=654,
+                     project='pUC19')"
+                     /construction_history_11="DNA.dna_dict['pUC19-EGFP'] =
+                     joindna(*[DNA.dna_dict['EGFP_2'],DNA.dna_dict['pUC19_0']],
+                     topology='circular', project='pUC19-EGFP')"
+     primer_bind     complement(1098..1114)
+                     /label="M13 fwd"
+                     /note="common sequencing primer, one of multiple similar
+                     variants"
+     primer_bind     complement(1098..1115)
+                     /label="M13 Forward"
+                     /note="In lacZ gene. Also called M13-F20 or M13 (-21)
+                     Forward"
+     primer_bind     complement(1107..1129)
+                     /label="M13/pUC Forward"
+                     /note="In lacZ gene"
+     primer_bind     complement(1323..1342)
+                     /label="pRS-marker"
+                     /note="pRS vectors, use to sequence yeast selectable
+                     marker"
+     primer_bind     1442..1464
+                     /label="pGEX 3'"
+                     /note="pGEX vectors, reverse primer"
+     primer_bind     complement(1502..1520)
+                     /label="pBRforEco"
+                     /note="pBR322 vectors, upsteam of EcoRI site, forward
+                     primer"
+     promoter        1588..1692
+                     /gene="bla"
+                     /label="AmpR promoter"
+     CDS             1693..2553
+                     /codon_start=1
+                     /gene="bla"
+                     /product="beta-lactamase"
+                     /label="AmpR"
+                     /note="confers resistance to ampicillin, carbenicillin, and
+                     related antibiotics"
+                     /translation="MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYI
+                     ELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYS
+                     PVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRW
+                     EPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSA
+                     LPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGAS
+                     LIKHW"
+     primer_bind     complement(1911..1930)
+                     /label="Amp-R"
+                     /note="Ampicillin resistance gene, reverse primer"
+     rep_origin      join(2724..3095,3096..3312)
+                     /direction=RIGHT
+                     /label="ori"
+                     /note="high-copy-number ColE1/pMB1/pBR322/pUC origin of
+                     replication"
+     source          join(3096..3771,1087..3095)
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+     source          join(3096..3771,1087..3095)
+                     /label="pUC19"
+                     /description="Record of editing history"
+                     /construction_history_1="DNA.dna_dict['pUC19'] =
+                     DNA(seq=None, record='pUC19.gbk', project='pUC19',
+                     topology='linear', format=None)"
+     primer_bind     3213..3232
+                     /label="pBR322ori-F"
+                     /note="pBR322 origin, forward primer"
+     primer_bind     3466..3483
+                     /label="L4440"
+                     /note="L4440 vector, forward primer"
+     protein_bind    3600..3621
+                     /label="CAP binding site"
+                     /bound_moiety="E. coli catabolite activator protein"
+                     /note="CAP binding activates transcription in the presence
+                     of cAMP."
+     promoter        3636..3666
+                     /label="lac promoter"
+                     /note="promoter for the E. coli lac operon"
+     protein_bind    3674..3690
+                     /label="lac operator"
+                     /bound_moiety="lac repressor encoded by lacI"
+                     /note="The lac repressor binds to the lac operator to
+                     inhibit transcription in E. coli. This inhibition can be
+                     relieved by adding lactose or
+                     isopropyl-beta-D-thiogalactopyranoside (IPTG)."
+     primer_bind     3679..3701
+                     /label="M13/pUC Reverse"
+                     /note="In lacZ gene"
+     primer_bind     3698..3714
+                     /label="M13 rev"
+                     /note="common sequencing primer, one of multiple similar
+                     variants"
+     primer_bind     3698..3714
+                     /label="M13 Reverse"
+                     /note="In lacZ gene. Also called M13-rev"
+     CDS             join(3710..3771,1087..1347)
+                     /codon_start=1
+                     /gene="lacZ fragment"
+                     /product="LacZ-alpha fragment of beta-galactosidase"
+                     /label="lacZ-alpha"
+                     /translation="MTMITPSLHACRSTLEDPRVPSSNSLAVVLQRRDWENPGVTQLNR
+                     LAAHPPFASWRNSEEARTDRPSQQLRSLNGEWRLMRYFLLTHLCGISHRIWCTLSTICS
+                     DAA"
+     misc_feature    join(3727..3771,1087..1097)
+                     /label="MCS"
+                     /note="pUC18/19 multiple cloning site"
+     source          1..3745
+                     /label="pUC19-EGFP"
+ORIGIN
+        1 tcgacatgtc caccaactta tcagtgataa agaatccgcg cgttcaatcg gaccagcgga
+       61 ggctggtccg gaggccagac gtgaaaccca acatacccct gatcgtaatt ctgaggtcga
+      121 ctctagagga tccccgggta ccggtcgcca ccatggtgag caagggcgag gagctgttca
+      181 ccggggtggt gcccatcctg ggtcgagctg gacggcgacg taaacggcca caagttcagc
+      241 gtgtccggcg agggcgaggg cgatgccacc tacggcaagc tgaccctgaa gttcatctgc
+      301 accaccggca agctgcccgt gccctggccc accctcgtga ccaccctgac ctacggcgtg
+      361 cagtgcttca gccgctaccc cgaccacatg aagcagcacg acttcttcaa gtccgccatg
+      421 cccgaaggct acgtccagga gcgcaccatc ttcttcaagg acgacggcaa ctacaagacc
+      481 cgcgccgagg tgaagttcga gggcgacacc ctggtgaacc gcatcgagct gaagggcatc
+      541 gacttcaagg aggacggcaa catcctgggg cacaagctgg agtacaacta caacagccac
+      601 aacgtctata tcatggccga caagcagaag aacggcatca aggtgaactt caagatccgc
+      661 cacaacatcg aggacggcag cgtgcagctc gccgaccact accagcagaa cacccccatc
+      721 ggcgacggcc ccgtgctgct gcccgacaac cactacctga gcacccagtc cgccctgagc
+      781 aaagacccca acgagaagcg cgatcacatg gtcctgctgg aattccaact gagcgccggt
+      841 cgctaccatt accaacttgt ctggtgtcaa aaataatagg cctactagtc ggccgtacgg
+      901 gccctttcgt ctcgcgcgtt tcggtgatga cggtgaaaac ctctgacaca tgcagctccc
+      961 ggagacggtc acagcttgtc tgtaagcgga tgccgggagc agacaagccc gtcagggcgc
+     1021 gtcagcgggt gttggcgggt gtcggggctg gcttaactat gcggcatcag agcagattgt
+     1081 actgagagct cgaattcact ggccgtcgtt ttacaacgtc gtgactggga aaaccctggc
+     1141 gttacccaac ttaatcgcct tgcagcacat ccccctttcg ccagctggcg taatagcgaa
+     1201 gaggcccgca ccgatcgccc ttcccaacag ttgcgcagcc tgaatggcga atggcgcctg
+     1261 atgcggtatt ttctccttac gcatctgtgc ggtatttcac accgcatatg gtgcactctc
+     1321 agtacaatct gctctgatgc cgcatagtta agccagcccc gacacccgcc aacacccgct
+     1381 gacgcgccct gacgggcttg tctgctcccg gcatccgctt acagacaagc tgtgaccgtc
+     1441 tccgggagct gcatgtgtca gaggttttca ccgtcatcac cgaaacgcgc gagacgaaag
+     1501 ggcctcgtga tacgcctatt tttataggtt aatgtcatga taataatggt ttcttagacg
+     1561 tcaggtggca cttttcgggg aaatgtgcgc ggaaccccta tttgtttatt tttctaaata
+     1621 cattcaaata tgtatccgct catgagacaa taaccctgat aaatgcttca ataatattga
+     1681 aaaaggaaga gtatgagtat tcaacatttc cgtgtcgccc ttattccctt ttttgcggca
+     1741 ttttgccttc ctgtttttgc tcacccagaa acgctggtga aagtaaaaga tgctgaagat
+     1801 cagttgggtg cacgagtggg ttacatcgaa ctggatctca acagcggtaa gatccttgag
+     1861 agttttcgcc ccgaagaacg ttttccaatg atgagcactt ttaaagttct gctatgtggc
+     1921 gcggtattat cccgtattga cgccgggcaa gagcaactcg gtcgccgcat acactattct
+     1981 cagaatgact tggttgagta ctcaccagtc acagaaaagc atcttacgga tggcatgaca
+     2041 gtaagagaat tatgcagtgc tgccataacc atgagtgata acactgcggc caacttactt
+     2101 ctgacaacga tcggaggacc gaaggagcta accgcttttt tgcacaacat gggggatcat
+     2161 gtaactcgcc ttgatcgttg ggaaccggag ctgaatgaag ccataccaaa cgacgagcgt
+     2221 gacaccacga tgcctgtagc aatggcaaca acgttgcgca aactattaac tggcgaacta
+     2281 cttactctag cttcccggca acaattaata gactggatgg aggcggataa agttgcagga
+     2341 ccacttctgc gctcggccct tccggctggc tggtttattg ctgataaatc tggagccggt
+     2401 gagcgtgggt ctcgcggtat cattgcagca ctggggccag atggtaagcc ctcccgtatc
+     2461 gtagttatct acacgacggg gagtcaggca actatggatg aacgaaatag acagatcgct
+     2521 gagataggtg cctcactgat taagcattgg taactgtcag accaagttta ctcatatata
+     2581 ctttagattg atttaaaact tcatttttaa tttaaaagga tctaggtgaa gatccttttt
+     2641 gataatctca tgaccaaaat cccttaacgt gagttttcgt tccactgagc gtcagacccc
+     2701 gtagaaaaga tcaaaggatc ttcttgagat cctttttttc tgcgcgtaat ctgctgcttg
+     2761 caaacaaaaa aaccaccgct accagcggtg gtttgtttgc cggatcaaga gctaccaact
+     2821 ctttttccga aggtaactgg cttcagcaga gcgcagatac caaatactgt tcttctagtg
+     2881 tagccgtagt taggccacca cttcaagaac tctgtagcac cgcctacata cctcgctctg
+     2941 ctaatcctgt taccagtggc tgctgccagt ggcgataagt cgtgtcttac cgggttggac
+     3001 tcaagacgat agttaccgga taaggcgcag cggtcgggct gaacgggggg ttcgtgcaca
+     3061 cagcccagct tggagcgaac gacctacacc gaactgagat acctacagcg tgagctatga
+     3121 gaaagcgcca cgcttcccga agggagaaag gcggacaggt atccggtaag cggcagggtc
+     3181 ggaacaggag agcgcacgag ggagcttcca gggggaaacg cctggtatct ttatagtcct
+     3241 gtcgggtttc gccacctctg acttgagcgt cgatttttgt gatgctcgtc aggggggcgg
+     3301 agcctatgga aaaacgccag caacgcggcc tttttacggt tcctggcctt ttgctggcct
+     3361 tttgctcaca tgttctttcc tgcgttatcc cctgattctg tggataaccg tattaccgcc
+     3421 tttgagtgag ctgataccgc tcgccgcagc cgaacgaccg agcgcagcga gtcagtgagc
+     3481 gaggaagcgg aagagcgccc aatacgcaaa ccgcctctcc ccgcgcgttg gccgattcat
+     3541 taatgcagct ggcacgacag gtttcccgac tggaaagcgg gcagtgagcg caacgcaatt
+     3601 aatgtgagtt agctcactca ttaggcaccc caggctttac actttatgct tccggctcgt
+     3661 atgttgtgtg gaattgtgag cggataacaa tttcacacag gaaacagcta tgaccatgat
+     3721 tacgccaagc ttgcatgcct gcagg
+//

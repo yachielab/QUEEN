@@ -37,7 +37,8 @@ def _slide(feats, slide, ref_position=0, limit=None):
         new_parts = [] 
         for p in range(len(feat.location.parts)):
             flag = 0
-            if feat.location.parts[p].start.position > ref_position:
+            #print(feat, slide, ref_position) 
+            if feat.location.parts[p].start.position >= ref_position:
                 feat.location.parts[p]._start = ExactPosition(feat.location.parts[p].start.position + slide)
                 if limit is not None and feat.location.parts[p].start.position >= limit:
                     feat.location.parts[p]._start = ExactPosition(int(feat.location.parts[p].start.position) - limit)
@@ -47,7 +48,7 @@ def _slide(feats, slide, ref_position=0, limit=None):
             else:
                 pass 
             
-            if feat.location.parts[p].end.position > ref_position:
+            if feat.location.parts[p].end.position >= ref_position:
                 feat.location.parts[p]._end = ExactPosition(feat.location.parts[p].end.position + slide)
                 if limit is not None and feat.location.parts[p].end.position >= limit:
                     feat.location.parts[p]._end = ExactPosition(int(feat.location.parts[p].end.position) - limit)
@@ -61,6 +62,8 @@ def _slide(feats, slide, ref_position=0, limit=None):
                 pass 
             
             if flag == 1:
+                #print(feat) 
+                #print(feat.location.parts[p].start.position, feat.location.parts[p].end.position, limit) 
                 new_parts.append(FeatureLocation(feat.location.parts[p].start.position, limit-1, feat.location.strand))
                 new_parts.append(FeatureLocation(0, feat.location.parts[p].end.position, feat.location.strand))
             else:
@@ -68,8 +71,9 @@ def _slide(feats, slide, ref_position=0, limit=None):
 
         if strand == -1:
             new_parts.reverse()
-
+        
         if len(new_parts) > 1:
+            #print(new_parts) 
             feat.location = CompoundLocation(new_parts)
         else:
             feat.location = new_parts[0]
@@ -84,7 +88,7 @@ def _add_history(dna, history=""):
         if feat.type == "source":
             if "label" in feat.qualifiers and feat.qualifiers["label"][0] in dna.project and "description" in feat.qualifiers and feat.qualifiers["description"][0] == "Record of editing history" and feat.location.start == 0 and feat.location.end == len(dna.seq):
                 DNA._num_history += 1 
-                feat.qualifiers["construction_history_{}".format(dna._num_history)] = [history] 
+                feat.qualifiers["construction_history_{}".format(DNA._num_history)] = [history] 
                 flag = 1
                 break
 
@@ -97,12 +101,12 @@ def _add_history(dna, history=""):
         feat._id = max_id
         feat.qualifiers["label"]       = [dna.project] 
         feat.qualifiers["description"] = ["Record of editing history"]
-        feat.qualifiers["construction_history_{}".format(dna._num_history)] = [history] 
+        feat.qualifiers["construction_history_{}".format(DNA._num_history)] = [history] 
         DNA._num_history += 1 
         dna.dnafeature.append(feat)
         dna._features_dict[feat._id] = feat
 
-def exporthistory(dna):
+def exporthistory(dna, output=None):
     histories = [] 
     for feat in dna.dnafeature:
         if feat.type == "source":
@@ -111,10 +115,18 @@ def exporthistory(dna):
                 if "construction_history" in key:
                     history = feat.qualifiers[key][0] 
                     histories.append((int(key.split("_")[-1]), history)) 
-    histories.sort() 
-    for history in histories:
-        print(history[1]) 
-
+     
+    histories.sort()
+    if type(output) is str:
+        with open(output, "w") as o:
+            print("from dna import *", file=o)  
+            for history in histories:
+                print(history[1], file=o) 
+    else:
+        print("from dna import *", file=output) 
+        for history in histories:
+            print(history[1], file=output) 
+    
 def archivehistory(dna):
     for feat in dna.dnafeature:
         if feat.type == "source":
@@ -174,8 +186,8 @@ def cropdna(dna, start=0, end=0, project=None, __direct=1):
     if start > end:
         if dna.topology == "circular":
             source       = copy.deepcopy(dna) 
-            new_features = _slide(source.dnafeature, len(source.seq) - start, 0, limit=len(source.seq))
             new_seq      = source.seq[start:] + source.seq[:start] 
+            new_features = _slide(source.dnafeature, len(source.seq) - start, 0, limit=len(source.seq))
             source.seq   = new_seq
             source.dnafeature      = new_features
             source.record.features = _assigndnafeature(source.dnafeature)
@@ -362,6 +374,7 @@ def cropdna(dna, start=0, end=0, project=None, __direct=1):
                     else:
                         locations[-1][1] = ExactPosition(e - start)
                 
+                    print(feat)  
                     if len(locations) == 1:
                         feat.location = FeatureLocation(*locations[0])
                     else:
@@ -441,7 +454,7 @@ def cropdna(dna, start=0, end=0, project=None, __direct=1):
             if type(args[i]) is str:
                 args[i] = "'" + args[i] + "'" 
         DNA.dna_dict[subdna._unique_id] = subdna
-        edit_history = "DNA.dna_dict['{}'] = cropdna('DNA.dna_dict['{}'], start={}, end={}, project={})".format(subdna._unique_id, dna._unique_id, args[0], args[1], args[2]) 
+        edit_history = "DNA.dna_dict['{}'] = cropdna(DNA.dna_dict['{}'], start={}, end={}, project={})".format(subdna._unique_id, dna._unique_id, args[0], args[1], args[2]) 
         _add_history(subdna, edit_history)
     
     if start_top != start_bottom or end_top != end_bottom:
@@ -647,7 +660,6 @@ def joindna(*dnas, topology="linear", project=None, __direct=1):
         DNA.dna_dict[construct._unique_id] = construct
         dna_elements = "[" + ",".join(["DNA.dna_dict['{}']".format(dna._unique_id) for dna in dnas]) + "]"
         edit_history = "DNA.dna_dict['{}'] = joindna(*{}, topology='{}', project='{}')".format(construct._unique_id, dna_elements, topology, project) 
-        print(edit_history)  
         _add_history(construct, edit_history) 
     
     return construct
@@ -889,8 +901,8 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
         right_end_bottom = 1
     
     if add == 1 or (left_end != dna.seq[left_end_length-left_length:left_end_length-left_length+len(left_end)] or right_end != str(dna[len(dna.seq)-right_end_length + right_length - len(right_end):len(dna.seq)-right_end_length + right_length].seq)):
-        left_end  = DNA(seq=left_end, __direct==0) 
-        right_end = DNA(seq=right_end, __direct==0) 
+        left_end  = DNA(seq=left_end,  _direct=0) 
+        right_end = DNA(seq=right_end, _direct=0) 
         if add_left == 1 and add_right == 1:
             new_dna = joindna(left_end, dna, right_end, __direct=0)
             new_dna._left_end  = left_end._left_end
@@ -911,8 +923,8 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
             new_dna._right_end_bottom = right_end_bottom
 
     else:
-        left_end  = DNA(seq=left_end, __direct==0) 
-        right_end = DNA(seq=right_end, __direct==0)
+        left_end  = DNA(seq=left_end,  _direct=0) 
+        right_end = DNA(seq=right_end, _direct=0)
         new_dna = cropdna(dna, start=left_end_length-left_length, end=len(dna.seq)-right_end_length+right_length) 
         new_dna._left_end  = left_end.seq
         new_dna._right_end = right_end.seq
@@ -1180,11 +1192,11 @@ def _replacedna(dna=None, feat_list=None, target_attribute=None, query_re=None, 
     if _exec == 0:
         warnings.warn("Warning : No target was detected") 
 
-def replacedna(tquery, tvalue=None):
-    if tvalue is None:
-        tvalue = tquery 
-        tquery = None
-    return functools.partial(_replacedna, query_re=tquery, value=tvalue)
+def replacedna(query_re, value=None):
+    if value is None:
+        value    = query_re
+        query_re = None
+    return functools.partial(_replacedna, query_re=query_re, value=value)
 
 def _removedna(dna=None, feat_list=None, target_attribute=None):
     dna = _replacedna(dna=dna, feat_list=feat_list, target_attribute=target_attribute, query_re=None, value="")
@@ -1314,8 +1326,8 @@ def _createdna(dna=None, feat_list=None, target_attribute=None, value=None):
     dna._features_dict = dict(list(map(lambda x:(x._id, x), dna.dnafeature))) 
     return dna 
 
-def createdna(tvalue=None):
-    return functools.partial(_createdna, value=tvalue)
+def createdna(value=None):
+    return functools.partial(_createdna, value=value)
 
 def editdna(dna, key_attribute=None, query=None, target_attribute=None, operation=None, comment="", destructive=True, project=None, __direct=1):
     if destructive == True:
@@ -1328,9 +1340,12 @@ def editdna(dna, key_attribute=None, query=None, target_attribute=None, operatio
     if operation.func.__name__ in ("_createdna", "_removedna", "_replacedna"):
         operation(dna=dna, feat_list=feat_list, target_attribute=target_attribute)
         largs = [] 
-        for item in operation.keywords:
+        for item in operation.keywords.items():
+            item = list(item) 
+            if type(item[1]) is str:
+                item[1] = "'" + item[1] + "'"
             largs.append("=".join(item)) 
-        command = operation.func.__name__ + "(" + ",".join(largs) + ")"
+        command = operation.func.__name__[1:] + "(" + ",".join(largs) + ")"
         if __direct == 1 and destructive == False:
             if project is None:
                 project = dna.project
@@ -1347,15 +1362,19 @@ def editdna(dna, key_attribute=None, query=None, target_attribute=None, operatio
                 dna._unique_id = project
             DNA.dna_dict[dna._unique_id] = dna
             
-            args = [key_attribute, query, target_attribute, command, comment]
+            args = [key_attribute, query, target_attribute, command, comment, destructive, project]
             for i in range(len(args)):
-                if type(args[i]) is str:
+                if type(args[i]) is str and i != 3:
                     args[i] = "'" + args[i] + "'" 
-            edit_history = "DNA.dna_dict['{}'] = editdna(DNA.dna_dict['{}'], key_attribute={}, query={}, target_attribute={}, operation={}, comment={})".format(dna._unique_id, original_id, args[0], args[1], args[2], args[3], args[4]) 
+            edit_history = "DNA.dna_dict['{}'] = editdna(DNA.dna_dict['{}'], key_attribute={}, query={}, target_attribute={}, operation={}, comment={}, destructive={}, project={})".format(dna._unique_id, original_id, args[0], args[1], args[2], args[3], args[4], args[5], args[6]) 
             _add_history(dna, history=edit_history) 
 
         elif destructive == True:
-            edit_history = "editdna(DNA.dna_dict['{}'], key_attribute={}, query={}, target_attribute={}, operation={}, comment={})".format(args[0], args[1], args[2], args[3], args[4])
+            args = [key_attribute, query, target_attribute, command, comment, destructive]
+            for i in range(len(args)):
+                if type(args[i]) is str and i != 3:
+                    args[i] = "'" + args[i] + "'" 
+            edit_history = "editdna(DNA.dna_dict['{}'], key_attribute={}, query={}, target_attribute={}, operation={}, comment={}, destructive={})".format(args[0], args[1], args[2], args[3], args[4], args[5])
             _add_history(dna, history=edit_history) 
 
     else:
@@ -1515,7 +1534,7 @@ class DNA():
         #out += self.printdnaseq(whole=False, end_length=max([10, len(str(self._left_end)), len(str(self._right_end))]), linebreak=None, display=False)
         return out 
 
-    def __init__(self, seq=None, record=None, project=None, topology="linear", format=None, __direct=1): 
+    def __init__(self, seq=None, record=None, project=None, topology="linear", format=None, _direct=1): 
         recname = record
         if seq is None and record is None:
             if project is None: 
@@ -1734,7 +1753,7 @@ class DNA():
                 args[i] = "'" + args[i] + "'" 
         self._setfeatureid()
         self._features_dict = dict(list(map(lambda x:(x._id, x), self.dnafeature)))
-        if __direct == 1:
+        if _direct == 1:
             edit_history = "DNA.dna_dict['{}'] = DNA(seq={}, record={}, project={}, topology={}, format={})".format(self._unique_id, args[0], args[1], args[2], args[3], args[4]) 
             _add_history(self, edit_history)
         self.record.feartures = _assigndnafeature(self.dnafeature)
@@ -2237,6 +2256,7 @@ class DNA():
                 if display == True:
                     print("5' {}...{} 3'".format(left_end_top, right_end_top))
                     print("3' {}...{} 5'".format(left_end_bottom, right_end_bottom))
+                    print() 
                 out += "5' {}...{} 3'\n".format(left_end_top, right_end_top)
                 out += "3' {}...{} 5'".format(left_end_bottom, right_end_bottom)
             else:    
@@ -2427,6 +2447,9 @@ class DNA():
                 elif (pos_s == 1 and pos_e == length) or (pos_s == length and pos_e == 1):
                     del feat.qualifiers["cropped_region"]
         
+        if type(handle) is str:
+            handle = open(handle, "w") 
+
         self.record.features = features 
         if record_id is None:
             self.record.id = self.project
@@ -2435,6 +2458,8 @@ class DNA():
         if Alphabet:
             self.record.seq = Seq(str(self.seq),Alphabet.DNAAlphabet()) 
         else:
-            self.record.seq = Seq(str(self.seq)) 
+            self.record.seq = Seq(str(self.seq))
+            self.record.annotations["molecule_type"] = "DNA"
+    
         SeqIO.write(self.record, handle, format)
         self.record.features = self.dnafeature

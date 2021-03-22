@@ -1,0 +1,105 @@
+LOCUS       pGGA                    2137 bp    DNA     linear   UNK 01-JAN-1980
+DEFINITION  .
+ACCESSION   pGGA
+VERSION     pGGA
+KEYWORDS    .
+SOURCE      .
+  ORGANISM  .
+            .
+FEATURES             Location/Qualifiers
+     misc_feature    1..4
+                     /label="BsaI insert"
+                     /note="fragment released by digestion with BsaI"
+                     /crop_trail="[pGGA:BsaI insert:314..359]:42..45:45"
+     source          1..2137
+                     /organism="synthetic DNA construct"
+                     /lab_host="Escherichia coli"
+                     /mol_type="other DNA"
+                     /crop_trail="[pGGA:N.A:0..2174]:356..318:2174"
+     source          1..2137
+                     /label="pGGA"
+                     /description="Record of build history"
+                     /build_history_2="DNA.dna_dict['pGGA_4'] = DNA(seq=None,
+                     record='pGGA.gb', project='pGGA', topology='linear',
+                     format=None)"
+                     /crop_trail="[pGGA:pGGA:0..2174]:356..318:2174"
+                     /build_history_5="DNA.dna_dict['pGGA_6'] =
+                     cropdna(DNA.dna_dict['pGGA_4'], start=(355, 359), end=(314,
+                     318), project='pGGA', comment='')"
+     misc_feature    18..51
+                     /label="downstream MCS"
+                     /note="downstream multiple cloning site"
+     primer_bind     complement(56..81)
+                     /label="Cloning Analysis Reverse Primer"
+     promoter        complement(63..81)
+                     /label="T7 promoter"
+                     /note="promoter for bacteriophage T7 RNA polymerase"
+     CDS             complement(192..851)
+                     /codon_start=1
+                     /gene="cat"
+                     /product="chloramphenicol acetyltransferase"
+                     /label="CmR"
+                     /note="confers resistance to chloramphenicol"
+                     /translation="MEKKITGYTTVDISQWHRKEHFEAFQSVAQCTYNQTVQLDITAFL
+                     KTVKKNKHKFYPAFIHILARLMNAHPEFRMAMKDGELVIWDSVHPCYTVFHEQTETFSS
+                     LWSEYHDDFRQFLHIYSQDVACYGENLAYFPKGFIENMFFVSANPWVSFTSFDLNVANM
+                     DNFFAPVFTMGKYYTQGDKVLMPLAIQVHHAVCDGFHVGRMLNELQQYCDEWQGGA"
+     promoter        complement(852..954)
+                     /label="cat promoter"
+                     /note="promoter of the E. coli cat gene encoding
+                     chloramphenicol acetyltransferase"
+     rep_origin      1055..1643
+                     /direction=RIGHT
+                     /label="ori"
+                     /note="high-copy-number ColE1/pMB1/pBR322/pUC origin of
+                     replication"
+     primer_bind     2053..2079
+                     /label="Forward (CW) Analysis Primer"
+     promoter        2073..2091
+                     /label="SP6 promoter"
+                     /note="promoter for bacteriophage SP6 RNA polymerase"
+     misc_feature    2102..2123
+                     /label="upstream MCS"
+                     /note="upstream multiple cloning site"
+     misc_feature    2134..2137
+                     /label="BsaI insert"
+                     /note="fragment released by digestion with BsaI"
+                     /crop_trail="[pGGA:BsaI insert:314..359]:1..4:45"
+ORIGIN
+        1 ccattcctgt agtcttctta attaagacgt cagaattctc gaggcggccg catgtgcgtc
+       61 tccctatagt gagtcgtatt aatttcgcgg gcggaacccc tatttgttta tttttctaaa
+      121 tacattcaaa tatgtatccg ctcatgagta gcaccaggcg tttaagggca ccaataactg
+      181 ccttaaaaaa attacgcccc gccctgccac tcatcgcagt actgttgtaa ttcattaagc
+      241 attctgccga catggaagcc atcacaaacg gcatgatgaa cctgaatcgc cagcggcatc
+      301 agcaccttgt cgccttgcgt ataatatttg cccatggtga aaacgggggc gaagaagttg
+      361 tccatattgg ccacgtttaa atcaaaactg gtgaaactca cccagggatt ggctgagacg
+      421 aaaaacatat tctcaataaa ccctttaggg aaataggcca ggttttcacc gtaacacgcc
+      481 acatcttgcg aatatatgtg tagaaactgc cggaaatcgt cgtggtattc actccagagc
+      541 gatgaaaacg tttcagtttg ctcatggaaa acggtgtaac aagggtgaac actatcccat
+      601 atcaccagct caccgtcttt cattgccata cggaattccg gatgagcatt catcaggcgg
+      661 gcaagaatgt gaataaaggc cggataaaac ttgtgcttat ttttctttac ggtctttaaa
+      721 aaggccgtaa tatccagctg aacggtctgg ttataggtac attgagcaac tgactgaaat
+      781 gcctcaaaat gttctttacg atgccattgg gatatatcaa cggtggtata tccagtgatt
+      841 tttttctcca ttttagcttc cttagctcct gaaaatctcg ataactcaaa aaatacgccc
+      901 ggtagtgatc ttatttcatt atggtgaaag ttggaacctc ttacgtgccg atcaacgtct
+      961 cattttcgcc aaaagttgtc atgaccaaaa tcccttaacg tgagttttcg ttccactgag
+     1021 cgtcagaccc cgtagaaaag atcaaaggat cttcttgaga tccttttttt ctgcgcgtaa
+     1081 tctgctgctt gcaaacaaaa aaaccaccgc taccagcggt ggtttgtttg ccggatcaag
+     1141 agctaccaac tctttttccg aaggtaactg gcttcagcag agcgcagata ccaaatactg
+     1201 ttcttctagt gtagccgtag ttaggccacc acttcaagaa ctctgtagca ccgcctacat
+     1261 acctcgctct gctaatcctg ttaccagtgg ctgctgccag tggcgataag tcgtgtctta
+     1321 ccgggttgga ctcaagacga tagttaccgg ataaggcgca gcggtcgggc tgaacggggg
+     1381 gttcgtgcac acagcccagc ttggagcgaa cgacctacac cgaactgaga tacctacagc
+     1441 gtgagctatg agaaagcgcc acgcttcccg aagggagaaa ggcggacagg tatccggtaa
+     1501 gcggcagggt cggaacagga gagcgcacga gggagcttcc agggggaaac gcctggtatc
+     1561 tttatagtcc tgtcgggttt cgccacctct gacttgagcg tcgatttttg tgatgctcgt
+     1621 caggggggcg gagcctatgg aaaaacgcca gcaatgcggc ctttttacgg ttcctggcct
+     1681 tttgctggcc ttttgctcac atgttctttc ctgcgttatc ccctgattct gtggataacc
+     1741 gtattaccgc ctttgagtga gctgataccg ctcgccgcag ccgaacgacc gagcgcagcg
+     1801 agtcagtgag cgaggaagcc gaaaaatcaa taatcagaca acaagatgtg cgaactcgat
+     1861 attttacacg actctcttta ccaattctgc cccgaattac acttaaaacg actcaacagc
+     1921 ttaacgttgg cttgccacgc attacttgac tgtaaaactc tcactcttac cgaacttggc
+     1981 cgtaacctgc caaccaaagc gagaacaaaa cataacatca aacgaatcga ccgattgtta
+     2041 ggtaatcgtc acctgcagga aggtttaaac gcatttaggt gacactatag aagtgtgtat
+     2101 cgctcgaggg atccgaattc gaagacttgg tacggag
+//

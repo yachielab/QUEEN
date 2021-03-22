@@ -301,7 +301,7 @@ def colorbar(ax, color_dict, ref_seq, char=False):
     ax.patch.set_alpha(0.0)
     return bars
 
-def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, fontsize=12, with_seq=False, nucl_char=None, nucl_color_dict=None):
+def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, featurelist=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, fontsize=12, with_seq=False, nucl_char=None, nucl_color_dict=None):
     width = wrap_width 
     if nucl_color_dict == None:
         nucl_color_dict = color_dict  
@@ -343,7 +343,13 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, un
     misc_color_count    = 0 
     label_color_dict    = {} 
     feature_color_count = collections.defaultdict(int) 
-    for i, feat in enumerate(brick.dnafeature):
+    
+    if featurelist is None:
+        featurelist = birck.dnafeatures    
+    else:
+        pass 
+
+    for i, feat in featurelist:
         if feat.type in unvisible_types:
             pass 
         
@@ -425,7 +431,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, un
 
         zero_position = sub_start + 1
         ax  = fig.add_axes([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h], label=str(num)) 
-        ax, y_list, ty_list = map_feat(fig, ax, sub_brick.dnafeature, len(sub_brick.seq), head_length, unvisible_types=unvisible_types, visible_types=visible_types, enlarge_w=enlarge_w, enlarge_h=enlarge_h, annotation_loc=annotation_loc)
+        ax, y_list, ty_list = map_feat(fig, ax, sub_brick.dnafeatures, len(sub_brick.seq), head_length, unvisible_types=unvisible_types, visible_types=visible_types, enlarge_w=enlarge_w, enlarge_h=enlarge_h, annotation_loc=annotation_loc)
         
         ty_list.append(0)  
         y_list.append(0) 

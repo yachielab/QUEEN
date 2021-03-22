@@ -1,0 +1,481 @@
+LOCUS       pCMV-Target-BE4max(C)   9094 bp    DNA     circular UNK 01-JAN-1980
+DEFINITION  .
+ACCESSION   pCMV-Target-BE4max(C)
+VERSION     pCMV-Target-BE4max(C)
+KEYWORDS    .
+SOURCE      .
+  ORGANISM  .
+            .
+FEATURES             Location/Qualifiers
+     primer_bind     1..10
+                     /label="Amp-R"
+                     /note="Ampicillin resistance gene, reverse primer"
+                     /crop_trail="[pCMV-Target-AIDmax:Amp-R:2113..2133]:11..20:2
+                     0"
+     CDS             complement(join(8462..9094,1..228))
+                     /codon_start=1
+                     /gene="bla"
+                     /product="beta-lactamase"
+                     /label="AmpR"
+                     /note="confers resistance to ampicillin, carbenicillin, and
+                     related antibiotics"
+                     /translation="MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYI
+                     ELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYS
+                     PVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRW
+                     EPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSA
+                     LPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGAS
+                     LIKHW"
+     source          1..1316
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /crop_trail="[pCMV-ABEmax:N.A:0..8811]:7961..465:8811"
+     promoter        complement(229..333)
+                     /gene="bla"
+                     /label="AmpR promoter"
+     primer_bind     complement(412..431)
+                     /label="pRS-marker"
+                     /note="pRS vectors, use to sequence yeast selectable
+                     marker"
+     enhancer        603..982
+                     /label="CMV enhancer"
+                     /note="human cytomegalovirus immediate early enhancer"
+     promoter        983..1186
+                     /label="CMV promoter"
+                     /note="human cytomegalovirus (CMV) immediate early
+                     promoter"
+     primer_bind     1137..1157
+                     /label="CMV-F"
+                     /note="Human CMV immediate early promoter, forward primer"
+     promoter        1228..1246
+                     /label="T7 promoter"
+                     /note="promoter for bacteriophage T7 RNA polymerase"
+     primer_bind     1228..1247
+                     /label="T7"
+                     /note="T7 promoter, forward primer"
+     CDS             1296..1316
+                     /codon_start=1
+                     /product="nuclear localization signal of SV40 (simian virus
+                     40) large T antigen"
+                     /label="SV40 NLS"
+                     /translation="PKKKRKV"
+     source          1316..5417
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /crop_trail="[pCMV-BE4max:N.A:0..8961]:1245..5346:8961"
+     CDS             1317..5417
+                     /codon_start=1
+                     /product="nickase mutant of the Cas9 endonuclease from the
+                     Streptococcus pyogenes Type II CRISPR/Cas system"
+                     /label="Cas9(D10A)"
+                     /note="generates RNA-guided single strand nicks in DNA due
+                     to the D10A mutation in the RuvC catalytic domain"
+                     /translation="DKKYSIGLAIGTNSVGWAVITDEYKVPSKKFKVLGNTDRHSIKKN
+                     LIGALLFDSGETAEATRLKRTARRRYTRRKNRICYLQEIFSNEMAKVDDSFFHRLEESF
+                     LVEEDKKHERHPIFGNIVDEVAYHEKYPTIYHLRKKLVDSTDKADLRLIYLALAHMIKF
+                     RGHFLIEGDLNPDNSDVDKLFIQLVQTYNQLFEENPINASGVDAKAILSARLSKSRRLE
+                     NLIAQLPGEKKNGLFGNLIALSLGLTPNFKSNFDLAEDAKLQLSKDTYDDDLDNLLAQI
+                     GDQYADLFLAAKNLSDAILLSDILRVNTEITKAPLSASMIKRYDEHHQDLTLLKALVRQ
+                     QLPEKYKEIFFDQSKNGYAGYIDGGASQEEFYKFIKPILEKMDGTEELLVKLNREDLLR
+                     KQRTFDNGSIPHQIHLGELHAILRRQEDFYPFLKDNREKIEKILTFRIPYYVGPLARGN
+                     SRFAWMTRKSEETITPWNFEEVVDKGASAQSFIERMTNFDKNLPNEKVLPKHSLLYEYF
+                     TVYNELTKVKYVTEGMRKPAFLSGEQKKAIVDLLFKTNRKVTVKQLKEDYFKKIECFDS
+                     VEISGVEDRFNASLGTYHDLLKIIKDKDFLDNEENEDILEDIVLTLTLFEDREMIEERL
+                     KTYAHLFDDKVMKQLKRRRYTGWGRLSRKLINGIRDKQSGKTILDFLKSDGFANRNFMQ
+                     LIHDDSLTFKEDIQKAQVSGQGDSLHEHIANLAGSPAIKKGILQTVKVVDELVKVMGRH
+                     KPENIVIEMARENQTTQKGQKNSRERMKRIEEGIKELGSQILKEHPVENTQLQNEKLYL
+                     YYLQNGRDMYVDQELDINRLSDYDVDHIVPQSFLKDDSIDNKVLTRSDKNRGKSDNVPS
+                     EEVVKKMKNYWRQLLNAKLITQRKFDNLTKAERGGLSELDKAGFIKRQLVETRQITKHV
+                     AQILDSRMNTKYDENDKLIREVKVITLKSKLVSDFRKDFQFYKVREINNYHHAHDAYLN
+                     AVVGTALIKKYPKLESEFVYGDYKVYDVRKMIAKSEQEIGKATAKYFFYSNIMNFFKTE
+                     ITLANGEIRKRPLIETNGETGEIVWDKGRDFATVRKVLSMPQVNIVKKTEVQTGGFSKE
+                     SILPKRNSDKLIARKKDWDPKKYGGFDSPTVAYSVLVVAKVEKGKSKKLKSVKELLGIT
+                     IMERSSFEKNPIDFLEAKGYKEVKKDLIIKLPKYSLFELENGRKRMLASAGELQKGNEL
+                     ALPSKYVNFLYLASHYEKLKGSPEDNEQKQLFVEQHKHYLDEIIEQISEFSKRVILADA
+                     NLDKVLSAYNKHRDKPIREQAENIIHLFTLTNLGAPAAFKYFDTTIDRKRYTSTKEVLD
+                     ATLIHQSITGLYETRIDLSQLGGD"
+     misc_feature    5418..5447
+                     /label="GS_2x GS linker"
+                     /ApEinfo_revcolor="#c6c9d1"
+                     /ApEinfo_fwdcolor="#c6c9d1"
+     misc_feature    5418..5690
+                     /label="GenScript J9270EH080-1"
+                     /ApEinfo_revcolor="#c6c9d1"
+                     /ApEinfo_fwdcolor="#c6c9d1"
+                     /crop_trail="[pCMV-Target-AIDmax:GenScript
+                     J9270EH080-1:7540..3]:1..273:1188"
+     misc_feature    5448..5618
+                     /label="GS_Mutated SH3 domain"
+                     /ApEinfo_revcolor="#9eafd2"
+                     /ApEinfo_fwdcolor="#9eafd2"
+     misc_feature    5619..5690
+                     /label="SG_3x FLAG"
+                     /ApEinfo_revcolor="#f8d3a9"
+                     /ApEinfo_fwdcolor="#f8d3a9"
+                     /crop_trail="[pCMV-Target-AIDmax:SG_3x
+                     FLAG:7741..7819]:1..72:78"
+     CDS             5696
+                     /codon_start=1
+                     /product="nuclear localization signal of SV40 (simian virus
+                     40) large T antigen"
+                     /label="SV40 NLS"
+                     /translation="PKKKRKV"
+                     /crop_trail="[pCMV-BE4max:SV40 NLS:444..465]:21..21:21"
+     source          5696..6380
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /crop_trail="[pCMV-BE4max:N.A:0..8961]:465..1149:8961"
+     CDS             5697..6380
+                     /codon_start=1
+                     /product="cytidine deaminase (C to U editing enzyme) from
+                     rat"
+                     /label="APOBEC-1"
+                     /note="can use ssDNA as a substrate (Komor et al., 2016)"
+                     /translation="SSETGPVAVDPTLRRRIEPHEFEVFFDPRELRKETCLLYEINWGG
+                     RHSIWRHTSQNTNKHVEVNFIEKFTTERYFCPNTRCSITWFLSWSPCGECSRAITEFLS
+                     RYPHVTLFIYIARLYHHADPRNRQGLRDLISSGVTIQIMTEQESGYCWRNFVNYSPSNE
+                     AHWPRYPHLWVRLYVLELYCIILGLPPCLNILRRKQPQLTFFTIALQSCHYQRLPPHIL
+                     WATGLK"
+     CDS             6381..6629
+                     /codon_start=1
+                     /product="uracil-DNA glycosylase inhibitor from a Bacillus
+                     subtilis bacteriophage (Mol et al., 1995)"
+                     /label="UGI"
+                     /translation="TNLSDIIEKETGKQLVIQESILMLPEEVEEVIGNKPESDILVHTA
+                     YDESTDENVMLLTSDAPEYKPWALVIQDSNGENKIKML"
+     source          6381..6974
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /crop_trail="[pCMV-BE4max:N.A:0..8961]:5377..5970:8961"
+     CDS             6660..6908
+                     /codon_start=1
+                     /product="uracil-DNA glycosylase inhibitor from a Bacillus
+                     subtilis bacteriophage (Mol et al., 1995)"
+                     /label="UGI"
+                     /translation="TNLSDIIEKETGKQLVIQESILMLPEEVEEVIGNKPESDILVHTA
+                     YDESTDENVMLLTSDAPEYKPWALVIQDSNGENKIKML"
+     CDS             6951..6971
+                     /codon_start=1
+                     /product="nuclear localization signal of SV40 (simian virus
+                     40) large T antigen"
+                     /label="SV40 NLS"
+                     /translation="PKKKRKV"
+     source          join(6978..9094,1..25)
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /crop_trail="[pCMV-BE4max:N.A:0..8961]:5994..8135:8961"
+     primer_bind     complement(7000..7017)
+                     /label="BGH-rev"
+                     /note="Bovine growth hormone terminator, reverse primer.
+                     Also called BGH reverse"
+     polyA_signal    7006..7230
+                     /label="bGH poly(A) signal"
+                     /note="bovine growth hormone polyadenylation signal"
+     primer_bind     complement(7301..7317)
+                     /label="M13 rev"
+                     /note="common sequencing primer, one of multiple similar
+                     variants"
+     primer_bind     complement(7301..7317)
+                     /label="M13 Reverse"
+                     /note="In lacZ gene. Also called M13-rev"
+     primer_bind     complement(7314..7336)
+                     /label="M13/pUC Reverse"
+                     /note="In lacZ gene"
+     protein_bind    7325..7341
+                     /label="lac operator"
+                     /bound_moiety="lac repressor encoded by lacI"
+                     /note="The lac repressor binds to the lac operator to
+                     inhibit transcription in E. coli. This inhibition can be
+                     relieved by adding lactose or
+                     isopropyl-beta-D-thiogalactopyranoside (IPTG)."
+     promoter        complement(7349..7379)
+                     /label="lac promoter"
+                     /note="promoter for the E. coli lac operon"
+     protein_bind    7394..7415
+                     /label="CAP binding site"
+                     /bound_moiety="E. coli catabolite activator protein"
+                     /note="CAP binding activates transcription in the presence
+                     of cAMP."
+     primer_bind     complement(7532..7549)
+                     /label="L4440"
+                     /note="L4440 vector, forward primer"
+     rep_origin      complement(7703..8291)
+                     /direction=LEFT
+                     /label="ori"
+                     /note="high-copy-number ColE1/pMB1/pBR322/pUC origin of
+                     replication"
+     primer_bind     complement(7783..7802)
+                     /label="pBR322ori-F"
+                     /note="pBR322 origin, forward primer"
+     primer_bind     join(9085..9094,1..10)
+                     /label="Amp-R"
+                     /note="Ampicillin resistance gene, reverse primer"
+     source          1..9094
+                     /label="pCMV-Target-BE4max(C)"
+                     /description="Record of build history"
+                     /build_history_32="DNA.dna_dict['pCMV-Target-BE4max(C)'] =
+                     joindna(*[DNA.dna_dict['pCMV-Target-AIDmax_1'],DNA.dna_dict
+                     ['dna_52'],DNA.dna_dict['dna_55'],DNA.dna_dict['dna_58']],
+                     topology='circular', project='',
+                     comment='pCMV-Target-BE4max(C)')"
+                     /build_history_16="DNA.dna_dict['pCMV-Target-AIDmax'] =
+                     joindna(*[DNA.dna_dict['dna_34'],DNA.dna_dict['dna_37'],DNA
+                     .dna_dict['dna_40']], topology='circular', project='',
+                     comment='pCMV-Target-AIDmax')"
+                     /build_history_7="DNA.dna_dict['dna_26'] =
+                     joindna(*[DNA.dna_dict['dna_25'],DNA.dna_dict['pCMV-ABEmax_
+                     0']], topology='linear', project='', comment='dna')"
+                     /build_history_6="DNA.dna_dict['dna_25'] =
+                     DNA(seq='TGATAA', record=None, project='dna',
+                     topology='linear', format=None)"
+                     /build_history_2="DNA.dna_dict['pCMV-BE4max'] =
+                     DNA(seq=None, record='input/addgene_112093.gbk',
+                     project='pCMV-BE4max', topology='linear', format=None)"
+                     /build_history_3="DNA.dna_dict['pCMV-ABEmax_0'] =
+                     cropdna(DNA.dna_dict['pCMV-ABEmax'], start=5843, end=465,
+                     project='pCMV-ABEmax', comment='')"
+                     /build_history_13="DNA.dna_dict['dna_34'] =
+                     modifyends(DNA.dna_dict['dna_26'],
+                     left='************************/------------------------',
+                     right='----------------------/**********************',
+                     project='dna', comment='')"
+                     /build_history_9="DNA.dna_dict['dna_28'] =
+                     joindna(*[DNA.dna_dict['dna_27'],DNA.dna_dict['pCMV-BE4max_
+                     0']], topology='linear', project='', comment='dna')"
+                     /build_history_8="DNA.dna_dict['dna_27'] =
+                     DNA(seq='ACCAAAGAAGAAGCGGAAAGT', record=None,
+                     project='dna', topology='linear', format=None)"
+                     /build_history_4="DNA.dna_dict['pCMV-BE4max_0'] =
+                     cropdna(DNA.dna_dict['pCMV-BE4max'], start=1244, end=5346,
+                     project='pCMV-BE4max', comment='')"
+                     /build_history_14="DNA.dna_dict['dna_37'] =
+                     modifyends(DNA.dna_dict['dna_28'],
+                     left='**********************/----------------------',
+                     right='----------------------/**********************',
+                     project='dna', comment='')"
+                     /build_history_12="DNA.dna_dict['dna_31'] =
+                     joindna(*[DNA.dna_dict['dna_29'],DNA.dna_dict['opt-pmCDA1-u
+                     gi_0'],DNA.dna_dict['dna_30']], topology='linear',
+                     project='', comment='dna')"
+                     /build_history_10="DNA.dna_dict['dna_29'] =
+                     DNA(seq='CCTGTCTCAGCTGGGAGGTGA', record=None,
+                     project='dna', topology='linear', format=None)"
+                     /build_history_5="DNA.dna_dict['opt-pmCDA1-ugi_0'] =
+                     cropdna(DNA.dna_dict['opt-pmCDA1-ugi'], start=501,
+                     end=1690, project='opt-pmCDA1-ugi', comment='')"
+                     /build_history_11="DNA.dna_dict['dna_30'] =
+                     DNA(seq='TAATGAGTTTAAACCCGCTGA', record=None,
+                     project='dna', topology='linear', format=None)"
+                     /build_history_15="DNA.dna_dict['dna_40'] =
+                     modifyends(DNA.dna_dict['dna_31'],
+                     left='**********************/----------------------',
+                     right='------------------------/************************',
+                     project='dna', comment='')"
+                     /build_history_17="DNA.dna_dict['pCMV-Target-AIDmax_0'] =
+                     cropdna(DNA.dna_dict['pCMV-Target-AIDmax'], start=2123,
+                     end=7813, project='pCMV-Target-AIDmax', comment='')"
+                     /build_history_28="DNA.dna_dict['pCMV-Target-AIDmax_1'] =
+                     modifyends(DNA.dna_dict['pCMV-Target-AIDmax_0'],
+                     left='*************************/-------------------------',
+                     right='---------------/***************',
+                     project='pCMV-Target-AIDmax', comment='')"
+                     /build_history_22="DNA.dna_dict['dna_42'] =
+                     joindna(*[DNA.dna_dict['dna_41'],DNA.dna_dict['pCMV-BE4max_
+                     1']], topology='linear', project='', comment='dna')"
+                     /build_history_21="DNA.dna_dict['dna_41'] =
+                     DNA(seq='GATGACGATGACAAGTCTGG', record=None, project='dna',
+                     topology='linear', format=None)"
+                     /build_history_18="DNA.dna_dict['pCMV-BE4max_1'] =
+                     cropdna(DNA.dna_dict['pCMV-BE4max'], start=464, end=1149,
+                     project='pCMV-BE4max', comment='')"
+                     /build_history_29="DNA.dna_dict['dna_52'] =
+                     modifyends(DNA.dna_dict['dna_42'],
+                     left='***************/---------------',
+                     right='------------------------/************************',
+                     project='dna', comment='')"
+                     /build_history_25="DNA.dna_dict['dna_45'] =
+                     joindna(*[DNA.dna_dict['dna_43'],DNA.dna_dict['pCMV-BE4max_
+                     2'],DNA.dna_dict['dna_44']], topology='linear', project='',
+                     comment='dna')"
+                     /build_history_23="DNA.dna_dict['dna_43'] =
+                     DNA(seq='ATCCTGTGGGCCACAGGCCTGAAG', record=None,
+                     project='dna', topology='linear', format=None)"
+                     /build_history_19="DNA.dna_dict['pCMV-BE4max_2'] =
+                     cropdna(DNA.dna_dict['pCMV-BE4max'], start=5376, end=5970,
+                     project='pCMV-BE4max', comment='')"
+                     /build_history_24="DNA.dna_dict['dna_44'] =
+                     DNA(seq='TAATGAGTTTAAACCCGCTGATC', record=None,
+                     project='dna', topology='linear', format=None)"
+                     /build_history_30="DNA.dna_dict['dna_55'] =
+                     modifyends(DNA.dna_dict['dna_45'],
+                     left='************************/------------------------',
+                     right='--------------------------/*************************
+                     *', project='dna', comment='')"
+                     /build_history_27="DNA.dna_dict['dna_47'] =
+                     joindna(*[DNA.dna_dict['dna_46'],DNA.dna_dict['pCMV-BE4max_
+                     3']], topology='linear', project='', comment='dna')"
+                     /build_history_26="DNA.dna_dict['dna_46'] =
+                     DNA(seq='TAATAA', record=None, project='dna',
+                     topology='linear', format=None)"
+                     /build_history_20="DNA.dna_dict['pCMV-BE4max_3'] =
+                     cropdna(DNA.dna_dict['pCMV-BE4max'], start=5993, end=8135,
+                     project='pCMV-BE4max', comment='')"
+                     /build_history_31="DNA.dna_dict['dna_58'] =
+                     modifyends(DNA.dna_dict['dna_47'],
+                     left='**************************/--------------------------
+                     ',
+                     right='-------------------------/*************************'
+                     , project='dna', comment='')"
+ORIGIN
+        1 gccacatagc agaactttaa aagtgctcat cattggaaaa cgttcttcgg ggcgaaaact
+       61 ctcaaggatc ttaccgctgt tgagatccag ttcgatgtaa cccactcgtg cacccaactg
+      121 atcttcagca tcttttactt tcaccagcgt ttctgggtga gcaaaaacag gaaggcaaaa
+      181 tgccgcaaaa aagggaataa gggcgacacg gaaatgttga atactcatac tcttcctttt
+      241 tcaatattat tgaagcattt atcagggtta ttgtctcatg agcggataca tatttgaatg
+      301 tatttagaaa aataaacaaa taggggttcc gcgcacattt ccccgaaaag tgccacctga
+      361 cgtcgacgga tcgggagatc gatctcccga tcccctaggg tcgactctca gtacaatctg
+      421 ctctgatgcc gcatagttaa gccagtatct gctccctgct tgtgtgttgg aggtcgctga
+      481 gtagtgcgcg agcaaaattt aagctacaac aaggcaaggc ttgaccgaca attgcatgaa
+      541 gaatctgctt agggttaggc gttttgcgct gcttcgcgat gtacgggcca gatatacgcg
+      601 ttgacattga ttattgacta gttattaata gtaatcaatt acggggtcat tagttcatag
+      661 cccatatatg gagttccgcg ttacataact tacggtaaat ggcccgcctg gctgaccgcc
+      721 caacgacccc cgcccattga cgtcaataat gacgtatgtt cccatagtaa cgccaatagg
+      781 gactttccat tgacgtcaat gggtggagta tttacggtaa actgcccact tggcagtaca
+      841 tcaagtgtat catatgccaa gtacgccccc tattgacgtc aatgacggta aatggcccgc
+      901 ctggcattat gcccagtaca tgaccttatg ggactttcct acttggcagt acatctacgt
+      961 attagtcatc gctattacca tggtgatgcg gttttggcag tacatcaatg ggcgtggata
+     1021 gcggtttgac tcacggggat ttccaagtct ccaccccatt gacgtcaatg ggagtttgtt
+     1081 ttggcaccaa aatcaacggg actttccaaa atgtcgtaac aactccgccc cattgacgca
+     1141 aatgggcggt aggcgtgtac ggtgggaggt ctatataagc agagctggtt tagtgaaccg
+     1201 tcagatccgc tagagatccg cggccgctaa tacgactcac tatagggaga gccgccacca
+     1261 tgaaacggac agccgacgga agcgagttcg agtcaccaaa gaagaagcgg aaagtcgaca
+     1321 agaagtacag catcggcctg gccatcggca ccaactctgt gggctgggcc gtgatcaccg
+     1381 acgagtacaa ggtgcccagc aagaaattca aggtgctggg caacaccgac cggcacagca
+     1441 tcaagaagaa cctgatcgga gccctgctgt tcgacagcgg cgaaacagcc gaggccaccc
+     1501 ggctgaagag aaccgccaga agaagataca ccagacggaa gaaccggatc tgctatctgc
+     1561 aagagatctt cagcaacgag atggccaagg tggacgacag cttcttccac agactggaag
+     1621 agtccttcct ggtggaagag gataagaagc acgagcggca ccccatcttc ggcaacatcg
+     1681 tggacgaggt ggcctaccac gagaagtacc ccaccatcta ccacctgaga aagaaactgg
+     1741 tggacagcac cgacaaggcc gacctgcggc tgatctatct ggccctggcc cacatgatca
+     1801 agttccgggg ccacttcctg atcgagggcg acctgaaccc cgacaacagc gacgtggaca
+     1861 agctgttcat ccagctggtg cagacctaca accagctgtt cgaggaaaac cccatcaacg
+     1921 ccagcggcgt ggacgccaag gccatcctgt ctgccagact gagcaagagc agacggctgg
+     1981 aaaatctgat cgcccagctg cccggcgaga agaagaatgg cctgttcgga aacctgattg
+     2041 ccctgagcct gggcctgacc cccaacttca agagcaactt cgacctggcc gaggatgcca
+     2101 aactgcagct gagcaaggac acctacgacg acgacctgga caacctgctg gcccagatcg
+     2161 gcgaccagta cgccgacctg tttctggccg ccaagaacct gtccgacgcc atcctgctga
+     2221 gcgacatcct gagagtgaac accgagatca ccaaggcccc cctgagcgcc tctatgatca
+     2281 agagatacga cgagcaccac caggacctga ccctgctgaa agctctcgtg cggcagcagc
+     2341 tgcctgagaa gtacaaagag attttcttcg accagagcaa gaacggctac gccggctaca
+     2401 ttgacggcgg agccagccag gaagagttct acaagttcat caagcccatc ctggaaaaga
+     2461 tggacggcac cgaggaactg ctcgtgaagc tgaacagaga ggacctgctg cggaagcagc
+     2521 ggaccttcga caacggcagc atcccccacc agatccacct gggagagctg cacgccattc
+     2581 tgcggcggca ggaagatttt tacccattcc tgaaggacaa ccgggaaaag atcgagaaga
+     2641 tcctgacctt ccgcatcccc tactacgtgg gccctctggc caggggaaac agcagattcg
+     2701 cctggatgac cagaaagagc gaggaaacca tcaccccctg gaacttcgag gaagtggtgg
+     2761 acaagggcgc ttccgcccag agcttcatcg agcggatgac caacttcgat aagaacctgc
+     2821 ccaacgagaa ggtgctgccc aagcacagcc tgctgtacga gtacttcacc gtgtataacg
+     2881 agctgaccaa agtgaaatac gtgaccgagg gaatgagaaa gcccgccttc ctgagcggcg
+     2941 agcagaaaaa ggccatcgtg gacctgctgt tcaagaccaa ccggaaagtg accgtgaagc
+     3001 agctgaaaga ggactacttc aagaaaatcg agtgcttcga ctccgtggaa atctccggcg
+     3061 tggaagatcg gttcaacgcc tccctgggca cataccacga tctgctgaaa attatcaagg
+     3121 acaaggactt cctggacaat gaggaaaacg aggacattct ggaagatatc gtgctgaccc
+     3181 tgacactgtt tgaggacaga gagatgatcg aggaacggct gaaaacctat gcccacctgt
+     3241 tcgacgacaa agtgatgaag cagctgaagc ggcggagata caccggctgg ggcaggctga
+     3301 gccggaagct gatcaacggc atccgggaca agcagtccgg caagacaatc ctggatttcc
+     3361 tgaagtccga cggcttcgcc aacagaaact tcatgcagct gatccacgac gacagcctga
+     3421 cctttaaaga ggacatccag aaagcccagg tgtccggcca gggcgatagc ctgcacgagc
+     3481 acattgccaa tctggccggc agccccgcca ttaagaaggg catcctgcag acagtgaagg
+     3541 tggtggacga gctcgtgaaa gtgatgggcc ggcacaagcc cgagaacatc gtgatcgaaa
+     3601 tggccagaga gaaccagacc acccagaagg gacagaagaa cagccgcgag agaatgaagc
+     3661 ggatcgaaga gggcatcaaa gagctgggca gccagatcct gaaagaacac cccgtggaaa
+     3721 acacccagct gcagaacgag aagctgtacc tgtactacct gcagaatggg cgggatatgt
+     3781 acgtggacca ggaactggac atcaaccggc tgtccgacta cgatgtggac catatcgtgc
+     3841 ctcagagctt tctgaaggac gactccatcg acaacaaggt gctgaccaga agcgacaaga
+     3901 accggggcaa gagcgacaac gtgccctccg aagaggtcgt gaagaagatg aagaactact
+     3961 ggcggcagct gctgaacgcc aagctgatta cccagagaaa gttcgacaat ctgaccaagg
+     4021 ccgagagagg cggcctgagc gaactggata aggccggctt catcaagaga cagctggtgg
+     4081 aaacccggca gatcacaaag cacgtggcac agatcctgga ctcccggatg aacactaagt
+     4141 acgacgagaa tgacaagctg atccgggaag tgaaagtgat caccctgaag tccaagctgg
+     4201 tgtccgattt ccggaaggat ttccagtttt acaaagtgcg cgagatcaac aactaccacc
+     4261 acgcccacga cgcctacctg aacgccgtcg tgggaaccgc cctgatcaaa aagtacccta
+     4321 agctggaaag cgagttcgtg tacggcgact acaaggtgta cgacgtgcgg aagatgatcg
+     4381 ccaagagcga gcaggaaatc ggcaaggcta ccgccaagta cttcttctac agcaacatca
+     4441 tgaacttttt caagaccgag attaccctgg ccaacggcga gatccggaag cggcctctga
+     4501 tcgagacaaa cggcgaaacc ggggagatcg tgtgggataa gggccgggat tttgccaccg
+     4561 tgcggaaagt gctgagcatg ccccaagtga atatcgtgaa aaagaccgag gtgcagacag
+     4621 gcggcttcag caaagagtct atcctgccca agaggaacag cgataagctg atcgccagaa
+     4681 agaaggactg ggaccctaag aagtacggcg gcttcgacag ccccaccgtg gcctattctg
+     4741 tgctggtggt ggccaaagtg gaaaagggca agtccaagaa actgaagagt gtgaaagagc
+     4801 tgctggggat caccatcatg gaaagaagca gcttcgagaa gaatcccatc gactttctgg
+     4861 aagccaaggg ctacaaagaa gtgaaaaagg acctgatcat caagctgcct aagtactccc
+     4921 tgttcgagct ggaaaacggc cggaagagaa tgctggcctc tgccggcgaa ctgcagaagg
+     4981 gaaacgaact ggccctgccc tccaaatatg tgaacttcct gtacctggcc agccactatg
+     5041 agaagctgaa gggctccccc gaggataatg agcagaaaca gctgtttgtg gaacagcaca
+     5101 agcactacct ggacgagatc atcgagcaga tcagcgagtt ctccaagaga gtgatcctgg
+     5161 ccgacgctaa tctggacaaa gtgctgtccg cctacaacaa gcaccgggat aagcccatca
+     5221 gagagcaggc cgagaatatc atccacctgt ttaccctgac caatctggga gcccctgccg
+     5281 ccttcaagta ctttgacacc accatcgacc ggaagaggta caccagcacc aaagaggtgc
+     5341 tggacgccac cctgatccac cagagcatca ccggcctgta cgagacacgg atcgacctgt
+     5401 ctcagctggg aggtgacggc ggaggaggaa ctggaggagg aggatcagca gaatatgtga
+     5461 gagcactgtt tgactttaat gggaatgacg aagaagacct gcccttcaag aagggcgaca
+     5521 tcctgcggat cagagataag cctgaggagc agtggtggaa cgccgaggac tctgagggca
+     5581 agagaggcat gatcctggtg ccctacgtgg agaagtacag cggcgattat aaggaccacg
+     5641 atggcgacta caaggaccac gacatcgact acaaggatga cgatgacaag tctggctcct
+     5701 cagagactgg gcctgtcgcc gtcgatccaa ccctgcgccg ccggattgaa cctcacgagt
+     5761 ttgaagtgtt ctttgacccc cgggagctga gaaaggagac atgcctgctg tacgagatca
+     5821 actggggagg caggcactcc atctggaggc acacctctca gaacacaaat aagcacgtgg
+     5881 aggtgaactt catcgagaag tttaccacag agcggtactt ctgccccaat accagatgta
+     5941 gcatcacatg gtttctgagc tggtcccctt gcggagagtg tagcagggcc atcaccgagt
+     6001 tcctgtccag atatccacac gtgacactgt ttatctacat cgccaggctg tatcaccacg
+     6061 cagacccaag gaataggcag ggcctgcgcg atctgatcag ctccggcgtg accatccaga
+     6121 tcatgacaga gcaggagtcc ggctactgct ggcggaactt cgtgaattat tctcctagca
+     6181 acgaggccca ctggcctagg tacccacacc tgtgggtgcg cctgtacgtg ctggagctgt
+     6241 attgcatcat cctgggcctg cccccttgtc tgaatatcct gcggagaaag cagccccagc
+     6301 tgaccttctt tacaatcgcc ctgcagtctt gtcactatca gaggctgcca ccccacatcc
+     6361 tgtgggccac aggcctgaag actaatctga gcgacatcat tgagaaggag actgggaaac
+     6421 agctggtcat tcaggagtcc atcctgatgc tgcctgagga ggtggaggaa gtgatcggca
+     6481 acaagccaga gtctgacatc ctggtgcaca ccgcctacga cgagtccaca gatgagaatg
+     6541 tgatgctgct gacctctgac gcccccgagt ataagccttg ggccctggtc atccaggatt
+     6601 ctaacggcga gaataagatc aagatgctga gcggaggatc cggaggatct ggaggcagca
+     6661 ccaacctgtc tgacatcatc gagaaggaga caggcaagca gctggtcatc caggagagca
+     6721 tcctgatgct gcccgaagaa gtcgaagaag tgatcggaaa caagcctgag agcgatatcc
+     6781 tggtccatac cgcctacgac gagagtaccg acgaaaatgt gatgctgctg acatccgacg
+     6841 ccccagagta taagccctgg gctctggtca tccaggattc caacggagag aacaaaatca
+     6901 aaatgctgtc tggcggctca aaaagaaccg ccgacggcag cgaattcgag cccaagaaga
+     6961 agaggaaagt ctaataatga gtttaaaccc gctgatcagc ctcgactgtg ccttctagtt
+     7021 gccagccatc tgttgtttgc ccctcccccg tgccttcctt gaccctggaa ggtgccactc
+     7081 ccactgtcct ttcctaataa aatgaggaaa ttgcatcgca ttgtctgagt aggtgtcatt
+     7141 ctattctggg gggtggggtg gggcaggaca gcaaggggga ggattgggaa gacaatagca
+     7201 ggcatgctgg ggatgcggtg ggctctatgg cttctgaggc ggaaagaacc agctggggct
+     7261 cgataccgtc gacctctagc tagagcttgg cgtaatcatg gtcatagctg tttcctgtgt
+     7321 gaaattgtta tccgctcaca attccacaca acatacgagc cggaagcata aagtgtaaag
+     7381 cctagggtgc ctaatgagtg agctaactca cattaattgc gttgcgctca ctgcccgctt
+     7441 tccagtcggg aaacctgtcg tgccagctgc attaatgaat cggccaacgc gcggggagag
+     7501 gcggtttgcg tattgggcgc tcttccgctt cctcgctcac tgactcgctg cgctcggtcg
+     7561 ttcggctgcg gcgagcggta tcagctcact caaaggcggt aatacggtta tccacagaat
+     7621 caggggataa cgcaggaaag aacatgtgag caaaaggcca gcaaaaggcc aggaaccgta
+     7681 aaaaggccgc gttgctggcg tttttccata ggctccgccc ccctgacgag catcacaaaa
+     7741 atcgacgctc aagtcagagg tggcgaaacc cgacaggact ataaagatac caggcgtttc
+     7801 cccctggaag ctccctcgtg cgctctcctg ttccgaccct gccgcttacc ggatacctgt
+     7861 ccgcctttct cccttcggga agcgtggcgc tttctcatag ctcacgctgt aggtatctca
+     7921 gttcggtgta ggtcgttcgc tccaagctgg gctgtgtgca cgaacccccc gttcagcccg
+     7981 accgctgcgc cttatccggt aactatcgtc ttgagtccaa cccggtaaga cacgacttat
+     8041 cgccactggc agcagccact ggtaacagga ttagcagagc gaggtatgta ggcggtgcta
+     8101 cagagttctt gaagtggtgg cctaactacg gctacactag aagaacagta tttggtatct
+     8161 gcgctctgct gaagccagtt accttcggaa aaagagttgg tagctcttga tccggcaaac
+     8221 aaaccaccgc tggtagcggt ggtttttttg tttgcaagca gcagattacg cgcagaaaaa
+     8281 aaggatctca agaagatcct ttgatctttt ctacggggtc tgacactcag tggaacgaaa
+     8341 actcacgtta agggattttg gtcatgagat tatcaaaaag gatcttcacc tagatccttt
+     8401 taaattaaaa atgaagtttt aaatcaatct aaagtatata tgagtaaact tggtctgaca
+     8461 gttaccaatg cttaatcagt gaggcaccta tctcagcgat ctgtctattt cgttcatcca
+     8521 tagttgcctg actccccgtc gtgtagataa ctacgatacg ggagggctta ccatctggcc
+     8581 ccagtgctgc aatgataccg cgagacccac gctcaccggc tccagattta tcagcaataa
+     8641 accagccagc cggaagggcc gagcgcagaa gtggtcctgc aactttatcc gcctccatcc
+     8701 agtctattaa ttgttgccgg gaagctagag taagtagttc gccagttaat agtttgcgca
+     8761 acgttgttgc cattgctaca ggcatcgtgg tgtcacgctc gtcgtttggt atggcttcat
+     8821 tcagctccgg ttcccaacga tcaaggcgag ttacatgatc ccccatgttg tgcaaaaaag
+     8881 cggttagctc cttcggtcct ccgatcgttg tcagaagtaa gttggccgca gtgttatcac
+     8941 tcatggttat ggcagcactg cataattctc ttactgtcat gccatccgta agatgctttt
+     9001 ctgtgactgg tgagtactca accaagtcat tctgagaata gtgtatgcgg cgaccgagtt
+     9061 gctcttgccc ggcgtcaata cgggataata ccgc
+//

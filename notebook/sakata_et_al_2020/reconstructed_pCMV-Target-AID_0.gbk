@@ -163,61 +163,68 @@ FEATURES             Location/Qualifiers
      source          1..8752
                      /label="pCMV-Target-AID"
                      /description="Record of build history"
-                     /build_history_17="DNA.dna_dict['pCMV-Target-AID'] =
-                     joindna(*[DNA.dna_dict['dna_7'],DNA.dna_dict['dna_10'],DNA.
-                     dna_dict['nCas9_AID_source_3']], topology='circular',
+                     /build_history_52="DNA.dna_dict['pCMV-Target-AID_1'] =
+                     joindna(*[DNA.dna_dict['dna_21'],DNA.dna_dict['dna_24'],DNA
+                     .dna_dict['nCas9_AID_source_9']], topology='circular',
                      project='pCMV-Target-AID', comment='')"
-                     /build_history_9="DNA.dna_dict['dna_1'] =
-                     joindna(*[DNA.dna_dict['dna'],DNA.dna_dict['pCMV_ABE_0'],DN
-                     A.dna_dict['dna_0']], topology='linear', project='dna',
+                     /build_history_44="DNA.dna_dict['dna_15'] =
+                     joindna(*[DNA.dna_dict['dna_13'],DNA.dna_dict['pCMV_ABE_2']
+                     ,DNA.dna_dict['dna_14']], topology='linear', project='dna',
                      comment='')"
-                     /build_history_7="DNA.dna_dict['dna'] =
+                     /build_history_41="DNA.dna_dict['dna_13'] =
                      DNA(seq='ATCAAGATGCTATAA', record=None, project='dna',
                      topology='linear', format=None, comment='')"
-                     /build_history_3="DNA.dna_dict['pCMV_ABE'] = DNA(seq=None,
-                     record='input/addgene_102919.gbk', project='pCMV_ABE',
-                     topology='linear', format=None, comment='')"
-                     /build_history_4="DNA.dna_dict['pCMV_ABE_0'] =
-                     cropdna(DNA.dna_dict['pCMV_ABE'], start='5257/5257',
+                     /build_history_38="DNA.dna_dict['pCMV_ABE_1'] =
+                     DNA(seq=None, record='input/addgene_102919.gbk',
+                     project='pCMV_ABE', topology='linear', format=None,
+                     comment='')"
+                     /build_history_39="DNA.dna_dict['pCMV_ABE_2'] =
+                     cropdna(DNA.dna_dict['pCMV_ABE_1'], start='5257/5257',
                      end='8636/8636', project='pCMV_ABE', comment='')"
-                     /build_history_8="DNA.dna_dict['dna_0'] =
+                     /build_history_43="DNA.dna_dict['dna_14'] =
                      DNA(seq='GCACCGAAG', record=None, project='dna',
                      topology='linear', format=None, comment='')"
-                     /build_history_14="DNA.dna_dict['dna_7'] =
-                     modifyends(DNA.dna_dict['dna_1'], left='*{25}/-{25}',
-                     right='-{25}/*{25}', project='dna', comment='')"
-                     /build_history_11="DNA.dna_dict['dna_3'] =
-                     joindna(*[DNA.dna_dict['dna_2'],DNA.dna_dict['nCas9_AID_sou
-                     rce_0']], topology='linear', project='dna', comment='')"
-                     /build_history_10="DNA.dna_dict['dna_2'] =
+                     /build_history_49="DNA.dna_dict['dna_21'] =
+                     modifyends(DNA.dna_dict['dna_15'],
+                     left='*************************/-------------------------',
+                     right='-------------------------/*************************'
+                     , project='dna', comment='')"
+                     /build_history_46="DNA.dna_dict['dna_17'] =
+                     joindna(*[DNA.dna_dict['dna_16'],DNA.dna_dict['nCas9_AID_so
+                     urce_6']], topology='linear', project='dna', comment='')"
+                     /build_history_45="DNA.dna_dict['dna_16'] =
                      DNA(seq='GAGAGCCGCCACC', record=None, project='dna',
                      topology='linear', format=None, comment='')"
-                     /build_history_2="DNA.dna_dict['nCas9_AID_source'] =
+                     /build_history_37="DNA.dna_dict['nCas9_AID_source_5'] =
                      DNA(seq=None, record='input/addgene_79620.gbk',
                      project='nCas9_AID_source', topology='linear', format=None,
                      comment='')"
-                     /build_history_5="DNA.dna_dict['nCas9_AID_source_0'] =
-                     cropdna(DNA.dna_dict['nCas9_AID_source'],
+                     /build_history_40="DNA.dna_dict['nCas9_AID_source_6'] =
+                     cropdna(DNA.dna_dict['nCas9_AID_source_5'],
                      start='3894/3894', end='6477/6477',
                      project='nCas9_AID_source', comment='')"
-                     /build_history_15="DNA.dna_dict['dna_10'] =
-                     modifyends(DNA.dna_dict['dna_3'], left='*{25}/-{25}',
-                     right='-{28}/*{28}', project='dna', comment='')"
-                     /build_history_13="DNA.dna_dict['nCas9_AID_source_2'] =
-                     joindna(*[DNA.dna_dict['nCas9_AID_source_1'],DNA.dna_dict['
-                     dna_4']], topology='linear', project='nCas9_AID_source',
+                     /build_history_50="DNA.dna_dict['dna_24'] =
+                     modifyends(DNA.dna_dict['dna_17'],
+                     left='*************************/-------------------------',
+                     right='----------------------------/***********************
+                     *****', project='dna', comment='')"
+                     /build_history_48="DNA.dna_dict['nCas9_AID_source_8'] =
+                     joindna(*[DNA.dna_dict['nCas9_AID_source_7'],DNA.dna_dict['
+                     dna_18']], topology='linear', project='nCas9_AID_source',
                      comment='')"
-                     /build_history_6="DNA.dna_dict['nCas9_AID_source_1'] =
-                     cropdna(DNA.dna_dict['nCas9_AID_source'],
+                     /build_history_42="DNA.dna_dict['nCas9_AID_source_7'] =
+                     cropdna(DNA.dna_dict['nCas9_AID_source_5'],
                      start='6449/6449', end='9267/9267',
                      project='nCas9_AID_source', comment='')"
-                     /build_history_12="DNA.dna_dict['dna_4'] =
+                     /build_history_47="DNA.dna_dict['dna_18'] =
                      DNA(seq='TAATGAGTTTAAA', record=None, project='dna',
                      topology='linear', format=None, comment='')"
-                     /build_history_16="DNA.dna_dict['nCas9_AID_source_3'] =
-                     modifyends(DNA.dna_dict['nCas9_AID_source_2'],
-                     left='*{28}/-{28}', right='-{25}/*{25}',
-                     project='nCas9_AID_source', comment='')"
+                     /build_history_51="DNA.dna_dict['nCas9_AID_source_9'] =
+                     modifyends(DNA.dna_dict['nCas9_AID_source_8'],
+                     left='****************************/------------------------
+                     ----',
+                     right='-------------------------/*************************'
+                     , project='nCas9_AID_source', comment='')"
 ORIGIN
         1 atcaagatgc tataatgagt ttaaacccgc tgatcagcct cgactgtgcc ttctagttgc
        61 cagccatctg ttgtttgccc ctcccccgtg ccttccttga ccctggaagg tgccactccc

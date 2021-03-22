@@ -7,10 +7,10 @@ SOURCE      .
   ORGANISM  .
             .
 FEATURES             Location/Qualifiers
-     source          16..3394
+     source          36..3371
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /crop_trail="[pCMV_ABE:N.A:0..8727]:5258..8636:8727"
+                     /crop_trail="[pCMV_ABE:N.A:0..8727]:5278..8613:8727"
      primer_bind     complement(38..55)
                      /label="BGH-rev"
                      /note="Bovine growth hormone terminator, reverse primer.
@@ -87,23 +87,27 @@ FEATURES             Location/Qualifiers
      primer_bind     3269..3289
                      /label="CMV-F"
                      /note="Human CMV immediate early promoter, forward primer"
-     promoter        3360..3378
-                     /label="T7 promoter"
-                     /note="promoter for bacteriophage T7 RNA polymerase"
-     primer_bind     3360..3379
+     primer_bind     3360..3371
                      /label="T7"
                      /note="T7 promoter, forward primer"
-     source          join(3392..8752,1..12)
-                     /organism="synthetic DNA construct"
-                     /mol_type="other DNA"
-                     /crop_trail="[nCas9_AID_source:N.A:0..10419]:3895..9267:104
-                     19"
-     CDS             3398..3418
+                     /crop_trail="[pCMV_ABE:T7:8601..8621]:1..12:20"
+     promoter        3360..3371
+                     /label="T7 promoter"
+                     /note="promoter for bacteriophage T7 RNA polymerase"
+                     /crop_trail="[pCMV_ABE:T7 promoter:8601..8620]:1..12:19"
+     CDS             3412..3418
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
                      40) large T antigen"
                      /label="SV40 NLS"
                      /translation="PKKKRKV"
+                     /crop_trail="[pCMV-nCas-PmCDA1-ugi:SV40
+                     NLS:3900..3921]:15..21:21"
+     source          3412..8741
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /crop_trail="[pCMV-nCas-PmCDA1-ugi:N.A:0..10419]:3915..9244
+                     :10419"
      CDS             3443..7546
                      /codon_start=1
                      /product="nickase mutant of the Cas9 endonuclease from the
@@ -153,71 +157,133 @@ FEATURES             Location/Qualifiers
                      40) large T antigen"
                      /label="SV40 NLS"
                      /translation="PKKKRKV"
-     CDS             join(8513..8752,1..12)
+     CDS             8513..8741
                      /codon_start=1
                      /product="uracil-DNA glycosylase inhibitor from a Bacillus
                      subtilis bacteriophage (Mol et al., 1995)"
                      /label="UGI"
                      /translation="MTNLSDIIEKETGKQLVIQESILMLPEEVEEVIGNKPESDILVHT
                      AYDESTDENVMLLTSDAPEYKPWALVIQDSNGENKIKML"
+                     /crop_trail="[pCMV-nCas-PmCDA1-ugi:UGI:9015..9267]:1..229:2
+                     52"
      source          1..8752
                      /label="pCMV-Target-AID"
                      /description="Record of build history"
-                     /build_history_17="DNA.dna_dict['pCMV-Target-AID'] =
-                     joindna(*[DNA.dna_dict['dna_7'],DNA.dna_dict['dna_10'],DNA.
-                     dna_dict['nCas9_AID_source_3']], topology='circular',
-                     project='pCMV-Target-AID', comment='')"
-                     /build_history_9="DNA.dna_dict['dna_1'] =
-                     joindna(*[DNA.dna_dict['dna'],DNA.dna_dict['pCMV_ABE_0'],DN
-                     A.dna_dict['dna_0']], topology='linear', project='dna',
-                     comment='')"
-                     /build_history_7="DNA.dna_dict['dna'] =
-                     DNA(seq='ATCAAGATGCTATAA', record=None, project='dna',
-                     topology='linear', format=None, comment='')"
-                     /build_history_3="DNA.dna_dict['pCMV_ABE'] = DNA(seq=None,
+                     /build_history_25="DNA.dna_dict['pCMV-Target-AID'] =
+                     joindna(*[DNA.dna_dict['RS047_1'],DNA.dna_dict['RS045_1'],D
+                     NA.dna_dict['HM128_1']], topology='circular',
+                     project='pCMV-Target-AID', comment='The Target-AID plasmid
+                     (pCMV-Target-AID) was constructed by assembling two insert
+                     fragments and a backbone fragments.')"
+                     /build_history_9="DNA.dna_dict['RS047_0'] =
+                     joindna(*[DNA.dna_dict['RS047'],DNA.dna_dict['pCMV_ABE_0'],
+                     DNA.dna_dict['RS048_0']], topology='linear',
+                     project='RS047', comment='The N-terminus of Target-AID was
+                     amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT)
+                     (Addgene 79620) using primer pairs RS045/HM129')"
+                     /build_history_4="DNA.dna_dict['RS047'] = DNA(seq=None,
+                     record='input/RS047.fasta', project='RS047',
+                     topology='linear', format=None, comment='The N-terminus of
+                     Target-AID was amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi
+                     pH1-gRNA(HPRT) (Addgene 79620) using primer pairs
+                     RS045/HM129')"
+                     /build_history_2="DNA.dna_dict['pCMV_ABE'] = DNA(seq=None,
                      record='input/addgene_102919.gbk', project='pCMV_ABE',
                      topology='linear', format=None, comment='')"
-                     /build_history_4="DNA.dna_dict['pCMV_ABE_0'] =
-                     cropdna(DNA.dna_dict['pCMV_ABE'], start='5257/5257',
-                     end='8636/8636', project='pCMV_ABE', comment='')"
-                     /build_history_8="DNA.dna_dict['dna_0'] =
-                     DNA(seq='GCACCGAAG', record=None, project='dna',
-                     topology='linear', format=None, comment='')"
-                     /build_history_14="DNA.dna_dict['dna_7'] =
-                     modifyends(DNA.dna_dict['dna_1'], left='*{25}/-{25}',
-                     right='-{25}/*{25}', project='dna', comment='')"
-                     /build_history_11="DNA.dna_dict['dna_3'] =
-                     joindna(*[DNA.dna_dict['dna_2'],DNA.dna_dict['nCas9_AID_sou
-                     rce_0']], topology='linear', project='dna', comment='')"
-                     /build_history_10="DNA.dna_dict['dna_2'] =
-                     DNA(seq='GAGAGCCGCCACC', record=None, project='dna',
-                     topology='linear', format=None, comment='')"
-                     /build_history_2="DNA.dna_dict['nCas9_AID_source'] =
+                     /build_history_6="DNA.dna_dict['pCMV_ABE_0'] =
+                     cropdna(DNA.dna_dict['pCMV_ABE'], start='5277/5277',
+                     end='8613/8613', project='pCMV_ABE', comment='The
+                     N-terminus of Target-AID was amplified from
+                     pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT) (Addgene
+                     79620) using primer pairs RS045/HM129')"
+                     /build_history_5="DNA.dna_dict['RS048'] = DNA(seq=None,
+                     record='input/RS048.fasta', project='RS048',
+                     topology='linear', format=None, comment='The N-terminus of
+                     Target-AID was amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi
+                     pH1-gRNA(HPRT) (Addgene 79620) using primer pairs
+                     RS045/HM129')"
+                     /build_history_8="DNA.dna_dict['RS048_0'] =
+                     flipdna(DNA.dna_dict['RS048'], project='RS048',
+                     comment='The N-terminus of Target-AID was amplified from
+                     pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT) (Addgene
+                     79620) using primer pairs RS045/HM129')"
+                     /build_history_22="DNA.dna_dict['RS047_1'] =
+                     modifyends(DNA.dna_dict['RS047_0'], left='*{25}/-{25}',
+                     right='-{25}/*{25}', project='RS047', comment='The
+                     Target-AID plasmid (pCMV-Target-AID) was constructed by
+                     assembling two insert fragments and a backbone
+                     fragments.')"
+                     /build_history_15="DNA.dna_dict['RS045_0'] =
+                     joindna(*[DNA.dna_dict['RS045'],DNA.dna_dict['pCMV-nCas-PmC
+                     DA1-ugi_0'],DNA.dna_dict['HM129_0']], topology='linear',
+                     project='RS045', comment='The C-terminus of Target-AID was
+                     amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT)
+                     (Addgene 79620) using primer pairs HM128/RS046')"
+                     /build_history_10="DNA.dna_dict['RS045'] = DNA(seq=None,
+                     record='input/RS045.fasta', project='RS045',
+                     topology='linear', format=None, comment='The C-terminus of
+                     Target-AID was amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi
+                     pH1-gRNA(HPRT) (Addgene 79620) using primer pairs
+                     HM128/RS046')"
+                     /build_history_3="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'] =
                      DNA(seq=None, record='input/addgene_79620.gbk',
-                     project='nCas9_AID_source', topology='linear', format=None,
-                     comment='')"
-                     /build_history_5="DNA.dna_dict['nCas9_AID_source_0'] =
-                     cropdna(DNA.dna_dict['nCas9_AID_source'],
-                     start='3894/3894', end='6477/6477',
-                     project='nCas9_AID_source', comment='')"
-                     /build_history_15="DNA.dna_dict['dna_10'] =
-                     modifyends(DNA.dna_dict['dna_3'], left='*{25}/-{25}',
-                     right='-{28}/*{28}', project='dna', comment='')"
-                     /build_history_13="DNA.dna_dict['nCas9_AID_source_2'] =
-                     joindna(*[DNA.dna_dict['nCas9_AID_source_1'],DNA.dna_dict['
-                     dna_4']], topology='linear', project='nCas9_AID_source',
-                     comment='')"
-                     /build_history_6="DNA.dna_dict['nCas9_AID_source_1'] =
-                     cropdna(DNA.dna_dict['nCas9_AID_source'],
-                     start='6449/6449', end='9267/9267',
-                     project='nCas9_AID_source', comment='')"
-                     /build_history_12="DNA.dna_dict['dna_4'] =
-                     DNA(seq='TAATGAGTTTAAA', record=None, project='dna',
-                     topology='linear', format=None, comment='')"
-                     /build_history_16="DNA.dna_dict['nCas9_AID_source_3'] =
-                     modifyends(DNA.dna_dict['nCas9_AID_source_2'],
-                     left='*{28}/-{28}', right='-{25}/*{25}',
-                     project='nCas9_AID_source', comment='')"
+                     project='pCMV-nCas-PmCDA1-ugi', topology='linear',
+                     format=None, comment='')"
+                     /build_history_12="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_0'] =
+                     cropdna(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'],
+                     start='3914/3914', end='6442/6442',
+                     project='pCMV-nCas-PmCDA1-ugi', comment='The C-terminus of
+                     Target-AID was amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi
+                     pH1-gRNA(HPRT) (Addgene 79620) using primer pairs
+                     HM128/RS046')"
+                     /build_history_11="DNA.dna_dict['HM129'] = DNA(seq=None,
+                     record='input/HM129.fasta', project='HM129',
+                     topology='linear', format=None, comment='The C-terminus of
+                     Target-AID was amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi
+                     pH1-gRNA(HPRT) (Addgene 79620) using primer pairs
+                     HM128/RS046')"
+                     /build_history_14="DNA.dna_dict['HM129_0'] =
+                     flipdna(DNA.dna_dict['HM129'], project='HM129',
+                     comment='The C-terminus of Target-AID was amplified from
+                     pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT) (Addgene
+                     79620) using primer pairs HM128/RS046')"
+                     /build_history_23="DNA.dna_dict['RS045_1'] =
+                     modifyends(DNA.dna_dict['RS045_0'], left='*{25}/-{25}',
+                     right='-{28}/*{28}', project='RS045', comment='The
+                     Target-AID plasmid (pCMV-Target-AID) was constructed by
+                     assembling two insert fragments and a backbone
+                     fragments.')"
+                     /build_history_21="DNA.dna_dict['HM128_0'] =
+                     joindna(*[DNA.dna_dict['HM128'],DNA.dna_dict['pCMV-nCas-PmC
+                     DA1-ugi_1'],DNA.dna_dict['RS046_0']], topology='linear',
+                     project='HM128', comment='The backbone fragment was
+                     amplified from pCMV-ABE7.10 using RS047/RS048')"
+                     /build_history_16="DNA.dna_dict['HM128'] = DNA(seq=None,
+                     record='input/HM128.fasta', project='HM128',
+                     topology='linear', format=None, comment='The backbone
+                     fragment was amplified from pCMV-ABE7.10 using
+                     RS047/RS048')"
+                     /build_history_18="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_1'] =
+                     cropdna(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'],
+                     start='6484/6484', end='9244/9244',
+                     project='pCMV-nCas-PmCDA1-ugi', comment='The backbone
+                     fragment was amplified from pCMV-ABE7.10 using
+                     RS047/RS048')"
+                     /build_history_17="DNA.dna_dict['RS046'] = DNA(seq=None,
+                     record='input/RS046.fasta', project='RS046',
+                     topology='linear', format=None, comment='The backbone
+                     fragment was amplified from pCMV-ABE7.10 using
+                     RS047/RS048')"
+                     /build_history_20="DNA.dna_dict['RS046_0'] =
+                     flipdna(DNA.dna_dict['RS046'], project='RS046',
+                     comment='The backbone fragment was amplified from
+                     pCMV-ABE7.10 using RS047/RS048')"
+                     /build_history_24="DNA.dna_dict['HM128_1'] =
+                     modifyends(DNA.dna_dict['HM128_0'], left='*{28}/-{28}',
+                     right='-{25}/*{25}', project='HM128', comment='The
+                     Target-AID plasmid (pCMV-Target-AID) was constructed by
+                     assembling two insert fragments and a backbone
+                     fragments.')"
 ORIGIN
         1 atcaagatgc tataatgagt ttaaacccgc tgatcagcct cgactgtgcc ttctagttgc
        61 cagccatctg ttgtttgccc ctcccccgtg ccttccttga ccctggaagg tgccactccc

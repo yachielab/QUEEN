@@ -770,7 +770,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
         fig.set_size_inches(6 * ylim/fig_width, 6 * ylim/fig_width)
     return ax, y_list, ty_list, fig_width, ylim, bottom_h
 
-def visualize(brick, format=0, unvisible_types=["source"], visible_types=[], bottom=None):
+def visualize(brick, format=0, featurelist=None, unvisible_types=["source"], visible_types=[], bottom=None):
     figure = plt.figure(figsize=(6,6))
     ax      = figure.add_axes([0,0,1,1], polar=True, label="hoge")
     ax2     = figure.add_axes([0,0,1,1], label="fuga")
@@ -782,7 +782,11 @@ def visualize(brick, format=0, unvisible_types=["source"], visible_types=[], bot
     ax.yaxis.set_ticks([])
     ax.yaxis.set_ticklabels([])
     ax2.set_axis_off()
-    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, brick.dnafeature, len(brick.seq), unvisible_types=unvisible_types, visible_types=visible_types, format=format, bottom=bottom, enlarge=1.0) 
+    if featurelist is None:
+        featurelist = birck.dnafeatures    
+    else:
+        pass 
+    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, featurelist, len(brick.seq), unvisible_types=unvisible_types, visible_types=visible_types, format=format, bottom=bottom, enlarge=1.0) 
     
     renderer    = figure.canvas.get_renderer()
     coordinate  = ax2.transData.inverted() 

@@ -1,5 +1,6 @@
 import os 
 import sys
+import copy
 import pandas as pd 
 import collections
 import numpy as np
@@ -31,7 +32,7 @@ feature_color_dict["rep_origin"]   = [('#fff2ae', '#ffd92f')]
 feature_color_dict["misc_feature"] = [('#fbb4ae', '#e41a1c'), ('#b3cde3', '#377eb8'), ('#ccebc5', '#4daf4a'), ('#decbe4', '#984ea3'), ('#fed9a6', '#ff7f00')]  
 misc_colors = [('#ffffcc', '#d9d927'), ('#e5d8bd', '#a65628'), ('#fddaec', '#f781bf'), ('#f2f2f2', '#999999'), ('#fbb4ae', '#e41a1c')]
 
-def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_types=["source"], visible_types=[], enlarge=1.0, format=1, bottom=400):
+def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_types=["source"], visible_types=[], enlarge=1.0, format=1, bottom=400, fontsize=8, label_box=True):
     if format == 0 or format == 1:
         outer    = 60
         inner    = 44
@@ -136,6 +137,10 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
                     label = feat.qualifiers["label"]
             else:
                 label = feat.type
+            
+            if label == "":
+                label = " "
+
             strand = feat.location.strand
             if strand == 1:
                 gs_origin = feat.location.parts[0].start.position 
@@ -212,11 +217,11 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
                 else:
                     edgecolor = "#CCCCCC"
                 
-            if "note_dna.py" in feat.qualifiers:
-                note   = feat.qualifiers["note_dna.py"]
-                if type(note) == list:
-                    note   = feat.qualifiers["note_dna.py"][0]
-                label = note
+            #if "note_dna.py" in feat.qualifiers:
+            #    note   = feat.qualifiers["note_dna.py"]
+            #    if type(note) == list:
+            #        note   = feat.qualifiers["note_dna.py"][0]
+            #    label = note
 
             if gs < ge: 
                 width  = ge-gs
@@ -253,7 +258,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
                 pos_list   = []  
                 width_list = []
                 for char in label:
-                    text        = ax2.text(slide, 0, char, ha="right", va="center")
+                    text        = ax2.text(slide, 0, char, ha="right", va="center", fontsize=fontsize)
                     bbox_text   = text.get_window_extent(renderer=renderer)
                     bbox_text   = Bbox(coordinate.transform(bbox_text))
                     text.set_visible(False)
@@ -294,7 +299,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
                     pos_list   = [] 
                     width_list = []
                     for char in label:
-                        text        = ax2.text(slide, 0, char, ha="right", va="center")
+                        text        = ax2.text(slide, 0, char, ha="right", va="center", fontsize=fontsize)
                         bbox_text   = text.get_window_extent(renderer=renderer)
                         bbox_text   = Bbox(coordinate.transform(bbox_text))
                         text.set_visible(False)
@@ -388,9 +393,14 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
                     _, _, _, pos, x, btw = pos_info 
                     new_new_pos_list.append((np.arccos(pos/(y*lane_h+bottom_h))-0.5*np.pi+x, y*lane_h+bottom_h, y, pos, x, btw))
                 new_pos_list = new_new_pos_list
+                
+                tflag = 0 
                 t_width = (new_pos_list[-1][0] - new_pos_list[0][0]) 
-                if t_width < w-2*head_length:
-                    pass 
+                if t_width < w-2*head_length or label_box == False:
+                    if t_width < w-2*head_length:
+                        tflag = 1
+                    else:
+                        pass 
                 else:
                     shifted_pos_list = [] 
                     if feat.location.strand == -1:
@@ -420,7 +430,8 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
                 
                 gs_origin, ge_origin = int(new_gs_origin), int(new_ge_origin) 
                 for char, (theta, height, y, pos, x, btw) in zip(label, new_pos_list):
-                    ax.text(theta, height, char, ha="center", va="center", rotation=rotation(theta), zorder=10)
+                    if tflag == 1 or label_box==True:
+                        ax.text(theta, height, char, ha="center", va="center", rotation=rotation(theta), zorder=10, fontsize=fontsize)
               
                 if width > 1.2 * head_length:
                     if strand == 1:
@@ -749,12 +760,12 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
     for pos in range(0, length, space):
         ax.plot([2*np.pi*(pos/length), 2*np.pi*(pos/length)], [ylim-lane_h-0.02*(ylim-lane_h), ylim-lane_h], color="k", lw=1)
         if pos == 0:
-            ax.text(2*np.pi*(pos/length), ylim-lane_h-0.045*(ylim-lane_h), str(1), ha="center", va="center",  rotation=-1*180/np.pi*(2*np.pi*(pos/length)), fontsize=8)
+            ax.text(2*np.pi*(pos/length), ylim-lane_h-0.045*(ylim-lane_h), str(1), ha="center", va="center",  rotation=-1*180/np.pi*(2*np.pi*(pos/length)), fontsize=fontsize)
         else:
             if 2*np.pi*(pos/length) < 0.5 * np.pi or  2*np.pi*(pos/length) > 1.5 * np.pi: 
-                ax.text(2*np.pi*(pos/length), ylim-lane_h-0.045*(ylim-lane_h), str(pos), ha="center", va="center",  rotation=-1*180/np.pi*(2*np.pi*(pos/length)), fontsize=8)
+                ax.text(2*np.pi*(pos/length), ylim-lane_h-0.045*(ylim-lane_h), str(pos), ha="center", va="center",  rotation=-1*180/np.pi*(2*np.pi*(pos/length)), fontsize=fontsize)
             else:
-                ax.text(2*np.pi*(pos/length), ylim-lane_h-0.045*(ylim-lane_h), str(pos), ha="center", va="center",  rotation=(-1*180/np.pi*(2*np.pi*(pos/length)))+180, fontsize=8)
+                ax.text(2*np.pi*(pos/length), ylim-lane_h-0.045*(ylim-lane_h), str(pos), ha="center", va="center",  rotation=(-1*180/np.pi*(2*np.pi*(pos/length)))+180, fontsize=fontsize)
 
 
     if ylim < normal_w:
@@ -770,7 +781,8 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
         fig.set_size_inches(6 * ylim/fig_width, 6 * ylim/fig_width)
     return ax, y_list, ty_list, fig_width, ylim, bottom_h
 
-def visualize(brick, format=0, featurelist=None, unvisible_types=["source"], visible_types=[], bottom=None):
+def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], visible_types=[], bottom=None, fontsize=8, label_box=True):
+    brick = copy.deepcopy(brick) 
     figure = plt.figure(figsize=(6,6))
     ax      = figure.add_axes([0,0,1,1], polar=True, label="hoge")
     ax2     = figure.add_axes([0,0,1,1], label="fuga")
@@ -782,19 +794,19 @@ def visualize(brick, format=0, featurelist=None, unvisible_types=["source"], vis
     ax.yaxis.set_ticks([])
     ax.yaxis.set_ticklabels([])
     ax2.set_axis_off()
-    if featurelist is None:
-        featurelist = birck.dnafeatures    
+    if feature_list is None:
+        feature_list = birck.dnafeatures    
     else:
-        pass 
-    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, featurelist, len(brick.seq), unvisible_types=unvisible_types, visible_types=visible_types, format=format, bottom=bottom, enlarge=1.0) 
+        brick.dnafeatures = feature_list
+    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, brick.dnafeatures, len(brick.seq), unvisible_types=unvisible_types, visible_types=visible_types, format=format, bottom=bottom, enlarge=1.0, label_box=label_box, fontsize=fontsize) 
     
     renderer    = figure.canvas.get_renderer()
     coordinate  = ax2.transData.inverted() 
     brick_id    = brick.project
-    text        = ax2.text(0.5, 0.5, brick_id, ha="center", va="center", fontsize=10)
+    text        = ax2.text(0.5, 0.5, brick_id, ha="center", va="center", fontsize=fontsize*1.125 if fontsize >= 8 else 10)
     bbox_text   = text.get_window_extent(renderer=renderer)
     bbox_text   = Bbox(coordinate.transform(bbox_text))
-    bp_text     = ax2.text(0.5, 0.5-bbox_text.height-0.01, str(len(brick.seq)) + "bp", ha="center", va="center", fontsize=8)
+    bp_text     = ax2.text(0.5, 0.5-bbox_text.height-0.01, str(len(brick.seq)) + "bp", ha="center", va="center", fontsize=fontsize if fontsize >= 8 else 8)
    
     if bbox_text.width/2 > bottom:
         text.set_visible(False)

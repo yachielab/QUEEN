@@ -1,5 +1,6 @@
 import os 
 import sys
+import copy
 import pandas as pd 
 import collections
 import numpy as np
@@ -9,10 +10,11 @@ import pandas as pd
 from scipy import stats
 from  Bio import SeqIO
 from matplotlib.transforms import Bbox
+from dna import * 
 
-matplotlib.rcParams['font.sans-serif']   = ["Helvetica","Arial","Lucida Sans","DejaVu Sans","Lucida Grande","Verdana"]
+matplotlib.rcParams['font.sans-serif']   = ["Arial","Lucida Sans","DejaVu Sans","Lucida Grande","Verdana"]
 matplotlib.rcParams['font.family']       = 'sans-serif'
-matplotlib.rcParams['font.sans-serif']   = ["Helvetica","Arial","DejaVu Sans","Lucida Grande","Verdana"]
+matplotlib.rcParams['font.sans-serif']   = ["Arial","DejaVu Sans","Lucida Grande","Verdana"]
 matplotlib.rcParams['font.size']         = 12.0
 matplotlib.rcParams["axes.labelcolor"]   = "#000000"
 matplotlib.rcParams["axes.linewidth"]    = 1.0
@@ -38,36 +40,13 @@ def hex_to_rgb(value):
     lv = len(value)
     return tuple(int(value[i:i+lv//3], 16) for i in range(0, lv, lv//3))
 
-def colorbar(ax,color_dict,ref_seq,char=False):
-    bars = ax.bar(list(range(len(ref_seq))), [0.9] * (len(ref_seq)), width=1.0, edgecolor="#A0A0A0", linewidth=0.2, align="edge",bottom=0.05)
-    ax.set_xlim(0,len(ref_seq))
-    ax.set_ylim(0,1.00)
-    p = 0
-    for bar, c in zip(bars,ref_seq):
-        color = color_dict[c]
-        if char == True:
-            color = hex_to_rgb(color)
-            color = color + (0.75,)
-            bar.set_facecolor(color)
-            ax.text(p+0.5,0.38,c,va="center",ha="center",fontsize=9,zorder=100)     
-        else:
-            bar.set_facecolor(color)
-        p += 1 
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.spines["right"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)
-    ax.spines["left"].set_visible(False)
-    ax.spines["top"].set_visible(False)
-    ax.patch.set_alpha(0.0)
-    return bars
-
-def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, annotation_loc="both"):
+def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, annotation_loc="both", label_box=True, fontsize=12):
     y = 0
-    y_list    = [] 
-    ty_list   = [] 
-    visible   = 1
-    unvisible = 1 
+    y_list      = [] 
+    ty_list     = [] 
+    visible     = 1
+    unvisible   = 1 
+    head_length = head_length * 1.0/enlarge_w 
     gene_position_matrix = [[0] * length]
     text_position_matrix = [[0] * length] 
     label_position_list = [] 
@@ -120,8 +99,8 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
             
             if abs(ge-gs) < head_length * 1.2:
                 hl  = abs(ge-gs)
-                margin1 = head_length * 0.15 /enlarge_w
-                margin2 = head_length * 0.25 /enlarge_w 
+                margin1 = head_length * 0.15 
+                margin2 = head_length * 0.25 
                 hl2 = hl - (margin1+margin2)
                 if hl2 < 0:
                     hl2 = 0
@@ -131,8 +110,8 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
             else:
                 hl  = head_length 
                 hl2 = hl*0.85  
-                margin1 = hl * 0.15 /enlarge_w
-                margin2 = hl * 0.25 /enlarge_w
+                margin1 = hl * 0.15 
+                margin2 = hl * 0.25 
                 wd2     = 0.65
 
             if "facecolor_dna.py" in feat.qualifiers:
@@ -156,10 +135,10 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                 else:
                     edgecolor = "#CCCCCC"
                 
-            if "cropped_region" in feat.qualifiers:
-                note   = feat.qualifiers["cropped_region"]
+            if "crop_trail" in feat.qualifiers:
+                note   = feat.qualifiers["crop_trail"]
                 if type(note) == list:
-                    note   = feat.qualifiers["cropped_region"][0]
+                    note   = feat.qualifiers["crop_trail"][0]
                 pos_s  = int(note.split(":")[3].split("..")[0]) 
                 pos_e  = int(note.split(":")[3].split("..")[1])
                 feat_length = int(note.split(":")[4])
@@ -167,7 +146,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                     label = note.split(":")[1]
 
             if strand == 1:
-                if "cropped_region" in feat.qualifiers:
+                if "crop_trail" in feat.qualifiers:
                     if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
                         if gs == 0 and ge >= length:
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
@@ -186,7 +165,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                     ax.arrow(x=gs+margin1, y=-1*y, dx=ge-gs-(margin1+margin2), dy=0, width=wd2, head_width=wd2, head_length=hl2, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
             
             elif strand == -1:
-                if "cropped_region" in feat.qualifiers:
+                if "crop_trail" in feat.qualifiers:
                     if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
                         if gs == 0 and ge >= length:
                             ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
@@ -205,7 +184,8 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                     ax.arrow(x=ge-margin1, y=-1*y, dx=gs-ge+(margin1+margin2), dy=0, width=wd2, head_width=wd2, head_length=hl2, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
             
             else:
-                if "cropped_region" in feat.qualifiers:
+                hl = 0 
+                if "crop_trail" in feat.qualifiers:
                     if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
                         if gs == 0 and ge >= length:
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
@@ -223,7 +203,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                     ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                     ax.arrow(x=gs+margin1, y=-1*y, dx=ge-gs-(margin1+margin2), dy=0, width=wd2, head_width=wd2, head_length=0, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
             
-            label_position_list.append((label,(gs+ge)/2, -1*y, gs, ge, hl, edgecolor, facecolor))
+            label_position_list.append((label,(gs+ge-hl*0.5)/2, -1*y, gs, ge, hl, edgecolor, facecolor))
             for j in range(gs,ge):
                 gene_position_matrix[y][j] = 1    
             y_list.append(y)
@@ -232,7 +212,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
     coordinate  = ax.transData.inverted() 
     for label, tx, ty, gs, ge, hl, ec, fc in label_position_list:
         fc = "#ffffec" #facecolor 
-        text      = ax.text(tx, ty, label, ha="center", va="center")
+        text      = ax.text(tx, ty, label, ha="center", va="center", fontsize=fontsize)
         bbox_text = text.get_window_extent(renderer=renderer)
         bbox_text = Bbox(coordinate.transform(bbox_text))
         width = bbox_text.width*length
@@ -240,7 +220,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
         ts    = 0 if ts < 0 else ts 
         te    = int(tx+int(width/2)*1.2)
         te    = length if te > length else te
-        if width > abs(ge-gs) * 0.9:
+        if width > abs(ge-gs) * 0.90:
             text.set_visible(False)
             for t, trow in enumerate(text_position_matrix):
                 if 1 not in trow[ts:te]:
@@ -253,35 +233,39 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                 text_position_matrix.append([0] * length)
                 t += 1       
             
-            if annotation_loc == "both": 
-                if t % 2 == 0:
-                    ax.text(tx, t//2+1, label, ha="center",va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100)
-                    ax.plot([(gs+ge)/2, (gs+ge)/2], [t//2+1, ty], lw=0.5, color="k", zorder=0)
-                    ty_list.append(t//2+1)
+            if label_box == True:
+                if annotation_loc == "both": 
+                    if t % 2 == 0:
+                        ax.text(tx, t//2+1, label, ha="center",va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100, fontsize=fontsize)
+                        ax.plot([(gs+ge)/2, (gs+ge)/2], [t//2+1, ty], lw=0.5, color="k", zorder=0)
+                        ty_list.append(t//2+1)
+                    
+                    else:
+                        ax.text(tx, -1*max(y_list)-2.0-t//2, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100, fontsize=fontsize)
+                        ax.plot([(gs+ge)/2, (gs+ge)/2], [-1*max(y_list)-2.0-t//2, ty], lw=0.5, color="k", zorder=0)
+                        ty_list.append(-1*max(y_list)-2.0-t//2)
                 
+                elif annotation_loc == "bottom":
+                    ax.text(tx, -1*max(y_list)-2.0-t, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100, fontsize=fontsize)
+                    ax.plot([(gs+ge)/2, (gs+ge)/2], [-1*max(y_list)-2.0-t, ty], lw=0.5, color="k", zorder=0)
+                    ty_list.append(-1*max(y_list)-2.0-t)
+                    
                 else:
-                    ax.text(tx, -1*max(y_list)-2.0-t//2, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100)
-                    ax.plot([(gs+ge)/2, (gs+ge)/2], [-1*max(y_list)-2.0-t//2, ty], lw=0.5, color="k", zorder=0)
-                    ty_list.append(-1*max(y_list)-2.0-t//2)
-            
-            elif annotation_loc == "bottom":
-                ax.text(tx, -1*max(y_list)-2.0-t, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100)
-                ax.plot([(gs+ge)/2, (gs+ge)/2], [-1*max(y_list)-2.0-t, ty], lw=0.5, color="k", zorder=0)
-                ty_list.append(-1*max(y_list)-2.0-t)
-                
-            else:
-                ax.text(tx, t+1, label, ha="center",va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100)
-                ax.plot([(gs+ge)/2, (gs+ge)/2], [t+1, ty], lw=0.5, color="k", zorder=0)
-                ty_list.append(t+1)
+                    ax.text(tx, t+1, label, ha="center",va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100, fontsize=fontsize)
+                    ax.plot([(gs+ge)/2, (gs+ge)/2], [t+1, ty], lw=0.5, color="k", zorder=0)
+                    ty_list.append(t+1)
 
-            for j in range(ts, te):
-                text_position_matrix[t][j] = 1
+                for j in range(ts, te):
+                    text_position_matrix[t][j] = 1
         else:
             ty_list.append(ty) 
     return ax, y_list, ty_list
 
-def colorbar(ax, color_dict, ref_seq, char=False):
-    bars = ax.bar(list(range(len(ref_seq))), [0.9] * (len(ref_seq)), width=1.0, edgecolor="#BBBBBB", linewidth=0.2, align="edge",bottom=0.05)
+def colorbar(ax, color_dict, ref_seq, char=False, fontsize=10):
+    if len(ref_seq) > 200:
+        bars = ax.bar(list(range(len(ref_seq))), [0.9] * (len(ref_seq)), width=1.0, edgecolor="#BBBBBB", linewidth=0.0, align="edge",bottom=0.05)
+    else:
+        bars = ax.bar(list(range(len(ref_seq))), [0.9] * (len(ref_seq)), width=1.0, edgecolor="#BBBBBB", linewidth=0.2, align="edge",bottom=0.05)
     ax.set_xlim(0,len(ref_seq))
     ax.set_ylim(0,1.00)
     p = 0
@@ -290,7 +274,7 @@ def colorbar(ax, color_dict, ref_seq, char=False):
         bar.set_facecolor(color)
         if char == True:
             bar.set_alpha(0.7)
-            ax.text(p+0.5,0.45,c,va="center",ha="center",fontsize=10,zorder=100)     
+            ax.text(p+0.5,0.45,c,va="center",ha="center",fontsize=fontsize,zorder=100)     
         p += 1 
     ax.set_xticks([])
     ax.set_yticks([])
@@ -301,7 +285,8 @@ def colorbar(ax, color_dict, ref_seq, char=False):
     ax.patch.set_alpha(0.0)
     return bars
 
-def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, featurelist=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, fontsize=12, with_seq=False, nucl_char=None, nucl_color_dict=None):
+def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, label_box=True, feature_list=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, scale="auto", fontsize=12, with_seq=False, nucl_char=None, nucl_color_dict=None):
+    brick = copy.deepcopy(brick) 
     width = wrap_width 
     if nucl_color_dict == None:
         nucl_color_dict = color_dict  
@@ -344,12 +329,13 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, fe
     label_color_dict    = {} 
     feature_color_count = collections.defaultdict(int) 
     
-    if featurelist is None:
-        featurelist = birck.dnafeatures    
+    if feature_list is None:
+        feature_list = brick.dnafeatures    
     else:
-        pass 
+        brick.dnafeatures = feature_list
+        brick._features_dict = dict(list(map(lambda x:(x._id, x), brick.dnafeatures)))
 
-    for i, feat in featurelist:
+    for i, feat in enumerate(brick.dnafeatures):
         if feat.type in unvisible_types:
             pass 
         
@@ -399,39 +385,47 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, fe
         if sub_end > len(brick.seq):
             sub_end = sub_end - len(brick.seq) 
         
-        sub_brick  = brick[sub_start:sub_end]        
-        matplotlib.rcParams['font.size'] = fontsize
-        if width < 101:
-            std = 25
-            head_length = 2
-        elif width < 251:
-            std = 50 
-            head_length = 3
-        elif width < 501:
-            std = 100
-            head_length = 6
-        elif width < 1001:
-            std = 250 
-            head_length = 12
-        elif width < 2001:
-            std = 500
-            head_length = 24
-        elif width < 4001:
-            std = 900
-            head_length = 48
-        elif width < 5001:
+        sub_brick  = brick[sub_start:sub_end]
+        matplotlib.rcParams['font.size'] = fontsize if fontsize >=12 else 12
+        if scale == "fix":
             std = 1200
-            head_length = 56
-        elif width < 6001:
-            std = 1600
-            head_length = 64
+            head_length = 56 
         else:
-            std = 2000
-            head_length = 72
+            if scale == "auto":
+                scale = width
+            else:
+                pass 
+            if scale < 101:
+                std = 25
+                head_length = 2
+            elif scale < 251:
+                std = 50 
+                head_length = 3
+            elif scale < 501:
+                std = 100
+                head_length = 6
+            elif scale < 1001:
+                std = 200 
+                head_length = 12
+            elif scale < 2001:
+                std = 500
+                head_length = 24
+            elif scale < 4001:
+                std = 1000
+                head_length = 48
+            elif scale < 5001:
+                std = 1200
+                head_length = 56
+            elif scale < 6001:
+                std = 1600
+                head_length = 64
+            else:
+                std = 2000
+                head_length = 72
 
         zero_position = sub_start + 1
         ax  = fig.add_axes([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h], label=str(num)) 
-        ax, y_list, ty_list = map_feat(fig, ax, sub_brick.dnafeatures, len(sub_brick.seq), head_length, unvisible_types=unvisible_types, visible_types=visible_types, enlarge_w=enlarge_w, enlarge_h=enlarge_h, annotation_loc=annotation_loc)
+        ax, y_list, ty_list = map_feat(fig, ax, sub_brick.dnafeatures, len(sub_brick.seq), head_length, unvisible_types=unvisible_types, visible_types=visible_types, enlarge_w=enlarge_w, enlarge_h=enlarge_h, annotation_loc=annotation_loc, label_box=label_box, fontsize=fontsize)
         
         ty_list.append(0)  
         y_list.append(0) 
@@ -460,9 +454,9 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, fe
             
             if nucl_char != True and nucl_char != False:
                 if width > 100:
-                    colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=False)
+                    colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=False, fontsize=fontsize-2)
                 else:
-                    colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=True)
+                    colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=True, fontsize=fontsize-2)
             else:
                 colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=nucl_char)
 

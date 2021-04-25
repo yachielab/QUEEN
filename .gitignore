@@ -2,5 +2,7 @@
 *.pyc
 *.swp
 /.ipynb_checkpoints/
-/notebook/tutorial/.ipynb_checkpoints/
-/notebook/sakata_et_al_2020/.ipynb_checkpoints/
+/demo/tutorial/.ipynb_checkpoints/
+/demo/sakata_et_al_2020/.ipynb_checkpoints/
+/demo/sakata_et_al_2020/BE_plasmids_construction_v2.ipynb
+/demo/sakata_et_al_2020/visualize_BE_plasmids.ipynb

@@ -102,7 +102,7 @@ dna.py module provides the following print and search functions to analyze DNA c
   - **linebreak**: *`int`* or `None` (default: `None`)  
     Length of sequence for line break.
 
-  **Return**
+  **Return**  
     if `strand` is 1 or -1, `str: DNA sequence from start to end on the strand ( 5' to 3')`.  
     if `strand` is `None` or `0`, `[str: top strand sequence from start to end (5' to 3'), str：bottom strand sequence from start to end (5' to 3')`.  
     if `display` is `True`,`None`. 
@@ -134,7 +134,7 @@ dna.py module provides the following print and search functions to analyze DNA c
   - **max_mismatch**: *`int`* (default: 0)  
     Maximum number of letters allowed to mismatch to the query (only when the query is not provided with regular expression).
  
-  **Return**
+  **Return**  
     *`list`* (list of *`DNAFeature`* objects)
   
   ##### Example code 5: Search for a DNA sequence with a regular expression

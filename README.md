@@ -107,7 +107,7 @@ dna.py module provides the following print and search functions to analyze DNA c
     if `strand` is `None` or `0`, `[str: top strand sequence from start to end (5' to 3'), str：bottom strand sequence from start to end (5' to 3')`.  
     if `display` is `True`,`None`. 
   
-  **Example code 4: Print a double-strand DNA sequence with sticky ends
+  ##### Example code 4: Print a double-strand DNA sequence with sticky ends 
   ```python
   #Soruce codea#
   from dna import *

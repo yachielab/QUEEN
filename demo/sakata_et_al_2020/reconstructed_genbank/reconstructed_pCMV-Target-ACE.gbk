@@ -16,8 +16,8 @@ FEATURES             Location/Qualifiers
                      /product="nickase mutant of the Cas9 endonuclease from the
                      Streptococcus pyogenes Type II CRISPR/Cas system"
                      /label="Cas9(D10A)"
-                     /note="generates RNA-guided single strand nicks in DNA due
-                     to the D10A mutation in the RuvC catalytic domain"
+                     /note="generates RNA-guided single strand nicks in DNA
+                     dueto the D10A mutation in the RuvC catalytic domain"
                      /translation="DKKYSIGLAIGTNSVGWAVITDEYKVPSKKFKVLGNTDRHSIKKN
                      LIGALLFDSGETAEATRLKRTARRRYTRRKNRICYLQEIFSNEMAKVDDSFFHRLEESF
                      LVEEDKKHERHPIFGNIVDEVAYHEKYPTIYHLRKKLVDSTDKADLRLIYLALAHMIKF
@@ -43,6 +43,8 @@ FEATURES             Location/Qualifiers
                      NLDKVLSAYNKHRDKPIREQAENIIHLFTLTNLGAPAAFKYFDTTIDRKRYTSTKEVLD
                      ATLIHQSITGLYETRIDLSQLGGD"
                      /crop_trail="[pCMV_ABE:Cas9(D10A):1097..5198]:1..4081:4101"
+     misc_feature    4089..5299
+                     /label="fragment-5"
      source          4122..5263
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
@@ -54,6 +56,13 @@ FEATURES             Location/Qualifiers
                      enterokinase cleavage site"
                      /label="3xFLAG"
                      /translation="DYKDHDGDYKDHDIDYKDDDDK"
+     CDS             4381..5007
+                     /codon_start=1
+                     /label="PmCDA1"
+                     /translation="MTDAEYVRIHEKLDIYTFKKQFFNNKKSVSHRCYVLFELKRRGER
+                     RACFWGYAVNKPQSGTERGIHAEIFSIRKVEEYLRDNPGQFTINWYSSWSPCADCAEKI
+                     LEWYNQELRGNGHTLKIWACKLYYEKNARNQIGLWNLRDNGVGLNVMVSEHYQCCRKIF
+                     IQSSHNQLNENRWLEKTLKRAEKWRSELSIMIQVKILHTTKSPAVG"
      CDS             5008..5028
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
@@ -69,14 +78,16 @@ FEATURES             Location/Qualifiers
                      AYDESTDENVMLLTSDAPEYKPWALVIQDSNGENKIKML"
                      /crop_trail="[pCMV-nCas-PmCDA1-ugi:UGI:9015..9267]:1..229:2
                      52"
+     misc_feature    join(5275..9856,1..4113)
+                     /label="fragment-4"
      source          5310..8759
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
                      /crop_trail="[pCMV_ABE:N.A:0..8727]:5278..8727:8727"
      primer_bind     complement(5312..5329)
                      /label="BGH-rev"
-                     /note="Bovine growth hormone terminator, reverse primer.
-                     Also called BGH reverse"
+                     /note="Bovine growth hormone terminator, reverse
+                     primer.Also called BGH reverse"
      polyA_signal    5318..5542
                      /label="bGH poly(A) signal"
                      /note="bovine growth hormone polyadenylation signal"
@@ -93,8 +104,8 @@ FEATURES             Location/Qualifiers
      protein_bind    5637..5653
                      /label="lac operator"
                      /bound_moiety="lac repressor encoded by lacI"
-                     /note="The lac repressor binds to the lac operator to
-                     inhibit transcription in E. coli. This inhibition can be
+                     /note="The lac repressor binds to the lac operator
+                     toinhibit transcription in E. coli. This inhibition can be
                      relieved by adding lactose or
                      isopropyl-beta-D-thiogalactopyranoside (IPTG)."
      promoter        complement(5661..5691)
@@ -103,8 +114,8 @@ FEATURES             Location/Qualifiers
      protein_bind    5706..5727
                      /label="CAP binding site"
                      /bound_moiety="E. coli catabolite activator protein"
-                     /note="CAP binding activates transcription in the presence
-                     of cAMP."
+                     /note="CAP binding activates transcription in the
+                     presenceof cAMP."
      primer_bind     complement(5844..5861)
                      /label="L4440"
                      /note="L4440 vector, forward primer"
@@ -137,15 +148,13 @@ FEATURES             Location/Qualifiers
                      /label="AmpR promoter"
      primer_bind     complement(7818..7837)
                      /label="pRS-marker"
-                     /note="pRS vectors, use to sequence yeast selectable
-                     marker"
+                     /note="pRS vectors, use to sequence yeast selectablemarker"
      enhancer        8009..8388
                      /label="CMV enhancer"
                      /note="human cytomegalovirus immediate early enhancer"
      promoter        8389..8592
                      /label="CMV promoter"
-                     /note="human cytomegalovirus (CMV) immediate early
-                     promoter"
+                     /note="human cytomegalovirus (CMV) immediate earlypromoter"
      primer_bind     8543..8563
                      /label="CMV-F"
                      /note="Human CMV immediate early promoter, forward primer"
@@ -155,26 +164,40 @@ FEATURES             Location/Qualifiers
      primer_bind     8634..8653
                      /label="T7"
                      /note="T7 promoter, forward primer"
+     CDS             8666..9166
+                     /codon_start=1
+                     /label="ecTadA(wt)"
+                     /translation="MSEVEFSHEYWMRHALTLAKRAWDEREVPVGAVLVHNNRVIGEGW
+                     NRPIGRHDPTAHAEIMALRQGGLVMQNYRLIDATLYVTLEPCVMCAGAMIHSRIGRVVF
+                     GARDAKTGAAGSLMDVLHHPGMNHRVEITEGILADECAALLSDFFRMRRQEIKAQKKAQ
+                     SSTD"
      source          8760..9856
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
                      /crop_trail="[pCMV_ABE:N.A:0..8727]:1..1097:8727"
+     CDS             9263..9760
+                     /codon_start=1
+                     /label="ecTadA*(7.10)"
+                     /translation="SEVEFSHEYWMRHALTLAKRARDEREVPVGAVLVLNNRVIGEGWN
+                     RAIGLHDPTAHAEIMALRQGGLVMQNYRLIDATLYVTFEPCVMCAGAMIHSRIGRVVFG
+                     VRNAKTGAAGSLMDVLHYPGMNHRVEITEGILADECAALLCYFFRMPRQVFNAQKKAQS
+                     STD"
      source          1..9856
                      /label="pCMV-Target-ACE"
                      /description="Record of building history"
-                     /building_history_11="DNA.dna_dict['pCMV-Target-ACE_0'], =
+                     /building_history_17="DNA.dna_dict['pCMV-Target-ACE_0'], =
                      cutdna(DNA.dna_dict['pCMV-Target-ACE'], '4582/4582',
                      crop=False, project='pCMV-Target-ACE',
                      process_description='The Target-ACE plasmid
                      (pCMV-Target-ACE) was constructed by assembling the insert
                      fragment and a backbone fragment.')"
-                     /building_history_12="DNA.dna_dict['pCMV-Target-ACE_1'] =
+                     /building_history_18="DNA.dna_dict['pCMV-Target-ACE_1'] =
                      joindna(*[DNA.dna_dict['pCMV-Target-ACE_0']],
                      topology='circular', project='pCMV-Target-ACE',
                      process_description='The Target-ACE plasmid
                      (pCMV-Target-ACE) was constructed by assembling the insert
                      fragment and a backbone fragment.')"
-                     /building_history_10="DNA.dna_dict['pCMV-Target-ACE'] =
+                     /building_history_16="DNA.dna_dict['pCMV-Target-ACE'] =
                      joindna(*[DNA.dna_dict['pCMV_ABE_2'],
                      DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_2']],
                      topology='circular', project='pCMV-Target-ACE',
@@ -197,14 +220,34 @@ FEATURES             Location/Qualifiers
                      end='5178/5178', project='pCMV_ABE',
                      process_description='The backbone fragment was amplified
                      from pCMV-ABE7.10 using RS047/RS052')"
-                     /building_history_8="DNA.dna_dict['pCMV_ABE_2'] =
+                     /building_history_6="editdna(DNA.dna_dict['pCMV_ABE_1'],
+                     query=None, key_attribute='sequence', min_match=None,
+                     max_mismatch=0, target_attribute='feature_id',
+                     operation=createattribute(value='f4'), project=None,
+                     new_copy=False, process_description='The backbone fragment
+                     was amplified from pCMV-ABE7.10 using RS047/RS052')"
+                     /building_history_7="editdna(DNA.dna_dict['pCMV_ABE_1'],
+                     query='f4', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='strand',
+                     operation=replaceattribute(query_re=None,value=0),
+                     project=None, new_copy=False, process_description='The
+                     backbone fragment was amplified from pCMV-ABE7.10 using
+                     RS047/RS052')"
+                     /building_history_8="editdna(DNA.dna_dict['pCMV_ABE_1'],
+                     query='f4', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='qualifier:label',
+                     operation=createattribute(value='fragment-4'),
+                     project=None, new_copy=False, process_description='The
+                     backbone fragment was amplified from pCMV-ABE7.10 using
+                     RS047/RS052')"
+                     /building_history_14="DNA.dna_dict['pCMV_ABE_2'] =
                      modifyends(DNA.dna_dict['pCMV_ABE_1'], left='*{25}/-{25}',
                      right='-{25}/*{25}', project='pCMV_ABE',
                      process_description='The Target-ACE plasmid
                      (pCMV-Target-ACE) was constructed by assembling the insert
                      fragment and a backbone fragment.')"
-                     /building_history_7="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_1']
-                     = modifyends(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_0'],
+                     /building_history_10="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_1'
+                     ] = modifyends(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_0'],
                      left='GCTTGGGGGTGACGGTGGAGGAGGTACCGGCGG',
                      right='GAGAGAACAAGATCAAGATGCTATAATGAGTTTAAA',
                      project='pCMV-nCas-PmCDA1-ugi', process_description='The
@@ -215,15 +258,40 @@ FEATURES             Location/Qualifiers
                      DNA(seq=None, record='input/addgene_79620.gbk',
                      project='pCMV-nCas-PmCDA1-ugi', topology='linear',
                      format=None, process_description='')"
-                     /building_history_6="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_0']
+                     /building_history_9="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_0']
                      = cropdna(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'],
                      start='8102/8102', end='9244/9244',
                      project='pCMV-nCas-PmCDA1-ugi', process_description='The
                      insert fragment encoding the C-terminus region of
                      Target-AID was amplified from pcDNA-pCMV-nCas9 using
                      RS051/RS046.')"
-                     /building_history_9="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_2']
-                     = modifyends(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_1'],
+                     /building_history_11="editdna(DNA.dna_dict['pCMV-nCas-PmCDA
+                     1-ugi_1'], query=None, key_attribute='sequence',
+                     min_match=None, max_mismatch=0,
+                     target_attribute='feature_id',
+                     operation=createattribute(value='f5'), project=None,
+                     new_copy=False, process_description='The insert fragment
+                     encoding the C-terminus region of Target-AID was amplified
+                     from pcDNA-pCMV-nCas9 using RS051/RS046.')"
+                     /building_history_12="editdna(DNA.dna_dict['pCMV-nCas-PmCDA
+                     1-ugi_1'], query='f5', key_attribute='feature_id',
+                     min_match=None, max_mismatch=0, target_attribute='strand',
+                     operation=replaceattribute(query_re=None,value=0),
+                     project=None, new_copy=False, process_description='The
+                     insert fragment encoding the C-terminus region of
+                     Target-AID was amplified from pcDNA-pCMV-nCas9 using
+                     RS051/RS046.')"
+                     /building_history_13="editdna(DNA.dna_dict['pCMV-nCas-PmCDA
+                     1-ugi_1'], query='f5', key_attribute='feature_id',
+                     min_match=None, max_mismatch=0,
+                     target_attribute='qualifier:label',
+                     operation=createattribute(value='fragment-5'),
+                     project=None, new_copy=False, process_description='The
+                     insert fragment encoding the C-terminus region of
+                     Target-AID was amplified from pcDNA-pCMV-nCas9 using
+                     RS051/RS046.')"
+                     /building_history_15="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_2'
+                     ] = modifyends(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_1'],
                      left='*{25}/-{25}', right='-{25}/*{25}',
                      project='pCMV-nCas-PmCDA1-ugi', process_description='The
                      Target-ACE plasmid (pCMV-Target-ACE) was constructed by

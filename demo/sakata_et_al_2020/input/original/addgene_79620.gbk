@@ -1,4 +1,4 @@
-LOCUS       Exported               10419 bp ds-DNA     circular SYN 20-APR-2021
+LOCUS       Exported               10419 bp ds-DNA     circular SYN 06-AUG-2018
 DEFINITION  Expresses nCas9-PmCDA1-UGI and gRNA(HPRT) in mammalian cells.
 ACCESSION   .
 VERSION     .
@@ -15,7 +15,7 @@ REFERENCE   1  (bases 1 to 10419)
 REFERENCE   2  (bases 1 to 10419)
   AUTHORS   .
   TITLE     Direct Submission
-  JOURNAL   Exported Apr 20, 2021 from SnapGene Viewer 4.1.9
+  JOURNAL   Exported Aug 6, 2018 from SnapGene Server 1.1.58
             http://www.snapgene.com
 FEATURES             Location/Qualifiers
      source          1..10419
@@ -176,13 +176,6 @@ FEATURES             Location/Qualifiers
                      enterokinase cleavage site"
                      /label=3xFLAG
                      /translation="DYKDHDGDYKDHDIDYKDDDDK"
-     CDS             8362..8988
-                     /codon_start=1
-                     /label=PmCDA1
-                     /translation="MTDAEYVRIHEKLDIYTFKKQFFNNKKSVSHRCYVLFELKRRGER
-                     RACFWGYAVNKPQSGTERGIHAEIFSIRKVEEYLRDNPGQFTINWYSSWSPCADCAEKI
-                     LEWYNQELRGNGHTLKIWACKLYYEKNARNQIGLWNLRDNGVGLNVMVSEHYQCCRKIF
-                     IQSSHNQLNENRWLEKTLKRAEKWRSELSIMIQVKILHTTKSPAVG"
      CDS             8989..9009
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus

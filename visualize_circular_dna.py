@@ -1,13 +1,10 @@
 import os 
 import sys
 import copy
-import pandas as pd 
 import collections
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-import pandas as pd
-from scipy import stats
 from  Bio import SeqIO
 from matplotlib.transforms import Bbox
 
@@ -32,17 +29,17 @@ feature_color_dict["rep_origin"]   = [('#fff2ae', '#ffd92f')]
 feature_color_dict["misc_feature"] = [('#fbb4ae', '#e41a1c'), ('#b3cde3', '#377eb8'), ('#ccebc5', '#4daf4a'), ('#decbe4', '#984ea3'), ('#fed9a6', '#ff7f00')]  
 misc_colors = [('#ffffcc', '#d9d927'), ('#e5d8bd', '#a65628'), ('#fddaec', '#f781bf'), ('#f2f2f2', '#999999'), ('#fbb4ae', '#e41a1c')]
 
-def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_types=["source"], visible_types=[], enlarge=1.0, format=1, bottom=400, fontsize=8, label_box=True):
+def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_types=["source"], visible_types=[], enlarge=1.0, format=1, bottom=300, fontsize=10, label_box=True, view_axis=True, tick_space="auto"):
     if format == 0 or format == 1:
-        outer    = 60
-        inner    = 44
+        outer    = 62 * 1.2
+        inner    = 45 * 1.2
         if bottom is None and format == 1:
             bottom_h = 600
         elif bottom is None and format == 0:
-            bottom_h = 400
+            bottom_h = 300
         else:
             bottom_h = bottom 
-        lane_h   = 70
+        lane_h   = 70 * 1.2
         normal_w = 1000
         matplotlib.rcParams['font.size'] = 8.0
     
@@ -142,17 +139,17 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
                 label = " "
 
             strand = feat.location.strand
-            if strand == 1:
-                gs_origin = feat.location.parts[0].start.position 
-                ge_origin = feat.location.parts[-1].end.position
-                gs = gs_origin * 2 * np.pi / length 
-                ge = ge_origin * 2 * np.pi / length
-            else:
+            if strand == -1:
                 gs_origin = feat.location.parts[-1].start.position 
                 ge_origin = feat.location.parts[0].end.position
                 gs = gs_origin * 2 * np.pi / length
                 ge = ge_origin * 2 * np.pi / length 
-            
+            else:
+                gs_origin = feat.location.parts[0].start.position 
+                ge_origin = feat.location.parts[-1].end.position
+                gs = gs_origin * 2 * np.pi / length 
+                ge = ge_origin * 2 * np.pi / length
+
             y = 0
             if i > 0:
                 flag = 0
@@ -362,26 +359,26 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
                         else:
                             y = y + yy
                     else:
-                        for yy, row in enumerate(gene_position_matrix):
+                        for yy, row in enumerate(gene_position_matrix[y:]):
                             if 1 in row[gs_origin:]:
                                 flag = 1
                             else:
                                 flag = 0
                                 break    
-
-                        for yy, row in enumerate(gene_position_matrix[y:]):
-                            if 1 in row[:ge_origin]:
-                                flag = 1
-                            else:
-                                flag = 0
-                                break    
+                        
+                        if flag == 0:
+                            for yy, row in enumerate(gene_position_matrix[y:]):
+                                if 1 in row[:ge_origin]:
+                                    flag = 1
+                                else:
+                                    flag = 0
+                                    break    
 
                         if flag == 1:
                             y = y + yy + 1
                             gene_position_matrix.append([0] * length)
                         else:
                             y = y + yy
-
                 if abs(ge-gs) < head_length * 1.2:
                     hl  = abs(ge-gs)
                 else:
@@ -438,15 +435,15 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
                         ax.bar([gs], [outer], bottom=y*lane_h+bottom_h-outer/2, width=width-hl*0.98, align="edge", fc=edgecolor, lw=0.0, zorder=1)
                         ax.bar([gs+mg], [inner], bottom=y*lane_h+bottom_h-inner/2, width=width-mg-hl*0.98, align="edge", fc=facecolor, lw=0.0, zorder=2)
                         ax.arrow(x=ge-hl, y=y*lane_h+bottom_h, dx=hl*1.05, dy=0, width=outer, head_width=outer, head_length=hl, length_includes_head=True, fc=edgecolor, lw=0.0, zorder=3)
-                        ax.arrow(x=ge-hl, y=y*lane_h+bottom_h, dx=hl-mg*1.4, dy=0, width=inner, head_width=inner, head_length=hl-mg*1.4, length_includes_head=True, fc=facecolor, lw=0.0, zorder=4)
+                        ax.arrow(x=ge-1.1*hl, y=y*lane_h+bottom_h, dx=1.1*hl-mg*1.4, dy=0, width=inner, head_width=inner, head_length=hl-mg*1.4, length_includes_head=True, fc=facecolor, lw=0.0, zorder=4)
                     elif strand == -1:
                         ax.bar([gs+hl*0.98], [outer], bottom=y*lane_h+bottom_h-outer/2, width=width-hl*0.98, align="edge", fc=edgecolor, lw=0.0, zorder=1)
                         ax.bar([gs+hl*0.98], [inner], bottom=y*lane_h+bottom_h-inner/2, width=width-mg-hl*0.98, align="edge", fc=facecolor, lw=0.0, zorder=2)
                         ax.arrow(x=gs+hl, y=y*lane_h+bottom_h, dx=-1*hl*1.05, dy=0, width=outer, head_width=outer, head_length=hl, length_includes_head=True, fc=edgecolor, lw=0.0, zorder=3) 
-                        ax.arrow(x=gs+hl, y=y*lane_h+bottom_h, dx=-1*(hl-mg*1.4), dy=0, width=inner, head_width=inner, head_length=hl-mg*1.4, length_includes_head=True, fc=facecolor, lw=0.0, zorder=4)
+                        ax.arrow(x=gs+1.1*hl, y=y*lane_h+bottom_h, dx=-1*(1.1*hl-mg*1.4), dy=0, width=inner, head_width=inner, head_length=hl-mg*1.4, length_includes_head=True, fc=facecolor, lw=0.0, zorder=4)
                     else:
-                        ax.bar([gs], [outer], bottom=y*lane_h+bottom_h-outer/2, width=width, align="edge", fc=edgecolor, lw=0.0)
-                        ax.bar([gs+mg], [inner], bottom=y*lane_h+bottom_h-inner/2, width=width-2*margin, align="edge", fc=facecolor, lw=0.0)
+                        ax.bar([gs], [outer], bottom=y*lane_h+bottom_h-outer/2, width=width, align="edge", fc=edgecolor, lw=0.0, zorder=1)
+                        ax.bar([gs+mg], [inner], bottom=y*lane_h+bottom_h-inner/2, width=width-2*mg, align="edge", fc=facecolor, lw=0.0, zorder=2)
                 else:
                     if strand == 1:
                         ax.arrow(x=ge-width, y=y*lane_h+bottom_h, dx=width, dy=0, width=outer, head_width=outer, head_length=width, length_includes_head=True, fc=edgecolor, lw=0.0)
@@ -505,7 +502,6 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
 
                 label_position_list.append((label, width,  gs, ge,  middle,  y, facecolor, edgecolor))
            
-            
             if gs_origin < ge_origin:
                 for j in range(gs_origin,ge_origin):
                     gene_position_matrix[y][j] = 1  
@@ -738,35 +734,40 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
     y_set.sort() 
     #for y in y_set:
     #    ax.bar([gs], [16], bottom=y*lane_h+bottom_h-8, width=2*np.pi, align="edge", fc="#F3F3F3", ec=edgecolor, lw=0.0, zorder=0)
+    
     if format == 0:
-        ylim = max(y_list)*lane_h + bottom_h + 3 * lane_h
+        ylim = max(y_list)*lane_h + bottom_h + 2.5 * lane_h
     else:
         ylim = max([max(y_list)*lane_h + bottom_h, max(ty_list)]) + 3 * lane_h
-    
-    if   length < 1000:
-        space = 250
-    elif length < 2000:
-        space = 500 
-    elif length < 4000:
-        space = 800
-    elif length < 6000:
-        space = 1000
-    elif length < 10000:
-        space = 2000
-    else:
-        space = 3000
-
-    ax.bar([gs], [8], bottom=ylim-lane_h-4, width=2*np.pi, align="edge", fc="#606060", ec=edgecolor, lw=0.0, zorder=0)
-    for pos in range(0, length, space):
-        ax.plot([2*np.pi*(pos/length), 2*np.pi*(pos/length)], [ylim-lane_h-0.02*(ylim-lane_h), ylim-lane_h], color="k", lw=1)
-        if pos == 0:
-            ax.text(2*np.pi*(pos/length), ylim-lane_h-0.045*(ylim-lane_h), str(1), ha="center", va="center",  rotation=-1*180/np.pi*(2*np.pi*(pos/length)), fontsize=fontsize)
-        else:
-            if 2*np.pi*(pos/length) < 0.5 * np.pi or  2*np.pi*(pos/length) > 1.5 * np.pi: 
-                ax.text(2*np.pi*(pos/length), ylim-lane_h-0.045*(ylim-lane_h), str(pos), ha="center", va="center",  rotation=-1*180/np.pi*(2*np.pi*(pos/length)), fontsize=fontsize)
+        
+    if view_axis == True:
+        if tick_space == "auto":
+            if   length < 1000:
+                space = 250
+            elif length < 2000:
+                space = 500 
+            elif length < 4000:
+                space = 800
+            elif length < 6000:
+                space = 1000
+            elif length < 10000:
+                space = 2000
             else:
-                ax.text(2*np.pi*(pos/length), ylim-lane_h-0.045*(ylim-lane_h), str(pos), ha="center", va="center",  rotation=(-1*180/np.pi*(2*np.pi*(pos/length)))+180, fontsize=fontsize)
-
+                space = 3000
+        else:
+            space = tick_space
+        
+        ax.bar([gs], [8], bottom=ylim-lane_h*0.80-4, width=2*np.pi, align="edge", fc="#606060", ec=edgecolor, lw=0.0, zorder=0)
+        if space > 0:
+            for pos in range(0, length, space):
+                ax.plot([2*np.pi*(pos/length), 2*np.pi*(pos/length)], [(ylim-lane_h*0.80-4), (ylim-lane_h*0.80-4)-0.025*(normal_w-lane_h)], color="k", lw=1)
+                if pos == 0:
+                    ax.text(2*np.pi*(pos/length), ylim-lane_h*0.80-0.075*(normal_w-lane_h), str(1), ha="center", va="center",  rotation=-1*180/np.pi*(2*np.pi*(pos/length)), fontsize=fontsize)
+                else:
+                    if 2*np.pi*(pos/length) < 0.5 * np.pi or  2*np.pi*(pos/length) > 1.5 * np.pi: 
+                        ax.text(2*np.pi*(pos/length), ylim-lane_h*0.80-0.075*(normal_w-lane_h), str(pos), ha="center", va="center",  rotation=-1*180/np.pi*(2*np.pi*(pos/length)), fontsize=fontsize)
+                    else:
+                        ax.text(2*np.pi*(pos/length), ylim-lane_h*0.80-0.06*(normal_w-lane_h), str(pos), ha="center", va="center",  rotation=(-1*180/np.pi*(2*np.pi*(pos/length)))+180, fontsize=fontsize)
 
     if ylim < normal_w:
         ylim = normal_w
@@ -781,7 +782,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.027, unvisible_t
         fig.set_size_inches(6 * ylim/fig_width, 6 * ylim/fig_width)
     return ax, y_list, ty_list, fig_width, ylim, bottom_h
 
-def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], visible_types=[], bottom=None, fontsize=8, label_box=True):
+def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], visible_types=[], bottom=None, fontsize=8, label_box=True, view_axis=True, view_title=True, tick_space="auto"):
     brick = copy.deepcopy(brick) 
     figure = plt.figure(figsize=(6,6))
     ax      = figure.add_axes([0,0,1,1], polar=True, label="hoge")
@@ -798,19 +799,20 @@ def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], vi
         feature_list = birck.dnafeatures    
     else:
         brick.dnafeatures = feature_list
-    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, brick.dnafeatures, len(brick.seq), unvisible_types=unvisible_types, visible_types=visible_types, format=format, bottom=bottom, enlarge=1.0, label_box=label_box, fontsize=fontsize) 
-    
-    renderer    = figure.canvas.get_renderer()
-    coordinate  = ax2.transData.inverted() 
-    brick_id    = brick.project
-    text        = ax2.text(0.5, 0.5, brick_id, ha="center", va="center", fontsize=fontsize*1.125 if fontsize >= 8 else 10)
-    bbox_text   = text.get_window_extent(renderer=renderer)
-    bbox_text   = Bbox(coordinate.transform(bbox_text))
-    bp_text     = ax2.text(0.5, 0.5-bbox_text.height-0.01, str(len(brick.seq)) + "bp", ha="center", va="center", fontsize=fontsize if fontsize >= 8 else 8)
+    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, brick.dnafeatures, len(brick.seq), unvisible_types=unvisible_types, visible_types=visible_types, format=format, bottom=bottom, enlarge=1.0, label_box=label_box, fontsize=fontsize, view_axis=view_axis, tick_space=tick_space) 
    
-    if bbox_text.width/2 > bottom:
-        text.set_visible(False)
-        bp_text.set_visible(False) 
+    if view_title == True:
+        renderer    = figure.canvas.get_renderer()
+        coordinate  = ax2.transData.inverted() 
+        brick_id    = brick.project
+        text        = ax2.text(0.5, 0.5, brick_id, ha="center", va="center", fontsize=fontsize*1.125 if fontsize >= 8 else 10)
+        bbox_text   = text.get_window_extent(renderer=renderer)
+        bbox_text   = Bbox(coordinate.transform(bbox_text))
+        bp_text     = ax2.text(0.5, 0.5-bbox_text.height-0.01, str(len(brick.seq)) + " bp", ha="center", va="center", fontsize=fontsize if fontsize >= 8 else 8)
+        if bbox_text.width/2 > bottom:
+            text.set_visible(False)
+            bp_text.set_visible(False) 
+
     figure.patch.set_alpha(0.0)  
     return figure, ax
 

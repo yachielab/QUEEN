@@ -16,8 +16,8 @@ FEATURES             Location/Qualifiers
                      /product="nickase mutant of the Cas9 endonuclease from the
                      Streptococcus pyogenes Type II CRISPR/Cas system"
                      /label="Cas9(D10A)"
-                     /note="generates RNA-guided single strand nicks in DNA due
-                     to the D10A mutation in the RuvC catalytic domain"
+                     /note="generates RNA-guided single strand nicks in DNA
+                     dueto the D10A mutation in the RuvC catalytic domain"
                      /translation="DKKYSIGLAIGTNSVGWAVITDEYKVPSKKFKVLGNTDRHSIKKN
                      LIGALLFDSGETAEATRLKRTARRRYTRRKNRICYLQEIFSNEMAKVDDSFFHRLEESF
                      LVEEDKKHERHPIFGNIVDEVAYHEKYPTIYHLRKKLVDSTDKADLRLIYLALAHMIKF
@@ -44,28 +44,30 @@ FEATURES             Location/Qualifiers
                      ATLIHQSITGLYETRIDLSQLGGD"
                      /crop_trail="[pCMV-ABEmax:Cas9(D10A):1653..5754]:1..4076:41
                      01"
+     misc_feature    4080..4353
+                     /label="fragment-7"
+                     /crop_trail="[pCMV-Target-ACEmax:fragment-7:4079..5310]:1..
+                     274:1231"
      misc_feature    4125..4131
                      /label="GS_2x GS linker"
-                     /ApEinfo_revcolor="#c6c9d1"
-                     /ApEinfo_fwdcolor="#c6c9d1"
                      /crop_trail="[opt-pmCDA1-ugi:GS_2x GS
                      linker:502..532]:24..30:30"
+     source          4125..4353
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /crop_trail="[opt-pmCDA1-ugi:N.A:0..3874]:526..754:3874"
      misc_feature    4125..4353
                      /label="GenScript J9270EH080-1"
-                     /ApEinfo_revcolor="#c6c9d1"
-                     /ApEinfo_fwdcolor="#c6c9d1"
                      /crop_trail="[opt-pmCDA1-ugi:GenScript
                      J9270EH080-1:502..1690]:24..252:1188"
      misc_feature    4132..4302
                      /label="GS_Mutated SH3 domain"
-                     /ApEinfo_revcolor="#9eafd2"
-                     /ApEinfo_fwdcolor="#9eafd2"
      misc_feature    4303..4353
                      /label="SG_3x FLAG"
-                     /ApEinfo_revcolor="#f8d3a9"
-                     /ApEinfo_fwdcolor="#f8d3a9"
                      /crop_trail="[pCMV-Target-ACEmax:SG_3x
                      FLAG:4302..4380]:1..51:78"
+     misc_feature    4360..5064
+                     /label="fragment-10"
      source          4405..5040
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
@@ -82,6 +84,8 @@ FEATURES             Location/Qualifiers
                      AHWPRYPHLWVRLYVLELYCIILGLPPCLNILRRKQPQLTFFTIALQSCHYQRLPPHIL
                      WATGLK"
                      /crop_trail="[pCMV-BE4max:APOBEC-1:465..1149]:25..660:684"
+     misc_feature    5041..5681
+                     /label="fragment-11"
      CDS             5086..5313
                      /codon_start=1
                      /product="uracil-DNA glycosylase inhibitor from a Bacillus
@@ -108,6 +112,8 @@ FEATURES             Location/Qualifiers
                      /label="SV40 NLS"
                      /translation="PKKKRKV"
                      /crop_trail="[pCMV-BE4max:SV40 NLS:5946..5967]:1..2:21"
+     misc_feature    5656..7803
+                     /label="fragment-12"
      source          5682..7778
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
@@ -173,6 +179,8 @@ FEATURES             Location/Qualifiers
                      /label="Amp-R"
                      /note="Ampicillin resistance gene, reverse primer"
                      /crop_trail="[pCMV-BE4max:Amp-R:8100..8120]:1..10:20"
+     misc_feature    join(7779..10282,1..4374)
+                     /label="fragment-14"
      CDS             complement(7804..8006)
                      /codon_start=1
                      /gene="bla"
@@ -192,27 +200,31 @@ FEATURES             Location/Qualifiers
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
                      /crop_trail="[pCMV-ABEmax:N.A:0..8811]:7986..8811:8811"
+     misc_feature    7804..9094
+                     /label="fragment-8"
+                     /crop_trail="[pCMV-Target-ACEmax:fragment-8:5286..8725]:214
+                     9..3439:3439"
      promoter        complement(8007..8111)
                      /gene="bla"
                      /label="AmpR promoter"
      primer_bind     complement(8190..8209)
                      /label="pRS-marker"
-                     /note="pRS vectors, use to sequence yeast selectable
-                     marker"
+                     /note="pRS vectors, use to sequence yeast selectablemarker"
      enhancer        8381..8760
                      /label="CMV enhancer"
                      /note="human cytomegalovirus immediate early enhancer"
-     source          8630..9066
+     source          8630..10282
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /crop_trail="[pCMV-ABEmax:N.A:0..8811]:1..437:8811"
+                     /crop_trail="[pCMV-ABEmax:N.A:0..8811]:1..1653:8811"
      promoter        8761..8964
                      /label="CMV promoter"
-                     /note="human cytomegalovirus (CMV) immediate early
-                     promoter"
+                     /note="human cytomegalovirus (CMV) immediate earlypromoter"
      primer_bind     8915..8935
                      /label="CMV-F"
                      /note="Human CMV immediate early promoter, forward primer"
+     misc_feature    join(8992..10282,1..4101)
+                     /label="fragment-13"
      promoter        9006..9024
                      /label="T7 promoter"
                      /note="promoter for bacteriophage T7 RNA polymerase"
@@ -223,34 +235,44 @@ FEATURES             Location/Qualifiers
                      /label="T7"
                      /note="T7 promoter, forward primer"
                      /crop_trail="[pCMV-ABEmax:T7:376..396]:20..20:20"
-     source          9025..10282
-                     /organism="synthetic DNA construct"
-                     /mol_type="other DNA"
-                     /crop_trail="[pCMV-ABEmax:N.A:0..8811]:396..1653:8811"
      CDS             9074..9094
                      /codon_start=1
-                     /product="nuclear localization signal of SV40 (simian virus
-                     40) large T antigen"
+                     /product="nuclear localization signal of SV40 (simian
+                     virus40) large T antigen"
                      /label="SV40 NLS"
                      /translation="PKKKRKV"
+     CDS             9095..9688
+                     /codon_start=1
+                     /label="ecTadA(wt)"
+                     /translation="SEVEFSHEYWMRHALTLAKRAWDEREVPVGAVLVHNNRVIGEGWN
+                     RPIGRHDPTAHAEIMALRQGGLVMQNYRLIDATLYVTLEPCVMCAGAMIHSRIGRVVFG
+                     ARDAKTGAAGSLMDVLHHPGMNHRVEITEGILADECAALLSDFFRMRRQEIKAQKKAQS
+                     STDSGGSSGGSSGSETPGTSESATPESSGGSSGGS"
+     CDS             9689..10186
+                     /codon_start=1
+                     /label="ecTadA*(7.10)"
+                     /translation="SEVEFSHEYWMRHALTLAKRARDEREVPVGAVLVLNNRVIGEGWN
+                     RAIGLHDPTAHAEIMALRQGGLVMQNYRLIDATLYVTFEPCVMCAGAMIHSRIGRVVFG
+                     VRNAKTGAAGSLMDVLHYPGMNHRVEITEGILADECAALLCYFFRMPRQVFNAQKKAQS
+                     STD"
      source          1..10282
                      /label="pCMV-ACBEmax"
                      /description="Record of building history"
-                     /building_history_70="DNA.dna_dict['pCMV-ACBEmax_0'], =
+                     /building_history_112="DNA.dna_dict['pCMV-ACBEmax_0'], =
                      cutdna(DNA.dna_dict['pCMV-ACBEmax'], '2504/2504',
                      crop=False, project='pCMV-ACBEmax',
                      process_description='The ACBEmax plasmid (pCMV-ACBEmax) was
                      constructed by assembling the ABEmax fragment with the
                      three fragments encoding the rAPOBEC1 domain, 2×UGI domain,
                      and the backbone fragment.')"
-                     /building_history_71="DNA.dna_dict['pCMV-ACBEmax_0'] =
+                     /building_history_113="DNA.dna_dict['pCMV-ACBEmax_0'] =
                      joindna(*[DNA.dna_dict['pCMV-ACBEmax_0']],
                      topology='circular', project='pCMV-ACBEmax',
                      process_description='The ACBEmax plasmid (pCMV-ACBEmax) was
                      constructed by assembling the ABEmax fragment with the
                      three fragments encoding the rAPOBEC1 domain, 2×UGI domain,
                      and the backbone fragment.')"
-                     /building_history_69="DNA.dna_dict['pCMV-ACBEmax'] =
+                     /building_history_111="DNA.dna_dict['pCMV-ACBEmax'] =
                      joindna(*[DNA.dna_dict['pCMV-Target-ACEmax_3'],
                      DNA.dna_dict['pCMV-BE4max_12'],
                      DNA.dna_dict['pCMV-BE4max_13'],
@@ -260,33 +282,33 @@ FEATURES             Location/Qualifiers
                      ABEmax fragment with the three fragments encoding the
                      rAPOBEC1 domain, 2×UGI domain, and the backbone
                      fragment.')"
-                     /building_history_64="DNA.dna_dict['pCMV-Target-ACEmax_2']
+                     /building_history_103="DNA.dna_dict['pCMV-Target-ACEmax_2']
                      = modifyends(DNA.dna_dict['pCMV-Target-ACEmax_1'],
                      left='GCCACATAGCAGAACTTTAAAAGTG',
                      right='TACAAGGATGACGATGACAAG',
                      project='pCMV-Target-ACEmax', process_description='An
                      ABEmax fragment obtained from pCMV-Target-ACEmax using
                      SI447/SI1105.')"
-                     /building_history_61="DNA.dna_dict['pCMV-Target-ACEmax_0'],
-                     = cutdna(DNA.dna_dict['pCMV-Target-ACEmax'], '5834/5834',
+                     /building_history_100="DNA.dna_dict['pCMV-Target-ACEmax_0']
+                     , = cutdna(DNA.dna_dict['pCMV-Target-ACEmax'], '5834/5834',
                      crop=False, project='pCMV-Target-ACEmax',
                      process_description='The Target-ACEmax plasmid
                      (pCMV-BE4max(C)) was constructed by assembling a insert
                      fragment and two backbone fragments.')"
-                     /building_history_62="DNA.dna_dict['pCMV-Target-ACEmax_0']
+                     /building_history_101="DNA.dna_dict['pCMV-Target-ACEmax_0']
                      = joindna(*[DNA.dna_dict['pCMV-Target-ACEmax_0']],
                      topology='circular', project='pCMV-Target-ACEmax',
                      process_description='The Target-ACEmax plasmid
                      (pCMV-BE4max(C)) was constructed by assembling a insert
                      fragment and two backbone fragments.')"
-                     /building_history_60="DNA.dna_dict['pCMV-Target-ACEmax'] =
+                     /building_history_99="DNA.dna_dict['pCMV-Target-ACEmax'] =
                      joindna(*[DNA.dna_dict['opt-pmCDA1-ugi_3'],
                      DNA.dna_dict['pCMV-ABEmax_5'],
                      DNA.dna_dict['pCMV-ABEmax_6']], topology='circular',
                      project='pCMV-Target-ACEmax', process_description='The
                      Target-ACEmax plasmid (pCMV-BE4max(C)) was constructed by
                      assembling a insert fragment and two backbone fragments.')"
-                     /building_history_29="DNA.dna_dict['opt-pmCDA1-ugi_1'] =
+                     /building_history_49="DNA.dna_dict['opt-pmCDA1-ugi_1'] =
                      modifyends(DNA.dna_dict['opt-pmCDA1-ugi_0'],
                      left='CCTGTCTCAGCTGGGAGGTGACGGCGGAGGAGGAACTGGAGGAGG',
                      right='GAGAACAAAATCAAAATGCTGTGATAATGAGTTTAAACCCGCTGA',
@@ -294,153 +316,299 @@ FEATURES             Location/Qualifiers
                      encoding the codon-optimized C-terminal region of
                      Target-AIDmax was amplified with primer pair
                      SI1304/SI1307.')"
-                     /building_history_27="DNA.dna_dict['opt-pmCDA1-ugi'] =
-                     DNA(seq=None, record='input/puc-optimized-pmcda1-ugi.gb',
+                     /building_history_42="DNA.dna_dict['opt-pmCDA1-ugi'] =
+                     DNA(seq=None, record='input/puc-optimized-pmcda1-ugi.gbk',
                      project='opt-pmCDA1-ugi', topology='linear', format=None,
                      process_description='')"
-                     /building_history_28="DNA.dna_dict['opt-pmCDA1-ugi_0'] =
+                     /building_history_48="DNA.dna_dict['opt-pmCDA1-ugi_0'] =
                      cropdna(DNA.dna_dict['opt-pmCDA1-ugi'], start='525/525',
                      end='1666/1666', project='opt-pmCDA1-ugi',
                      process_description='The fragment encoding the
                      codon-optimized C-terminal region of Target-AIDmax was
                      amplified with primer pair SI1304/SI1307.')"
-                     /building_history_34="DNA.dna_dict['opt-pmCDA1-ugi_2'] =
+                     /building_history_50="editdna(DNA.dna_dict['opt-pmCDA1-ugi_
+                     1'], query=None, key_attribute='sequence', min_match=None,
+                     max_mismatch=0, target_attribute='feature_id',
+                     operation=createattribute(value='f7'), project=None,
+                     new_copy=False, process_description='The fragment encoding
+                     the codon-optimized C-terminal region of Target-AIDmax was
+                     amplified with primer pair SI1304/SI1307.')"
+                     /building_history_51="editdna(DNA.dna_dict['opt-pmCDA1-ugi_
+                     1'], query='f7', key_attribute='feature_id',
+                     min_match=None, max_mismatch=0, target_attribute='strand',
+                     operation=replaceattribute(query_re=None,value=0),
+                     project=None, new_copy=False, process_description='The
+                     fragment encoding the codon-optimized C-terminal region of
+                     Target-AIDmax was amplified with primer pair
+                     SI1304/SI1307.')"
+                     /building_history_52="editdna(DNA.dna_dict['opt-pmCDA1-ugi_
+                     1'], query='f7', key_attribute='feature_id',
+                     min_match=None, max_mismatch=0,
+                     target_attribute='qualifier:label',
+                     operation=createattribute(value='fragment-7'),
+                     project=None, new_copy=False, process_description='The
+                     fragment encoding the codon-optimized C-terminal region of
+                     Target-AIDmax was amplified with primer pair
+                     SI1304/SI1307.')"
+                     /building_history_59="DNA.dna_dict['opt-pmCDA1-ugi_2'] =
                      modifyends(DNA.dna_dict['opt-pmCDA1-ugi_1'],
                      left='*{22}/-{22}', right='-{24}/*{24}',
                      project='opt-pmCDA1-ugi', process_description='The
                      Target-AIDmax plasmid (pCMV-Target-AIDmax) was constructed
                      by assembling the two insert fragments and the backbone
                      fragment.')"
-                     /building_history_57="DNA.dna_dict['opt-pmCDA1-ugi_3'] =
+                     /building_history_96="DNA.dna_dict['opt-pmCDA1-ugi_3'] =
                      modifyends(DNA.dna_dict['opt-pmCDA1-ugi_2'],
                      left='*{22}/-{22}', right='-{24}/*{24}',
                      project='opt-pmCDA1-ugi', process_description='The
                      Target-ACEmax plasmid (pCMV-BE4max(C)) was constructed by
                      assembling a insert fragment and two backbone fragments.')"
-                     /building_history_33="DNA.dna_dict['pCMV-ABEmax_1'] =
+                     /building_history_54="DNA.dna_dict['pCMV-ABEmax_1'] =
                      modifyends(DNA.dna_dict['pCMV-ABEmax_0'],
                      left='TGATAATGAGTTTAAACCCGCTGA',
                      right='CGAGTCACCAAAGAAGAAGCGGAAAGTC',
                      project='pCMV-ABEmax', process_description='The backbone
                      fragment was amplified from pCMV-ABEmax using
                      SI1310/SI1309.')"
-                     /building_history_25="DNA.dna_dict['pCMV-ABEmax'] =
+                     /building_history_40="DNA.dna_dict['pCMV-ABEmax'] =
                      DNA(seq=None, record='input/addgene_112095.gbk',
                      project='pCMV-ABEmax', topology='linear', format=None,
                      process_description='')"
-                     /building_history_32="DNA.dna_dict['pCMV-ABEmax_0'] =
+                     /building_history_53="DNA.dna_dict['pCMV-ABEmax_0'] =
                      cropdna(DNA.dna_dict['pCMV-ABEmax'], start='5861/5861',
                      end='437/437', project='pCMV-ABEmax',
                      process_description='The backbone fragment was amplified
                      from pCMV-ABEmax using SI1310/SI1309.')"
-                     /building_history_36="DNA.dna_dict['pCMV-ABEmax_2'] =
+                     /building_history_55="editdna(DNA.dna_dict['pCMV-ABEmax_1']
+                     , query=None, key_attribute='sequence', min_match=None,
+                     max_mismatch=0, target_attribute='feature_id',
+                     operation=createattribute(value='f8'), project=None,
+                     new_copy=False, process_description='The backbone fragment
+                     was amplified from pCMV-ABEmax using SI1310/SI1309.')"
+                     /building_history_56="editdna(DNA.dna_dict['pCMV-ABEmax_1']
+                     , query='f8', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='strand',
+                     operation=replaceattribute(query_re=None,value=0),
+                     project=None, new_copy=False, process_description='The
+                     backbone fragment was amplified from pCMV-ABEmax using
+                     SI1310/SI1309.')"
+                     /building_history_57="editdna(DNA.dna_dict['pCMV-ABEmax_1']
+                     , query='f8', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='qualifier:label',
+                     operation=createattribute(value='fragment-8'),
+                     project=None, new_copy=False, process_description='The
+                     backbone fragment was amplified from pCMV-ABEmax using
+                     SI1310/SI1309.')"
+                     /building_history_60="DNA.dna_dict['pCMV-ABEmax_2'] =
                      modifyends(DNA.dna_dict['pCMV-ABEmax_1'],
                      left='*{24}/-{24}', right='-{22}/*{22}',
                      project='pCMV-ABEmax', process_description='The
                      Target-AIDmax plasmid (pCMV-Target-AIDmax) was constructed
                      by assembling the two insert fragments and the backbone
                      fragment.')"
-                     /building_history_58="DNA.dna_dict['pCMV-ABEmax_5'] =
+                     /building_history_97="DNA.dna_dict['pCMV-ABEmax_5'] =
                      modifyends(DNA.dna_dict['pCMV-ABEmax_2'],
                      left='*{24}/-{24}', right='-{103}/*{103}',
                      project='pCMV-ABEmax', process_description='The
                      Target-ACEmax plasmid (pCMV-BE4max(C)) was constructed by
                      assembling a insert fragment and two backbone fragments.')"
-                     /building_history_56="DNA.dna_dict['pCMV-ABEmax_4'] =
+                     /building_history_92="DNA.dna_dict['pCMV-ABEmax_4'] =
                      modifyends(DNA.dna_dict['pCMV-ABEmax_3'],
                      left='AGATCCGCGGCCGCTAATACGACTCACTATAGG',
                      right='CGACCTGTCTCAGCTGGGAGGTGAC', project='pCMV-ABEmax',
                      process_description='An ABEmax fragment obtained from
                      pCMV-ABEmax using SI945/SI1305')"
-                     /building_history_55="DNA.dna_dict['pCMV-ABEmax_3'] =
+                     /building_history_91="DNA.dna_dict['pCMV-ABEmax_3'] =
                      cropdna(DNA.dna_dict['pCMV-ABEmax'], start='395/395',
                      end='5729/5729', project='pCMV-ABEmax',
                      process_description='The BE4max(C) plasmid (pCMV-BE4max(C))
                      was constructedby assembling the three insert fragments and
                      the backbone fragment.')"
-                     /building_history_59="DNA.dna_dict['pCMV-ABEmax_6'] =
+                     /building_history_93="editdna(DNA.dna_dict['pCMV-ABEmax_4']
+                     , query=None, key_attribute='sequence', min_match=None,
+                     max_mismatch=0, target_attribute='feature_id',
+                     operation=createattribute(value='f13'), project=None,
+                     new_copy=False, process_description='An ABEmax fragment
+                     obtained from pCMV-ABEmax using SI945/SI1305')"
+                     /building_history_94="editdna(DNA.dna_dict['pCMV-ABEmax_4']
+                     , query='f13', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='strand',
+                     operation=replaceattribute(query_re=None,value=0),
+                     project=None, new_copy=False, process_description='An
+                     ABEmax fragment obtained from pCMV-ABEmax using
+                     SI945/SI1305')"
+                     /building_history_95="editdna(DNA.dna_dict['pCMV-ABEmax_4']
+                     , query='f13', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='qualifier:label',
+                     operation=createattribute(value='fragment-13'),
+                     project=None, new_copy=False, process_description='An
+                     ABEmax fragment obtained from pCMV-ABEmax using
+                     SI945/SI1305')"
+                     /building_history_98="DNA.dna_dict['pCMV-ABEmax_6'] =
                      modifyends(DNA.dna_dict['pCMV-ABEmax_4'],
                      left='*{103}/-{103}', right='-{22}/*{22}',
                      project='pCMV-ABEmax', process_description='The
                      Target-ACEmax plasmid (pCMV-BE4max(C)) was constructed by
                      assembling a insert fragment and two backbone fragments.')"
-                     /building_history_63="DNA.dna_dict['pCMV-Target-ACEmax_1']
+                     /building_history_102="DNA.dna_dict['pCMV-Target-ACEmax_1']
                      = cropdna(DNA.dna_dict['pCMV-Target-ACEmax_0'],
                      start='7434/7434', end='4353/4353',
                      project='pCMV-Target-ACEmax', process_description='An
                      ABEmax fragment obtained from pCMV-Target-ACEmax using
                      SI447/SI1105.')"
-                     /building_history_65="DNA.dna_dict['pCMV-Target-ACEmax_3']
+                     /building_history_104="editdna(DNA.dna_dict['pCMV-Target-AC
+                     Emax_2'], query=None, key_attribute='sequence',
+                     min_match=None, max_mismatch=0,
+                     target_attribute='feature_id',
+                     operation=createattribute(value='f14'), project=None,
+                     new_copy=False, process_description='An ABEmax fragment
+                     obtained from pCMV-Target-ACEmax using SI447/SI1105.')"
+                     /building_history_105="editdna(DNA.dna_dict['pCMV-Target-AC
+                     Emax_2'], query='f14', key_attribute='feature_id',
+                     min_match=None, max_mismatch=0, target_attribute='strand',
+                     operation=replaceattribute(query_re=None,value=0),
+                     project=None, new_copy=False, process_description='An
+                     ABEmax fragment obtained from pCMV-Target-ACEmax using
+                     SI447/SI1105.')"
+                     /building_history_106="editdna(DNA.dna_dict['pCMV-Target-AC
+                     Emax_2'], query='f14', key_attribute='feature_id',
+                     min_match=None, max_mismatch=0,
+                     target_attribute='qualifier:label',
+                     operation=createattribute(value='fragment-14'),
+                     project=None, new_copy=False, process_description='An
+                     ABEmax fragment obtained from pCMV-Target-ACEmax using
+                     SI447/SI1105.')"
+                     /building_history_107="DNA.dna_dict['pCMV-Target-ACEmax_3']
                      = modifyends(DNA.dna_dict['pCMV-Target-ACEmax_2'],
                      left='*{25}/-{25}', right='-{15}/*{15}',
                      project='pCMV-Target-ACEmax', process_description='An
                      ABEmax fragment obtained from pCMV-Target-ACEmax using
                      SI447/SI1105.')"
-                     /building_history_43="DNA.dna_dict['pCMV-BE4max_4'] =
+                     /building_history_70="DNA.dna_dict['pCMV-BE4max_4'] =
                      modifyends(DNA.dna_dict['pCMV-BE4max_3'],
                      left='GATGACGATGACAAGTCTGGCTCCTCAGAGACTGGGCCTGTCGCC',
                      right='ATCCTGTGGGCCACAGGCCTGAAG', project='pCMV-BE4max',
                      process_description='The rAPOBEC1 fragment was obtained
                      from BE4max using SI1352/SI1357.')"
-                     /building_history_26="DNA.dna_dict['pCMV-BE4max'] =
+                     /building_history_41="DNA.dna_dict['pCMV-BE4max'] =
                      DNA(seq=None, record='input/addgene_112093.gbk',
                      project='pCMV-BE4max', topology='linear', format=None,
                      process_description='')"
-                     /building_history_42="DNA.dna_dict['pCMV-BE4max_3'] =
+                     /building_history_69="DNA.dna_dict['pCMV-BE4max_3'] =
                      cropdna(DNA.dna_dict['pCMV-BE4max'], start='489/489',
                      end='1125/1125', project='pCMV-BE4max',
                      process_description='The rAPOBEC1 fragment was obtained
                      from BE4max using SI1352/SI1357.')"
-                     /building_history_49="DNA.dna_dict['pCMV-BE4max_9'] =
+                     /building_history_71="editdna(DNA.dna_dict['pCMV-BE4max_4']
+                     , query=None, key_attribute='sequence', min_match=None,
+                     max_mismatch=0, target_attribute='feature_id',
+                     operation=createattribute(value='f10'), project=None,
+                     new_copy=False, process_description='The rAPOBEC1 fragment
+                     was obtained from BE4max using SI1352/SI1357.')"
+                     /building_history_72="editdna(DNA.dna_dict['pCMV-BE4max_4']
+                     , query='f10', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='strand',
+                     operation=replaceattribute(query_re=None,value=0),
+                     project=None, new_copy=False, process_description='The
+                     rAPOBEC1 fragment was obtained from BE4max using
+                     SI1352/SI1357.')"
+                     /building_history_73="editdna(DNA.dna_dict['pCMV-BE4max_4']
+                     , query='f10', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='qualifier:label',
+                     operation=createattribute(value='fragment-10'),
+                     project=None, new_copy=False, process_description='The
+                     rAPOBEC1 fragment was obtained from BE4max using
+                     SI1352/SI1357.')"
+                     /building_history_85="DNA.dna_dict['pCMV-BE4max_9'] =
                      modifyends(DNA.dna_dict['pCMV-BE4max_4'],
                      left='*{15}/-{15}', right='-{24}/*{24}',
                      project='pCMV-BE4max', process_description='The backbone
                      fragment was obtained from BE4max using SI1351/SI448.')"
-                     /building_history_66="DNA.dna_dict['pCMV-BE4max_12'] =
+                     /building_history_108="DNA.dna_dict['pCMV-BE4max_12'] =
                      modifyends(DNA.dna_dict['pCMV-BE4max_9'],
                      left='*{15}/-{15}', right='-{24}/*{24}',
                      project='pCMV-BE4max', process_description='An ABEmax
                      fragment obtained from pCMV-Target-ACEmax using
                      SI447/SI1105.')"
-                     /building_history_45="DNA.dna_dict['pCMV-BE4max_6'] =
+                     /building_history_75="DNA.dna_dict['pCMV-BE4max_6'] =
                      modifyends(DNA.dna_dict['pCMV-BE4max_5'],
                      left='ATCCTGTGGGCCACAGGCCTGAAGACTAATCTGAGCGACATCATT',
                      right='CAAGAAGAAGAGGAAAGTCTAATAATGAGTTTAAACCCGCTGATC',
                      project='pCMV-BE4max', process_description='The 2×UGI
                      fragment was obtained from BE4max using SI1359/SI1350.')"
-                     /building_history_44="DNA.dna_dict['pCMV-BE4max_5'] =
+                     /building_history_74="DNA.dna_dict['pCMV-BE4max_5'] =
                      cropdna(DNA.dna_dict['pCMV-BE4max'], start='5397/5397',
                      end='5948/5948', project='pCMV-BE4max',
                      process_description='The 2×UGI fragment was obtained from
                      BE4max using SI1359/SI1350.')"
-                     /building_history_50="DNA.dna_dict['pCMV-BE4max_10'] =
+                     /building_history_76="editdna(DNA.dna_dict['pCMV-BE4max_6']
+                     , query=None, key_attribute='sequence', min_match=None,
+                     max_mismatch=0, target_attribute='feature_id',
+                     operation=createattribute(value='f11'), project=None,
+                     new_copy=False, process_description='The 2×UGI fragment was
+                     obtained from BE4max using SI1359/SI1350.')"
+                     /building_history_77="editdna(DNA.dna_dict['pCMV-BE4max_6']
+                     , query='f11', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='strand',
+                     operation=replaceattribute(query_re=None,value=0),
+                     project=None, new_copy=False, process_description='The
+                     2×UGI fragment was obtained from BE4max using
+                     SI1359/SI1350.')"
+                     /building_history_78="editdna(DNA.dna_dict['pCMV-BE4max_6']
+                     , query='f11', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='qualifier:label',
+                     operation=createattribute(value='fragment-11'),
+                     project=None, new_copy=False, process_description='The
+                     2×UGI fragment was obtained from BE4max using
+                     SI1359/SI1350.')"
+                     /building_history_86="DNA.dna_dict['pCMV-BE4max_10'] =
                      modifyends(DNA.dna_dict['pCMV-BE4max_6'],
                      left='*{24}/-{24}', right='-{26}/*{26}',
                      project='pCMV-BE4max', process_description='The backbone
                      fragment was obtained from BE4max using SI1351/SI448.')"
-                     /building_history_67="DNA.dna_dict['pCMV-BE4max_13'] =
+                     /building_history_109="DNA.dna_dict['pCMV-BE4max_13'] =
                      modifyends(DNA.dna_dict['pCMV-BE4max_10'],
                      left='*{24}/-{24}', right='-{26}/*{26}',
                      project='pCMV-BE4max', process_description='An ABEmax
                      fragment obtained from pCMV-Target-ACEmax using
                      SI447/SI1105.')"
-                     /building_history_47="DNA.dna_dict['pCMV-BE4max_8'] =
+                     /building_history_80="DNA.dna_dict['pCMV-BE4max_8'] =
                      modifyends(DNA.dna_dict['pCMV-BE4max_7'],
                      left='TAATAATGAGTTTAAACCCGCTGATC',
                      right='GCCACATAGCAGAACTTTAAAAGTG', project='pCMV-BE4max',
                      process_description='The backbone fragment was obtained
                      from BE4max using SI1351/SI448.')"
-                     /building_history_46="DNA.dna_dict['pCMV-BE4max_7'] =
+                     /building_history_79="DNA.dna_dict['pCMV-BE4max_7'] =
                      cropdna(DNA.dna_dict['pCMV-BE4max'], start='6013/6013',
                      end='8110/8110', project='pCMV-BE4max',
                      process_description='The backbone fragment was obtained
                      from BE4max using SI1351/SI448.')"
-                     /building_history_51="DNA.dna_dict['pCMV-BE4max_11'] =
+                     /building_history_81="editdna(DNA.dna_dict['pCMV-BE4max_8']
+                     , query=None, key_attribute='sequence', min_match=None,
+                     max_mismatch=0, target_attribute='feature_id',
+                     operation=createattribute(value='f12'), project=None,
+                     new_copy=False, process_description='The backbone fragment
+                     was obtained from BE4max using SI1351/SI448.')"
+                     /building_history_82="editdna(DNA.dna_dict['pCMV-BE4max_8']
+                     , query='f12', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='strand',
+                     operation=replaceattribute(query_re=None,value=0),
+                     project=None, new_copy=False, process_description='The
+                     backbone fragment was obtained from BE4max using
+                     SI1351/SI448.')"
+                     /building_history_83="editdna(DNA.dna_dict['pCMV-BE4max_8']
+                     , query='f12', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='qualifier:label',
+                     operation=createattribute(value='fragment-12'),
+                     project=None, new_copy=False, process_description='The
+                     backbone fragment was obtained from BE4max using
+                     SI1351/SI448.')"
+                     /building_history_87="DNA.dna_dict['pCMV-BE4max_11'] =
                      modifyends(DNA.dna_dict['pCMV-BE4max_8'],
                      left='*{26}/-{26}', right='-{25}/*{25}',
                      project='pCMV-BE4max', process_description='The backbone
                      fragment was obtained from BE4max using SI1351/SI448.')"
-                     /building_history_68="DNA.dna_dict['pCMV-BE4max_14'] =
+                     /building_history_110="DNA.dna_dict['pCMV-BE4max_14'] =
                      modifyends(DNA.dna_dict['pCMV-BE4max_11'],
                      left='*{26}/-{26}', right='-{25}/*{25}',
                      project='pCMV-BE4max', process_description='An ABEmax

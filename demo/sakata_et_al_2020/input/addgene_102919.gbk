@@ -1,4 +1,4 @@
-LOCUS       Exported                8727 bp ds-DNA     circular SYN 06-AUG-2018
+LOCUS       Exported                8727 bp ds-DNA     circular SYN 20-APR-2021
 DEFINITION  expresses ABE7.10 in mammalian cells.
 ACCESSION   .
 VERSION     .
@@ -16,19 +16,29 @@ REFERENCE   1  (bases 1 to 8727)
 REFERENCE   2  (bases 1 to 8727)
   AUTHORS   .
   TITLE     Direct Submission
-  JOURNAL   Exported Aug 6, 2018 from SnapGene Server 1.1.58
-            http://www.snapgene.com
+  JOURNAL   Exported Tuesday, Apr 20, 2021 from SnapGene Viewer 5.2.4
+            https://www.snapgene.com
+COMMENT     SGRef: number: 1; type: "Journal Article"; doi: 
+            "10.1038/nature24644"; journalName: "Nature"; date: "2017-11-23- 
+            23"; volume: "551"; issue: "7681"; pages: "464-471"
 FEATURES             Location/Qualifiers
      source          1..8727
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
+     CDS             504..1001
+                     /codon_start=1
+                     /label=ecTadA*(7.10)
+                     /translation="SEVEFSHEYWMRHALTLAKRARDEREVPVGAVLVLNNRVIGEGWN
+                     RAIGLHDPTAHAEIMALRQGGLVMQNYRLIDATLYVTFEPCVMCAGAMIHSRIGRVVFG
+                     VRNAKTGAAGSLMDVLHYPGMNHRVEITEGILADECAALLCYFFRMPRQVFNAQKKAQS
+                     STD"
      CDS             1098..5198
                      /codon_start=1
                      /product="nickase mutant of the Cas9 endonuclease from the 
                      Streptococcus pyogenes Type II CRISPR/Cas system"
                      /label=Cas9(D10A)
-                     /note="generates RNA-guided single strand nicks in DNA due 
-                     to the D10A mutation in the RuvC catalytic domain"
+                     /note="generates RNA-guided single strand nicks in DNA 
+                     dueto the D10A mutation in the RuvC catalytic domain"
                      /translation="DKKYSIGLAIGTNSVGWAVITDEYKVPSKKFKVLGNTDRHSIKKN
                      LIGALLFDSGETAEATRLKRTARRRYTRRKNRICYLQEIFSNEMAKVDDSFFHRLEESF
                      LVEEDKKHERHPIFGNIVDEVAYHEKYPTIYHLRKKLVDSTDKADLRLIYLALAHMIKF
@@ -55,8 +65,8 @@ FEATURES             Location/Qualifiers
                      ATLIHQSITGLYETRIDLSQLGGD"
      CDS             5211..5231
                      /codon_start=1
-                     /product="nuclear localization signal of SV40 (simian virus
-                     40) large T antigen"
+                     /product="nuclear localization signal of SV40 (simian 
+                     virus40) large T antigen"
                      /label=SV40 NLS
                      /translation="PKKKRKV"
      CDS             5240..5257
@@ -66,8 +76,8 @@ FEATURES             Location/Qualifiers
                      /translation="HHHHHH"
      primer_bind     complement(5280..5297)
                      /label=BGH-rev
-                     /note="Bovine growth hormone terminator, reverse primer. 
-                     Also called BGH reverse"
+                     /note="Bovine growth hormone terminator, reverse 
+                     primer.Also called BGH reverse"
      polyA_signal    5286..5510
                      /label=bGH poly(A) signal
                      /note="bovine growth hormone polyadenylation signal"
@@ -84,8 +94,8 @@ FEATURES             Location/Qualifiers
      protein_bind    5605..5621
                      /label=lac operator
                      /bound_moiety="lac repressor encoded by lacI"
-                     /note="The lac repressor binds to the lac operator to 
-                     inhibit transcription in E. coli. This inhibition can be 
+                     /note="The lac repressor binds to the lac operator 
+                     toinhibit transcription in E. coli. This inhibition can be 
                      relieved by adding lactose or 
                      isopropyl-beta-D-thiogalactopyranoside (IPTG)."
      promoter        complement(5629..5659)
@@ -94,8 +104,8 @@ FEATURES             Location/Qualifiers
      protein_bind    5674..5695
                      /label=CAP binding site
                      /bound_moiety="E. coli catabolite activator protein"
-                     /note="CAP binding activates transcription in the presence 
-                     of cAMP."
+                     /note="CAP binding activates transcription in the 
+                     presenceof cAMP."
      primer_bind     complement(5812..5829)
                      /label=L4440
                      /note="L4440 vector, forward primer"
@@ -128,15 +138,13 @@ FEATURES             Location/Qualifiers
                      /label=AmpR promoter
      primer_bind     complement(7786..7805)
                      /label=pRS-marker
-                     /note="pRS vectors, use to sequence yeast selectable 
-                     marker"
+                     /note="pRS vectors, use to sequence yeast selectablemarker"
      enhancer        7977..8356
                      /label=CMV enhancer
                      /note="human cytomegalovirus immediate early enhancer"
      promoter        8357..8560
                      /label=CMV promoter
-                     /note="human cytomegalovirus (CMV) immediate early 
-                     promoter"
+                     /note="human cytomegalovirus (CMV) immediate earlypromoter"
      primer_bind     8511..8531
                      /label=CMV-F
                      /note="Human CMV immediate early promoter, forward primer"
@@ -146,6 +154,13 @@ FEATURES             Location/Qualifiers
      promoter        8602..8620
                      /label=T7 promoter
                      /note="promoter for bacteriophage T7 RNA polymerase"
+     CDS             join(8634..8727,1..407)
+                     /codon_start=1
+                     /label=ecTadA(wt)
+                     /translation="MSEVEFSHEYWMRHALTLAKRAWDEREVPVGAVLVHNNRVIGEGW
+                     NRPIGRHDPTAHAEIMALRQGGLVMQNYRLIDATLYVTLEPCVMCAGAMIHSRIGRVVF
+                     GARDAKTGAAGSLMDVLHHPGMNHRVEITEGILADECAALLSDFFRMRRQEIKAQKKAQ
+                     SSTD"
 ORIGIN
         1 cagtactcgt gcataacaat cgcgtaatcg gcgaaggttg gaataggccg atcggacgcc
        61 acgaccccac tgcacatgcg gaaatcatgg cccttcgaca gggagggctt gtgatgcaga

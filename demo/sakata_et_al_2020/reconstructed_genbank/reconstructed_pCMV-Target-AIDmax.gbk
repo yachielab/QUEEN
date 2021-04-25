@@ -44,47 +44,53 @@ FEATURES             Location/Qualifiers
                      ATLIHQSITGLYETRIDLSQLGGD"
                      /crop_trail="[pCMV-BE4max:Cas9(D10A):1245..5346]:24..4076:4
                      101"
+     misc_feature    4057..5287
+                     /label="fragment-7"
      misc_feature    4102..4108
                      /label="GS_2x GS linker"
-                     /ApEinfo_revcolor="#c6c9d1"
-                     /ApEinfo_fwdcolor="#c6c9d1"
                      /crop_trail="[opt-pmCDA1-ugi:GS_2x GS
                      linker:502..532]:24..30:30"
+     source          4102..5242
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /crop_trail="[opt-pmCDA1-ugi:N.A:0..3874]:526..1666:3874"
      misc_feature    4102..5242
                      /label="GenScript J9270EH080-1"
-                     /ApEinfo_revcolor="#c6c9d1"
-                     /ApEinfo_fwdcolor="#c6c9d1"
                      /crop_trail="[opt-pmCDA1-ugi:GenScript
                      J9270EH080-1:502..1690]:24..1164:1188"
      misc_feature    4109..4279
                      /label="GS_Mutated SH3 domain"
-                     /ApEinfo_revcolor="#9eafd2"
-                     /ApEinfo_fwdcolor="#9eafd2"
      misc_feature    4280..4357
                      /label="SG_3x FLAG"
-                     /ApEinfo_revcolor="#f8d3a9"
-                     /ApEinfo_fwdcolor="#f8d3a9"
-     misc_feature    4358..4981
+     CDS             4358..4984
+                     /codon_start=1
+                     /label="PmCDA1"
                      /label="GS_PmCDA1"
-                     /ApEinfo_revcolor="#84b0dc"
-                     /ApEinfo_fwdcolor="#84b0dc"
-     misc_feature    4985..5005
+                     /translation="MTDAEYVRIHEKLDIYTFKKQFFNNKKSVSHRCYVLFELKRRGER
+                     RACFWGYAVNKPQSGTERGIHAEIFSIRKVEEYLRDNPGQFTINWYSSWSPCADCAEKI
+                     LEWYNQELRGNGHTLKIWACKLYYEKNARNQIGLWNLRDNGVGLNVMVSEHYQCCRKIF
+                     IQSSHNQLNENRWLEKTLKRAEKWRSELSIMIQVKILHTTKSPAVG"
+     CDS             4985..5005
+                     /codon_start=1
                      /label="SV40 NLS"
-                     /ApEinfo_revcolor="#9eafd2"
-                     /ApEinfo_fwdcolor="#9eafd2"
-     misc_feature    5012..5242
+                     /translation="PKKKRKV"
+     CDS             5012..5242
+                     /codon_start=1
+                     /label="UGI"
                      /label="GS_UGI"
-                     /ApEinfo_revcolor="#c7b0e3"
-                     /ApEinfo_fwdcolor="#c7b0e3"
-                     /crop_trail="[opt-pmCDA1-ugi:GS_UGI:1435..1687]:1..231:252"
+                     /translation="MTNLSDIIEKETGKQLVIQESILMLPEEVEEVIGNKPESDILVHT
+                     AYDESTDENVMLLTSDAPEYKPWALVIQDSNGENKIKML"
+                     /crop_trail="[opt-pmCDA1-ugi:UGI:1435..1687]:1..231:252"
+     misc_feature    5264..8702
+                     /label="fragment-8"
      source          5288..8237
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
                      /crop_trail="[pCMV-ABEmax:N.A:0..8811]:5862..8811:8811"
      primer_bind     complement(5292..5309)
                      /label="BGH-rev"
-                     /note="Bovine growth hormone terminator, reverse primer.
-                     Also called BGH reverse"
+                     /note="Bovine growth hormone terminator, reverse
+                     primer.Also called BGH reverse"
      polyA_signal    5298..5522
                      /label="bGH poly(A) signal"
                      /note="bovine growth hormone polyadenylation signal"
@@ -101,8 +107,8 @@ FEATURES             Location/Qualifiers
      protein_bind    5617..5633
                      /label="lac operator"
                      /bound_moiety="lac repressor encoded by lacI"
-                     /note="The lac repressor binds to the lac operator to
-                     inhibit transcription in E. coli. This inhibition can be
+                     /note="The lac repressor binds to the lac operator
+                     toinhibit transcription in E. coli. This inhibition can be
                      relieved by adding lactose or
                      isopropyl-beta-D-thiogalactopyranoside (IPTG)."
      promoter        complement(5641..5671)
@@ -111,8 +117,8 @@ FEATURES             Location/Qualifiers
      protein_bind    5686..5707
                      /label="CAP binding site"
                      /bound_moiety="E. coli catabolite activator protein"
-                     /note="CAP binding activates transcription in the presence
-                     of cAMP."
+                     /note="CAP binding activates transcription in the
+                     presenceof cAMP."
      primer_bind     complement(5824..5841)
                      /label="L4440"
                      /note="L4440 vector, forward primer"
@@ -145,8 +151,7 @@ FEATURES             Location/Qualifiers
                      /label="AmpR promoter"
      primer_bind     complement(7798..7817)
                      /label="pRS-marker"
-                     /note="pRS vectors, use to sequence yeast selectable
-                     marker"
+                     /note="pRS vectors, use to sequence yeast selectablemarker"
      enhancer        7989..8368
                      /label="CMV enhancer"
                      /note="human cytomegalovirus immediate early enhancer"
@@ -156,8 +161,7 @@ FEATURES             Location/Qualifiers
                      /crop_trail="[pCMV-ABEmax:N.A:0..8811]:1..437:8811"
      promoter        8369..8572
                      /label="CMV promoter"
-                     /note="human cytomegalovirus (CMV) immediate early
-                     promoter"
+                     /note="human cytomegalovirus (CMV) immediate earlypromoter"
      primer_bind     8523..8543
                      /label="CMV-F"
                      /note="Human CMV immediate early promoter, forward primer"
@@ -167,30 +171,75 @@ FEATURES             Location/Qualifiers
      primer_bind     8614..8633
                      /label="T7"
                      /note="T7 promoter, forward primer"
+     misc_feature    join(8681..8725,1..4078)
+                     /label="fragment-6"
      source          1..8725
                      /label="pCMV-Target-AIDmax"
                      /description="Record of building history"
-                     /building_history_15="DNA.dna_dict['pCMV-Target-AIDmax_0'],
-                     = cutdna(DNA.dna_dict['pCMV-Target-AIDmax'], '4669/4669',
+                     /building_history_24="DNA.dna_dict['pCMV-Target-AIDmax_0'],
+                     = cutdna(DNA.dna_dict['pCMV-Target-AIDmax'], '45/45',
                      crop=False, project='pCMV-Target-AIDmax',
                      process_description='The Target-AIDmax plasmid
                      (pCMV-Target-AIDmax) was constructed by assembling the two
                      insert fragments and the backbone fragment.')"
-                     /building_history_16="DNA.dna_dict['pCMV-Target-AIDmax_1']
+                     /building_history_25="DNA.dna_dict['pCMV-Target-AIDmax_1']
                      = joindna(*[DNA.dna_dict['pCMV-Target-AIDmax_0']],
                      topology='circular', project='pCMV-Target-AIDmax',
                      process_description='The Target-AIDmax plasmid
                      (pCMV-Target-AIDmax) was constructed by assembling the two
                      insert fragments and the backbone fragment.')"
-                     /building_history_14="DNA.dna_dict['pCMV-Target-AIDmax'] =
-                     joindna(*[DNA.dna_dict['opt-pmCDA1-ugi_2'],
-                     DNA.dna_dict['pCMV-ABEmax_2'],
-                     DNA.dna_dict['pCMV-BE4max_2']], topology='circular',
+                     /building_history_23="DNA.dna_dict['pCMV-Target-AIDmax'] =
+                     joindna(*[DNA.dna_dict['pCMV-BE4max_2'],
+                     DNA.dna_dict['opt-pmCDA1-ugi_2'],
+                     DNA.dna_dict['pCMV-ABEmax_2']], topology='circular',
                      project='pCMV-Target-AIDmax', process_description='The
                      Target-AIDmax plasmid (pCMV-Target-AIDmax) was constructed
                      by assembling the two insert fragments and the backbone
                      fragment.')"
-                     /building_history_6="DNA.dna_dict['opt-pmCDA1-ugi_1'] =
+                     /building_history_6="DNA.dna_dict['pCMV-BE4max_1'] =
+                     modifyends(DNA.dna_dict['pCMV-BE4max_0'],
+                     left='ACCAAAGAAGAAGCGGAAAGTCGACAAGAAGTACAGCATCGGCCT',
+                     right='CGACCTGTCTCAGCTGGGAGGTGAC', project='pCMV-BE4max',
+                     process_description='The fragment encoding a nCas9 fragment
+                     was amplified from pCMV-BE4max using SI1308/SI1305.')"
+                     /building_history_3="DNA.dna_dict['pCMV-BE4max'] =
+                     DNA(seq=None, record='input/addgene_112093.gbk',
+                     project='pCMV-BE4max', topology='linear', format=None,
+                     process_description='')"
+                     /building_history_5="DNA.dna_dict['pCMV-BE4max_0'] =
+                     cropdna(DNA.dna_dict['pCMV-BE4max'], start='1268/1268',
+                     end='5321/5321', project='pCMV-BE4max',
+                     process_description='The fragment encoding a nCas9 fragment
+                     was amplified from pCMV-BE4max using SI1308/SI1305.')"
+                     /building_history_7="editdna(DNA.dna_dict['pCMV-BE4max_1'],
+                     query=None, key_attribute='sequence', min_match=None,
+                     max_mismatch=0, target_attribute='feature_id',
+                     operation=createattribute(value='f6'), project=None,
+                     new_copy=False, process_description='The fragment encoding
+                     a nCas9 fragment was amplified from pCMV-BE4max using
+                     SI1308/SI1305.')"
+                     /building_history_8="editdna(DNA.dna_dict['pCMV-BE4max_1'],
+                     query='f6', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='strand',
+                     operation=replaceattribute(query_re=None,value=0),
+                     project=None, new_copy=False, process_description='The
+                     fragment encoding a nCas9 fragment was amplified from
+                     pCMV-BE4max using SI1308/SI1305.')"
+                     /building_history_9="editdna(DNA.dna_dict['pCMV-BE4max_1'],
+                     query='f6', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='qualifier:label',
+                     operation=createattribute(value='fragment-6'),
+                     project=None, new_copy=False, process_description='The
+                     fragment encoding a nCas9 fragment was amplified from
+                     pCMV-BE4max using SI1308/SI1305.')"
+                     /building_history_20="DNA.dna_dict['pCMV-BE4max_2'] =
+                     modifyends(DNA.dna_dict['pCMV-BE4max_1'],
+                     left='*{22}/-{22}', right='-{22}/*{22}',
+                     project='pCMV-BE4max', process_description='The
+                     Target-AIDmax plasmid (pCMV-Target-AIDmax) was constructed
+                     by assembling the two insert fragments and the backbone
+                     fragment.')"
+                     /building_history_11="DNA.dna_dict['opt-pmCDA1-ugi_1'] =
                      modifyends(DNA.dna_dict['opt-pmCDA1-ugi_0'],
                      left='CCTGTCTCAGCTGGGAGGTGACGGCGGAGGAGGAACTGGAGGAGG',
                      right='GAGAACAAAATCAAAATGCTGTGATAATGAGTTTAAACCCGCTGA',
@@ -199,23 +248,47 @@ FEATURES             Location/Qualifiers
                      Target-AIDmax was amplified with primer pair
                      SI1304/SI1307.')"
                      /building_history_4="DNA.dna_dict['opt-pmCDA1-ugi'] =
-                     DNA(seq=None, record='input/puc-optimized-pmcda1-ugi.gb',
+                     DNA(seq=None, record='input/puc-optimized-pmcda1-ugi.gbk',
                      project='opt-pmCDA1-ugi', topology='linear', format=None,
                      process_description='')"
-                     /building_history_5="DNA.dna_dict['opt-pmCDA1-ugi_0'] =
+                     /building_history_10="DNA.dna_dict['opt-pmCDA1-ugi_0'] =
                      cropdna(DNA.dna_dict['opt-pmCDA1-ugi'], start='525/525',
                      end='1666/1666', project='opt-pmCDA1-ugi',
                      process_description='The fragment encoding the
                      codon-optimized C-terminal region of Target-AIDmax was
                      amplified with primer pair SI1304/SI1307.')"
-                     /building_history_11="DNA.dna_dict['opt-pmCDA1-ugi_2'] =
+                     /building_history_12="editdna(DNA.dna_dict['opt-pmCDA1-ugi_
+                     1'], query=None, key_attribute='sequence', min_match=None,
+                     max_mismatch=0, target_attribute='feature_id',
+                     operation=createattribute(value='f7'), project=None,
+                     new_copy=False, process_description='The fragment encoding
+                     the codon-optimized C-terminal region of Target-AIDmax was
+                     amplified with primer pair SI1304/SI1307.')"
+                     /building_history_13="editdna(DNA.dna_dict['opt-pmCDA1-ugi_
+                     1'], query='f7', key_attribute='feature_id',
+                     min_match=None, max_mismatch=0, target_attribute='strand',
+                     operation=replaceattribute(query_re=None,value=0),
+                     project=None, new_copy=False, process_description='The
+                     fragment encoding the codon-optimized C-terminal region of
+                     Target-AIDmax was amplified with primer pair
+                     SI1304/SI1307.')"
+                     /building_history_14="editdna(DNA.dna_dict['opt-pmCDA1-ugi_
+                     1'], query='f7', key_attribute='feature_id',
+                     min_match=None, max_mismatch=0,
+                     target_attribute='qualifier:label',
+                     operation=createattribute(value='fragment-7'),
+                     project=None, new_copy=False, process_description='The
+                     fragment encoding the codon-optimized C-terminal region of
+                     Target-AIDmax was amplified with primer pair
+                     SI1304/SI1307.')"
+                     /building_history_21="DNA.dna_dict['opt-pmCDA1-ugi_2'] =
                      modifyends(DNA.dna_dict['opt-pmCDA1-ugi_1'],
                      left='*{22}/-{22}', right='-{24}/*{24}',
                      project='opt-pmCDA1-ugi', process_description='The
                      Target-AIDmax plasmid (pCMV-Target-AIDmax) was constructed
                      by assembling the two insert fragments and the backbone
                      fragment.')"
-                     /building_history_10="DNA.dna_dict['pCMV-ABEmax_1'] =
+                     /building_history_16="DNA.dna_dict['pCMV-ABEmax_1'] =
                      modifyends(DNA.dna_dict['pCMV-ABEmax_0'],
                      left='TGATAATGAGTTTAAACCCGCTGA',
                      right='CGAGTCACCAAAGAAGAAGCGGAAAGTC',
@@ -226,37 +299,35 @@ FEATURES             Location/Qualifiers
                      DNA(seq=None, record='input/addgene_112095.gbk',
                      project='pCMV-ABEmax', topology='linear', format=None,
                      process_description='')"
-                     /building_history_9="DNA.dna_dict['pCMV-ABEmax_0'] =
+                     /building_history_15="DNA.dna_dict['pCMV-ABEmax_0'] =
                      cropdna(DNA.dna_dict['pCMV-ABEmax'], start='5861/5861',
                      end='437/437', project='pCMV-ABEmax',
                      process_description='The backbone fragment was amplified
                      from pCMV-ABEmax using SI1310/SI1309.')"
-                     /building_history_13="DNA.dna_dict['pCMV-ABEmax_2'] =
+                     /building_history_17="editdna(DNA.dna_dict['pCMV-ABEmax_1']
+                     , query=None, key_attribute='sequence', min_match=None,
+                     max_mismatch=0, target_attribute='feature_id',
+                     operation=createattribute(value='f8'), project=None,
+                     new_copy=False, process_description='The backbone fragment
+                     was amplified from pCMV-ABEmax using SI1310/SI1309.')"
+                     /building_history_18="editdna(DNA.dna_dict['pCMV-ABEmax_1']
+                     , query='f8', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='strand',
+                     operation=replaceattribute(query_re=None,value=0),
+                     project=None, new_copy=False, process_description='The
+                     backbone fragment was amplified from pCMV-ABEmax using
+                     SI1310/SI1309.')"
+                     /building_history_19="editdna(DNA.dna_dict['pCMV-ABEmax_1']
+                     , query='f8', key_attribute='feature_id', min_match=None,
+                     max_mismatch=0, target_attribute='qualifier:label',
+                     operation=createattribute(value='fragment-8'),
+                     project=None, new_copy=False, process_description='The
+                     backbone fragment was amplified from pCMV-ABEmax using
+                     SI1310/SI1309.')"
+                     /building_history_22="DNA.dna_dict['pCMV-ABEmax_2'] =
                      modifyends(DNA.dna_dict['pCMV-ABEmax_1'],
                      left='*{24}/-{24}', right='-{22}/*{22}',
                      project='pCMV-ABEmax', process_description='The
-                     Target-AIDmax plasmid (pCMV-Target-AIDmax) was constructed
-                     by assembling the two insert fragments and the backbone
-                     fragment.')"
-                     /building_history_8="DNA.dna_dict['pCMV-BE4max_1'] =
-                     modifyends(DNA.dna_dict['pCMV-BE4max_0'],
-                     left='ACCAAAGAAGAAGCGGAAAGTCGACAAGAAGTACAGCATCGGCCT',
-                     right='CGACCTGTCTCAGCTGGGAGGTGAC', project='pCMV-BE4max',
-                     process_description='The fragment encoding a nCas9 fragment
-                     was amplified from pCMV-BE4max using SI1308/SI1305.')"
-                     /building_history_3="DNA.dna_dict['pCMV-BE4max'] =
-                     DNA(seq=None, record='input/addgene_112093.gbk',
-                     project='pCMV-BE4max', topology='linear', format=None,
-                     process_description='')"
-                     /building_history_7="DNA.dna_dict['pCMV-BE4max_0'] =
-                     cropdna(DNA.dna_dict['pCMV-BE4max'], start='1268/1268',
-                     end='5321/5321', project='pCMV-BE4max',
-                     process_description='The fragment encoding a nCas9 fragment
-                     was amplified from pCMV-BE4max using SI1308/SI1305.')"
-                     /building_history_12="DNA.dna_dict['pCMV-BE4max_2'] =
-                     modifyends(DNA.dna_dict['pCMV-BE4max_1'],
-                     left='*{22}/-{22}', right='-{22}/*{22}',
-                     project='pCMV-BE4max', process_description='The
                      Target-AIDmax plasmid (pCMV-Target-AIDmax) was constructed
                      by assembling the two insert fragments and the backbone
                      fragment.')"

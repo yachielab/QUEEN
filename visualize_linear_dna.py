@@ -1,13 +1,10 @@
 import os 
 import sys
 import copy
-import pandas as pd 
 import collections
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-import pandas as pd
-from scipy import stats
 from  Bio import SeqIO
 from matplotlib.transforms import Bbox
 from dna import * 
@@ -40,7 +37,7 @@ def hex_to_rgb(value):
     lv = len(value)
     return tuple(int(value[i:i+lv//3], 16) for i in range(0, lv, lv//3))
 
-def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, annotation_loc="both", label_box=True, fontsize=12):
+def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, annotation_loc="both", label_box=True, fontsize=12, project="", view_title=True, view_axis=True, tick_space="auto"):
     y = 0
     y_list      = [] 
     ty_list     = [] 
@@ -241,14 +238,22 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                         ty_list.append(t//2+1)
                     
                     else:
-                        ax.text(tx, -1*max(y_list)-2.0-t//2, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100, fontsize=fontsize)
-                        ax.plot([(gs+ge)/2, (gs+ge)/2], [-1*max(y_list)-2.0-t//2, ty], lw=0.5, color="k", zorder=0)
-                        ty_list.append(-1*max(y_list)-2.0-t//2)
+                        if view_axis == True:
+                            bufspace = 0.8 * fontsize/12
+                        else:
+                            bufspace = 0 
+                        ax.text(tx, -1*max(y_list)-1-bufspace-t//2, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100, fontsize=fontsize)
+                        ax.plot([(gs+ge)/2, (gs+ge)/2], [-1*max(y_list)-1-bufspace-t//2, ty], lw=0.5, color="k", zorder=0)
+                        ty_list.append(-1*max(y_list)-1-bufspace-t//2)
                 
                 elif annotation_loc == "bottom":
-                    ax.text(tx, -1*max(y_list)-2.0-t, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100, fontsize=fontsize)
-                    ax.plot([(gs+ge)/2, (gs+ge)/2], [-1*max(y_list)-2.0-t, ty], lw=0.5, color="k", zorder=0)
-                    ty_list.append(-1*max(y_list)-2.0-t)
+                    if view_axis == True:
+                        bufspace = 0.8 * fontsize/12
+                    else:
+                        bufspace = 0 
+                    ax.text(tx, -1*max(y_list)-1-bufspace-t, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100, fontsize=fontsize)
+                    ax.plot([(gs+ge)/2, (gs+ge)/2], [-1*max(y_list)-1-bufspace-t, ty], lw=0.5, color="k", zorder=0)
+                    ty_list.append(-1*max(y_list)-1-bufspace-t)
                     
                 else:
                     ax.text(tx, t+1, label, ha="center",va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100, fontsize=fontsize)
@@ -285,7 +290,7 @@ def colorbar(ax, color_dict, ref_seq, char=False, fontsize=10):
     ax.patch.set_alpha(0.0)
     return bars
 
-def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, label_box=True, feature_list=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, scale="auto", fontsize=12, with_seq=False, nucl_char=None, nucl_color_dict=None):
+def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, label_box=True, feature_list=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, scale="auto", fontsize=12, with_seq=False, nucl_char=None, nucl_color_dict=None, view_title=True, view_axis=True, tick_space="auto"):
     brick = copy.deepcopy(brick) 
     width = wrap_width 
     if nucl_color_dict == None:
@@ -425,7 +430,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
 
         zero_position = sub_start + 1
         ax  = fig.add_axes([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h], label=str(num)) 
-        ax, y_list, ty_list = map_feat(fig, ax, sub_brick.dnafeatures, len(sub_brick.seq), head_length, unvisible_types=unvisible_types, visible_types=visible_types, enlarge_w=enlarge_w, enlarge_h=enlarge_h, annotation_loc=annotation_loc, label_box=label_box, fontsize=fontsize)
+        ax, y_list, ty_list = map_feat(fig, ax, sub_brick.dnafeatures, len(sub_brick.seq), head_length, unvisible_types=unvisible_types, visible_types=visible_types, enlarge_w=enlarge_w, enlarge_h=enlarge_h, annotation_loc=annotation_loc, label_box=label_box, fontsize=fontsize, project=sub_brick.project, view_title=view_title, view_axis=view_axis)
         
         ty_list.append(0)  
         y_list.append(0) 
@@ -443,8 +448,16 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
         ax.set_yticks([])
        
         positions   = [p+zero_position-len(brick.seq) if p+zero_position > len(brick.seq) else p+zero_position for p in range(0, len(sub_brick.seq))] 
-        ticks       = [x for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % int(std/(2*enlarge_w)) == 0 or p == 1] 
-        tick_labels = [str(p) if p != 1 else "1" for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % int(std/(2*enlarge_w)) == 0 or  p == 1]
+        if tick_space == "auto":
+            ticks       = [x for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % int(std/(2*enlarge_w)) == 0 or p == 1] 
+            tick_labels = [str(p) if p != 1 else "1" for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % int(std/(2*enlarge_w)) == 0 or  p == 1]
+        elif tick_space > 0:
+            ticks       = [x for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % tick_space == 0 or p == 1] 
+            tick_labels = [str(p) if p != 1 else "1" for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % tick_space == 0 or  p == 1]
+        else:
+            ticks = [] 
+            tick_labels = [] 
+
         if with_seq == True: 
             ax.set_xticks([]) 
             ax.set_xticklabels([])
@@ -465,6 +478,8 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
             ax_seq.set_xticklabels(tick_labels)
             ax_seq.set_xlim(0, len(sub_brick.seq)) 
             if num == 0:
+                if view_title == True:
+                    ax.set_title(brick.project, fontsize=fontsize * 1.125)
                 ax.set_position([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
                 ax_seq.set_position([0, -0.65*enlarge_h, enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h]) 
                 ceil = -0.65*enlarge_h
@@ -472,17 +487,26 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
                 ax.set_position([0, ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
                 ax_seq.set_position([0, ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom))-0.65*enlarge_h, enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h]) 
                 ceil = ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom))-0.65*enlarge_h
+            if view_axis == False:
+                ax_seq.spines["bottom"].set_visible(False) 
+                ax_seq.set_xticks([]) 
         else:
             ax.set_xticks(ticks) 
             ax.set_xticklabels(tick_labels)
             ax.set_xlim(0, len(sub_brick.seq))
             ax_seq = None
             if num == 0:
+                if view_title == True:
+                    ax.set_title(brick.project, fontsize=fontsize * 1.125)
                 ax.set_position([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
                 ceil = 0
             else:
                 ax.set_position([0, ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
-                ceil = ceil-1.0*enlarge_h-1.2*enlarge_h*(abs(ytop-ybottom))
+                ceil = ceil-1.0*enlarge_h-1.2*enlarge_h*(abs(ytop-ybottom))  
+            
+            if view_axis == False:
+                ax.spines["bottom"].set_visible(False) 
+                ax.set_xticks([])
         
         axes_list.append((ax, ax_seq)) 
     #fig.set_size_inches(3, 0.35*(abs(ytop-ybottom)))

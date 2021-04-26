@@ -82,7 +82,7 @@ plasmid = DNA(record="pUC19.gbk")
 ### Analytical functions
 dna.py module provides the following print and search functions to analyze DNA class objects.
 
-- **`.getdnaseq`**_`(region=list, display=bool, whole=bool, end_length=int, linebreak=int)`_  
+- **.getdnaseq**_`(region=list, display=bool, whole=bool, end_length=int, linebreak=int)`_  
 	**Parameters**
 	- **start**: *`int`*  (default: 0)
 	Start position of the sequence. 
@@ -114,7 +114,7 @@ dna.py module provides the following print and search functions to analyze DNA c
 	5' CCGGTATGCG---- 3'
 	3' ----ATACGCAGCT 5'
 	```
-- **`.finddna`**_`(query=str, key_attribute=str, min_match=int, max_mismatch=int)`_  
+- **.finddna**_`(query=str, key_attribute=str, min_match=int, max_mismatch=int)`_  
 	Search specific features that hold query values at given attributes from the *DNA* object. However, if the attribute is `"sequence:*"` and there are no features on the query sequences in the *`DNA`* object, features including its location and a digestion format (the details described later) about the query sequence will be returned.  
   	**Parameters**
   	- **query**: *`str`* (default: `None`)  
@@ -167,7 +167,7 @@ dna.py module provides the following print and search functions to analyze DNA c
 	    Key: translation, Value: ['MEKKITGYTTVDISQWHRKEHFEAFQSVAQCTYNQTVQLDITAFLKTVKKNKHKFYPAFIHILARLMNAHPEFRMAMKDGELVIWDSVHPCYTVFHEQTETFSSLWSEYHDDFRQFLHIYSQDVACYGENLAYFPKGFIENMFFVSANPWVSFTSFDLNVANMDNFFAPVFTMGKYYTQGDKVLMPLAIQVHHAVCDGFHVGRMLNELQQYCDEWQGGA']
 	```  
 
-- **`.printfeature`**_`(feature_list=None, attribute=list, detail=bool, separation=str, output=str, zero_based_index=bool)`_ 
+- **.printfeature**_`(feature_list=None, attribute=list, detail=bool, separation=str, output=str, zero_based_index=bool)`_ 
 	Print a tidy data table of annotation features/attributes in DNA object. Default printing attributes are `"feature ID"`, `"feature type"`, `"qualifier:label"`, `"start"`, `"end"`, and `"strand"`. Unique `"feature ID"` is automatically assigned to each feature when DNA object is created by loading a GenBank format file.
 	**Parameters**
 	- **­feature\_list**: *`list`* of *`DNAfeaure`* objects (default: `.dnafeatures`)
@@ -203,7 +203,7 @@ dna.py module provides the following print and search functions to analyze DNA c
 ### Operational functions
 dna.py provides the following five fundamental operational functions to manipulate DNA objects.  
 
-- **`.cutdna`**_`(dna_object=*DNA* object, *cutsites=**list* of int, "int/int," or  DNAFeature,  process_discription=”str”)`_
+- **.cutdna**_`(dna_object=*DNA* object, *cutsites=**list* of int, "int/int," or  DNAFeature,  process_discription=”str”)`_
 	Cut a DNA object at queried positions and return a list of linear DNA fragment objects. The cut positions can be specified differently for top strand and bottom strand sequences (0-based position). All respective features are inherited to the fragmented DNA objects. DNA features on the cut boundaries are also carried over to the fragments by specifying such information described later. If the fragments are ligated back, the DNA features will be also restored. It gives the cropped region information to split features on the cut boundary as `"qualifier:crop_trail"`. The qualifier is composed of the following contents.  
 `[label of the original feature]:[project of the original feature]:[length of the original feature]:[start and end positions in the original feature]`
 This function also allows linearization of a circular DNA object by having a single cut. As a branch function, `cropdna(dna_object=DNA object, start, end)` is also prepared. It returns a fragmented DNA object in sequence positions between `start` to `end`. 

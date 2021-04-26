@@ -127,7 +127,7 @@ dna.py module provides the following print and search functions to analyze DNA c
 	- **max\_mismatch**: *`int`* (default: 0)  
 	Maximum number of letters allowed to mismatch to the query (only when the query is not provided with regular expression).
 	 
-	**Return**
+	**Return**  
 	*`list`* (list of *`DNAFeature`* objects)
 	
 	**Example code 5: Search for a DNA sequence with a regular expression** 

@@ -411,18 +411,235 @@ This function also allows linearization of a circular DNA object by having a sin
 	- **target_attribute**: *`str`* (default: `None`)  
 	Attribute type of the target features to be operated (`"feature_id"`, `"feature_type"`, `"qualifier:*"`, `"sequence:*"`, `"strand"` or `"span"`). If the argument value is `None` or not given, it will be applied to all of the possible attributes of the target features except `"sequence"`. When the attribute type is given by `"sequence"`, the entire sequence region associated with each target feature will be an operational target. When the attribute type is given by `"sequence:!int..int!+"`, `"sequence:!int..int!-"` or `"sequence:!int..int!"`,  a partial sequence region associated with each target feature given by two relative positions (0-based position) will be the operational target (`"+"` and `"-"` for top and bottom strand sequences, respectively, If `"+"` or `"-"` is not given, the feature sequence strand will be a target). 
 	- **operation**: *`removeattribute()`*, *`createattribute(value=“str”)`* or *`replaceattribute(oldvalue, newvalue)`*  (default: `None`)
-	If `operation` value is `None` or not given, no operation will happen, and it will return a list composed of the searched *`DNAfeature`* objects. 
-
-	> `removeattribute()` will work if `target_attribute` is `"feature_id"`, `"feature_type"`, `"qualifier:*"`, `"sequence:*"`. `removeattribute()` removes `target_attribute` value. If `target_attribute` is `"feature_id"` and the function is `removeattribute()`, the entire feature will be removed.   
-	
-	> `createattribute(“str”)` will work if the `target_attribute` is `"feature_id"`, `"feature_type"`, or `"qualifier:*"`. If `target_attribute` is `"feature_id"`, a new feature whose `feature_id` is `"str"` and `feature_type` is `"misc_feature"` will be created on the queried region. If `target_attribute` is `"feature_type"`, a new feature with an automatically generated ID and whose feature type is `"str"` will be created. If "target_attribute" is `"qualifier:*"`, the qualifier whose value is `"str"` will be added to the feature.  
-	
-	> `replaceattribute(oldvalue, newvalue)` works for all `target_attribute` values except `"start"` and `"end"`. The operation replaces *`oldvalue`* in `target_attribute` with *`newvalue`*. When the entire `target_attribute` value is replaced with a new one, the `oldvalue` argument can be omitted. If `target_attribute` is feature_id, the replacement will be accepted unless there is no conflict with other existing `feature_id` values in the object. To move *`DNAfeature`* location, `target_attribute` is assigned by `"span"` and `newvalue` should be set by `(start, end)`, and *`oldvalue`* can be omitted. The replacement of `span` value moves *`DNAfeature`*. It has no effect for the sequence of the *`DNA`* object. Replacement of `strand` value also only flips the feature direction. To move a feature with its sequence, please use the other operational functions such as `cropdna`, `joindna`, and `flipdna`. If the `target_attribute` is `"sequence:*"`, the substitution operation for the sequence can be executed with `replaceattribute(oldvalue=reg, newvalue="str")` that replaces the region matched to reg (regular expression) with `"str"`. For any DNA sequence editing that confers change in sequence length, DNA coordinates of all affected features will be adjusted.  
-	  
+	If `operation` value is `None` or not given, no operation will happen, and it will return a list composed of the searched *`DNAfeature`* objects.   
+	**`removeattribute()`** will work if `target_attribute` is `"feature_id"`, `"feature_type"`, `"qualifier:*"`, `"sequence:*"`. `removeattribute()` removes `target_attribute` value. If `target_attribute` is `"feature_id"` and the function is `removeattribute()`, the entire feature will be removed.   
+	**`createattribute(“str”)`** will work if the `target_attribute` is `"feature_id"`, `"feature_type"`, or `"qualifier:*"`. If `target_attribute` is `"feature_id"`, a new feature whose `feature_id` is `"str"` and `feature_type` is `"misc_feature"` will be created on the queried region. If `target_attribute` is `"feature_type"`, a new feature with an automatically generated ID and whose feature type is `"str"` will be created. If "target_attribute" is `"qualifier:*"`, the qualifier whose value is `"str"` will be added to the feature.  
+	**`replaceattribute(oldvalue, newvalue)`** works for all `target_attribute` values except `"start"` and `"end"`. The operation replaces *`oldvalue`* in `target_attribute` with *`newvalue`*. When the entire `target_attribute` value is replaced with a new one, the *`oldvalue`* argument can be omitted. If `target_attribute` is feature_id, the replacement will be accepted unless there is no conflict with other existing `feature_id` values in the object. To move *`DNAfeature`* location, `target_attribute` is assigned by `"span"` and `newvalue` should be set by `(start, end)`, and *`oldvalue`* can be omitted. The replacement of `span` value moves *`DNAfeature`*. It has no effect for the sequence of the *`DNA`* object. Replacement of `strand` value also only flips the feature direction. To move a feature with its sequence, please use the other operational functions such as `cropdna`, `joindna`, and `flipdna`. If the `target_attribute` is `"sequence:*"`, the substitution operation for the sequence can be executed with `replaceattribute(oldvalue=reg, newvalue="str")` that replaces the region matched to reg (regular expression) with `"str"`. For any DNA sequence editing that confers change in sequence length, DNA coordinates of all affected features will be adjusted.   
 	- **new_copy**: *`bool`* (default: `True`)
 	If True, the method will return an edited DNA object as different object with original one. Otherwise, original DNA objects will be edited and return None.  
 	  	
-	**Return**
+	**Return**  
 	If operation is False, list of DNAFeature objects.  
 	If new_copy is False, None.  
-	Otherwise, DNA object  
+	Otherwise, DNA object
+	  
+	**Example code 15: Convert feature type from ‘CDS’ to ‘gene’**
+	```python
+	#Source code (continued from the previous example)#
+	plasmid.printfeature(plasmid.finddna("CDS"))
+	new_plasmid = editdna(plasmid, key_attribute="feature type", query="CDS", target_attribute="feature type", operation=replaceattribute("gene"))
+	new_plasmid.printfeature(new_plasmid.finddna("gene"))
+
+	#Output#
+	feature_id  qualifier:label  feature_type  start  end   strand
+	800         CmR              CDS           546    1206  -
+
+	feature_id  qualifier:label  feature_type  start  end   strand
+	800         CmR              gene          546    1206  -
+	```
+
+	**Example code 16: Break start codon of the CDS features**  
+	Replace ATG start codon on CDS region to GTG. The editing targeted only the first 3 nucleotides on each CDS region.  
+	```python
+	#Source code (continued from the previous example)#
+	print("CmR:", plasmid.getdnaseq(plasmid.finddna("CmR")[0])[0:10])
+	new_plasmid = editdna(plasmid, key_attribute="feature type", query="CDS", target_attribute="sequence:!0..3!", operation=replaceattribute("ATG", "GTG"))
+	print("CmR:", new_plasmid.getdnaseq(plasmid.finddna("CmR")[0])[0:10])
+
+	#Output#
+	CmR: ATGGAGAAAA
+	CmR: GTGGAGAAAA
+	```
+	
+	**Example code 17: Create new features where SpCas9 bind**  
+	```python
+	#Source code (continued from the previous example)#
+	new_plasmid = editdna(plasmid, key_attribute="sequence", query="[ATGC]{20}[ATGC]GG", target_attribute="feature id", operation=createattribute("spCas9_target*"))
+	new_plasmid = editdna(new_plasmid, key_attribute="feature id", query="spCas9_target[0-9]+", target_attribute="feature type", operation=replaceattribute("misc_bind"))
+	features = new_plasmid.finddna("misc_bind")
+	new_plasmid.printfeature(features, seq=True)
+
+	#Output#
+	feature_id        qualifier:label  feature_type  start  end   strand  sequence
+	spCas9_target1    null             misc_bind     137    160   +       ACTCTCACTCTTACCGAACTTGG
+	spCas9_target2    null             misc_bind     200    223   +       AAACGAATCGACCGATTGTTAGG
+	spCas9_target3    null             misc_bind     237    260   +       AGGAAGGTTTAAACGCATTTAGG
+	```
+
+### History functions  
+DNA class manages all editing procedures executed for each DNA object generated in a script. Each editing process by an operational function is inherited as a python command into the newly generated DNA object. Additionally, users can give `process_description="str"` arguments to all operational function to leave experimental notes relating to the operation.  
+
+- **exporthistory**_`(dna_object=DNA object, ouput=str, description_only=bool)`_
+	Export executable python script that generates the DNA object. 
+	**Parameters**
+	- **dna_object**: *`DNA`* object. 
+	- **output**: *`str`*
+	Output file name.
+	- **description_only**: *`bool`*
+	If True, python scripts will be omitted and output only the contents of 'process_description' arguments given to each operational function.  
+	
+	**Return**
+	None
+
+**Example code 18: Simulate the molecular cloning process of pCMV-Target-AID**  
+Simulate the construction process of pCMV-Target-AID plasmid. The Target-AID plasmid (pCMV-Target-AID) was constructed by assembling two fragments encoding the N- and C-terminus halves of Target-AID, which were both amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT) (Addgene 79620) using primer pairs RS045/HM129 and HM128/RS046, respectively, with a backbone fragment amplified from pCMV-ABE7.10 using RS047/RS048.  
+
+```python
+#Source code#
+from dna import * 
+#Source code# 
+#Read GenBank inputs
+pCMV_ABE             = DNA(record="input/addgene_102919.gbk",project="pCMV_ABE")
+pCMV_nCas_PmCDA1_ugi = DNA(record="input/addgene_79620.gbk", project="pCMV-nCas-PmCDA1-ugi")
+
+#Simulate PCR to amlify N-terminus of Target-AID
+description1 = "The N-terminus of Target-AID was amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT)\
+ (Addgene 79620) using primer pairs RS045/HM129"
+RS045 = DNA(record="input/RS045.fasta", project="RS045", process_description=description1) 
+HM129 = DNA(record="input/HM129.fasta", project="HM129", process_description=description1) 
+FW    = pCMV_nCas_PmCDA1_ugi.finddna(RS045.seq[-15:],key_attribute="sequence") #Search primer binding region
+RV    = pCMV_nCas_PmCDA1_ugi.finddna(HM129.seq[-15:],key_attribute="sequence") #Search primer binding region
+frag1 = joindna(RS045, cropdna(pCMV_nCas_PmCDA1_ugi,*FW,*RV), flipdna(HM129), project="N-term_Target-AID", process_description=description1) #Simulate PCR
+
+#Simulate PCR to amlify C-terminus of Target-AID
+description2 = "The C-terminus of Target-AID was amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT)\
+ (Addgene 79620) using primer pairs HM128/RS046"
+HM128 = DNA(record="input/HM128.fasta", project="HM128", process_description=description2) 
+RS046 = DNA(record="input/RS046.fasta", project="RS046", process_description=description2)
+FW    = pCMV_nCas_PmCDA1_ugi.finddna(HM128.seq[-15:],key_attribute="sequence")
+RV    = pCMV_nCas_PmCDA1_ugi.finddna(RS046.seq[-15:],key_attribute="sequence")
+frag2 = joindna(HM128, cropdna(pCMV_nCas_PmCDA1_ugi,*FW,*RV), flipdna(RS046), project="C-term_Target-AID", process_description=description2)
+
+#Simulate PCR to amplify a backbone fragment
+description3 = "The backbone fragment was amplified from pCMV-ABE7.10 using RS047/RS048"
+RS047 = DNA(record="input/RS047.fasta", project="RS047", process_description=description3) 
+RS048 = DNA(record="input/RS048.fasta", project="RS048", process_description=description3)
+FW    = pCMV_ABE.finddna(RS047.seq[-15:],key_attribute="sequence") 
+RV    = pCMV_ABE.finddna(RS048.seq[-15:],key_attribute="sequence")
+frag3 = joindna(RS047, cropdna(pCMV_ABE,*FW,*RV), flipdna(RS048), project="backbone", process_description=description3)
+
+#Gibson Assembly
+description4 = "The Target-AID plasmid (pCMV-Target-AID) was constructed\
+ by assembling two insert fragments and a backbone fragments."
+frag1 = modifyends(frag1, "*{25}/-{25}","-{28}/*{28}", process_description=description4)
+frag2 = modifyends(frag2, "*{28}/-{28}","-{25}/*{25}", process_description=description4)
+frag3 = modifyends(frag3, "*{25}/-{25}","-{25}/*{25}", process_description=description4) 
+pCMV_Target_AID = joindna(frag1,frag2,frag3,topology="circular", project="pCMV-Target-AID", process_description=description4)
+
+pCMV_Target_AID.writedna("pCMV-Target-AID.gbk")
+pCMV_Target_AID.printfeature()
+
+#Output#
+feature_id  qualifier:label     feature_type  start  end   strand  
+3100        pCMV-Target-AID     source        0      8752  +       
+100         SV40 NLS            CDS           33     40    +       
+200         null                source        33     5363  +       
+300         Cas9(D10A)          CDS           64     4168  +       
+500         SV40 NLS            CDS           4180   4201  +       
+600         3xFLAG              CDS           4408   4474  +       
+700         SV40 NLS            CDS           5107   5128  +       
+800         UGI                 CDS           5134   5363  +       
+1000        null                source        5409   8745  +       
+1100        BGH-rev             primer_bind   5411   5429  -       
+1200        bGH poly(A) signal  polyA_signal  5417   5642  +       
+1300        M13 rev             primer_bind   5712   5729  -       
+1400        M13 Reverse         primer_bind   5712   5729  -       
+1500        M13/pUC Reverse     primer_bind   5725   5748  -       
+1600        lac operator        protein_bind  5736   5753  +       
+1700        lac promoter        promoter      5760   5791  -       
+1800        CAP binding site    protein_bind  5805   5827  +       
+1900        L4440               primer_bind   5943   5961  -       
+2000        ori                 rep_origin    6114   6703  -       
+2100        pBR322ori-F         primer_bind   6194   6214  -       
+2200        AmpR                CDS           6873   7734  -       
+2300        Amp-R               primer_bind   7496   7516  +       
+2400        AmpR promoter       promoter      7734   7839  -       
+2500        pRS-marker          primer_bind   7917   7937  -       
+2600        CMV enhancer        enhancer      8108   8488  +       
+2700        CMV promoter        promoter      8488   8692  +       
+2800        CMV-F               primer_bind   8642   8663  +       
+2900        T7                  primer_bind   8733   8745  +       
+3000        T7 promoter         promoter      8733   8745  +  
+```
+
+**Example code 19: Export python script to reconstruct the DNA object**  
+```pyton
+#Source code (continued from the previous example)#
+exporthistory(pCMV_Target_AID)
+
+#Output#
+from dna import *
+DNA.dna_dict['pCMV_ABE'] = DNA(seq=None, record='input/addgene_102919.gbk', project='pCMV_ABE', topology='linear', format=None, process_description=None)
+DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'] = DNA(seq=None, record='input/addgene_79620.gbk', project='pCMV-nCas-PmCDA1-ugi', topology='linear', format=None, process_description=None)
+
+description0 = 'The N-terminus of Target-AID was amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT) (Addgene 79620) using primer pairs RS045/HM129'
+DNA.dna_dict['RS045'] = DNA(seq=None, record='input/RS045.fasta', project='RS045', topology='linear', format=None, process_description=description0)
+DNA.dna_dict['HM129'] = DNA(seq=None, record='input/HM129.fasta', project='HM129', topology='linear', format=None, process_description=description0)
+DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_0'] = cropdna(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'], start='3914/3914', end='6442/6442', project='pCMV-nCas-PmCDA1-ugi', process_description=description0)
+DNA.dna_dict['HM129_0'] = flipdna(DNA.dna_dict['HM129'], project='HM129', process_description=description0)
+DNA.dna_dict['N-term_Target-AID'] = joindna(*[DNA.dna_dict['RS045'], DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_0'], DNA.dna_dict['HM129_0']], topology='linear', project='N-term_Target-AID', process_description=description0)
+
+description1 = 'The C-terminus of Target-AID was amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT) (Addgene 79620) using primer pairs HM128/RS046'
+DNA.dna_dict['HM128'] = DNA(seq=None, record='input/HM128.fasta', project='HM128', topology='linear', format=None, process_description=description1)
+DNA.dna_dict['RS046'] = DNA(seq=None, record='input/RS046.fasta', project='RS046', topology='linear', format=None, process_description=description1)
+DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_1'] = cropdna(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'], start='6484/6484', end='9244/9244', project='pCMV-nCas-PmCDA1-ugi', process_description=description1)
+DNA.dna_dict['RS046_0'] = flipdna(DNA.dna_dict['RS046'], project='RS046', process_description=description1)
+DNA.dna_dict['C-term_Target-AID'] = joindna(*[DNA.dna_dict['HM128'], DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_1'], DNA.dna_dict['RS046_0']], topology='linear', project='C-term_Target-AID', process_description=description1)
+
+description2 = 'The backbone fragment was amplified from pCMV-ABE7.10 using RS047/RS048'
+DNA.dna_dict['RS047'] = DNA(seq=None, record='input/RS047.fasta', project='RS047', topology='linear', format=None, process_description=description2)
+DNA.dna_dict['RS048'] = DNA(seq=None, record='input/RS048.fasta', project='RS048', topology='linear', format=None, process_description=description2)
+DNA.dna_dict['pCMV_ABE_0'] = cropdna(DNA.dna_dict['pCMV_ABE'], start='5277/5277', end='8613/8613', project='pCMV_ABE', process_description=description2)
+DNA.dna_dict['RS048_0'] = flipdna(DNA.dna_dict['RS048'], project='RS048', process_description=description2)
+DNA.dna_dict['backbone'] = joindna(*[DNA.dna_dict['RS047'], DNA.dna_dict['pCMV_ABE_0'], DNA.dna_dict['RS048_0']], topology='linear', project='backbone', process_description=description2)
+
+description3 = 'The Target-AID plasmid (pCMV-Target-AID) was constructed by assembling two insert fragments and a backbone fragments.'
+DNA.dna_dict['N-term_Target-AID_0'] = modifyends(DNA.dna_dict['N-term_Target-AID'], left='*{25}/-{25}', right='-{28}/*{28}', project='N-term_Target-AID', process_description=description3)
+DNA.dna_dict['C-term_Target-AID_0'] = modifyends(DNA.dna_dict['C-term_Target-AID'], left='*{28}/-{28}', right='-{25}/*{25}', project='C-term_Target-AID', process_description=description3)
+DNA.dna_dict['backbone_0'] = modifyends(DNA.dna_dict['backbone'], left='*{25}/-{25}', right='-{25}/*{25}', project='backbone', process_description=description3)
+DNA.dna_dict['pCMV-Target-AID'] = joindna(*[DNA.dna_dict['N-term_Target-AID_0'], DNA.dna_dict['C-term_Target-AID_0'], DNA.dna_dict['backbone_0']], topology='circular', project='pCMV-Target-AID', process_description=description3)
+DNA.dna_dict['pCMV-Target-AID'].writedna('reconstructed_pCMV-Target-AID.gbk')
+```
+
+### Visualization function
+dna.py provides a function to generate a simple sequence map of a DNA object, including genomic feature and their annotation labels. All feature and label locations are automatically adjusted to prevent objects on the sequence map from overlapping each other. Face color and edge color of feature objects are also automatically set by the default color set. However, if a feature holds `"qualifier:edgecolor_dna.py"` and `"qualifier:facecolor_dna.py"` in the qualifiers,  the qualifier values will be used for the face color and edge color, respectively.  
+
+- **visualize**_`(dna_object=DNA object, map_view=str, feature_list=list, start=int, end=int, width_scale=float, height_scale=float, label_location=str, linebreak=int, seq=bool, diameter=float)`_  
+	**Parameters**  
+	- **dna_object**: *`DNA`* object
+	- **map_view**: *`str`* (`"linear"` or `"circular"`; default: `"linear"`)
+	Type of map_view for the given DNA object. If sequence topology of the DNA object is circular, circular view can be select for a sequence map.
+	- **feature_list**: *`list`* of *`DNAfeaure`* objects (default: `.dnafeatures` excluding *`DNAFeature`* objects whose type is `"source"`)
+	Features are displayed on a sequence map. 
+	  
+	Parameters available for only linear map view
+	- **start**: *`int`* (default: 0)
+	Start position of the sequence map. 
+	- **end**: *`int`* (default: Length of the entire sequence)
+	End position of the sequence map. 
+	- **width_scale**: *`float`* (default: 1)
+	Scaling factor for width. The default width is automatically adjusted based on the sequence length.
+	- **height_scale**: *`float`* (default: 0)
+	Scaling factor for height. The default height is automatically adjusted based on the width value. 
+	- **label_location**: *`str`* (default: “both” if seq is False, otherwise “top”)
+	Feature label location of feature objects on a sequence map. Feature labels are generally described in feature objects. However, label text width is larger than the feature object width, label text will be put at `label_location`. If the value is `"both"`, labels will be put below or above the feature objects, whichever is available. If the value is "`top`", labels will be put above the feature objects. If `seq` is `True`, the value will be `"top"`.
+	- **linebreak**: *`int`* or `None` (default: Length of the entire sequence)
+	Length of sequence for linebreak.
+	- **seq**:  *`bool`* (default: `False`)
+	If `True`, a colormap representing a nucleotide sequence will be viewed in a sequence map. 
+	  
+	Parameters available for only linear map view
+	- **diameter_scale**: *`float`* (default: 1) 
+	Scaling factor for diameter of circular map. 
+	  
+	**Return**  
+	`matplolib.pyplot.figure object`
+  
+**Example code 20: Visualize DNA object**  
+```python
+#Source code (continued from the previous example)#
+fig1 = visualize(frag_1)
+fig2 = visualize(frag_2)
+fig3 = visualize(frag_3, linebreak=100, seq=True)
+fig4 = visualize(pCMV_Target_AID, map_view=”circular”)
+```

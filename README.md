@@ -120,9 +120,9 @@ dna.py module provides the following print and search functions to analyze DNA c
   	- **query**: *`str`* (default: `None`)  
 	Query for the search. It allows fuzzy matching with regular expression. For details, see https://pypi.org/project/regex/. If query is None, “.+” will applied for the query. 
 	- **key\_attribute**: *`str`* (default: `None`)  
-	Attribute type to search target features or sequence (`feature_id`, `feature_type`, `“qualifier:*”`, `strand` or `"sequence:*"`). If the argument is `None` or not given, it will be applied to all of the possible attributes excluding `sequence`. However, if `query` string is composed of characters expression DNA sequence clearly, `key_attribute` will be automatically set by `sequence`. If attribute is `sequence` and `query` is `None`, the entire sequence region will be target for the search. The partial sequences can be specified by using absolute positions in the entire sequence like `“sequence:|int..int|”`. To specify target strand for search, please use`"sequence:|int..int|+"` or `"sequence:|int..int|-"`.  
-	As an advanced method, if attribute is sequence or `"sequence:*"`, users can specify cutting site in the query sequence using `"^"`, `"_"` and `"(*/*)"`. For example, EcoRI cutting site can be given by `"G^AATT_C"`. `"^"` indicates a cut position on the top strand. “\_” indicates a cut position on the bottom strand. Cutting site for TypeIIS restriction enzyme such as BsaI can be given by GGTCTC(1/5) that is same meaning with `"GGTCTCN^NNN_N"`. If any cutting site is not given in a query sequence, default cutting site will be end of the sequence. It is default for all *`DNAFeature`* object.   
- 	- **min\_match**: *`int`* (default: length of query - `max_mismatch`)
+	Attribute type to search target features or sequence (`"feature_id"`, `"feature_type"`, `"qualifier:*"`, `"strand"` or `"sequence:*"`). If the argument is `None` or not given, it will be applied to all of the possible attributes excluding `"sequence"`. However, if `query` string is composed of characters expression DNA sequence clearly, `key_attribute` will be automatically set by `"sequence"`. If the attribute is `"sequence"` and `query` is `None`, the entire sequence region will be target for the search. The partial sequences can be specified by using absolute positions in the entire sequence like `“sequence:|int..int|”`. To specify target strand for search, please use`"sequence:|int..int|+"` or `"sequence:|int..int|-"`.  
+	As an advanced method, if attribute is sequence or `"sequence:*"`, users can specify cutting site in the query sequence using `"^"`, `"_"` and `"(*/*)"`. For example, EcoRI cutting site can be given by `"G^AATT_C"`. `"^"` indicates a cut position on the top strand. “\_” indicates a cut position on the bottom strand. Cutting site for TypeIIS restriction enzyme such as BsaI can be given by `"GGTCTC(1/5)"` that is same meaning with `"GGTCTCN^NNN_N"`. If any cutting site is not given in a query sequence, default cutting site will be end of the sequence. It is default for all *`DNAFeature`* object.   
+ 	- **min\_match**: *`int`* (default: `len(query) - max_mismatch`)
 	Minimal letters required to match to the query (only when the query is not provided with regular expression).  
 	- **max\_mismatch**: *`int`* (default: 0)  
 	Maximum number of letters allowed to mismatch to the query (only when the query is not provided with regular expression).
@@ -369,10 +369,60 @@ This function also allows linearization of a circular DNA object by having a sin
 - **joindna** _`(*dna_objects=list of DNA objects, topology=str, process_description="str")`_
 	Join multiple DNA objects and return an assembled DNA object. Sticky ends need to be compatible. If the sequences of the split features are restored by the joining process, the original feature will be restored. If the linear DNA object is processed by the function, a circularized DNA object will be created by joining both ends. 
 	**Parameters**
-	- **dna_objects**: `list` of *`DNA`* objects
-	- **topology**: `str` (`"linear"` or `"circular"`; default: `"linear"`) 
+	- **dna_objects**: *`list`* of *`DNA`* objects
+	- **topology**: *`str`* (`"linear"` or `"circular"`; default: `"linear"`) 
 	Topology of returned DNA object.  
 
 	**Return**  
-	*`DNA`* object
+	*`DNA`* object  
+	  
+	**Example code 14:  Flip chloramphenicol resistant gene in pGGA plasmid** 
+	```python
+	#Source code (continued from the previous example)#
+	site = plasmid.finddna("CmR")[0]
+	fragment1, fragment2 = cutdna(plasmid, site.location.start.position, site.location.end.position)
+	print(fragment1, fragment2)
+	fragment2   = flipdna(fragment2)
+	new_plasmid = joindna(fragment1, fragment2, topology="circular")
+	plasmid.printfeature(plasmid.finddna("CmR"))
+	new_plasmid.printfeature(new_plasmid.finddna("CmR"))
 
+	#Output 
+	<dna.DNA object; project='pGGA', length='660 bp', topology='linear'> <dna.DNA object; project='pGGA', length='1514 bp', topology='linear'>
+	feature_id  qualifier:label  feature_type  start  end   strand  
+	800         CmR              CDS           546    1206  -       
+
+	feature_id  qualifier:label  feature_type  start  end  strand  
+	100         CmR              CDS           0      660  -       
+	```
+  
+- **editdna**_`(dna_object=DNA object, key_attribute=str, query=reg, min_match=int, max_mismatch=int, target_attribute=str, operation=function, new_copy=bool, process_description="str")`_
+	Edit given attribute values of DNAfeature objects according to the one of three type operations:  removeattribute, replaceattribute, createattribute. editdna is parental function of finddna, if operation is None or not given, editdna works just like finddna.
+	**Parameters**
+	- **dna_objects**: *`list`* of *`DNA`* objects
+	- **key_attribute**: *`str`* (default: `None`)
+	Same parameter with key_attribute of `finddna()`.  
+	- **query**: *`reg`* (regular expression; default: `None`)
+	Same parameter with `query` of `finddna()`.  
+	- **min_match**: *`int`* (default: `len(query) – max_mismatch`)
+	Same parameter with `min_match` of `finddna()`.
+	- **max_mismatch**:  *`int`* (default: 0) 
+	Same parameter with `max_mismatch` of `finddna()`.  
+	- **target_attribute**: *`str`* (default: `None`)  
+	Attribute type of the target features to be operated (`"feature_id"`, `"feature_type"`, `"qualifier:*"`, `"sequence:*"`, `"strand"` or `"span"`). If the argument value is `None` or not given, it will be applied to all of the possible attributes of the target features except `"sequence"`. When the attribute type is given by `"sequence"`, the entire sequence region associated with each target feature will be an operational target. When the attribute type is given by `"sequence:!int..int!+"`, `"sequence:!int..int!-"` or `"sequence:!int..int!"`,  a partial sequence region associated with each target feature given by two relative positions (0-based position) will be the operational target (`"+"` and `"-"` for top and bottom strand sequences, respectively, If `"+"` or `"-"` is not given, the feature sequence strand will be a target). 
+	- **operation**: *`removeattribute()`*, *`createattribute(value=“str”)`* or *`replaceattribute(oldvalue, newvalue)`*  (default: `None`)
+	If `operation` value is `None` or not given, no operation will happen, and it will return a list composed of the searched *`DNAfeature`* objects. 
+
+	> `removeattribute()` will work if `target_attribute` is `"feature_id"`, `"feature_type"`, `"qualifier:*"`, `"sequence:*"`. `removeattribute()` removes `target_attribute` value. If `target_attribute` is `"feature_id"` and the function is `removeattribute()`, the entire feature will be removed.   
+	
+	> `createattribute(“str”)` will work if the `target_attribute` is `"feature_id"`, `"feature_type"`, or `"qualifier:*"`. If `target_attribute` is `"feature_id"`, a new feature whose `feature_id` is `"str"` and `feature_type` is `"misc_feature"` will be created on the queried region. If `target_attribute` is `"feature_type"`, a new feature with an automatically generated ID and whose feature type is `"str"` will be created. If "target_attribute" is `"qualifier:*"`, the qualifier whose value is `"str"` will be added to the feature.  
+	
+	> `replaceattribute(oldvalue, newvalue)` works for all `target_attribute` values except `"start"` and `"end"`. The operation replaces *`oldvalue`* in `target_attribute` with *`newvalue`*. When the entire `target_attribute` value is replaced with a new one, the `oldvalue` argument can be omitted. If `target_attribute` is feature_id, the replacement will be accepted unless there is no conflict with other existing `feature_id` values in the object. To move *`DNAfeature`* location, `target_attribute` is assigned by `"span"` and `newvalue` should be set by `(start, end)`, and *`oldvalue`* can be omitted. The replacement of `span` value moves *`DNAfeature`*. It has no effect for the sequence of the *`DNA`* object. Replacement of `strand` value also only flips the feature direction. To move a feature with its sequence, please use the other operational functions such as `cropdna`, `joindna`, and `flipdna`. If the `target_attribute` is `"sequence:*"`, the substitution operation for the sequence can be executed with `replaceattribute(oldvalue=reg, newvalue="str")` that replaces the region matched to reg (regular expression) with `"str"`. For any DNA sequence editing that confers change in sequence length, DNA coordinates of all affected features will be adjusted.  
+	  
+	- **new_copy**: *`bool`* (default: `True`)
+	If True, the method will return an edited DNA object as different object with original one. Otherwise, original DNA objects will be edited and return None.  
+	  	
+	**Return**
+	If operation is False, list of DNAFeature objects.  
+	If new_copy is False, None.  
+	Otherwise, DNA object  

@@ -215,7 +215,7 @@ This function also allows linearization of a circular DNA object by having a sin
 	Wrong case : cutdna(object, \*[“50/105”, “100/55”])  
 	If cut positions are specified by *`DNAFeature`*  object, each cut position on top and bottom strand will be set by following the cutting format of the *`DNAFeaure`* object.
 	
-	**Return**
+	**Return**  
 	*`list`* (list of *`DNAFeature`* objects)
 	
 	**Example code 8: Cut pGGA plasmid at multiple positions**  
@@ -419,8 +419,8 @@ This function also allows linearization of a circular DNA object by having a sin
 	If True, the method will return an edited DNA object as different object with original one. Otherwise, original DNA objects will be edited and return None.  
 	  	
 	**Return**  
-	If operation is False, list of DNAFeature objects.  
-	If new_copy is False, None.  
+	If `operation` is `False`, list of *`DNAFeature`* objects.  
+	If `new_copy` is `False`, None.  
 	Otherwise, DNA object
 	  
 	**Example code 15: Convert feature type from ‘CDS’ to ‘gene’**
@@ -478,7 +478,7 @@ DNA class manages all editing procedures executed for each DNA object generated 
 	- **description_only**: *`bool`*
 	If True, python scripts will be omitted and output only the contents of 'process_description' arguments given to each operational function.  
 	
-	**Return**
+	**Return**  
 	None
 
 **Example code 18: Simulate the molecular cloning process of pCMV-Target-AID**  

@@ -4,8 +4,6 @@ dna.py is a Python module that enables users to handle annotated double-stranded
 ## Software dependency
 - python 3.8.0 or later
 - biopython 1.7.8 later
-- regex
-- jupyter
 
 ## Installation
 1.  Download the software by  ````git clone https://github.com/yachielab/dna.py````
@@ -613,6 +611,7 @@ dna.py provides a function to generate a simple sequence map of a DNA object, in
 	Features are displayed on a sequence map. 
 	  
 	Parameters available for only linear map view
+	
 	- **start**: *`int`* (default: 0)
 	Start position of the sequence map. 
 	- **end**: *`int`* (default: Length of the entire sequence)
@@ -629,11 +628,12 @@ dna.py provides a function to generate a simple sequence map of a DNA object, in
 	If `True`, a colormap representing a nucleotide sequence will be viewed in a sequence map. 
 	  
 	Parameters available for only linear map view
+	
 	- **diameter_scale**: *`float`* (default: 1) 
 	Scaling factor for diameter of circular map. 
 	  
 	**Return**  
-	`matplolib.pyplot.figure object`
+	`matplolib.pyplot.figure` object
   
 **Example code 20: Visualize DNA object**  
 ```python

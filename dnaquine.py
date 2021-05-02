@@ -22,7 +22,6 @@ from Bio import BiopythonParserWarning
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature, FeatureLocation, CompoundLocation, FeatureLocation, ExactPosition
-
 import visualize_circular_dna as vc
 import visualize_linear_dna as vl 
 

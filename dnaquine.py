@@ -26,58 +26,6 @@ import visualize_circular_dna as vc
 import visualize_linear_dna as vl 
 
 warnings.simplefilter('ignore', BiopythonParserWarning)
-def _slide(feats, slide, ref_position=0, limit=None):
-    new_feats = []
-    for feat in feats:
-        feat      = copy.deepcopy(feat)
-        strand    = feat.location.strand
-        new_parts = [] 
-        for p in range(len(feat.location.parts)):
-            flag = 0
-            #print(feat, slide, ref_position) 
-            if feat.location.parts[p].start.position >= ref_position:
-                feat.location.parts[p]._start = ExactPosition(feat.location.parts[p].start.position + slide)
-                if limit is not None and feat.location.parts[p].start.position >= limit:
-                    feat.location.parts[p]._start = ExactPosition(int(feat.location.parts[p].start.position) - limit)
-                    flag = 1
-                else:
-                    pass
-            else:
-                pass 
-            
-            if feat.location.parts[p].end.position >= ref_position:
-                feat.location.parts[p]._end = ExactPosition(feat.location.parts[p].end.position + slide)
-                if limit is not None and feat.location.parts[p].end.position >= limit:
-                    feat.location.parts[p]._end = ExactPosition(int(feat.location.parts[p].end.position) - limit)
-                    if flag == 1:
-                        flag = 0 
-                    else:
-                        flag = 1
-                else:
-                    pass
-            else:
-                pass 
-            
-            if flag == 1:
-                #print(feat) 
-                #print(feat.location.parts[p].start.position, feat.location.parts[p].end.position, limit) 
-                new_parts.append(FeatureLocation(feat.location.parts[p].start.position, limit-1, feat.location.strand))
-                new_parts.append(FeatureLocation(0, feat.location.parts[p].end.position, feat.location.strand))
-            else:
-                new_parts.append(FeatureLocation(feat.location.parts[p].start.position, feat.location.parts[p].end.position, feat.location.strand))
-
-        if strand == -1:
-            new_parts.reverse()
-        
-        if len(new_parts) > 1:
-            #print(new_parts) 
-            feat.location = CompoundLocation(new_parts)
-        else:
-            feat.location = new_parts[0]
-        
-        feat.location.strand = strand
-        new_feats.append(feat)
-    return new_feats 
 
 def _add_history(dna, history="", combine=0): 
     flag = 0 
@@ -86,7 +34,7 @@ def _add_history(dna, history="", combine=0):
         if feat.type == "source":
             if "label" in feat.qualifiers and feat.qualifiers["label"][0] in dna.project and "description" in feat.qualifiers and feat.qualifiers["description"][0] == "Record of building history" and feat.location.start == 0 and feat.location.end == len(dna.seq) and len(feat.location.parts) == 1:
                 DNA._num_history += 1 
-                feat.qualifiers["building_history_{}".format(DNA._num_history)] = [history] 
+                feat.qualifiers["building_history_{}".format(DNA._num_history)] = [history.replace(" ","–")] 
                 topfeat = feat
                 flag = 1
                 break
@@ -103,7 +51,7 @@ def _add_history(dna, history="", combine=0):
         feat.qualifiers["label"]       = [dna.project] 
         feat.qualifiers["description"] = ["Record of building history"]
         DNA._num_history += 1 
-        feat.qualifiers["building_history_{}".format(DNA._num_history)] = [history] 
+        feat.qualifiers["building_history_{}".format(DNA._num_history)] = [history.replace(" ","–")] 
         feat = DNAfeature(feature=feat, subject=dna)         
         dna.dnafeatures.append(feat)
         dna._features_dict[feat._id] = feat
@@ -174,11 +122,11 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
                 strand = feat.location.strand
                 s = feat.start
                 e = feat.end
-                if "original" not in feat.__dict__:
+                if "_original" not in feat.__dict__:
                     if s > e:
-                        feat.original = str(dna.seq)[s:len(dna.seq)] + str(dna.seq)[:e]
+                        feat._original = str(dna.seq)[s:len(dna.seq)] + str(dna.seq)[:e]
                     else:
-                        feat.original = str(dna.seq)[s:e].upper()
+                        feat._original = str(dna.seq)[s:e].upper()
                     #feat.original_location = feat.location
                 if s > e:
                     if len(feat.location.parts) == 1:
@@ -227,64 +175,58 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
                         feat2.location = CompoundLocation(new_locations)
                         feat2.location.strnad = strand
 
-                    if "crop_trail" not in feat1.qualifiers:
-                        if "label" in feat1.qualifiers:
-                            label = feat1.qualifiers["label"][0]
-                        else:
-                            label = "N.A"
-                        label = "[{}]".format("{}:{}:{}..{}".format(dna.project, label, s, e))
+                    if "broken_feature" not in feat1.qualifiers:
+                        label = feat1._id
+                        label = "[{}]".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat1.original), feat1.original, s, e))
                         if strand >= 0:
-                            feat1.qualifiers["crop_trail"] = ["{}:{}..{}:{}".format(label, 1, len(dna.seq)-s, len(feat1.original))]
+                            feat1.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, 1, len(dna.seq)-s)]
                         else:
-                            feat1.qualifiers["crop_trail"] = ["{}:{}..{}:{}".format(label, len(dna.seq)-s, 1, len(feat1.original))]
+                            feat1.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, len(dna.seq)-s, 1)]
 
                     else:
-                        note = feat.qualifiers["crop_trail"]
+                        note = feat.qualifiers["broken_feature"]
                         note = note[0] if type(note) is list else note 
                         if strand >= 0:
                             label  = note.split("]")[0] + "]"
+                            length = int(note.split("]")[0].split(":")[2])
                             note   = note.split("]")[1]
                             pos_s  = int(note.split(":")[1].split("..")[0].replace(" ",""))
                             pos_e  = int(note.split(":")[1].split("..")[1].replace(" ",""))
-                            length = int(note.split(":")[2].replace(" ",""))
-                            note   = "{}:{}..{}:{}".format(label, pos_s, pos_s + len(dna.seq)-s, length)
+                            note   = "{}:{}..{}".format(label, pos_s, pos_s + len(dna.seq)-s)
                         else:
                             label  = note.split("]")[0] + "]"
+                            length = int(note.split("]")[0].split(":")[2])
                             note   = note.split("]")[1]
                             pos_s  = int(note.split(":")[1].split("..")[0].replace(" ",""))
                             pos_e  = int(note.split(":")[1].split("..")[1].replace(" ",""))
-                            length = int(note.split(":")[2].replace(" ",""))
-                            note   = "{}:{}..{}:{}".format(label, pos_s, pos_s - (len(dna.seq)-s), length)
-                        feat1.qualifiers["crop_trail"] = [note]
+                            note   = "{}:{}..{}".format(label, pos_s, pos_s - (len(dna.seq)-s))
+                        feat1.qualifiers["broken_feature"] = [note]
 
-                    if "crop_trail" not in feat2.qualifiers:
-                        if "label" in feat2.qualifiers:
-                            label = feat1.qualifiers["label"][0]
-                        else:
-                            label = "N.A"
-                        label = "[{}]".format("{}:{}:{}..{}".format(dna.project, label, s, e))
+                    if "broken_feature" not in feat2.qualifiers:
+                        label = feat2._id
+                        label = "[{}]".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat2.original), feat2.original, s, e))
                         if strand >= 0:
-                            feat2.qualifiers["crop_trail"] = ["{}:{}..{}:{}".format(label, len(dna.seq)-s+1, len(dna.seq)-s+e, len(feat2.original))]
+                            feat2.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, len(dna.seq)-s+1, len(dna.seq)-s+e)]
                         else:
-                            feat2.qualifiers["crop_trail"] = ["{}:{}..{}:{}".format(label, len(dna.seq)-s+e, len(dna.seq)-s+1, len(feat2.original))]
+                            feat2.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, len(dna.seq)-s+e, len(dna.seq)-s+1)]
 
                     else:
-                        note   = feat.qualifiers["crop_trail"][0]
+                        note   = feat.qualifiers["broken_feature"][0]
                         if strand >= 0:
                             label  = note.split("]")[0] + "]"
+                            length = int(note.split("]")[0].split(":")[2])
                             note   = note.split("]")[1]
                             pos_s  = int(note.split(":")[1].split("..")[0].replace(" ",""))
                             pos_e  = int(note.split(":")[1].split("..")[1].replace(" ",""))
-                            length = int(note.split(":")[2].replace(" ",""))
-                            note   = "{}:{}..{}:{}".format(label, pos_s + len(dna.seq)-s, pos_e, length)
+                            note   = "{}:{}..{}".format(label, pos_s + len(dna.seq)-s, pos_e)
                         else:
                             label  = note.split("]")[0] + "]"
+                            length = int(note.split("]")[0].split(":")[2])
                             note   = note.split("]")[1]
                             pos_s  = int(note.split(":")[1].split("..")[0].replace(" ",""))
                             pos_e  = int(note.split(":")[1].split("..")[1].replace(" ",""))
-                            length = int(note.split(":")[2].replace(" ",""))
-                            note   = "{}:{}..{}:{}".format(label, pos_s - (len(dna.seq)-s), pos_e, length)
-                        feat2.qualifiers["crop_trail"] = [note]
+                            note   = "{}:{}..{}".format(label, pos_s - (len(dna.seq)-s), pos_e)
+                        feat2.qualifiers["broken_feature"] = [note]
                     new_features.append(DNAfeature(feature=feat1))
                     new_features.append(DNAfeature(feature=feat2))
                 else:
@@ -295,11 +237,11 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
                 strand = feat.location.strand
                 s = feat.start
                 e = feat.end
-                if "original" not in feat.__dict__:
+                if "_original" not in feat.__dict__:
                     if s > e:
-                        feat.original = str(dna.seq)[s:len(dna.seq)] + str(dna.seq)[:e]
+                        feat._original = str(dna.seq)[s:len(dna.seq)] + str(dna.seq)[:e]
                     else:
-                        feat.original = str(dna.seq)[s:e].upper()    
+                        feat._original = str(dna.seq)[s:e].upper()    
                     #feat.original_location = feat.location
                 feat = copy.deepcopy(feat)
                 feat.full = 1
@@ -308,33 +250,30 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
                         if s - start < 0:
                             feat.full = 0 #The feature is not completely included in the region. 
                             feat.location.parts[0]._start = ExactPosition(0)
-                            if "crop_trail" not in feat.qualifiers:
-                                if "label" in feat.qualifiers:
-                                    label = feat.qualifiers["label"][0]
-                                else:
-                                    label = "N.A"
-                                label = "[{}]".format("{}:{}:{}..{}".format(dna.project, label, s, e))
+                            if "broken_feature" not in feat.qualifiers:
+                                label = feat._id
+                                label = "[{}]".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), feat.original, s, e))
                                 if strand >= 0:
-                                    feat.qualifiers["crop_trail"] = ["{}:{}..{}:{}".format(label, abs(s-start)+1, e-s, len(feat.original))] 
+                                    feat.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, abs(s-start)+1, e-s)] 
                                 else:
-                                    feat.qualifiers["crop_trail"] = ["{}:{}..{}:{}".format(label, len(feat.original) - abs(s-start), 1,  len(feat.original))] 
+                                    feat.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, len(feat.original) - abs(s-start), 1)] 
                             else:
-                                note = feat.qualifiers["crop_trail"][0]
+                                note = feat.qualifiers["broken_feature"][0]
                                 if strand >= 0:
                                     label  = note.split("]")[0] + "]"
+                                    length = int(note.split("]")[0].split(":")[2])
                                     note   = note.split("]")[1] 
                                     pos_s  = int(note.split(":")[1].split("..")[0].replace(" ","")) + abs(s-start) 
                                     pos_e  = int(note.split(":")[1].split("..")[1].replace(" ","")) 
-                                    length = int(note.split(":")[2].replace(" ",""))
-                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_e, length)
+                                    note   = "{}:{}..{}".format(label, pos_s, pos_e)
                                 else:
                                     label  = note.split("]")[0] + "]"
+                                    length = int(note.split("]")[0].split(":")[2])
                                     note   = note.split("]")[1] 
                                     pos_s  = int(note.split(":")[1].split("..")[0].replace(" ","")) - abs(s-start) 
                                     pos_e  = int(note.split(":")[1].split("..")[1].replace(" ","")) 
-                                    length = int(note.split(":")[2].replace(" ",""))
-                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_e, length)
-                                feat.qualifiers["crop_trail"] = [note]
+                                    note   = "{}:{}..{}".format(label, pos_s, pos_e)
+                                feat.qualifiers["broken_feature"] = [note]
                         else:
                             feat.location.parts[0]._start = ExactPosition(s - start) 
                     
@@ -342,34 +281,29 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
                         if feat.location.parts[-1]._end > end-start:
                             feat.full = 0 #The feature is not completely included in the region. 
                             feat.location.parts[-1]._end = ExactPosition(end - start)
-                            if "crop_trail" not in feat.qualifiers: 
-                                if "label" in feat.qualifiers:
-                                    label = feat.qualifiers["label"][0]
-                                else:
-                                    label = "N.A"
-                                label = "[{}]".format("{}:{}:{}..{}".format(dna.project, label, s, e))
+                            if "broken_feature" not in feat.qualifiers: 
+                                label = feat._id
+                                label = "[{}]".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), feat.original, s, e))
                                 if strand >= 0: 
-                                    feat.qualifiers["crop_trail"] = ["{}:{}..{}:{}".format(label, 1, end-s, len(feat.original))]
+                                    feat.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, 1, end-s)]
                                 else:
-                                    feat.qualifiers["crop_trail"] = ["{}:{}..{}:{}".format(label, len(feat.original), len(feat.original)-(end-s)+1,  len(feat.original))]
+                                    feat.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, len(feat.original), len(feat.original)-(end-s)+1)]
                             else:
                                 s = int(feat.location.parts[0].start.position)
-                                note = feat.qualifiers["crop_trail"][0]
+                                note = feat.qualifiers["broken_feature"][0]
                                 if strand >= 0:
                                     label  = note.split("]")[0] + "]"
                                     note   = note.split("]")[1] 
                                     pos_s  = int(note.split(":")[1].split("..")[0].replace(" ",""))
                                     pos_e  = int(note.split(":")[1].split("..")[1].replace(" ","")) 
-                                    length = int(note.split(":")[2].replace(" ",""))
-                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_s + (end-start-s)-1, length)
+                                    note   = "{}:{}..{}".format(label, pos_s, pos_s + (end-start-s)-1)
                                 else:
                                     label  = note.split("]")[0] + "]"
                                     note   = note.split("]")[1] 
                                     pos_s  = int(note.split(":")[1].split("..")[0].replace(" ",""))
                                     pos_e  = int(note.split(":")[1].split("..")[1].replace(" ","")) 
-                                    length = int(note.split(":")[2].replace(" ",""))
-                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_s - (end-start-s)+1, length)
-                                feat.qualifiers["crop_trail"] = [note]
+                                    note   = "{}:{}..{}".format(label, pos_s, pos_s - (end-start-s)+1)
+                                feat.qualifiers["broken_feature"] = [note]
                        
                         feat.location.strand = strand
                         feats.append(DNAfeature(feature=feat))
@@ -397,64 +331,58 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
                         if s - start < 0 and sflag == 1:
                             feat.full = 0 
                             locations[0][0] = ExactPosition(0)
-                            if "crop_trail" not in feat.qualifiers:
-                                if "label" in feat.qualifiers:
-                                    label = feat.qualifiers["label"][0]
-                                else:
-                                    label = "N.A"
-                                label = "[{}]".format("{}:{}:{}..{}".format(dna.project, label, s, e))
+                            if "broken_feature" not in feat.qualifiers:
+                                label = "feat._id"
+                                label = "[{}]".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), feat.original, s, e))
                                 if strand >= 0:
-                                    feat.qualifiers["crop_trail"] = ["{}:{}..{}:{}".format(label, abs(s-start)+1, e-s, len(feat.original))]
+                                    feat.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, abs(s-start)+1, e-s)]
                                 else:
-                                    feat.qualifiers["crop_trail"] = ["{}:{}..{}:{}".format(label, e-s,  abs(s-start)+1, len(feat.original))] 
+                                    feat.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, e-s,  abs(s-start)+1)] 
                             else:
-                                note   = feat.qualifiers["crop_trail"][0]
+                                note   = feat.qualifiers["broken_feature"][0]
                                 if strand >= 0:
                                     label  = note.split("]")[0] + "]"
+                                    length = int(note.split("]")[0].split(":")[2])
                                     note   = note.split("]")[1] 
                                     pos_s  = int(note.split(":")[1].split("..")[0].replace(" ","")) + abs(s-start) 
                                     pos_e  = int(note.split(":")[1].split("..")[1].replace(" ","")) 
-                                    length = int(note.split(":")[2].replace(" ",""))
-                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_e, length)
+                                    note   = "{}:{}..{}".format(label, pos_s, pos_e)
                                 else:
                                     label  = note.split("]")[0] + "]"
+                                    length = int(note.split("]")[0].split(":")[2])
                                     note   = note.split("]")[1] 
                                     pos_s  = int(note.split(":")[1].split("..")[0].replace(" ","")) - abs(s-start) 
                                     pos_e  = int(note.split(":")[1].split("..")[1].replace(" ","")) 
-                                    length = int(note.split(":")[2].replace(" ",""))
-                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_e, length)
-                                feat.qualifiers["crop_trail"] = [note]
+                                    note   = "{}:{}..{}".format(label, pos_s, pos_e)
+                                feat.qualifiers["broken_feature"] = [note]
                         else:
                             locations[0][0] = ExactPosition(s - start)
                         
                         if e > end-start and eflag == 1:
                             feat.full = 0 
                             locations[-1][1] = ExactPosition(end-start)
-                            if "crop_trail" not in feat.qualifiers:
-                                if "label" in feat.qualifiers:
-                                    label = feat.qualifiers["label"][0]
-                                else:
-                                    label = "N.A"
-                                label = "[{}]".format("{}:{}:{}..{}".format(dna.project, label, s, e))
-                                feat.qualifiers["crop_trail"] = ["{}:{}..{}:{}".format(label, 1, end-s, len(feat.original))]
+                            if "broken_feature" not in feat.qualifiers:
+                                label = feat._id
+                                label = "[{}]".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), feat.original, s, e))
+                                feat.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, 1, end-s)]
                             else:
                                 s      = int(locations[0][0])
-                                note   = feat.qualifiers["crop_trail"][0]
+                                note   = feat.qualifiers["broken_feature"][0]
                                 if strand  >= 0:
                                     label  = note.split("]")[0] + "]"
+                                    length = int(note.split("]")[0].split(":")[2]) 
                                     note   = note.split("]")[1] 
                                     pos_s  = int(note.split(":")[1].split("..")[0].replace(" ",""))
                                     pos_e  = int(note.split(":")[1].split("..")[1].replace(" ","")) 
-                                    length = int(note.split(":")[2].replace(" ",""))
-                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_s + (end-start-s)-1, length)
+                                    note   = "{}:{}..{}".format(label, pos_s, pos_s + (end-start-s)-1)
                                 else:
                                     label  = note.split("]")[0] + "]"
+                                    length = int(note.split("]")[0].split(":")[2])
                                     note   = note.split("]")[1] 
                                     pos_s  = int(note.split(":")[1].split("..")[0].replace(" ",""))
                                     pos_e  = int(note.split(":")[1].split("..")[1].replace(" ","")) 
-                                    length = int(note.split(":")[2].replace(" ",""))
-                                    note   = "{}:{}..{}:{}".format(label, pos_s, pos_s - (end-start-s)+1, length)
-                                feat.qualifiers["crop_trail"] = [note]
+                                    note   = "{}:{}..{}".format(label, pos_s, pos_s - (end-start-s)+1)
+                                feat.qualifiers["broken_feature"] = [note]
                         else:
                             locations[-1][1] = ExactPosition(e - start)
                     
@@ -567,7 +495,7 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
                     end   = int(pos.location.parts[0].end) - pos._digestion_top 
             pos = (start, end) 
 
-        elif type(pos) is int:
+        elif type(pos) is int or type(pos) is Qint:
             pos = (pos, pos) 
         
         spos, epos = pos
@@ -579,38 +507,43 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
     
     if crop == True:
         crop_positions = (new_positions[0], new_positions[1])
-    if (0,0) not in new_positions:
-        positions = [(0,0)]  + new_positions 
-    else: 
-        positions = new_positions 
-    if (len(dna.seq),len(dna.seq)) not in positions:
-        positions = positions + [(len(dna.seq), len(dna.seq))] 
-    
-    positions = list(positions)
-    positions.sort() 
     
     if dna.topology == "linear":
-        for i, pos in enumerate(positions[0:-1]):
-            if crop == True: 
-                if pos == crop_positions[0] and positions[i+1] == crop_positions[1]:
-                    dnas.append(extract(dna,pos,positions[i+1],project=project))
-            else:
+        if (0,0) not in new_positions:
+            positions = [(0,0)]  + new_positions 
+        else: 
+            positions = new_positions 
+        
+        if (len(dna.seq),len(dna.seq)) not in positions:
+            positions = positions + [(len(dna.seq), len(dna.seq))] 
+        positions = list(positions) 
+        positions.sort() 
+    else:
+        positions = new_positions
+        positions = list(positions) 
+        tmp_positions = positions[:]
+        positions.sort() 
+        for pindex, pos in enumerate(positions):
+            if pos == tmp_positions[0]:
+                new_positions = positions[pindex:] + positions[:pindex]
+                break 
+        positions = new_positions
+
+    if dna.topology == "linear":
+        if crop == True:
+            dnas.append(extract(dna, crop_positions[0], crop_positions[1], project=project))
+        else:
+            for i, pos in enumerate(positions[0:-1]):
                 dnas.append(extract(dna,pos,positions[i+1],project=project))
     
     elif dna.topology == "circular":
-        for i, pos in enumerate(positions[1:-2]):
-            if crop == True:
-                if pos == crop_positions[0] and positions[i+2] == crop_positions[1]:
-                    dnas.append(extract(dna,pos,positions[i+2],project=project))
-            else:
-                dnas.append(extract(dna,pos,positions[i+2],project=project))
-        
-        if crop == True:
-            if positions[-2] == crop_positions[0] and positions[1] == crop_positions[1]:
-                dnas.append(extract(dna,positions[-2],positions[1],project=project))
+        if crop == True: 
+            dnas.append(extract(dna, crop_positions[0], crop_positions[1], project=project))
         else:
-            dnas.append(extract(dna,positions[-2],positions[1],project=project))
-    
+            for i, pos in enumerate(positions[0:-1]):
+                dnas.append(extract(dna, pos, positions[i+1], project=project))
+            dnas.append(extract(dna, positions[-1], positions[0], project=project)) 
+
     if project is None:
         project = dna.project
     
@@ -635,20 +568,50 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
             products.append("DNA.dna_dict['{}']".format(dnas[i]._unique_id))
 
         args = [] 
-        for pos in new_positions:
-            pos = "/".join(list(map(str,pos)))
-            pos = "'" + pos + "'"
-            args.append(pos)
+        assign_histories = [] 
+        for new_pos, pos in zip(new_positions, positions):
+            if type(pos) == DNAfeature:
+                if "_second_id" in pos.__dict__:
+                    qkey = pos._qkey
+                    for qindex, qfeat in enumerate(DNA.queried_features_dict[qkey]):
+                        if qfeat._second_id == pos._second_id:
+                            break
+                    assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.queried_features_dict['{}'][{}]".format(second_id, qkey, qindex))
+                    args.append("DNA.queried_feature_dict['{}']".format(pos._second_id))
+                else:
+                    if "label" in pos.qualifiers:
+                        label = "_" + pos.qualifiers["label"][0] 
+                    else:
+                        label = ""
+                    second_id     = dna._unique_id + "_" + pos._second_id + label
+                    pos._second_id = second_id
+                    assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.finddna(key_attribute='feature_id', query='{}')".format(second_id, pos.feature_id))
+                    args.append("DNA.queried_feature_dict['{}']".format(second_id))
+            
+            elif type(pos) == Qint:
+                qkey = pos.qkey
+                for qindex, qfeat in enumerate(DNA.queried_features_dict[qkey]):
+                    if qfeat._second_id == pos.parent_id:
+                        break
+                assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.queried_features_dict['{}'][{}]".format(pos.parent_id, pos.qkey, qindex))
+                args.append("DNA.queried_feature_dict['{}'].{}".format(pos.parent_id, pos.name))
+
+            else:
+                new_pos = "/".join(list(map(str,new_pos)))
+                new_pos = "'" + new_pos + "'"
+                args.append(new_pos)
         
         if type(project) is str:
             project = "'" + project + "'"
         if type(process_description) is str:
             process_description = "'" + process_description + "'"
-        if len(products) > 1: 
+        if len(products) > 1:
             edit_history = "{} = cutdna(DNA.dna_dict['{}'], {}, crop={}, project={}, process_description={})".format(", ".join(products), dna._unique_id, ", ".join(args), str(crop), project, process_description) 
         else:
             edit_history = "{}, = cutdna(DNA.dna_dict['{}'], {}, crop={}, project={}, process_description={})".format(", ".join(products), dna._unique_id, ", ".join(args), str(crop), project, process_description)
         for subdna in dnas:
+            for history in assign_histories:
+                _add_history(subdna, history) 
             _add_history(subdna, edit_history)
  
     if crop == True:
@@ -656,7 +619,7 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
     else:
         return dnas
 
-def cropdna(dna, start=0, end=0, project=None, process_description=None, __direct=1):
+def cropdna(dna, start=0, end=None, project=None, process_description=None, __direct=1):
     """
     Extract subsequence from the specified region in the genome.
     All features within the subsequence including truncated features are carried over to extracrted 'dna' object. 
@@ -669,6 +632,9 @@ def cropdna(dna, start=0, end=0, project=None, process_description=None, __direc
     if project is None:
         project = dna.project
     
+    if end is None:
+        end = len(dna.seq) 
+
     subdna, crop_positions = cutdna(dna, start, end, project=project, crop=True, __direct=0)  
     if __direct == 1:
         if project in DNA.dna_dict:
@@ -682,13 +648,53 @@ def cropdna(dna, start=0, end=0, project=None, process_description=None, __direc
         else:         
             subdna._unique_id = project
         
-        args = ["/".join(list(map(str,crop_positions[0]))) , "/".join(list(map(str,crop_positions[1]))), project, process_description]
-        for i in range(len(args)):
-            if type(args[i]) is str:
-                args[i] = "'" + args[i] + "'" 
+        args = []
+        assign_histories = [] 
+        for new_pos, pos in zip(crop_positions, (start, end)):
+            if type(pos) == DNAfeature:
+                if "second_id" in pos.__dict__:
+                    qkey = pos._qkey
+                    for qindex, qfeat in enumerate(DNA.queried_features_dict[qkey]):
+                        if qfeat._second_id == pos._second_id:
+                            break
+                    assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.queried_features_dict['{}'][{}]".format(second_id, qkey, qindex))
+                    args.append("DNA.queried_feature_dict['{}']".format(pos._second_id))
+                else:
+                    if "label" in pos.qualifiers:
+                        label = "_" + pos.qualifiers["label"][0] 
+                    else:
+                        label = ""
+                    second_id     = dna._unique_id + "_" + pos._second_id + label
+                    pos._second_id = second_id
+                    assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.finddna(key_attribute='feature_id', query='{}')".format(second_id, pos.feature_id))
+                    args.append("DNA.queried_feature_dict['{}']".format(second_id))
+            
+            elif type(pos) == Qint:
+                qkey = pos.qkey
+                for qindex, qfeat in enumerate(DNA.queried_features_dict[qkey]):
+                    if qfeat._second_id == pos.parent_id:
+                        break
+                assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.queried_features_dict['{}'][{}]".format(pos.parent_id, pos.qkey, qindex))
+                args.append("DNA.queried_feature_dict['{}'].{}".format(pos.parent_id, pos.name))
+
+            else:
+                new_pos = "/".join(list(map(str,new_pos)))
+                new_pos = "'" + new_pos + "'"
+                args.append(new_pos)
+        
+        args.append(project)
+        args.append(process_description) 
+        if type(args[-2]) is str:
+            args[-2] = "'" + args[-2] + "'" 
+        
+        if type(args[-1]) is str:
+            args[-1] = "'" + args[-1] + "'" 
         
         DNA.dna_dict[subdna._unique_id] = None
         edit_history = "DNA.dna_dict['{}'] = cropdna(DNA.dna_dict['{}'], start={}, end={}, project={}, process_description={})".format(subdna._unique_id, dna._unique_id, args[0], args[1], args[2], args[3]) 
+        
+        for history in assign_histories:
+            _add_history(subdna, history) 
         _add_history(subdna, edit_history)
     
     return subdna
@@ -757,8 +763,8 @@ def joindna(*dnas, topology="linear", project=None, process_description=None, __
                 ovhg = ""
             
             feats  = slide(feats, len(construct.seq) - len(ovhg))
-            feats1 = [feat for feat in construct.dnafeatures if "crop_trail" in feat.qualifiers]
-            feats2 = [feat for feat in feats if "crop_trail" in feat.qualifiers]
+            feats1 = [feat for feat in construct.dnafeatures if "broken_feature" in feat.qualifiers]
+            feats2 = [feat for feat in feats if "broken_feature" in feat.qualifiers]
 
             construct.seq  = construct.seq + new_dna.seq 
             const_features = copy.copy(construct.dnafeatures) 
@@ -778,7 +784,7 @@ def joindna(*dnas, topology="linear", project=None, process_description=None, __
                         if feat1.type == feat2.type:
                             flag = 0
                             for key in feat1.qualifiers:
-                                if key == "crop_trail":
+                                if key == "broken_feature":
                                     pass 
                                 elif key in feat2.qualifiers and feat1.qualifiers[key] == feat2.qualifiers[key]:
                                     flag = 1
@@ -786,23 +792,23 @@ def joindna(*dnas, topology="linear", project=None, process_description=None, __
                                     flag = 0
                                     break    
                             if flag == 1:
-                                note1   = feat1.qualifiers["crop_trail"][0]
-                                label   = note1.split("]")[0] + "]"
-                                note1   = note1.split("]")[1] 
-                                pos_s1  = int(note1.split(":")[1].split("..")[0].replace(" ",""))
-                                pos_e1  = int(note1.split(":")[1].split("..")[1].replace(" ","")) 
-                                length1 = int(note1.split(":")[2].replace(" ",""))
+                                note1    = feat1.qualifiers["broken_feature"][0]
+                                label    = note1.split("]")[0] + "]"
+                                length1  = int(note1.split("]")[0].split(":")[2])
+                                note1    = note1.split("]")[1] 
+                                pos_s1   = int(note1.split(":")[1].split("..")[0].replace(" ",""))
+                                pos_e1   = int(note1.split(":")[1].split("..")[1].replace(" ","")) 
                                 
-                                note2   = feat2.qualifiers["crop_trail"][0]
+                                note2   = feat2.qualifiers["broken_feature"][0]
                                 label   = note2.split("]")[0] + "]"
+                                length2 = int(note2.split("]")[0].split(":")[2]) 
                                 note2   = note2.split("]")[1] 
                                 pos_s2  = int(note2.split(":")[1].split("..")[0].replace(" ",""))
                                 pos_e2  = int(note2.split(":")[1].split("..")[1].replace(" ","")) 
-                                length2 = int(note2.split(":")[2].replace(" ",""))
                                 
                                 #Join fragmented features
-                                if length1 == length2 and "original" in feat1.__dict__ and "original" in feat2.__dict__ and feat1.original == feat2.original and feat1.location.strand == feat2.location.strand:
-                                    note    = "{}:{}..{}:{}".format(label, pos_s1, pos_e2, length1)
+                                if length1 == length2 and "_original" in feat1.__dict__ and "_original" in feat2.__dict__ and feat1.original == feat2.original and feat1.location.strand == feat2.location.strand:
+                                    note    = "{}:{}..{}".format(label, pos_s1, pos_e2)
                                     new_seq = construct.seq[s1:e1] + dna.seq[s2:e2]
                                     feat1_index = const_features.index(feat1)
                                     new_feat    = copy.deepcopy(const_features[feat1_index]) 
@@ -826,7 +832,7 @@ def joindna(*dnas, topology="linear", project=None, process_description=None, __
                                     #if new_feat.original == construct.getdnaseq(new_feat1.start, new_feat2.end, new_feat.location.strand):
                                     if construct.getdnaseq(new_feat1.start, new_feat2.end, new_feat.location.strand if new_feat.location.strand !=0 else 1) in new_feat.original:
                                         construct.dnafeatures[feat1_index] = DNAfeature(feature=new_feat)
-                                        construct.dnafeatures[feat1_index].qualifiers["crop_trail"] = [note]
+                                        construct.dnafeatures[feat1_index].qualifiers["broken_feature"] = [note]
                                         del feats[feats.index(feat2)] 
             
             construct.dnafeatures = construct.dnafeatures + feats
@@ -838,15 +844,15 @@ def joindna(*dnas, topology="linear", project=None, process_description=None, __
 
         construct.dnafeatures.sort(key=lambda x:x.location.parts[0].start.position)
         for feat in construct.dnafeatures:
-            if "crop_trail" in feat.qualifiers:
-                 note   = feat.qualifiers["crop_trail"][0]
+            if "broken_feature" in feat.qualifiers:
+                 note   = feat.qualifiers["broken_feature"][0]
                  label  = note.split("]")[0] + "]"
+                 length = int(note.split("]")[0].split(":")[2])
                  note   = note.split("]")[1] 
                  pos_s  = int(note.split(":")[1].split("..")[0].replace(" ",""))
                  pos_e  = int(note.split(":")[1].split("..")[1].replace(" ",""))
-                 length = int(note.split(":")[2].replace(" ",""))
                  if (pos_s == 1 and pos_e == length) or (pos_s == length and pos_e == 1):
-                    del feat.qualifiers["crop_trail"]
+                    del feat.qualifiers["broken_feature"]
         
         if Alphabet:
             new_record = SeqRecord(Seq(str(construct.seq), Alphabet.DNAAlphabet()))
@@ -1226,21 +1232,21 @@ def flipdna(dna, project=None, process_description=None, __direct=1):
                 feat.location.parts[p]._end   = ExactPosition(len(dna.seq) - s) 
             
             if "original" in feat.__dict__:
-                feat.original = feat.original.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
+                feat._original = feat.original.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
                 #feat.original_location.parts  = list(reversed(feat.original_location.parts))
                 #feat.original_location.strand = -1 * feat.original_location.strand 
 
             if strand == 1 or strand == -1:
                 feat.location.strand = -1 * feat.location.strand
-                if "crop_trail" in feat.qualifiers:
-                    note   = feat.qualifiers["crop_trail"][0]
+                if "broken_feature" in feat.qualifiers:
+                    note   = feat.qualifiers["broken_feature"][0]
                     label  = note.split("]")[0] + "]"
+                    length = int(note.split("]")[0].split(":")[2]) 
                     note   = note.split("]")[1] 
                     pos_s  = int(note.split(":")[1].split("..")[0].replace(" ",""))
                     pos_e  = int(note.split(":")[1].split("..")[1].replace(" ",""))
-                    length = int(note.split(":")[2].replace(" ",""))
-                    note = "{}:{}..{}:{}".format(label, pos_e, pos_s, length)
-                    feat.qualifiers["crop_trail"] = [note]
+                    note = "{}:{}..{}".format(label, pos_e, pos_s)
+                    feat.qualifiers["broken_feature"] = [note]
             else:
                 feat.location.strand = strand
             feats.append(feat)
@@ -1305,12 +1311,8 @@ def _replaceattribute(dna=None, feat_list=None, target_attribute=None, query_re=
         attribute_regex = re.compile("sequence:\![0-9]+\.\.[0-9]+\!")
         
         for feat in feat_list:
-            feat = dna._features_dict[feat._id]
-            if feat.location.strand == -1:
-                fs, fe = feat.location.parts[-1].start.position, feat.location.parts[0].end.position
-            else:
-                fs, fe = feat.location.parts[0].start.position, feat.location.parts[-1].end.position
-
+            feat   = dna._features_dict[feat._id]
+            fs, fe = feat.start, feat.end 
             overlap_feats = []
             for feat2 in dna.dnafeatures:
                 strand = feat2.location.strand
@@ -1318,7 +1320,7 @@ def _replaceattribute(dna=None, feat_list=None, target_attribute=None, query_re=
                 e2 = feat2.end 
                 if e2 >= fs and s2 <= fe:
                     overlap_feats.append(feat2) 
-
+            
             if target_attribute == "sequence":
                 strand = feat.location.strand
                 if feat.location.strand == -1: 
@@ -1355,33 +1357,49 @@ def _replaceattribute(dna=None, feat_list=None, target_attribute=None, query_re=
                     new_seq = re.sub(target_seq, value, target_seq)
             else:
                 new_seq = re.sub(query_re, value, target_seq)
-            
+           
             if strand == -1:
-                dna.seq = dna.seq[0:s] + new_seq.translate(str.maketrans("ATGC","TACG"))[::-1] + dna.seq[e:len(dna.seq)] 
+                if s == 0 and e == len(dna.seq):
+                    new_dna = flipdna(DNA(seq=new_seq)) 
+                elif s == 0:
+                    new_dna = flipdna(DNA(seq=new_seq)) + dna[e:len(dna.seq)] 
+                elif e == len(dna.seq):
+                    new_dna = dna[0:s] + flipdna(DNA(seq=new_seq))
+                else:
+                    new_dna = dna[0:s] + flipdna(DNA(seq=new_seq)) + dna[e:len(dna.seq)] 
             else:
-                dna.seq = dna.seq[0:s] + new_seq + dna.seq[e:len(dna.seq)] 
-
-            if len(new_seq) == len(target_seq): 
-                pass 
-            else:
-                new_dnafeatures = _slide(dna.dnafeatures, len(new_seq) - len(target_seq), s) 
-                dna.dnafeatures = new_dnafeatures
-            _exec += 1
+                if s == 0 and e == len(dna.seq):
+                    new_dna = DNA(seq=new_seq)
+                elif s == 0:
+                    new_dna = DNA(seq=new_seq) + dna[e:len(dna.seq)] 
+                elif e == len(dna.seq):
+                    new_dna = dna[0:s] + DNA(seq=new_seq)
+                else:
+                    new_dna = dna[0:s] + DNA(seq=new_seq) + dna[e:len(dna.seq)] 
             
+            #dna = new_dna
+            dna.seq = new_dna.seq
+            dna.record = new_dna.record
+            dna.dnafeatures = new_dna.dnafeatures
+            _exec += 1
             if "label" in feat.qualifiers:
                 label = feat.qualifiers["label"][0]
             else:
                 label = "N.A"
             label = "[{}]".format("{}:{}:{}..{}".format(dna.project, label, fs, fe))
-            if "edit_trail" not in feat.qualifiers:
-                feat.qualifiers["edit_trail"] = "{}:{}..{}:{}2{}:{}".format(label, ss, se, target_seq, new_seq, len(feat.original)) 
-            else:
-                feat.qualifiers["edit_trail"].append("{}:{}..{}:{}2{}:{}".format(label, ss, se, target_seq, new_seq, len(feat.original)))
 
-    elif target_attribute == "span":
+    elif target_attribute == "start":
         for feat in feat_list:
             feat = dna._features_dict[feat._id] 
-            feat.set_position(value) 
+            feat.subject = dna 
+            feat.set_position(value, "start") 
+            _exec += 1 
+    
+    elif target_attribute == "end":
+        for feat in feat_list:
+            feat = dna._features_dict[feat._id] 
+            feat.subject = dna 
+            feat.set_position(value, "end") 
             _exec += 1 
 
     elif target_attribute == "strand":
@@ -1550,7 +1568,7 @@ def _createattribute(dna=None, feat_list=None, target_attribute=None, value=None
                 s1, e1 = feat.location.parts[-1].start.position, feat.location.parts[0].end.position
             else:
                 s1, e1 = feat.location.parts[0].start.position, feat.location.parts[-1].end.position
-            
+
             flag = 0 
             for feat2 in dna.dnafeatures:
                 if feat2.location.strand == -1: 
@@ -1628,7 +1646,41 @@ def _createattribute(dna=None, feat_list=None, target_attribute=None, value=None
 def createattribute(value=None):
     return functools.partial(_createattribute, value=value)
 
-def editdna(dna, query=None, key_attribute=None, min_match=None, max_mismatch=0, target_attribute=None, operation=None, project=None, new_copy=True, process_description=None, __direct=1):    
+def editsequence(dna, query=None, key_attribute=None, min_match=None, max_mismatch=0, target_range=None, old_value=None, new_value=None, project=None, process_description=None, __direct=1):
+    if target_range is None:
+        target_ragne     = (0, len(dna.seq)) 
+    target_attribute = "sequence:!{}..{}!".format(target_range[0], target_range[1])        
+    new_dna = editfeature(dna, query=query, key_attribute=key_attribute, min_match=None, max_mismatch=max_mismatch, target_attribute=target_attribute, operation=replaceattribute(old_value, new_value), project=project, new_copy=True, process_description=None, __funcname="editsequence", __direct=0) 
+    if process_description is None:
+        process_description = DNA.process_description
+    else:
+        DNA.process_description = process_description  
+    
+    if __direct == 1:
+        original_id = dna._unique_id
+        if project is None:
+            project = dna.project
+        if project in DNA.dna_dict:
+            if project.split("_")[-1].isdecimal() == True:
+                project = "_".join(project.split("_")[:-1])
+            keys   = list(DNA.dna_dict.keys())
+            unique = 0
+            while project + "_" + str(unique) in DNA.dna_dict:
+                unique += 1
+            dna._unique_id = project + "_" + str(unique)
+        else:         
+            dna._unique_id = project
+        DNA.dna_dict[dna._unique_id] = None
+        process_description = "'" + process_description + "'" if process_description is not None else None
+        old_value = "'" + old_value + "'" if old_value is not None else None
+        new_value = "'" + new_value + "'" if new_value is not None else None
+        edit_history = "DNA.dna_dict['{}'] = editsequence(DNA.dna_dict['{}'], query='{}', key_attribute='{}', min_match={}, max_mismatch={}, trarget_ragne=({},{}), operation=replaceattribute({}, {}), project={}, process_description={})".format(dna._unique_id, original_id, query, key_attribute, min_match , max_mismatch, target_range[0], target_range[1], old_value, new_value, project, process_description)
+        _add_history(dna, history=edit_history)  
+    return new_dna
+
+def editfeature(dna, query=None, key_attribute=None, min_match=None, max_mismatch=0, target_attribute=None, operation=None, project=None, new_copy=True, process_description=None, __funcname="editfeature", __direct=1): 
+    if __funcname == "editfeature" and "sequence" in str(target_attribute):
+        AttributeError("'editfeature' cannot edit 'seqeunce' attribute. Plase use 'editsequence' fucntion")
     if process_description is None:
         process_description = DNA.process_description
     else:
@@ -1746,7 +1798,7 @@ def editdna(dna, query=None, key_attribute=None, min_match=None, max_mismatch=0,
                                     check = sum(list(map(lambda x : (x.sspan[0] <= match.sspan[0] and match.sspan[1] <= x.sspan[1]), match_list)))
                                 else:
                                     check = 0 
-                                if match.match_count >= min_match and check == 0:
+                                if (match.match_count >= min_match or len(match.qseq_na)-match.match_count <= error) and check == 0:
                                     if match.send > len(subject_origin) and topology=="circular": 
                                         match.send = match.send - len(subject_origin) 
                                     match.sspan = (match.sstart, match.send)
@@ -1868,6 +1920,7 @@ def editdna(dna, query=None, key_attribute=None, min_match=None, max_mismatch=0,
             match_list = [] 
             if attribute == "sequence":
                 s = 0
+                e = len(dna.seq) 
                 if strand is None:
                     strand  = 0
                 subject = dna.seq
@@ -1887,7 +1940,7 @@ def editdna(dna, query=None, key_attribute=None, min_match=None, max_mismatch=0,
 
             if query is None:
                 query = subject 
-                new_feat = SeqFeature(FeatureLocation(0, len(subject), strand=1), type="misc_feature")
+                new_feat = SeqFeature(FeatureLocation(s, e, strand=1), type="misc_feature")
                 new_feat = DNAfeature(feature=new_feat, subject=dna, query=subject)
                 feat_list.append(new_feat) 
 
@@ -1952,7 +2005,7 @@ def editdna(dna, query=None, key_attribute=None, min_match=None, max_mismatch=0,
                     error = max_mismatch
                     seq_mismatch = error 
                     if min_match is None:
-                        min_match = len(query) - error
+                        min_match = len(query)
                     else:
                         #error = len(query) - min_match
                         seq_mismatch = error 
@@ -2115,7 +2168,7 @@ def editdna(dna, query=None, key_attribute=None, min_match=None, max_mismatch=0,
             for i in range(len(args)):
                 if type(args[i]) is str and i != 5:
                     args[i] = "'" + args[i] + "'" 
-            edit_history = "DNA.dna_dict['{}'] = editdna(DNA.dna_dict['{}'], query={}, key_attribute={}, min_match={}, max_mismatch={}, target_attribute={}, operation={}, project={}, new_copy={}, process_description={})".format(dna._unique_id, original_id, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]) 
+            edit_history = "DNA.dna_dict['{}'] = editfeature(DNA.dna_dict['{}'], query={}, key_attribute={}, min_match={}, max_mismatch={}, target_attribute={}, operation={}, project={}, new_copy={}, process_description={})".format(dna._unique_id, original_id, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]) 
             _add_history(dna, history=edit_history) 
 
         elif new_copy == False:
@@ -2123,7 +2176,7 @@ def editdna(dna, query=None, key_attribute=None, min_match=None, max_mismatch=0,
             for i in range(len(args)):
                 if type(args[i]) is str and i != 5:
                     args[i] = "'" + args[i] + "'" 
-            edit_history = "editdna(DNA.dna_dict['{}'], query={}, key_attribute={}, min_match={}, max_mismatch={}, target_attribute={}, operation={}, project={}, new_copy={}, process_description={})".format(dna._unique_id, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8])
+            edit_history = "editfeature(DNA.dna_dict['{}'], query={}, key_attribute={}, min_match={}, max_mismatch={}, target_attribute={}, operation={}, project={}, new_copy={}, process_description={})".format(dna._unique_id, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8])
             _add_history(dna, history=edit_history) 
 
     else:
@@ -2155,7 +2208,7 @@ def _circularizedna(dna):
         ovhg = ""
 
     remove_list = [] 
-    feats1      = [feat for feat in dna.dnafeatures if "crop_trail" in feat.qualifiers]
+    feats1      = [feat for feat in dna.dnafeatures if "broken_feature" in feat.qualifiers]
     for feat1 in feats1:
         s1, e1 = feat1.start, feat1.end
         for feat2 in feats1:
@@ -2166,7 +2219,7 @@ def _circularizedna(dna):
             elif feat1.type == feat2.type:
                 flag = 0
                 for key in feat1.qualifiers:
-                    if key == "crop_trail":
+                    if key == "broken_feature":
                         pass 
                     elif key in feat2.qualifiers and feat1.qualifiers[key] == feat2.qualifiers[key]:
                         flag = 1
@@ -2174,24 +2227,24 @@ def _circularizedna(dna):
                         flag = 0
                         break   
                 
-                if flag == 1 and "crop_trail" in feat1.qualifiers and "crop_trail" in feat2.qualifiers:
-                    note1   = feat1.qualifiers["crop_trail"][0]
+                if flag == 1 and "broken_feature" in feat1.qualifiers and "broken_feature" in feat2.qualifiers:
+                    note1   = feat1.qualifiers["broken_feature"][0]
                     label   = note1.split("]")[0] + "]"
+                    length1 = int(note1.split("]")[0].split(":")[2])
                     note1   = note1.split("]")[1] 
                     pos_s1  = int(note1.split(":")[1].split("..")[0].replace(" ",""))
                     pos_e1  = int(note1.split(":")[1].split("..")[1].replace(" ","")) 
-                    length1 = int(note1.split(":")[2])
                     
-                    note2   = feat2.qualifiers["crop_trail"][0] 
+                    note2   = feat2.qualifiers["broken_feature"][0] 
                     label   = note2.split("]")[0] + "]"
+                    length2 = int(note2.split("]")[0].split(":")[2])
                     note2   = note2.split("]")[1] 
                     pos_s2  = int(note2.split(":")[1].split("..")[0].replace(" ",""))
                     pos_e2  = int(note2.split(":")[1].split("..")[1].replace(" ","")) 
-                    length2 = int(note2.split(":")[2])
-                    if s1 > e2 and length1 == length2 and "original" in feat1.__dict__ and "original" in feat2.__dict__ and feat1.original == feat2.original and feat1.location.strand == feat2.location.strand:
+                    if s1 > e2 and length1 == length2 and "_original" in feat1.__dict__ and "_original" in feat2.__dict__ and feat1.original == feat2.original and feat1.location.strand == feat2.location.strand:
                             #print(feat1)
                             #print(feat2) 
-                            note        = "{}:{}..{}:{}".format(label, pos_s1, pos_e2, length1)
+                            note        = "{}:{}..{}".format(label, pos_s1, pos_e2)
                             new_seq     = seq_origin[s1:e1] + seq_origin[s2:e2]
                             feat1_index = dna.dnafeatures.index(feat1)
                             new_feat    = copy.deepcopy(dna.dnafeatures[feat1_index]) 
@@ -2213,10 +2266,10 @@ def _circularizedna(dna):
                             s = new_feat.start
                             e = new_feat.end                                    
                             #if (len(new_seq) - len(ovhg) == e - s and len(new_seq) - len(ovhg) <= len(feat1.original)) or 
-                            if new_feat.original == dna.getdnaseq(new_feat1.start, new_feat2.end, new_feat.location.strand if new_feat.location.strand !=0 else 1):
-                                dna.dnafeatures[feat1_index].qualifiers["crop_trail"] = [note]
+                            if new_feat._original == dna.getdnaseq(new_feat1.start, new_feat2.end, new_feat.location.strand if new_feat.location.strand !=0 else 1):
+                                dna.dnafeatures[feat1_index].qualifiers["broken_feature"] = [note]
                                 if len(new_seq) - len(ovhg) == length1:
-                                    del dna.dnafeatures[dna.dnafeatures.index(feat1)].qualifiers["crop_trail"]
+                                    del dna.dnafeatures[dna.dnafeatures.index(feat1)].qualifiers["broken_feature"]
                                 dna.dnafeatures[feat1_index].location = new_feat.location
                                 dna.dnafeatures.remove(feat2) 
                                 remove_list.append(feat2) 
@@ -2282,6 +2335,12 @@ class SourceDNA():
         self.project = None
         self.dna     = None
 
+class Qint(int):
+    def __init__(self, num):
+        self.qkey = None
+        self.parent_id = None
+        self.name = None 
+
 class DNAfeature(SeqFeature):
     def __getattr__(self, name):
         if name == "feature_id":
@@ -2290,17 +2349,32 @@ class DNAfeature(SeqFeature):
             return self.type
         elif name == "seq":
             return self.subject.getdnaseq(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
-        elif name == "original":
+        elif name == "_original":
             return self.subject.getdnaseq(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
+        elif name == "original":
+            if "_original" in self.__dict__:
+                return self._original 
+            else:
+                return self.subject.getdnaseq(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
         elif name == "sequence":
             return self.subject.getdnaseq(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
         elif name == "strand":
             return self.location.stran
+        elif name == "start":
+            return self._start
+        elif name == "end":
+            return self._end 
         elif name == "span":
             return (self.start, self.end)
         else:
             raise AttributeError
-    
+
+    def __setattr__(self, key, value):
+        if key in ["feature_id", "feature_type", "seq", "sequenece", "original", "strand", "start", "end", "span"]:
+            raise AttributeError("Cannot assign to '{}' attribute. To set or change feature attribute value, plase use 'editfeature' or 'editseqeunce' function.")
+        else:
+            object.__setattr__(self, key, value)
+
     def __init__(self, feature=None, location=None, type="misc_feature", subject=None, query=None):
         if feature is None:
             SeqFeature.__init__(self, location, type)
@@ -2309,21 +2383,32 @@ class DNAfeature(SeqFeature):
         
         #Start->End direction should be 5' to 3' on the top strand.
         if self.location.strand == -1:
-            self.start = self.location.parts[-1].start.position
-            self.end   = self.location.parts[0].end.position
+            self._start = self.location.parts[-1].start.position
+            self._end   = self.location.parts[0].end.position
         else:
-            self.start = self.location.parts[0].start.position
-            self.end   = self.location.parts[-1].end.position
+            self._start = self.location.parts[0].start.position
+            self._end   = self.location.parts[-1].end.position
         
+        self._start = Qint(self._start)
+        self._end   = Qint(self._end) 
+        self._start.name = "start"
+        self._end.name   = "end"
+
         if subject is None:
             pass 
         else:
-            self._digestion_top    = self.end - self.start if self.start < self.end else len(subject.seq) - self.end + self.start
+            self._digestion_top    = self._end - self._start if self._start < self._end else len(subject.seq) - self._end + self._start
             self._digestion_bottom = self._digestion_top
         self.subject   = subject
         self.query_seq = query
 
-    def set_position(self, position):
+    def set_position(self, position, attribute):
+        if self.subject.topology == "linear" and  position[0] > position[1] and attribute == "start":
+            raise ValueError("'start' value should be smaller than 'end' value. First, please change 'end' value") 
+        
+        elif self.subject.topology == "linear" and  position[0] > position[1] and attribute =="end":
+            raise ValueError("'end' value should be larger than 'start' value. First, please change 'start' value") 
+
         strand   = self.location.strand
         if type(position[0]) is int and type(position[1]) is int:
             s = position[0]
@@ -2351,32 +2436,56 @@ class DNAfeature(SeqFeature):
             self.location = CompoundLocation(locations, type=feat.type) 
         
         if self.location.strand == -1:
-            self.start = self.location.parts[-1].start.position
-            self.end   = self.location.parts[0].end.position
+            self._start = self.location.parts[-1].start.position
+            self._end   = self.location.parts[0].end.position
         else:
-            self.start = self.location.parts[0].start.position
-            self.end   = self.location.parts[-1].end.position
-    
-def exporthistory(dna, output=None, description_only=False):
-    histories  = dna.history
-    result     = re.findall("DNA.dna_dict\['[^\[\]]+'\]",histories[-1][1])[0] 
+            self._start = self.location.parts[0].start.position
+            self._end   = self.location.parts[-1].end.position
+        
+        self._start = Qint(self._start)
+        self._end   = Qint(self._end) 
+        self._start.name = "start"
+        self._end.name   = "end"
+
+def quine(dna, output=None, description_only=False):
+    histories  = dna.history   
+    hindex = 0
+    for index, history in enumerate(histories):
+        if "DNA.dna_dict" in history[1].replace(" ","").replace("–"," "):
+            hindex = index
+        else:
+            pass 
+    result     = re.findall("DNA.dna_dict\['[^\[\]]+'\]",histories[hindex][1].replace(" ","").replace("–"," "))[0] 
     _unique_id = result.split("['")[1][:-2]
     
+    pre_pd = None
     descriptions  = [] 
     new_histories = [] 
     for history in histories:
         history = list(history)
-        if re.search("process_description=None",history[1]) is None:
-            process_description = re.search("process_description='.*'",history[1])
-            process_description = history[1][process_description.start():process_description.end()] 
-            descriptions.append(process_description.split("=")[1])
+        if re.search("process_description=None",history[1].replace(" ","").replace("–"," ")) is None:
+            process_description = re.search("process_description='.*'",history[1].replace(" ","").replace("–"," "))
+            if process_description is None:
+                pd = pre_pd                
+            else: 
+                process_description = history[1].replace(" ","").replace("–"," ")[process_description.start():process_description.end()] 
+                pd = process_description.split("=")[1]    
+                if pd == "''" or pd == '""':
+                    pd = None
+            descriptions.append(pd)
         else:
             process_description = "process_description=None"
-            descriptions.append(None)
-        history[1] = history[1].replace(process_description,"")
-        history[1] = history[1].replace(", )",")") 
+            pd = None
+            descriptions.append(pd)
+        
+        if process_description is not None:
+            history[1] = history[1].replace(" ","").replace("–"," ").replace(process_description,"")
+            history[1] = history[1].replace(", )",")") 
+        else:
+            history[1] = history[1].replace(" ","").replace("–"," ")
         new_histories.append(history) 
-   
+        pre_pd = pd
+    
     if type(output) is str:
         o = open(output, "w") 
     elif output is None:
@@ -2384,28 +2493,30 @@ def exporthistory(dna, output=None, description_only=False):
     
     pre_process_description = "''"
     if description_only == False:
-        print("#import sys", file=o)  
+        print("import sys", file=o)  
         #print("#sys.path.append(\"{}".format(os.getcwd().replace(" ","\ ").replace("(","\(").replace(")","\)") + "/" + __file__[:-6] + "\")"), file=o)
-        print("#sys.path.append(\"{}".format(__file__[:-6] + "\")"), file=o)
-        print("from dna import *", file=o)  
+        print("sys.path.append(\"{}".format(__file__[:-11] + "\")"), file=o)
+        print("from dnaquine import *", file=o)  
     
     num = -1
     for h, (process_description, history) in enumerate(zip(descriptions, new_histories)):
         if description_only == True:
-            if process_description == None or process_description == pre_process_description:
+            if process_description is None or str(process_description) == str(pre_process_description):
                 pass
             else:
                 print(process_description[1:-1], file=o) 
         else:
-            if process_description == None or process_description == pre_process_description:
+            if process_description is None or str(process_description) == str(pre_process_description):
                 pass
             else:
                 if h > 0:
                     print("", file=o)
                 num += 1
                 print("description{} = ".format(num) + "'" + process_description[1:-1] + "'", file=o) 
-            
-            if process_description == None or num == -1:
+
+            if "DNA.queried_feature_dict" in history[1][0:len("DNA.queried_feature_dict")]:
+                print(history[1], file=o)
+            elif process_description == None or num == -1:
                 print(history[1][:-1] + ", process_description={})".format("None"), file=o)
             else:
                 print(history[1][:-1] + ", process_description=description{})".format(num), file=o)
@@ -2443,8 +2554,11 @@ def deletehistory(dna):
 
 class DNA():
     dna_dict = {}
-    process_description  = None
+    queried_feature_dict  = {}
+    queried_features_dict = {}
+    process_description   = None
     _num_history = 1  
+    _qnum = 0
     def __repr__(self):
         if len(self.seq) > 50:
             out = "<dna.DNA object; project='{}', length='{} bp', topology='{}'>".format(self.project, len(self.seq), self.topology)
@@ -2452,6 +2566,31 @@ class DNA():
             out = "<dna.DNA object; project='{}', length='{} bp', sequence='{}', topology='{}'>".format(self.project, len(self.seq), self.seq, self.topology)
         #out += self.printdnaseq(whole=False, end_length=max([10, len(str(self._left_end)), len(str(self._right_end))]), linebreak=None, display=False)
         return out 
+    
+    """
+    def __setattr__(self, key, value):
+        if key == "project" and "_unique_id" in self.__dict__ and self._unique_id in DNA.dna_dict:
+            old_id = self._unique_id 
+            if value in DNA.dna_dict:
+                if value.split("_")[-1].isdecimal() == True:
+                    value = "_".join(value.split("_")[:-1])
+                keys   = list(DNA.dna_dict.keys())
+                unique = 0
+                while value + "_" + str(unique) in DNA.dna_dict:
+                    unique += 1
+                self._unique_id = value + "_" + str(unique)
+            else:         
+                self._unique_id = value
+            
+            history = self.history
+            for i in range(len(history)):
+                if "['{}']".format(old_id) in self.history:
+                    self.hisotry[i] = self.history[i].replace("['{}']".format(old_id), "['{}']".format(self._unique_id))
+            print("hogehogehoge", self._unique_id)
+            DNA.dna_dict[self._unique_id] = None        
+            #del DNA.dna_dict[old_id]
+        object.__setattr__(self, key, value)
+    """
     
     def __getattr__(self, name): 
         if name == "history":
@@ -2465,6 +2604,7 @@ class DNA():
                         histories.append((int(key.split("_")[-1]), history)) 
             histories.sort()
             return histories
+
         if name == "sequence":
             self.sequence = self.seq
         else:
@@ -2690,7 +2830,6 @@ class DNA():
             else:
                 raise TypeError("Invaild sequence pattern was detected.")
        
-
         self.subject = SourceDNA()
         self._setfeatureid()
         self._features_dict = dict(list(map(lambda x:(x._id, x), self.dnafeatures)))
@@ -2716,8 +2855,41 @@ class DNA():
             self._unique_id = project 
         self.record.feartures = _assigndnafeatures(self.dnafeatures)
 
-    def finddna(self, query, key_attribute=None, min_match=None, max_mismatch=0):
-        features = editdna(self, query=query, key_attribute=key_attribute, min_match=min_match, max_mismatch=max_mismatch, target_attribute=None, operation=None, __direct=0) 
+    def finddna(self, query, key_attribute=None, min_match=None, max_mismatch=0, process_description=None):
+        if process_description is None:
+            process_description = DNA.process_description
+        else:
+            DNA.process_description = process_description  
+        
+        qkey = self._unique_id + "_" + str(DNA._qnum)
+        features = editfeature(self, query=query, key_attribute=key_attribute, min_match=min_match, max_mismatch=max_mismatch, target_attribute=None, operation=None, __direct=0, process_description=process_description) 
+        feature_names = []
+        for i, feature in enumerate(features):
+            if "label" in feature.qualifiers:
+                label = "_" + feature.qualifiers["label"][0]
+            else:
+                label = "" 
+            
+            if "_id" in feature.__dict__:
+                key = qkey + "_" + feature._id + label
+            else:
+                key = qkey + "_" + "q" + str(i) + label
+            
+            feature._qkey            = qkey
+            feature._second_id       = key
+            feature._start.qkey      = qkey
+            feature._start.parent_id = key
+            feature._end.qkey        = qkey
+            feature._end.parent_id   = key
+        
+        if "_unique_id" not in self.__dict__:
+            self._unique_id = self.project
+
+        feature_names = ", ".join(feature_names)
+        DNA.queried_features_dict[qkey] = features
+        edit_history  = "DNA.queried_features_dict['{}'] = DNA.dna_dict['{}'].finddna(query='{}', key_attribute='{}', min_match={}, max_mismatch={}, process_description='{}')".format(qkey, self._unique_id, query, key_attribute, min_match, max_mismatch, process_description) 
+        _add_history(self, edit_history)
+        DNA._qnum += 1 
         return features
 
     def __getitem__(self, item):
@@ -2794,59 +2966,52 @@ class DNA():
         else:
             return joindna(other, self, __direct==0) 
     
-    def getdnaseq(self, start=None, end=None, strand=None, whole=True, end_length=10, linebreak=None, display=False):
+    def getdnaseq(self, start=None, end=None, strand=None, hide_middle=None, linebreak=None, display=False):
+        whole = False
         if linebreak is None:
             width = len(self.seq) + 1
         else:
             width = linebreak
 
-        if end_length is None:
-            if len(self.seq) - len(self._right_end) - len(self._left_end) > 100:
-                end_length = 5 
-            elif len(self.seq) - len(self._right_end) - len(self._left_end) > 10:
-                end_length = 2 
-            else:
-                end_length = 0 
-        
-        if end_length > 0.5 * len(self.seq):
-            end_length = int(0.5 * len(self.seq)) 
+        if hide_middle is None or hide_middle > 0.5 * len(self.seq):
+            hide_middle = int(0.5 * len(self.seq)) 
             whole = True
 
         if start is None and end is None and strand is None:
             strand = 0  
             seq_rc = self.seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
-            if len(self._left_end) > end_length:
-                left_length = end_length
+            if len(self._left_end) > hide_middle:
+                left_length = hide_middle
             else:
                 left_length = len(self._left_end)
 
             if self._left_end_top == 1:
-                left_end_top = self.seq[:end_length]
+                left_end_top = self.seq[:hide_middle]
             else:
-                left_end_top = "-" * left_length + self.seq[left_length:end_length] 
+                left_end_top = "-" * left_length + self.seq[left_length:hide_middle] 
             
             if self._left_end_bottom == 1:
-                left_end_bottom = self.seq[:end_length].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")) 
+                left_end_bottom = self.seq[:hide_middle].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")) 
             else:
-                left_end_bottom = "-" * left_length + self.seq[left_length:end_length].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))
+                left_end_bottom = "-" * left_length + self.seq[left_length:hide_middle].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))
             
-            if len(self._right_end) > end_length:
-                right_length = end_length
+            if len(self._right_end) > hide_middle:
+                right_length = hide_middle
             else:
                 right_length = len(self._right_end)
 
             if self._right_end_top == 1:
-                right_end_top = self.seq[len(self.seq)-end_length:]
+                right_end_top = self.seq[len(self.seq)-hide_middle:]
             else:
-                right_end_top = self.seq[len(self.seq)-end_length:len(self.seq)-right_length] + "-" * right_length 
+                right_end_top = self.seq[len(self.seq)-hide_middle:len(self.seq)-right_length] + "-" * right_length 
             
             if self._right_end_bottom == 1:
-                right_end_bottom = self.seq[len(self.seq)-end_length:].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))
+                right_end_bottom = self.seq[len(self.seq)-hide_middle:].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))
             else:
-                right_end_bottom = self.seq[len(self.seq)-end_length:len(self.seq)-right_length].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")) + "-" * right_length     
+                right_end_bottom = self.seq[len(self.seq)-hide_middle:len(self.seq)-right_length].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")) + "-" * right_length     
             
-            top = left_end_top + self.seq[end_length:len(self.seq)-end_length] + right_end_top
-            bottom = left_end_bottom + self.seq[end_length:len(self.seq)-end_length].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")) + right_end_bottom 
+            top = left_end_top + self.seq[hide_middle:len(self.seq)-hide_middle] + right_end_top
+            bottom = left_end_bottom + self.seq[hide_middle:len(self.seq)-hide_middle].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")) + right_end_bottom 
 
              
         else: 
@@ -2893,13 +3058,12 @@ class DNA():
                         out += "\n"
                     out = out.rstrip()
 
-        elif display == False:
-            if strand == 1:
-                return top
-            elif strand == -1:
-                return bottom[::-1]
-            else:
-                return top, bottom[::-1]
+        if strand == 1:
+            return top
+        elif strand == -1:
+            return bottom[::-1]
+        else:
+            return top, bottom[::-1]
     
     def _setfeatureid(self):
         for i in range(0, len(self.dnafeatures)):
@@ -2908,7 +3072,7 @@ class DNA():
     def getdnafeatures(self,feature_id):
         return self._features_dict[str(feature_id)] 
 
-    def printfeature(self, feature_list=None, attribute=None, separation=None, detail=False, seq=False, output=None, zero_based_index=True):
+    def printfeature(self, feature_list=None, attribute=None, separation=None, detail=False, seq=False, output=None, x_based_index=0):
         #“feature ID,” “qualifier:label,” “feature type,” “start position,” “end position,” and “strand"] 
         _ids        = ["feature_id"] 
         types       = ["feature_type"] 
@@ -2956,7 +3120,7 @@ class DNA():
             end    = feat.end
             seq    = feat.sequence 
             
-            if zero_based_index == False:
+            if x_based_index == 1:
                 start += 1 
 
             if len(attribute) > 0:
@@ -2997,8 +3161,8 @@ class DNA():
         other_maxes = [max(list(map(len,others_dict[key]))) + 2 for key in others_dict]
         
         dkeys   = ["feature_id", "feature_type", "qualifier:label", "start", "end", "strand"] + list(others_dict.keys())
-        dvalues = [_ids, labels, types, starts, ends, strands] + list(others_dict.values())
-        dmaxes  = [_idmax, labelmax, ftypemax, startmax, endmax, strandmax] + other_maxes
+        dvalues = [_ids, types, labels, starts, ends, strands] + list(others_dict.values())
+        dmaxes  = [_idmax, ftypemax, labelmax, startmax, endmax, strandmax] + other_maxes
         hogera = list(zip(dkeys, dvalues, dmaxes))
         rows   = [] 
         maxes  = []
@@ -3014,7 +3178,7 @@ class DNA():
         
         if seqflag == True and "sequence" not in attribute:
             attribute.append("sequence")
-
+        
         if "sequence" in attribute:
             rows.append(sequences) 
             maxes.append(sequencemax) 
@@ -3024,7 +3188,6 @@ class DNA():
             if sep == ",":
                 import csv
                 output = csv.writer(output) 
-
         for n, row in enumerate(zip(*rows)): 
             if sep is None:
                 text = ""
@@ -3043,20 +3206,20 @@ class DNA():
     def writedna(self, handle, format="genbank", record_id=None):
         features = copy.deepcopy(self.dnafeatures)
         for feat in features:
-            if "crop_trail" in feat.qualifiers:
-                note   = feat.qualifiers["crop_trail"][0]
+            if "broken_feature" in feat.qualifiers:
+                note   = feat.qualifiers["broken_feature"][0]
                 label  = note.split("]")[0] + "]"
+                length = int(note.split("]")[0].split(":")[2]) 
                 note   = note.split("]")[1] 
                 pos_s  = int(note.split(":")[1].split("..")[0].replace(" ",""))
                 pos_e  = int(note.split(":")[1].split("..")[1].replace(" ",""))
-                length = int(note.split(":")[2].replace(" ",""))
                 
                 if pos_e > length:
-                    note = label + ":" + str(pos_s) + ".." + str(pos_e-length) + ":" + str(length)
-                    feat.qualifiers["crop_trail"] = [note]
+                    note = label + ":" + str(pos_s) + ".." + str(pos_e-length)
+                    feat.qualifiers["broken_feature"] = [note]
 
                 elif (pos_s == 1 and pos_e == length) or (pos_s == length and pos_e == 1):
-                    del feat.qualifiers["crop_trail"]
+                    del feat.qualifiers["broken_feature"]
         
         if type(handle) is str:
             handle = open(handle, "w") 

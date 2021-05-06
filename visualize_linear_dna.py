@@ -7,7 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from  Bio import SeqIO
 from matplotlib.transforms import Bbox
-from dna import * 
+from dnaquine import * 
 
 matplotlib.rcParams['font.sans-serif']   = ["Arial","Lucida Sans","DejaVu Sans","Lucida Grande","Verdana"]
 matplotlib.rcParams['font.family']       = 'sans-serif'
@@ -132,18 +132,18 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                 else:
                     edgecolor = "#CCCCCC"
                 
-            if "crop_trail" in feat.qualifiers:
-                note   = feat.qualifiers["crop_trail"]
+            if "broken_feature" in feat.qualifiers:
+                note   = feat.qualifiers["broken_feature"]
                 if type(note) == list:
-                    note   = feat.qualifiers["crop_trail"][0]
-                pos_s  = int(note.split(":")[3].split("..")[0]) 
-                pos_e  = int(note.split(":")[3].split("..")[1])
-                feat_length = int(note.split(":")[4])
-                if (pos_s != 1 or pos_e != feat_length):
-                    label = note.split(":")[1]
+                    note   = feat.qualifiers["broken_feature"][0]
+                feat_length = int(note.split("]")[0].split(":")[-3]) 
+                pos_s  = int(note.split("]")[-1].split(":")[1].split("..")[0]) 
+                pos_e  = int(note.split("]")[-1].split(":")[1].split("..")[1])
+                #if (pos_s != 1 or pos_e != feat_length):
+                #    label = note.split(":")[1]
 
             if strand == 1:
-                if "crop_trail" in feat.qualifiers:
+                if "broken_feature" in feat.qualifiers:
                     if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
                         if gs == 0 and ge >= length:
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
@@ -162,7 +162,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                     ax.arrow(x=gs+margin1, y=-1*y, dx=ge-gs-(margin1+margin2), dy=0, width=wd2, head_width=wd2, head_length=hl2, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
             
             elif strand == -1:
-                if "crop_trail" in feat.qualifiers:
+                if "broken_feature" in feat.qualifiers:
                     if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
                         if gs == 0 and ge >= length:
                             ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
@@ -182,7 +182,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
             
             else:
                 hl = 0 
-                if "crop_trail" in feat.qualifiers:
+                if "broken_feature" in feat.qualifiers:
                     if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
                         if gs == 0 and ge >= length:
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)

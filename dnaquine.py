@@ -2966,7 +2966,7 @@ class DNA():
         else:
             return joindna(other, self, __direct==0) 
     
-    def getdnaseq(self, start=None, end=None, strand=None, hide_middle=None, linebreak=None, display=False):
+    def getdnaseq(self, start=None, end=None, strand=2, hide_middle=None, linebreak=None, display=False):
         whole = False
         if linebreak is None:
             width = len(self.seq) + 1
@@ -2977,7 +2977,7 @@ class DNA():
             hide_middle = int(0.5 * len(self.seq)) 
             whole = True
 
-        if start is None and end is None and strand is None:
+        if start is None and end is None and strand == 2:
             strand = 0  
             seq_rc = self.seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
             if len(self._left_end) > hide_middle:

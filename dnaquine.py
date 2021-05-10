@@ -73,7 +73,7 @@ def _add_history(dna, history="", combine=0):
     dna._features_dict  = dict(list(map(lambda x:(x._id, x), dna.dnafeatures)))
     dna.record.features = dna.dnafeatures
 
-def cutdna(dna, *positions, crop=False, project=None, process_description=None, __direct=1):
+def cutdna(dna, *positions, crop=False, project=None, product=None, process_description=None, __direct=1):
     dna = copy.deepcopy(dna) 
     if process_description is None:
         process_description = DNA.process_description
@@ -564,7 +564,11 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
                 dnas[i]._unique_id = project + "_" + str(unique)
             else:         
                 dnas[i]._unique_id = project
-            dna_keys.append(dnas[i]._unique_id) 
+            dna_keys.append(dnas[i]._unique_id)
+            if product is not None:
+                DNA.dna_dict[dnas[i]._unique_id] = product + "_" + str(i)  
+            else:
+                DNA.dna_dict[dnas[i]._unique_id] = product 
             products.append("DNA.dna_dict['{}']".format(dnas[i]._unique_id))
 
         args = [] 
@@ -576,8 +580,8 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
                     for qindex, qfeat in enumerate(DNA.queried_features_dict[qkey]):
                         if qfeat._second_id == pos._second_id:
                             break
-                    assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.queried_features_dict['{}'][{}]".format(second_id, qkey, qindex))
-                    args.append("DNA.queried_feature_dict['{}']".format(pos._second_id))
+                    #assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.queried_features_dict['{}'][{}]".format(second_id, qkey, qindex))
+                    args.append("DNA.queried_features_dict['{}'][{}]".format(qkey, qindex))
                 else:
                     if "label" in pos.qualifiers:
                         label = "_" + pos.qualifiers["label"][0] 
@@ -593,8 +597,8 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
                 for qindex, qfeat in enumerate(DNA.queried_features_dict[qkey]):
                     if qfeat._second_id == pos.parent_id:
                         break
-                assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.queried_features_dict['{}'][{}]".format(pos.parent_id, pos.qkey, qindex))
-                args.append("DNA.queried_feature_dict['{}'].{}".format(pos.parent_id, pos.name))
+                #assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.queried_features_dict['{}'][{}]".format(pos.parent_id, pos.qkey, qindex))
+                args.append("DNA.queried_features_dict['{}'][{}].{}".format(pos.qkey, qindex, pos.name))
 
             else:
                 new_pos = "/".join(list(map(str,new_pos)))
@@ -606,20 +610,26 @@ def cutdna(dna, *positions, crop=False, project=None, process_description=None, 
         if type(process_description) is str:
             process_description = "'" + process_description + "'"
         if len(products) > 1:
-            edit_history = "{} = cutdna(DNA.dna_dict['{}'], {}, crop={}, project={}, process_description={})".format(", ".join(products), dna._unique_id, ", ".join(args), str(crop), project, process_description) 
+            edit_history = "{} = cutdna(DNA.dna_dict['{}'], {}, crop={}, project={}, product={}, process_description={})".format(", ".join(products), dna._unique_id, ", ".join(args), str(crop), project, product if product is None else "'" + product + "'", process_description) 
         else:
-            edit_history = "{}, = cutdna(DNA.dna_dict['{}'], {}, crop={}, project={}, process_description={})".format(", ".join(products), dna._unique_id, ", ".join(args), str(crop), project, process_description)
+            edit_history = "{}, = cutdna(DNA.dna_dict['{}'], {}, crop={}, project={}, product={}, process_description={})".format(", ".join(products), dna._unique_id, ", ".join(args), str(crop), project, product if product is None else "'" + product + "'", process_description)
+        
         for subdna in dnas:
             for history in assign_histories:
                 _add_history(subdna, history) 
             _add_history(subdna, edit_history)
- 
+    
+    if product is None:
+        pass 
+    else:
+        globals()[product] = dnas
+
     if crop == True:
         return dnas[0], crop_positions 
     else:
         return dnas
 
-def cropdna(dna, start=0, end=None, project=None, process_description=None, __direct=1):
+def cropdna(dna, start=0, end=None, project=None, product=None, process_description=None, __direct=1):
     """
     Extract subsequence from the specified region in the genome.
     All features within the subsequence including truncated features are carried over to extracrted 'dna' object. 
@@ -657,8 +667,8 @@ def cropdna(dna, start=0, end=None, project=None, process_description=None, __di
                     for qindex, qfeat in enumerate(DNA.queried_features_dict[qkey]):
                         if qfeat._second_id == pos._second_id:
                             break
-                    assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.queried_features_dict['{}'][{}]".format(second_id, qkey, qindex))
-                    args.append("DNA.queried_feature_dict['{}']".format(pos._second_id))
+                    #assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.queried_features_dict['{}'][{}]".format(second_id, qkey, qindex))
+                    args.append("DNA.queried_features_dict['{}'][{}]".format(qkey, qindex))
                 else:
                     if "label" in pos.qualifiers:
                         label = "_" + pos.qualifiers["label"][0] 
@@ -674,8 +684,8 @@ def cropdna(dna, start=0, end=None, project=None, process_description=None, __di
                 for qindex, qfeat in enumerate(DNA.queried_features_dict[qkey]):
                     if qfeat._second_id == pos.parent_id:
                         break
-                assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.queried_features_dict['{}'][{}]".format(pos.parent_id, pos.qkey, qindex))
-                args.append("DNA.queried_feature_dict['{}'].{}".format(pos.parent_id, pos.name))
+                #assign_histories.append("DNA.queried_feature_dict['{}'] = DNA.queried_features_dict['{}'][{}]".format(pos.parent_id, pos.qkey, qindex))
+                args.append("DNA.queried_features_dict['{}'][{}].{}".format(pos.qkey, qindex, pos.name))
 
             else:
                 new_pos = "/".join(list(map(str,new_pos)))
@@ -690,16 +700,20 @@ def cropdna(dna, start=0, end=None, project=None, process_description=None, __di
         if type(args[-1]) is str:
             args[-1] = "'" + args[-1] + "'" 
         
-        DNA.dna_dict[subdna._unique_id] = None
-        edit_history = "DNA.dna_dict['{}'] = cropdna(DNA.dna_dict['{}'], start={}, end={}, project={}, process_description={})".format(subdna._unique_id, dna._unique_id, args[0], args[1], args[2], args[3]) 
+        DNA.dna_dict[subdna._unique_id] = product
+        edit_history = "DNA.dna_dict['{}'] = cropdna(DNA.dna_dict['{}'], start={}, end={}, project={}, product={}, process_description={})".format(subdna._unique_id, dna._unique_id, args[0], args[1], args[2], product if product is None else "'" + product + "'", args[3])
         
         for history in assign_histories:
             _add_history(subdna, history) 
         _add_history(subdna, edit_history)
     
+    if product is None:
+        pass 
+    else:
+        globals()[product] = subdna
     return subdna
 
-def joindna(*dnas, topology="linear", project=None, process_description=None, __direct=1):
+def joindna(*dnas, topology="linear", project=None, product=None, process_description=None, __direct=1):
     """
     Join dna objects. 
     When ovhg_check argument is True, adjacent DNA objects should have common overhang sequences.  
@@ -892,22 +906,27 @@ def joindna(*dnas, topology="linear", project=None, process_description=None, __
             construct._unique_id = project + "_" + str(unique)
         else:         
             construct._unique_id = project
-        #DNA.dna_dict[construct._unique_id] = construct
-        DNA.dna_dict[construct._unique_id] = None
+        
+        DNA.dna_dict[construct._unique_id] = product
         
         if type(process_description) is str:
             process_description = "'" + process_description + "'"
         if type(project) is str:
             project =  "'" + project + "'" 
         dna_elements = "[" + ", ".join(["DNA.dna_dict['{}']".format(dna._unique_id) for dna in dnas]) + "]"
-        edit_history = "DNA.dna_dict['{}'] = joindna(*{}, topology='{}', project={}, process_description={})".format(construct._unique_id, dna_elements, topology, project, process_description) 
+        edit_history = "DNA.dna_dict['{}'] = joindna(*{}, topology='{}', project={}, product={}, process_description={})".format(construct._unique_id, dna_elements, topology, project, product if product is None else "'" + product + "'", process_description) 
         _add_history(construct, edit_history, combine=1) 
     
     for dnafeature in construct.dnafeatures:
         dnafeature.subject = construct
+    
+    if product is None:
+        pass 
+    else:
+        globals()[product] = construct
     return construct
 
-def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=None, process_description=None, __direct=1):
+def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=None, product=None, process_description=None, __direct=1):
     """
     Set end sequence structures. 
     """
@@ -1197,20 +1216,24 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
         else:         
             new_dna._unique_id = project
 
-        #DNA.dna_dict[new_dna._unique_id] = new_dna
-        DNA.dna_dict[new_dna._unique_id] = None
+        DNA.dna_dict[new_dna._unique_id] = product
         if type(process_description) is str:
             process_description = "'" + process_description + "'"
         if type(project) is str:
             project =  "'" + project + "'" 
-        edit_history = "DNA.dna_dict['{}'] = modifyends(DNA.dna_dict['{}'], left='{}', right='{}', project={}, process_description={})".format(new_dna._unique_id, dna._unique_id, left_origin, right_origin, project, process_description) 
+        edit_history = "DNA.dna_dict['{}'] = modifyends(DNA.dna_dict['{}'], left='{}', right='{}', project={}, product={}, process_description={})".format(new_dna._unique_id, dna._unique_id, left_origin, right_origin, project, product if product is None else "'" + product + "'", process_description) 
         _add_history(new_dna, edit_history, combine=1) 
     
     for dnafeature in new_dna.dnafeatures:
         dnafeature.subject = new_dna
+    
+    if product is None:
+        pass 
+    else:
+        globals()[product] = new_dna
     return new_dna
 
-def flipdna(dna, project=None, process_description=None, __direct=1):
+def flipdna(dna, project=None, product=None, process_description=None, __direct=1):
     """
     Return reverse complement sequence. 
     All feature infomation is also reversed with the sequence.
@@ -1292,17 +1315,21 @@ def flipdna(dna, project=None, process_description=None, __direct=1):
         else:         
             comp._unique_id = project
 
-        #dna.dna_dict[comp._unique_id] = comp
-        DNA.dna_dict[comp._unique_id] = None
+        DNA.dna_dict[comp._unique_id] = product
         if type(project) is str:
             project =  "'" + project + "'" 
         if type(process_description) is str:
             process_description =  "'" + process_description + "'" 
-        edit_history = "DNA.dna_dict['{}'] = flipdna(DNA.dna_dict['{}'], project={}, process_description={})".format(comp._unique_id, dna._unique_id, project, process_description) 
+        edit_history = "DNA.dna_dict['{}'] = flipdna(DNA.dna_dict['{}'], project={}, product={}, process_description={})".format(comp._unique_id, dna._unique_id, project, product if product is None else "'" + product + "'", process_description) 
         _add_history(comp, edit_history) 
     
     for dnafeature in comp.dnafeatures:
         dnafeature.subject = comp
+    
+    if product is None:
+        pass 
+    else:
+        globals()[product] = None
     return comp
 
 def _replaceattribute(dna=None, feat_list=None, target_attribute=None, query_re=None, value=None):    
@@ -1646,7 +1673,7 @@ def _createattribute(dna=None, feat_list=None, target_attribute=None, value=None
 def createattribute(value=None):
     return functools.partial(_createattribute, value=value)
 
-def editsequence(dna, query=None, key_attribute=None, min_match=None, max_mismatch=0, target_range=None, old_value=None, new_value=None, project=None, process_description=None, __direct=1):
+def editsequence(dna, query=None, key_attribute=None, min_match=None, max_mismatch=0, target_range=None, old_value=None, new_value=None, project=None, process_description=None, product=None, __direct=1):
     if target_range is None:
         target_ragne     = (0, len(dna.seq)) 
     target_attribute = "sequence:!{}..{}!".format(target_range[0], target_range[1])        
@@ -1670,15 +1697,20 @@ def editsequence(dna, query=None, key_attribute=None, min_match=None, max_mismat
             dna._unique_id = project + "_" + str(unique)
         else:         
             dna._unique_id = project
-        DNA.dna_dict[dna._unique_id] = None
+        DNA.dna_dict[dna._unique_id] = product 
         process_description = "'" + process_description + "'" if process_description is not None else None
         old_value = "'" + old_value + "'" if old_value is not None else None
         new_value = "'" + new_value + "'" if new_value is not None else None
-        edit_history = "DNA.dna_dict['{}'] = editsequence(DNA.dna_dict['{}'], query='{}', key_attribute='{}', min_match={}, max_mismatch={}, trarget_ragne=({},{}), operation=replaceattribute({}, {}), project={}, process_description={})".format(dna._unique_id, original_id, query, key_attribute, min_match , max_mismatch, target_range[0], target_range[1], old_value, new_value, project, process_description)
+        edit_history = "DNA.dna_dict['{}'] = editsequence(DNA.dna_dict['{}'], query='{}', key_attribute='{}', min_match={}, max_mismatch={}, trarget_ragne=({},{}), operation=replaceattribute({}, {}), project={}, product={}, process_description={})".format(dna._unique_id, original_id, query, key_attribute, min_match , max_mismatch, target_range[0], target_range[1], old_value, new_value, project, product if product is None else "'" + product + "'", process_description)
         _add_history(dna, history=edit_history)  
+    
+    if product is None:
+        pass 
+    else:
+        globals()[product] = new_dna
     return new_dna
 
-def editfeature(dna, query=None, key_attribute=None, min_match=None, max_mismatch=0, target_attribute=None, operation=None, project=None, new_copy=True, process_description=None, __funcname="editfeature", __direct=1): 
+def editfeature(dna, query=None, key_attribute=None, min_match=None, max_mismatch=0, target_attribute=None, operation=None, project=None, new_copy=True, product=None, process_description=None, __funcname="editfeature", __direct=1): 
     if __funcname == "editfeature" and "sequence" in str(target_attribute):
         AttributeError("'editfeature' cannot edit 'seqeunce' attribute. Plase use 'editsequence' fucntion")
     if process_description is None:
@@ -2162,21 +2194,24 @@ def editfeature(dna, query=None, key_attribute=None, min_match=None, max_mismatc
                 dna._unique_id = project + "_" + str(unique)
             else:         
                 dna._unique_id = project
-            #DNA.dna_dict[dna._unique_id] = dna 
-            DNA.dna_dict[dna._unique_id] = None
+            DNA.dna_dict[dna._unique_id] = product
             args = [query, key_attribute, min_match, max_mismatch, target_attribute, command, project, new_copy, process_description]
             for i in range(len(args)):
                 if type(args[i]) is str and i != 5:
                     args[i] = "'" + args[i] + "'" 
-            edit_history = "DNA.dna_dict['{}'] = editfeature(DNA.dna_dict['{}'], query={}, key_attribute={}, min_match={}, max_mismatch={}, target_attribute={}, operation={}, project={}, new_copy={}, process_description={})".format(dna._unique_id, original_id, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]) 
+            edit_history = "DNA.dna_dict['{}'] = editfeature(DNA.dna_dict['{}'], query={}, key_attribute={}, min_match={}, max_mismatch={}, target_attribute={}, operation={}, project={}, new_copy={}, product={}, process_description={})".format(dna._unique_id, original_id, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], product if product is None else "'" + product + "'", args[8]) 
             _add_history(dna, history=edit_history) 
+            if product is None:
+                pass 
+            else:
+                globals()[product] = dna
 
         elif new_copy == False:
             args = [query, key_attribute, min_match, max_mismatch, target_attribute, command, project, new_copy, process_description]
             for i in range(len(args)):
                 if type(args[i]) is str and i != 5:
                     args[i] = "'" + args[i] + "'" 
-            edit_history = "editfeature(DNA.dna_dict['{}'], query={}, key_attribute={}, min_match={}, max_mismatch={}, target_attribute={}, operation={}, project={}, new_copy={}, process_description={})".format(dna._unique_id, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8])
+            edit_history = "editfeature(DNA.dna_dict['{}'], query={}, key_attribute={}, min_match={}, max_mismatch={}, target_attribute={}, operation={}, project={}, new_copy={}, product={}, process_description={})".format(dna._unique_id, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], product if product is None else "'" + product + "'", args[8])
             _add_history(dna, history=edit_history) 
 
     else:
@@ -2448,6 +2483,32 @@ class DNAfeature(SeqFeature):
         self._end.name   = "end"
 
 def quine(dna, output=None, description_only=False):
+    def export(descriptions, histories, o=None, do=False):
+        num = -1
+        for h, (process_description, history) in enumerate(zip(descriptions, histories)):
+            if do == True:
+                if process_description is None or str(process_description) == str(pre_process_description):
+                    pass
+                else:
+                    print(process_description[1:-1], file=o) 
+            else:
+                if process_description is None or str(process_description) == str(pre_process_description):
+                    pass
+                else:
+                    if h > 0:
+                        print("", file=o)
+                    num += 1
+                    print("description{} = ".format(num) + "'" + process_description[1:-1] + "'", file=o) 
+
+                if "DNA.queried_feature_dict" in history[1][0:len("DNA.queried_feature_dict")]:
+                    print(history[1], file=o)
+                elif process_description == None or num == -1:
+                    print(history[1][:-1] + ", process_description={})".format("None"), file=o)
+                else:
+                    print(history[1][:-1] + ", process_description=description{})".format(num), file=o)
+            pre_process_description = process_description 
+        return o 
+
     histories  = dna.history   
     hindex = 0
     for index, history in enumerate(histories):
@@ -2485,12 +2546,55 @@ def quine(dna, output=None, description_only=False):
             history[1] = history[1].replace(" ","").replace("–"," ")
         new_histories.append(history) 
         pre_pd = pd
+    histories = new_histories
+
+    #Remove nonu-sed variable 
+    outtext = export(descriptions, histories, io.StringIO())
+    text    = outtext.getvalue().rstrip()
+    var_num_dict = collections.defaultdict(int) 
+    for row in text.split("\n"):
+        row = row.rstrip()
+        matches = re.findall("DNA.queried_feature_dict\['[^\[\]]+'\]",row)
+        if matches is not None:
+            for match in matches:
+                var_num_dict[match] += 1
+        
+        matches = re.findall("DNA.queried_features_dict\['[^\[\]]+'\]",row)
+        if matches is not None:
+            for match in matches:
+                var_num_dict[match] += 1
     
+    new_descriptions = [] 
+    new_histories    = []
+    texts = [row for row in text.split("\n") if row != "" and row[0:len("description")] != "description"] 
+    for row, description, history in zip(texts, descriptions, histories):
+        row      = row.rstrip() 
+        var_nums = [] 
+        matches = re.findall("DNA.queried_feature_dict\['[^\[\]]+'\]",row)
+        if matches is not None:
+            for match in matches:
+                var_nums.append(var_num_dict[match]) 
+        
+        matches = re.findall("DNA.queried_features_dict\['[^\[\]]+'\]",row)
+        if matches is not None:
+            for match in matches:
+                var_nums.append(var_num_dict[match])
+        
+        if len(var_nums) > 0:
+            if max(var_nums) == 1:
+                pass 
+            else:
+                new_descriptions.append(description) 
+                new_histories.append(history) 
+        else:
+            new_descriptions.append(description) 
+            new_histories.append(history) 
+
     if type(output) is str:
         o = open(output, "w") 
     elif output is None:
         o = None
-    
+   
     pre_process_description = "''"
     if description_only == False:
         print("import sys", file=o)  
@@ -2498,32 +2602,47 @@ def quine(dna, output=None, description_only=False):
         print("sys.path.append(\"{}".format(__file__[:-11] + "\")"), file=o)
         print("from dnaquine import *", file=o)  
     
-    num = -1
-    for h, (process_description, history) in enumerate(zip(descriptions, new_histories)):
-        if description_only == True:
-            if process_description is None or str(process_description) == str(pre_process_description):
-                pass
-            else:
-                print(process_description[1:-1], file=o) 
-        else:
-            if process_description is None or str(process_description) == str(pre_process_description):
-                pass
-            else:
-                if h > 0:
-                    print("", file=o)
-                num += 1
-                print("description{} = ".format(num) + "'" + process_description[1:-1] + "'", file=o) 
-
-            if "DNA.queried_feature_dict" in history[1][0:len("DNA.queried_feature_dict")]:
-                print(history[1], file=o)
-            elif process_description == None or num == -1:
-                print(history[1][:-1] + ", process_description={})".format("None"), file=o)
-            else:
-                print(history[1][:-1] + ", process_description=description{})".format(num), file=o)
-        pre_process_description = process_description 
-
+    
+    outtext = export(new_descriptions, new_histories, io.StringIO(), do=description_only)
+    outtext = outtext.getvalue().rstrip()
+    texts   = outtext.split("\n") 
     if description_only == False:
-        print(result + ".writedna('reconstructed_{}.gbk')".format(dna.project), file=o)
+        texts.append(result + ".writedna('reconstructed_{}.gbk')".format(dna.project))
+
+    name_dict = {}
+    for row in texts:
+        match1 = re.findall("DNA.queried_features_dict\['[^\[\]]+'\] = ",row)
+        match2 = re.findall("product='.+',",row)
+        if len(match1) > 0 and len(match2) > 0:
+            name_dict[match1[0].split("=")[0][:-1]] = match2[0][:-1].split("=")[1][1:-1] 
+
+        match1 = re.findall("DNA.dna_dict\['[^\[\]]+'\] = ",row)
+        match2 = re.findall("product='.+',",row)
+        if len(match1) > 0 and len(match2) > 0:
+            name_dict[match1[0].split("=")[0][:-1]] = match2[0][:-1].split("=")[1][1:-1] 
+    
+    new_rows = []
+    #for key, value in name_dict.items():
+    #    print(key, value) 
+
+    for row in texts:
+        matches = re.findall("DNA.queried_features_dict\['[^\[\]]+'\]",row)
+        if len(matches) > 0:
+            for match in matches:
+                name = match
+                if name in name_dict:
+                    row = row.replace(match, name_dict[name]) 
+        
+        matches = re.findall("DNA.dna_dict\['[^\[\]]+'\]",row)
+        if len(matches) > 0:
+            for match in matches:
+                name = match
+                if name in name_dict:
+                    row = row.replace(match, name_dict[name])
+        new_rows.append(row) 
+    
+    for row in new_rows:
+        print(row, file=o) 
 
     if output is not None:
         o.close() 
@@ -2556,6 +2675,7 @@ class DNA():
     dna_dict = {}
     queried_feature_dict  = {}
     queried_features_dict = {}
+    queried_features_name_dict = {} 
     process_description   = None
     _num_history = 1  
     _qnum = 0
@@ -2610,7 +2730,7 @@ class DNA():
         else:
             raise AttributeError
 
-    def __init__(self, seq=None, record=None, project=None, topology="linear", format=None, process_description=None, import_history=True, _direct=1):
+    def __init__(self, seq=None, record=None, project=None, topology="linear", format=None, product=None, process_description=None, import_history=True, _direct=1):
         if process_description is None:
             process_description = "" 
         else:
@@ -2843,19 +2963,25 @@ class DNA():
             else: 
                 self._unique_id = project 
         
-            DNA.dna_dict[self._unique_id] = None
+            DNA.dna_dict[self._unique_id] = product
             args = [seq, recname, project, topology, format, process_description]
             for i in range(len(args)):
                 if type(args[i]) is str:
                     args[i] = "'" + args[i] + "'" 
 
-            edit_history = "DNA.dna_dict['{}'] = DNA(seq={}, record={}, project={}, topology={}, format={}, process_description={})".format(self._unique_id, args[0], args[1], args[2], args[3], args[4], args[5]) 
+            edit_history = "DNA.dna_dict['{}'] = DNA(seq={}, record={}, project={}, topology={}, format={}, product={}, process_description={})".format(self._unique_id, args[0], args[1], args[2], args[3], args[4], product if product is None else "'" + product + "'", args[5]) 
             _add_history(self, edit_history)
         else:
             self._unique_id = project 
+        
         self.record.feartures = _assigndnafeatures(self.dnafeatures)
+        if product is None:
+            pass 
+        else:
+            globals()[product] = self
 
-    def finddna(self, query, key_attribute=None, min_match=None, max_mismatch=0, process_description=None):
+
+    def finddna(self, query, key_attribute=None, min_match=None, max_mismatch=0, product=None, process_description=None):
         if process_description is None:
             process_description = DNA.process_description
         else:
@@ -2886,10 +3012,17 @@ class DNA():
             self._unique_id = self.project
 
         feature_names = ", ".join(feature_names)
-        DNA.queried_features_dict[qkey] = features
-        edit_history  = "DNA.queried_features_dict['{}'] = DNA.dna_dict['{}'].finddna(query='{}', key_attribute='{}', min_match={}, max_mismatch={}, process_description='{}')".format(qkey, self._unique_id, query, key_attribute, min_match, max_mismatch, process_description) 
+        DNA.queried_features_dict[qkey]      = features
+        DNA.queried_features_name_dict[qkey] = product
+        edit_history  = "DNA.queried_features_dict['{}'] = DNA.dna_dict['{}'].finddna(query='{}', key_attribute='{}', min_match={}, max_mismatch={}, product={}, process_description='{}')".format(qkey, self._unique_id, query, key_attribute, min_match, max_mismatch, product if product is None else "'" + product + "'", process_description) 
         _add_history(self, edit_history)
         DNA._qnum += 1 
+        
+        if product is None:
+            pass 
+        else:
+            globals()[product] = features
+
         return features
 
     def __getitem__(self, item):
@@ -2947,7 +3080,7 @@ class DNA():
             pass 
         
         if other.topology == "circular" or self.topology == "circular":
-            raise ValueError("Cicularized DNA object cannot be joined with others.") 
+            raise ValueError("Cicularized DNA object annot be joined with others.") 
         else:
             return joindna(self, other, __direct=0)
 

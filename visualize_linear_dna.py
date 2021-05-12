@@ -337,7 +337,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
     if feature_list is None:
         feature_list = brick.dnafeatures    
     else:
-        brick.dnafeatures = feature_list
+        brick.dnafeatures = copy.deepcopy(feature_list)
         brick._features_dict = dict(list(map(lambda x:(x._id, x), brick.dnafeatures)))
 
     for i, feat in enumerate(brick.dnafeatures):
@@ -378,6 +378,20 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
                 
                 if flag == 1:
                     label_color_dict[label] = (feat.qualifiers["facecolor_dna.py"][0], feat.qualifiers["edgecolor_dna.py"][0]) 
+            
+            if "label" in feat.qualifiers:
+                if type(feat.qualifiers["label"]) == list:
+                    label = feat.qualifiers["label"][0]
+                else:
+                    label = feat.qualifiers["label"]
+            else:
+                label = feat.type
+
+            if "broken_feature" in feat.qualifiers:
+                posinfo     = feat.qualifiers["broken_feature"][0].split("]")[-1]
+                feat_length = feat.qualifiers["broken_feature"][0].split("]")[0].split(":")[-3] 
+                label = label + posinfo + ":" +  feat_length
+                feat.qualifiers["label"] = [label] 
 
     for num, sub_start in enumerate(list(range(start, end, width))):
         sub_end = sub_start + width

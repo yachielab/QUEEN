@@ -1,9 +1,8 @@
-# dna.py Installation and User Manual
-dna.py is a Python module that enables users to handle annotated double-stranded DNA objects universally and design molecular cloning of new plasmids and DNA parts using existing annotated DNA files. In dna.py, all of the manipulations required in DNA engineering were covered by four simple operational functions: “cut,” “flip,” “end-modification,” and “join.” Using dna.py, a new plasmid construction process can be designed by programming a Python script or by an interactive interpreter under Jupyter Notebook. The designed DNA can be output as a GenBank format file including its building procedure and used to design other molecular cloning processes. 
+# dnaquine.py Installation and User Manual
+dnaquine.py is a Python module that enables universal editing and annotation of double-stranded DNA objects for designing molecular cloning and simulating genome editing, DNA recombination and genetic circuits based on such. DNA parts information can be imported from external annotated DNA files. Output .q.gb (“quine” GenBank format) file encodes the full information of the constructed DNA and a quine code that can self-reproduce the file itself. In dnaquine.py, all of the manipulations required in DNA engineering are covered by five operational functions “cut,” “end-modification,” “flip,” “join,” and more like a super function “edit” along with various analytical and visualization functions. A new plasmid can be designed by programming a Python script or by an interactive interpreter under Jupyter Notebook. The designed DNA can be output as a q.gb that encode a quine code to reproduce the file itself. Therefore, designing DNA using dnaquine.py autonomously generate a process description for its perfect reproduction.
 
 ## Software dependency
 - python 3.8.0 or later
-- biopython 1.7.8 later
 
 ## Installation
 1.  Download the software by  ````git clone https://github.com/yachielab/dna.py````
@@ -19,10 +18,10 @@ dna.py is a Python module that enables users to handle annotated double-stranded
 3.  Set PYTHONPATH to the directory where you cloned the repository.
 
 ## Usage
-dna.py provides a “DNA class” to define double-stranded DNA objects with annotations. The usage of DNA class objects and five functions to operate DNA class objects are described in the following sections. The following usage examples can be executed on the Jupyter Notebooks in “demo/tutorial.” 
+dnaquine.py provides a “DNA class” to define double-stranded DNA objects with annotations. The DNA class and the usage of its functions to operate DNA class objects are described below. All of the provided examples can be executed in the Jupyter Notebooks in “demo/tutorial.”
 
 ### DNA class
-A DNA class object defines double-stranded DNA with sequence annotations. It can be created by specifying a DNA sequence or by incorporating a sequence data file in GenBank or FASTA format.
+A DNA class defines double-stranded DNA objects with sequence annotations. It can be created by specifying a DNA sequence or incorporating a sequence data file in GenBank or FASTA file format. 
 
 **Example code 1: Create a blunt-end DNA object by specifying its sequence**  
 ```python
@@ -37,29 +36,29 @@ brick = DNA(seq="CCGGTATGCGTCGA")
 from dna import *
 brick = DNA(seq="CCGGTATGCG----/----ATACGCAGCT")
 ``` 
-The two values separated by \"/\" show the top and bottom strand sequences of the generating DNA object, respectively. The top strand sequence is given in 5'-\>3' direction from left to right and the bottom strand sequence is given by 3'-\>5' direction from left to right. \"-\" indicates gap. A:T and G:C base pairing rule is required between the two strings except for the positions with gaps on one strand.  
+The two values separated by "/" show the top and bottom strand sequences of the generating DNA object, respectively. The top strand sequence is given in 5’→3’ direction from left to right and the bottom strand sequence is given by 3’→5’ direction from left to right. "-" indicates gap. A:T and G:C base pairing rule is required between the two strings except for the positions with gaps.
 
 **Example code 3: Create an annotated DNA object from GenBank format file**
 ```python
 #Soruce code#
 from dna import *
-plasmid = DNA(record="pUC19.gbk")
+plasmid = DNA(record="pGGA.gbk")
 ```
 
 #### Properties of DNA class objects
-- **.project**: *`str`*
+- **.project**: *`str`*  
   Name of `DNA` object (project). If a DNA object is created from a GenBank or FASTA format file, its sequence ID will be inherited. 
 
-- **.seq**: *`str`*
-  The top strand sequence of `DNA` object. If the bottom strand sequence represents a sticky end, the gap region of the top strand sequence will be complemented according to the bottom strand sequence. The double-stranded DNA structure of `DNA` object can be obtained by `.getdnaseq` described in the following section.
+- **.seq**: *`str`*  
+  The top strand sequence of DNA object. Sticky end gaps on the top strand if any are complemented according to the bottom strand sequence. The double-stranded DNA structure of the DNA object can be obtained by `.getdnaseq` described below.
 
-- **.topology**: *`str`* (`"linear"` or `"circular"`)
+- **.topology**: *`str`* (`"linear"` or `"circular"`)  
   Defining sequence topology of `DNA` object.
 
 - **.dnafeatures**: *`list`* of *`DNAFeature`* objects
   List of *`DNAfeature`* objects. It provides a feature annotation for a certain range of sequence in the *`DNA`* object.  The following attributes are assigned for *`DNAfeature`* object. 
-	- **.feature\_id:** *`str`*
-	Unique identifier for *DNAfeature* object. It is automatically assigned to each feature when *DNA* object is created by loading a GenBank or FASTA format file.
+	- **.feature\_id:** *`str`*  
+	Unique identifier for *DNAfeature* object. It is automatically assigned to each feature when DNA object is created by loading a GenBank or FASTA format file.
 	- **.feature\_type:** *`str`*
 	Defining biological nature of *DNAfeature* object. 
   	- **.start:** *`int`*
@@ -70,48 +69,98 @@ plasmid = DNA(record="pUC19.gbk")
 	Base span of *DNAfeature.* It is composed of (.start, .end).
 	- **.strand:** *`int`* `(-1 or 1)`
 	Direction of *DNAfeature*. 
-	- **.qualifiers:** *`dict`* 
-	Qualifiers of the feature. it reflects the qualifiers on a GenBank feature. The keys of the dictionary are qualifier names.
+	- **.qualifiers:** *`dict`*
+	Qualifiers of the feature. When GenBank file is imported, the qualifiers of the features are imported here. The keys of the dictionary are qualifier names.
 	- **.sequence:** *`str`*
 	Sequence from .start to .end on .strand in the *DNA* object.
 
-	*`DNAfeature`* object is implemented as subclass of Biopython *`Seqfeature`* object. Therefore, the other attributes and functions are totally inherited from *SeqFeature* object. For details, please see https://biopython.org/docs/dev/api/Bio.SeqFeature.html .
+	*`DNAfeature`* class is implemented as a subclass of Biopython *`SeqFeature`* class, enabling dnaquine to access all the instance variables and methods of *`SeqFeature`*. For details, see https://biopython.org/docs/dev/api/Bio.SeqFeature.html
 
-### Analytical functions
-dna.py module provides the following print and search functions to analyze DNA class objects.
+### Output functions
+dnaquine.py provides functions to output information of DNA class object.
 
-- **.getdnaseq**_`(region=list, display=bool, whole=bool, end_length=int, linebreak=int)`_  
+- **.getdnaseq**_`(region=list, display=bool, whole=bool, hide_middl=int, linebreak=int)`_  
+	Returns and displays the sequence of a specified region.
 	**Parameters**
-	- **start**: *`int`*  (default: 0)
-	Start position of the sequence. 
-  	- **end**: *`int`*  (default: 0)
-	Start position of the sequence. 
-  	- **strandt**: *`int`* 1, 0, or -1 (default: 0)
-	Start position of the sequence. 
+	- **start**: *`int`*  (default: 0)  
+	Start position of the sequence.   
+  	- **end**: *`int`*  (default: 0)  
+	Start position of the sequence.   
+  	- **strand**: *`int`* 1, -1 (default: 2)  
+	Start position of the sequence.   
   	- **display**: *`bool`* (`True` or `False`; default: `True`)  
-	If `True`, the function will print double-stranded DNA sequence structure of the `DNA` object and return None.  
-	if `display` is `False`, the following parameters will be ignored.  
-  	- **whole**: *`bool`*(`True` or `False`; default: `True`)  
-	If `False`, it will display the partial end sequence structures of `DNA` object of which lengths are given by `end_length`.
-  	- **end\_length**: *`int`* (default: 10)
-  	- **linebreak**: *`int`* or `None` (default: `None`)  
-	Length of sequence for line break.
+	If `True`, the function will print double-stranded DNA sequence structure of the *`DNA`* object. 
+	If `False`, the following parameters will be ignored. 
+	- **hide\_middle**: *`int`* or `None` (default: `None`)  
+  	Length of the end sequences to be displayed
+	- **linebreak**: *`int`* or `None` (default: `None`)  
+	Length of sequence for line break.  
 
   	**Return**  
 	if `strand` is 1 or -1, `str: DNA sequence from start to end on the strand ( 5' to 3')`.  
-	if `strand` is `None` or `0`, `[str: top strand sequence from start to end (5' to 3'), str：bottom strand sequence from start to end (5' to 3')`.  
-	if `display` is `True`,`None`.   
+	if `strand` is `None` or `2`, `[str: top strand sequence from start to end (5' to 3'), str：bottom strand sequence from start to end (5' to 3')`.  
 	
 	**Example code 4: Print a double-strand DNA sequence with sticky ends**  	
 	```python
 	#Soruce codea#
-	from dna import *
-	brick = DNA(seq="CCGGTATGCG----/----ATACGCAGCT")
-	brick.getdnaseq(display=True)
+	from dnaquine import *
+	fragment = DNA(seq="CCGGTATGCG----/----ATACGCAGCT") 
+	fragment.getdnaseq(display=True)
+
 	#output#
 	5' CCGGTATGCG---- 3'
 	3' ----ATACGCAGCT 5'
 	```
+
+- **.printfeature**_`(feature_list=None, attribute=list, detail=bool, separation=str, output=str, x_based_index=bool)`_ 
+	Print a tidy data table of annotation features/attributes in DNA object. Default printing attributes are `"feature ID"`, `"feature type"`, `"qualifier:label"`, `"start"`, `"end"`, and `"strand"`. Unique `"feature ID"` is automatically assigned to each feature when DNA object is created by loading a GenBank format file.
+	**Parameters**
+	- **­feature\_list**: *`list`* of *`DNAfeaure`* objects (default: `.dnafeatures`)  
+	- Feature list displayed into the output table. if the argument value is `None` or not given, all features of the *`DNA`* object will be displayed in the output table.  
+	- **attribute**: *`list`* of feature IDs (default: `["feature_id", "feature_type", "qualifier:label", "start position", "end position", "strand"]`)  
+	Selected attribute types for printing feature information. If attribute is `None`, it will make a table for all attributes except for `"sequence"`. `"sequence"` can be given to the attribute list.  
+	- **seq**: bool (`True` or `False`; default: `False`)  
+	If this is `True`, sequence of each feature is output to the table.  
+	- **­separation**: `str` (default: `None`)  
+	String to separate each line values. If the argument value is `None`, a well-formatted table will be generated with multiple spaces.  
+	- **output**: `str` (default: `stdout`)  
+	Output file name or file object. If the argument value is stdout or None, the table will be output to stdout.  
+	- **x\_based\_index**: *bool* (`0` or `1`; default: `0`)  
+	As a default, positions of features are given in zero-based indexing (same as Python indexing). If the argument value is `False`, 1-based indexing will be applied (as seen in the GenBank format).  
+    	
+	**Return**  
+	`None`
+
+	**Example code 5: Print DNAfeatures with formatted table**
+	```python
+	#Source code#
+	from dnaquine import *
+	plasmid = DNA(record="pGGA.gb")
+	plasmid.printfeature()
+
+	#Output#
+	feature_id  qualifier:label                  feature_type  start  end   strand
+	0           null                             source        0      2174  +
+	1100        pGGA                             source        0      2174  +
+	100         Forward (CW) Analysis Primer     primer_bind   233    260   +
+	200         SP6 promoter                     promoter      253    272   +
+	300         upstream MCS                     misc_feature  282    304   +
+	400         BsaI insert                      misc_feature  314    359   +
+	500         downstream MCS                   misc_feature  372    406   +
+	600         Cloning Analysis Reverse Primer  primer_bind   410    436   -
+	700         T7 promoter                      promoter      417    436   -
+	800         CmR                              CDS           546    1206  -
+	900         cat promoter                     promoter      1206   1309  -
+	1000        ori                              rep_origin    1409   1998  +
+	```
+- **.outputdna**_`(output=str)`_  
+	Output DNA object with GenBank format file. When the GenBank output is generated, A feature covering the entire sequence will be crated, and the history of the executed operational functions to construct the DNA objects will be described as a qualifier of the feature.
+	**Parameters**
+	- **output**: *`str`* (default: `None`)  
+	Output file name. If the argument value is `None`, the table will be output to stdout. 
+
+-----
+
 - **.finddna**_`(query=str, key_attribute=str, min_match=int, max_mismatch=int)`_  
 	Search specific features that hold query values at given attributes from the *DNA* object. However, if the attribute is `"sequence:*"` and there are no features on the query sequences in the *`DNA`* object, features including its location and a digestion format (the details described later) about the query sequence will be returned.  
   	**Parameters**
@@ -164,39 +213,6 @@ dna.py module provides the following print and search functions to analyze DNA c
 	    Key: product, Value: ['chloramphenicol acetyltransferase']
 	    Key: translation, Value: ['MEKKITGYTTVDISQWHRKEHFEAFQSVAQCTYNQTVQLDITAFLKTVKKNKHKFYPAFIHILARLMNAHPEFRMAMKDGELVIWDSVHPCYTVFHEQTETFSSLWSEYHDDFRQFLHIYSQDVACYGENLAYFPKGFIENMFFVSANPWVSFTSFDLNVANMDNFFAPVFTMGKYYTQGDKVLMPLAIQVHHAVCDGFHVGRMLNELQQYCDEWQGGA']
 	```  
-
-- **.printfeature**_`(feature_list=None, attribute=list, detail=bool, separation=str, output=str, zero_based_index=bool)`_ 
-	Print a tidy data table of annotation features/attributes in DNA object. Default printing attributes are `"feature ID"`, `"feature type"`, `"qualifier:label"`, `"start"`, `"end"`, and `"strand"`. Unique `"feature ID"` is automatically assigned to each feature when DNA object is created by loading a GenBank format file.
-	**Parameters**
-	- **­feature\_list**: *`list`* of *`DNAfeaure`* objects (default: `.dnafeatures`)
-	Feature list displayed into the output table. if the argument value is `None` or not given, all features of the `DNA` object will be displayed in the output table. 
-	- **attribute**: *`list`* of feature IDs (default: `["feature_id", "feature_type", "qualifier:label", "start position", "end position", "strand"]`)
-	Selected attribute types for printing feature information. Default attributes can be specified by using `"$DEFAULT"` in the list. If detail is `True`, the value will be ignored.
-	- **detail**: `bool` (`True` or `False`; default: `False`)
-	If this is `True`, all attributes excluding `"sequence"` will be output to the table.
-	- **seq**: bool (`True` or `False`; default: `False`)
-	If this is `True`, sequence of each feature is output to the table.
-	- **­separation**: `str` (default: `None`)
-	String to separate each line values. If the argument value is `None`, a well-formatted table will be generated with multiple spaces.
-	- **output**: `str` (default: `stdout`)
-	Output file name or file object. If the argument value is stdout or None, the table will be output to stdout.
-	- **zero\_based\_index**: *bool* (`True` or `False`; default: `True`)
-	As a default, positions of features are given in zero-based indexing (same as Python indexing). If the argument value is `False`, 1-based indexing will be applied (as seen in the GenBank format).  
-    	
-	**Return**  
-	`None`
-
-	**Example code 7: Display all of the "primer\_bind" features in a GenBank file**
-	```python
-	#Source code (continued from the previous example)#
-	feature_list = plasmid.finddna("primer_bind")
-	plasmid.printfeature(feature_list)
-	
-	#Output#
-	feature_id  qualifier:label                  feature_type  start  end  strand  
-	100         Forward (CW) Analysis Primer     primer_bind   233    260  +       
-	600         Cloning Analysis Reverse Primer  primer_bind   410    436  -         
-	```
 
 ### Operational functions
 dna.py provides the following five fundamental operational functions to manipulate DNA objects.  

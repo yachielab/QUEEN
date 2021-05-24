@@ -136,9 +136,9 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                 note   = feat.qualifiers["broken_feature"]
                 if type(note) == list:
                     note   = feat.qualifiers["broken_feature"][0]
-                feat_length = int(note.split("]")[0].split(":")[-3]) 
-                pos_s  = int(note.split("]")[-1].split(":")[1].split("..")[0]) 
-                pos_e  = int(note.split("]")[-1].split(":")[1].split("..")[1])
+                feat_length = int(note.split(":")[-4]) 
+                pos_s  = int(note.split(":")[-1].split("..")[0]) 
+                pos_e  = int(note.split(":")[-1].split("..")[1])
                 #if (pos_s != 1 or pos_e != feat_length):
                 #    label = note.split(":")[1]
 
@@ -388,8 +388,8 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
                 label = feat.type
 
             if "broken_feature" in feat.qualifiers:
-                posinfo     = feat.qualifiers["broken_feature"][0].split("]")[-1]
-                feat_length = feat.qualifiers["broken_feature"][0].split("]")[0].split(":")[-3] 
+                posinfo     = feat.qualifiers["broken_feature"][0].split(":")[-1]
+                feat_length = feat.qualifiers["broken_feature"][0].split(":")[-4] 
                 label = label + posinfo + ":" +  feat_length
                 feat.qualifiers["label"] = [label] 
 

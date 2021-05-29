@@ -1,29 +1,30 @@
-LOCUS       pCMV-Target-AID         8752 bp    DNA     circular UNK 01-JAN-1980
-DEFINITION  .
-ACCESSION   pCMV-Target-AID
-VERSION     pCMV-Target-AID
+LOCUS       name                    8752 bp    DNA     circular UNK 01-JAN-1980
+DEFINITION  description.
+ACCESSION   id
+VERSION     id
 KEYWORDS    .
 SOURCE      .
   ORGANISM  .
             .
 FEATURES             Location/Qualifiers
+     primer_bind     14..33
+                     /label="name"
+                     /ApEinfo_fwdcolor="#baffa3"
+                     /ApEinfo_revcolor="#ffbaba"
      CDS             20..40
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
                      40) large T antigen"
                      /label="SV40 NLS"
-     source          34..5363
-                     /organism="synthetic DNA construct"
-                     /mol_type="other DNA"
-                     /broken_feature="pCMV-nCas-PmCDA1-ugi:0:10419:-:0..10419:39
-                     15..9244"
-     CDS             65..4168
-                     /codon_start=1
-                     /product="nickase mutant of the Cas9 endonuclease from the
-                     Streptococcus pyogenes Type II CRISPR/Cas system"
-                     /label="Cas9(D10A)"
-                     /note="generates RNA-guided single strand nicks in DNA due
-                     to the D10A mutation in the RuvC catalytic domain"
+                     /translation="PKKKRKV"
+     primer_bind     complement(2562..2596)
+                     /label="name"
+                     /ApEinfo_fwdcolor="#baffa3"
+                     /ApEinfo_revcolor="#ffbaba"
+     primer_bind     2569..2603
+                     /label="name"
+                     /ApEinfo_fwdcolor="#baffa3"
+                     /ApEinfo_revcolor="#ffbaba"
      CDS             4181..4201
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
@@ -47,10 +48,16 @@ FEATURES             Location/Qualifiers
                      /product="uracil-DNA glycosylase inhibitor from a Bacillus
                      subtilis bacteriophage (Mol et al., 1995)"
                      /label="UGI"
-     source          5410..8745
-                     /organism="synthetic DNA construct"
-                     /mol_type="other DNA"
-                     /broken_feature="pCMV_ABE:0:8727:-:0..8727:5278..8613"
+                     /translation="MTNLSDIIEKETGKQLVIQESILMLPEEVEEVIGNKPESDILVHT
+                     AYDESTDENVMLLTSDAPEYKPWALVIQDSNGENKIKML"
+     primer_bind     complement(5364..5386)
+                     /label="name"
+                     /ApEinfo_fwdcolor="#baffa3"
+                     /ApEinfo_revcolor="#ffbaba"
+     primer_bind     5390..5409
+                     /label="name"
+                     /ApEinfo_fwdcolor="#baffa3"
+                     /ApEinfo_revcolor="#ffbaba"
      primer_bind     complement(5412..5429)
                      /label="BGH-rev"
                      /note="Bovine growth hormone terminator, reverse primer.
@@ -133,171 +140,10 @@ FEATURES             Location/Qualifiers
      promoter        8734..8752
                      /label="T7 promoter"
                      /note="promoter for bacteriophage T7 RNA polymerase"
-     source          1..8752
-                     /label="pCMV-Target-AID"
-                     /description="Record of building history"
-                     /building_history_31="DNA.dna_dict['pCMV-Target-AID']–=–joi
-                     ndna(*[DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_4'],–DNA.dna_dict
-                     ['pCMV-nCas-PmCDA1-ugi_5'],–DNA.dna_dict['pCMV_ABE_2']],–to
-                     pology='circular',–project='pCMV-Target-AID',–product='pCMV
-                     _Target_AID',–process_description='The–Target-AID–plasmid–(
-                     pCMV-Target-AID)–was–constructed–by–assembling–two–insert–f
-                     ragments–and–a–backbone–fragments.')"
-                     /building_history_11="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_1'
-                     ]–=–modifyends(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_0'],–left
-                     =DNA.dna_dict['dna'].seq,–right=DNA.dna_dict['dna_2'].seq,–
-                     project='pCMV-nCas-PmCDA1-ugi',–product='frag1',–process_de
-                     scription='The–N-terminus–of–Target-AID–was–amplified–from–
-                     pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–79620
-                     )–using–primer–pairs–RS045/HM129.')"
-                     /building_history_3="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi']–=
-                     –DNA(seq=None,–record='input/addgene_79620.gbk',–project='p
-                     CMV-nCas-PmCDA1-ugi',–topology='linear',–format=None,–produ
-                     ct='pCMV_nCas_PmCDA1_ugi',–process_description='')"
-                     /building_history_6="DNA.queried_features_dict['pCMV-nCas-P
-                     mCDA1-ugi_0']–=–DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'].search
-                     dna(query=DNA.dna_dict['dna'].seq[-18:],–key_attribute='seq
-                     uence',–min_match=None,–max_mismatch=0,–product='FW',–proce
-                     ss_description='The–N-terminus–of–Target-AID–was–amplified–
-                     from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–
-                     79620)–using–primer–pairs–RS045/HM129.')"
-                     /building_history_7="DNA.queried_features_dict['pCMV-nCas-P
-                     mCDA1-ugi_1']–=–DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'].search
-                     dna(query=DNA.dna_dict['dna_0'].seq[-18:],–key_attribute='s
-                     equence',–min_match=None,–max_mismatch=0,–product='RV',–pro
-                     cess_description='The–N-terminus–of–Target-AID–was–amplifie
-                     d–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgen
-                     e–79620)–using–primer–pairs–RS045/HM129.')"
-                     /building_history_8="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_0']
-                     –=–cropdna(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'],–start=DNA.
-                     queried_features_dict['pCMV-nCas-PmCDA1-ugi_0'][0].end,–end
-                     =DNA.queried_features_dict['pCMV-nCas-PmCDA1-ugi_1'][0].sta
-                     rt,–project='pCMV-nCas-PmCDA1-ugi',–product='frag1',–proces
-                     s_description='The–N-terminus–of–Target-AID–was–amplified–f
-                     rom–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–7
-                     9620)–using–primer–pairs–RS045/HM129.')"
-                     /building_history_4="DNA.dna_dict['dna']–=–DNA(seq='GAGAGCC
-                     GCCACCATGGCACCGAAGAAGAAGCG',–record=None,–project='dna',–to
-                     pology='linear',–format=None,–product='RS045',–process_desc
-                     ription='The–N-terminus–of–Target-AID–was–amplified–from–pc
-                     DNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–79620)–
-                     using–primer–pairs–RS045/HM129.')"
-                     /building_history_5="DNA.dna_dict['dna_0']–=–DNA(seq='CTGGG
-                     GCACGATATGATCCACGTCGTAGTCGGAGA',–record=None,–project='dna'
-                     ,–topology='linear',–format=None,–product='HM129',–process_
-                     description='The–N-terminus–of–Target-AID–was–amplified–fro
-                     m–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–796
-                     20)–using–primer–pairs–RS045/HM129.')"
-                     /building_history_10="DNA.dna_dict['dna_2']–=–flipdna(DNA.d
-                     na_dict['dna_0'],–project='dna',–product='HM129comp',–proce
-                     ss_description='The–N-terminus–of–Target-AID–was–amplified–
-                     from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–
-                     79620)–using–primer–pairs–RS045/HM129.')"
-                     /building_history_28="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_4'
-                     ]–=–modifyends(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_1'],–left
-                     ='*{25}/-{25}',–right='-{28}/*{28}',–project='pCMV-nCas-PmC
-                     DA1-ugi',–product='frag1',–process_description='The–Target-
-                     AID–plasmid–(pCMV-Target-AID)–was–constructed–by–assembling
-                     –two–insert–fragments–and–a–backbone–fragments.')"
-                     /building_history_19="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_3'
-                     ]–=–modifyends(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_2'],–left
-                     =DNA.dna_dict['dna_3'].seq,–right=DNA.dna_dict['dna_6'].seq
-                     ,–project='pCMV-nCas-PmCDA1-ugi',–product='frag2',–process_
-                     description='The–C-terminus–of–Target-AID–was–amplified–fro
-                     m–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–796
-                     20)–using–primer–pairs–HM128/RS046.')"
-                     /building_history_14="DNA.queried_features_dict['pCMV-nCas-
-                     PmCDA1-ugi_2']–=–DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'].searc
-                     hdna(query=DNA.dna_dict['dna_3'].seq[-18:],–key_attribute='
-                     sequence',–min_match=None,–max_mismatch=0,–product='FW',–pr
-                     ocess_description='The–C-terminus–of–Target-AID–was–amplifi
-                     ed–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addge
-                     ne–79620)–using–primer–pairs–HM128/RS046.')"
-                     /building_history_15="DNA.queried_features_dict['pCMV-nCas-
-                     PmCDA1-ugi_3']–=–DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'].searc
-                     hdna(query=DNA.dna_dict['dna_4'].seq[-18:],–key_attribute='
-                     sequence',–min_match=None,–max_mismatch=0,–product='RV',–pr
-                     ocess_description='The–C-terminus–of–Target-AID–was–amplifi
-                     ed–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addge
-                     ne–79620)–using–primer–pairs–HM128/RS046.')"
-                     /building_history_16="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_2'
-                     ]–=–cropdna(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'],–start=DNA
-                     .queried_features_dict['pCMV-nCas-PmCDA1-ugi_2'][0].end,–en
-                     d=DNA.queried_features_dict['pCMV-nCas-PmCDA1-ugi_3'][0].st
-                     art,–project='pCMV-nCas-PmCDA1-ugi',–product='frag2',–proce
-                     ss_description='The–C-terminus–of–Target-AID–was–amplified–
-                     from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–
-                     79620)–using–primer–pairs–HM128/RS046.')"
-                     /building_history_12="DNA.dna_dict['dna_3']–=–DNA(seq='CTAC
-                     GACGTGGATCATATCGTGCCCCAGTCTTTTC',–record=None,–project='dna
-                     ',–topology='linear',–format=None,–product='HM128',–process
-                     _description='The–C-terminus–of–Target-AID–was–amplified–fr
-                     om–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–79
-                     620)–using–primer–pairs–HM128/RS046.')"
-                     /building_history_13="DNA.dna_dict['dna_4']–=–DNA(seq='TTTA
-                     AACTCATTATAGCATCTTGATCTTGTTCTCTC',–record=None,–project='dn
-                     a',–topology='linear',–format=None,–product='RS046',–proces
-                     s_description='The–C-terminus–of–Target-AID–was–amplified–f
-                     rom–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–7
-                     9620)–using–primer–pairs–HM128/RS046.')"
-                     /building_history_18="DNA.dna_dict['dna_6']–=–flipdna(DNA.d
-                     na_dict['dna_4'],–project='dna',–product='RS046comp',–proce
-                     ss_description='The–C-terminus–of–Target-AID–was–amplified–
-                     from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–
-                     79620)–using–primer–pairs–HM128/RS046.')"
-                     /building_history_29="DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_5'
-                     ]–=–modifyends(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_3'],–left
-                     ='*{28}/-{28}',–right='-{25}/*{25}',–project='pCMV-nCas-PmC
-                     DA1-ugi',–product='frag2',–process_description='The–Target-
-                     AID–plasmid–(pCMV-Target-AID)–was–constructed–by–assembling
-                     –two–insert–fragments–and–a–backbone–fragments.')"
-                     /building_history_27="DNA.dna_dict['pCMV_ABE_1']–=–modifyen
-                     ds(DNA.dna_dict['pCMV_ABE_0'],–left=DNA.dna_dict['dna_7'].s
-                     eq,–right=DNA.dna_dict['dna_10'].seq,–project='pCMV_ABE',–p
-                     roduct='frag3',–process_description='The–backbone–fragment–
-                     was–amplified–from–pCMV-ABE7.10–using–RS047/RS048.')"
-                     /building_history_2="DNA.dna_dict['pCMV_ABE']–=–DNA(seq=Non
-                     e,–record='input/addgene_102919.gbk',–project='pCMV_ABE',–t
-                     opology='linear',–format=None,–product='pCMV_ABE',–process_
-                     description='')"
-                     /building_history_22="DNA.queried_features_dict['pCMV_ABE_4
-                     ']–=–DNA.dna_dict['pCMV_ABE'].searchdna(query=DNA.dna_dict[
-                     'dna_7'].seq[-18:],–key_attribute='sequence',–min_match=Non
-                     e,–max_mismatch=0,–product='FW',–process_description='The–b
-                     ackbone–fragment–was–amplified–from–pCMV-ABE7.10–using–RS04
-                     7/RS048.')"
-                     /building_history_23="DNA.queried_features_dict['pCMV_ABE_5
-                     ']–=–DNA.dna_dict['pCMV_ABE'].searchdna(query=DNA.dna_dict[
-                     'dna_8'].seq[-18:],–key_attribute='sequence',–min_match=Non
-                     e,–max_mismatch=0,–product='RV',–process_description='The–b
-                     ackbone–fragment–was–amplified–from–pCMV-ABE7.10–using–RS04
-                     7/RS048.')"
-                     /building_history_24="DNA.dna_dict['pCMV_ABE_0']–=–cropdna(
-                     DNA.dna_dict['pCMV_ABE'],–start=DNA.queried_features_dict['
-                     pCMV_ABE_4'][0].end,–end=DNA.queried_features_dict['pCMV_AB
-                     E_5'][0].start,–project='pCMV_ABE',–product='frag3',–proces
-                     s_description='The–backbone–fragment–was–amplified–from–pCM
-                     V-ABE7.10–using–RS047/RS048.')"
-                     /building_history_20="DNA.dna_dict['dna_7']–=–DNA(seq='ATCA
-                     AGATGCTATAATGAGTTTAAACCCGCTGATC',–record=None,–project='dna
-                     ',–topology='linear',–format=None,–product='RS047',–process
-                     _description='The–backbone–fragment–was–amplified–from–pCMV
-                     -ABE7.10–using–RS047/RS048.')"
-                     /building_history_21="DNA.dna_dict['dna_8']–=–DNA(seq='CTTC
-                     GGTGCCATGGTGGCGGCTCTCCCTATAG',–record=None,–project='dna',–
-                     topology='linear',–format=None,–product='RS048',–process_de
-                     scription='The–backbone–fragment–was–amplified–from–pCMV-AB
-                     E7.10–using–RS047/RS048.')"
-                     /building_history_26="DNA.dna_dict['dna_10']–=–flipdna(DNA.
-                     dna_dict['dna_8'],–project='dna',–product='RS048comp',–proc
-                     ess_description='The–backbone–fragment–was–amplified–from–p
-                     CMV-ABE7.10–using–RS047/RS048.')"
-                     /building_history_30="DNA.dna_dict['pCMV_ABE_2']–=–modifyen
-                     ds(DNA.dna_dict['pCMV_ABE_1'],–left='*{25}/-{25}',–right='-
-                     {25}/*{25}',–project='pCMV_ABE',–product='frag3',–process_d
-                     escription='The–Target-AID–plasmid–(pCMV-Target-AID)–was–co
-                     nstructed–by–assembling–two–insert–fragments–and–a–backbone
-                     –fragments.')"
+     primer_bind     join(8746..8752,1..16)
+                     /label="name"
+                     /ApEinfo_fwdcolor="#baffa3"
+                     /ApEinfo_revcolor="#ffbaba"
 ORIGIN
         1 gagagccgcc accatggcac cgaagaagaa gcgtaaagtc ggaatccacg gagttcctgc
        61 ggcaatggac aagaagtact ccattgggct cgctatcggc acaaacagcg tcggttgggc

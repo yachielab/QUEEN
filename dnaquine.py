@@ -112,11 +112,11 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_desc
         if (start >= end or (start_top == end_top and start_bottom == end_bottom)) and dna.topology == "circular":
                 source   = copy.deepcopy(dna) 
                 subdna1 = extract(source, [start, start], [len(dna.seq), len(dna.seq)])
-                if start != end:
+                if start == end and start == 0:
+                    subdna = subdna1
+                else:
                     subdna2 = extract(source, [0,0], [end,end])
                     subdna  = joindna(subdna1, subdna2, __direct=0)
-                else:
-                    subdna = subdna1
         else:
             if start > end and dna.topoloy == "linear":
                 raise ValueError("Start value should be larger than or equal to end value.")
@@ -2476,6 +2476,7 @@ def _circularizedna(dna):
                 
                 if flag == 1 and "broken_feature" in feat1.qualifiers and "broken_feature" in feat2.qualifiers:
                     note1   = feat1.qualifiers["broken_feature"][0]
+                    label   = ":".join(note1.split(":")[:-1])
                     length1 = int(note1.split(":")[-4])
                     pos_s1  = int(note1.split(":")[-1].split("..")[0].replace(" ",""))
                     pos_e1  = int(note1.split(":")[-1].split("..")[1].replace(" ","")) 

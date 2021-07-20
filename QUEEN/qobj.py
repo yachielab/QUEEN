@@ -310,7 +310,7 @@ class QUEEN():
                 else:
                     obj._history_feature = DNAfeature(self._history_feature, subject=obj)     
             
-            elif key == "dnafeatures": 
+            elif key == "_dnafeatures": 
                 feats = [] 
                 for feat in self.dnafeatures:
                     feats.append(DNAfeature(feat, subject=obj))

@@ -4,7 +4,6 @@ import sys
 import copy
 import math
 import collections
-import Levenshtein
 import functools
 import warnings
 import sre_parse

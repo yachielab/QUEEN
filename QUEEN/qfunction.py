@@ -479,14 +479,16 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_desc
             subdna.record.features = subdna.dnafeatures
             
         if start_top != start_bottom or end_top != end_bottom:
-            if (start_dif := start_top - start_bottom) > 0:
+            start_dif = start_top - start_bottom
+            if start_dif > 0:
                 left = "-" * start_dif + "/" +  "*" * start_dif
             elif start_dif < 0:
                 left = "*" * abs(start_dif) + "/" +  "-" * abs(start_dif) 
             else:
                 left = ""
             
-            if (end_dif := end_top - end_bottom) > 0:
+            end_dif = end_top - end_bottom
+            if end_dif > 0:
                 right = "*" * end_dif + "/" + "-" * end_dif  
             elif end_dif < 0:
                 right = "-" * abs(end_dif) + "/" + "*" * abs(end_dif) 
@@ -725,8 +727,9 @@ def cropdna(dna, start=0, end=None, project=None, product=None, process_descript
     if product is None:
         pass 
     else:
-        product.replace(" ","") 
-        if (match := re.fullmatch("(.+)\[(.+)\]", product)):
+        product.replace(" ","")
+        match = re.fullmatch("(.+)\[(.+)\]", product)
+        if match:
             if match.group(2).isdecimal() == True:
                 subdna.__class__._namespace[match.group(1)][int(match.group(2))] = subdna
             else:
@@ -993,7 +996,8 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_descri
         pass 
     else:
         product = product.replace(" ","") 
-        if (match := re.fullmatch("(.+)\[(.+)\]", product)):
+        match   = re.fullmatch("(.+)\[(.+)\]", product) 
+        if match:
             if match.group(2).isdecimal() == True:
                 construct.__class__._namespace[match.group(1)][int(match.group(2))] = construct
             else:
@@ -1434,8 +1438,9 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
     if product is None:
         pass 
     else:
-        product = product.replace(" ","") 
-        if (match := re.fullmatch("(.+)\[(.+)\]", product)):
+        product = product.replace(" ","")
+        match   = re.fullmatch("(.+)\[(.+)\]", product)
+        if match:
             if match.group(2).isdecimal() == True:
                 new_dna.__class__._namespace[match.group(1)][int(match.group(2))] = new_dna
             else:
@@ -1522,8 +1527,9 @@ def flipdna(dna, project=None, product=None, process_description=None, __direct=
     if product is None:
         pass 
     else:
-        product = product.replace(" ","") 
-        if (match := re.fullmatch("(.+)\[(.+)\]", product)):
+        product = product.replace(" ","")
+        match   = re.fullmatch("(.+)\[(.+)\]", product)
+        if match:
             if match.group(2).isdecimal() == True:
                 comp.__class__._namespace[match.group(1)][int(match.group(2))] = comp
             else:
@@ -1740,8 +1746,9 @@ def editsequence(dna, source_sequence, destination_sequence, start=0, end=None, 
     if product is None:
         pass 
     else:
-        product = product.replace(" ","") 
-        if (match := re.fullmatch("(.+)\[(.+)\]", product)):
+        product = product.replace(" ","")
+        match   = re.fullmatch("(.+)\[(.+)\]", product) 
+        if match:
             if match.group(2).isdecimal() == True:
                 new_dna.__class__._namespace[match.group(1)][int(match.group(2))] = new_dna
             else:
@@ -2310,8 +2317,9 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
             if product is None:
                 pass 
             else:
-                product = product.replace(" ","") 
-                if (match := re.fullmatch("(.+)\[(.+)\]", product)):
+                product = product.replace(" ","")
+                match   = re.fullmatch("(.+)\[(.+)\]", product)
+                if match:
                     if match.group(2).isdecimal() == True:
                         dna.__class__._namespace[match.group(1)][int(match.group(2))] = dna
                     else:

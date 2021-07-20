@@ -220,19 +220,22 @@ def _compile_cutsite(query):
     re_format1 = re.compile(r"([ATGCRYKMSWBDHVN]+)(\([\-0-9]+/[\-0-9]+\))")
     re_format2 = re.compile(r"(\([\-0-9]+/[\-0-9]+\))([ATGCRYKMSWBDHVN]+)(\([\-0-9]+/[\-0-9]+\))")
     re_format3 = re.compile(r"(\([\-0-9]+/[\-0-9]+\))([ATGCRYKMSWBDHVN]+)")    
-    if  match := re_format1.fullmatch(query):
-        seq = match.group(1)
-        topr, bottomr = map(int, match.group(2)[1:-1].split("/")) 
+    match1 = re_format1.fullmatch(query)
+    match2 = re_format2.fullmatch(query)
+    match3 = re_format3.fullmatch(query)
+    if  match1:
+        seq = match1.group(1)
+        topr, bottomr = map(int, match1.group(2)[1:-1].split("/")) 
         topl, bottoml = "null", "null"
         
-    elif match := re_format2.fullmatch(query):
-        seq = match.group(2) 
-        topl, bottoml = map(int, match.group(1)[1:-1].split("/")) 
-        topr, bottomr = map(int, match.group(3)[1:-1].split("/")) 
+    elif match2:
+        seq = match2.group(2) 
+        topl, bottoml = map(int, match2.group(1)[1:-1].split("/")) 
+        topr, bottomr = map(int, match2.group(3)[1:-1].split("/")) 
 
-    elif match := re_format3.fullmatch(query): 
-        seq = match.group(2)
-        topl, bottoml = map(int, match.group(1)[1:-1].split("/")) 
+    elif match3: 
+        seq = match3.group(2)
+        topl, bottoml = map(int, match3.group(1)[1:-1].split("/")) 
         topr, bottomr = "null", "null"
 
     else:
@@ -745,7 +748,8 @@ class QUEEN():
             
             match_positions = set() 
             for match in match_list:
-                if (span := (match["start"], match["end"]))  not in match_positions:
+                span = (match["start"], match["end"])
+                if span not in match_positions:
                     match_positions.add(span) 
                     if match["start"] > match["end"] and self.topology == "circular":
                         locations = [[match["start"], len(self.seq), match["strand"]], [0, match["end"], match["strand"]]]

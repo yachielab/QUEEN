@@ -1,5 +1,5 @@
 import sys
-sys.path.append("/Users/hideto/dropbox/HIDETO_MORI.LAB/Experiments/Project/Dbrick/github")
+sys.path.append("/Users/hideto/Dropbox (Yachie Lab)/HIDETO_MORI.LAB/Experiments/Project/Dbrick/github/demo/tutorial/../..")
 from QUEEN.queen import *
 set_namespace(globals())
 QUEEN(record='input/addgene_79620.gbk', project='pCMV-nCas-PmCDA1-ugi', product='pCMV_nCas_PmCDA1_ugi')

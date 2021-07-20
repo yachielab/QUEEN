@@ -21,7 +21,8 @@ def traceflow(*dnas, operational_function_only=True):
         if match1 is not None: 
             match3 = list(re.finditer("QUEEN.dna_dict\['([^\[\]]+)'\]", match1.group(1))) 
             if match2 is not None:
-                if "," not in (name := match2.group(1)) and len(match3) > 1:
+                name = match2.group(1)
+                if "," not in name and len(match3) > 1:
                     for m, match in enumerate(match3):
                         name_dict[match.group(0)] = match2.group(1)  + "[{}]".format(m) 
                 else:
@@ -153,9 +154,10 @@ def traceflow(*dnas, operational_function_only=True):
                       '</table>>'])
                 infotext = ""
                 
-                query_flag = 0 
-                query_match = re.search("query=([^=]+),", source)
-                if (queryname_match := re.search("QUEEN.dna_dict\['([^\[\]]+)'\]", query_match.group(1))) is not None:
+                query_flag      = 0 
+                query_match     = re.search("query=([^=]+),", source)
+                queryname_match = re.search("QUEEN.dna_dict\['([^\[\]]+)'\]", query_match.group(1))
+                if queryname_match is not None:
                     queryname = queryname_match.group(1)
                     info_dict["query"] = query_match.group(1).replace(queryname_match.group(0), name_dict[queryname_match.group(0)])
                     query_flag = 1 
@@ -238,13 +240,15 @@ def traceflow(*dnas, operational_function_only=True):
                 dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
                   
                 if operational_function_only == False:
-                    if (start_match := re.search("start=(QUEEN.queried_features_dict\['[^\[\]]+'\])",source)) is not None:    
+                    start_match = re.search("start=(QUEEN.queried_features_dict\['[^\[\]]+'\])",source)
+                    if start_match is not None:    
                         uniquename  = start_match.group(1) 
                         productname = unique_name_dict[uniquename] 
                         #searchname  = product_funcname_dict[productname]  
                         #dg.edge(productname, funcname+":start", style="invis") 
                     
-                    if (end_match := re.search("end=(QUEEN.queried_features_dict\['[^\[\]]+'\])",source)) is not None:    
+                    end_match = re.search("end=(QUEEN.queried_features_dict\['[^\[\]]+'\])",source) 
+                    if end_match is not None:    
                         uniquename  = end_match.group(1) 
                         productname = unique_name_dict[uniquename] 
                         #searchname  = product_funcname_dict[productname]  
@@ -296,14 +300,16 @@ def traceflow(*dnas, operational_function_only=True):
                       '</table>>'])
                 
                 infotext = ""
-                if (matchl:=re.search("left=\.*(QUEEN.dna_dict\['[^\[\]]+'\])", history)) is not None:
+                matchl = re.search("left=\.*(QUEEN.dna_dict\['[^\[\]]+'\])", history) 
+                if matchl is not None:
                     uniquename = re.search("QUEEN.dna_dict\['([^\[\]]+)'\]", info_dict["leftobj"]).group(0)
                     objname    = name_dict[uniquename]
                     infotext += temp.format("left", "left", info_dict["leftobj"].replace(uniquename, objname))
                 else:
                     infotext += temp.format("left", "left", info_dict["left"])
                 
-                if (matchr:=re.search("right=\.*(QUEEN\.dna.*)", history)) is not None:
+                matchr = re.search("right=\.*(QUEEN\.dna.*)", history)
+                if matchr is not None:
                     uniquename = re.search("QUEEN.dna_dict\['([^\[\]]+)'\]", info_dict["rightobj"]).group(0)
                     objname    = name_dict[uniquename]
                     infotext += temp.format("right", "right", info_dict["rightobj"].replace(uniquename, objname))

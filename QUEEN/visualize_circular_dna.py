@@ -802,7 +802,7 @@ def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], vi
     if feature_list is None:
         feature_list = birck.dnafeatures    
     else:
-        brick.dnafeatures = feature_list
+        brick._dnafeatures = feature_list
     ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, brick.dnafeatures, len(brick.seq), unvisible_types=unvisible_types, visible_types=visible_types, format=format, bottom=bottom, enlarge=1.0, label_box=label_box, fontsize=fontsize, view_axis=view_axis, tick_space=tick_space) 
    
     if view_title == True:

@@ -1,31 +1,32 @@
 import sys
-sys.path.append("../../")
-from dnaquine import *
-DNA.dna_dict['pCMV_ABE'] = DNA(seq=None, record='input/addgene_102919.gbk', project='pCMV_ABE', topology='linear', format=None, product=None, process_description=None)
-DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'] = DNA(seq=None, record='input/addgene_79620.gbk', project='pCMV-nCas-PmCDA1-ugi', topology='linear', format=None, product=None, process_description=None)
+sys.path.append("/Users/hideto/dropbox/HIDETO_MORI.LAB/Experiments/Project/Dbrick/github")
+from QUEEN.queen import *
+set_namespace(globals())
+QUEEN(record='input/addgene_102919.gbk', product='pCMV_ABE')
+QUEEN(record='input/addgene_79620.gbk', product='pCMV_nCas_CDA1_ugi')
 
-description0 = 'The backbone fragment was amplified from pCMV-ABE7.10 using RS047/RS052'
-DNA.queried_features_dict['pCMV_ABE_7'] = DNA.dna_dict['pCMV_ABE'].searchdna(query='AGTTTAAACCCGCTGATC', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description0)
-DNA.queried_features_dict['pCMV_ABE_8'] = DNA.dna_dict['pCMV_ABE'].searchdna(query='CACCCCCAAGCTGTGACA', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description0)
-DNA.dna_dict['pCMV_ABE_3'] = cropdna(DNA.dna_dict['pCMV_ABE'], start=DNA.queried_features_dict['pCMV_ABE_7'][0].end, end=DNA.queried_features_dict['pCMV_ABE_8'][0].start, project='pCMV_ABE', product=None, process_description=description0)
-DNA.dna_dict['pCMV_ABE_4'] = modifyends(DNA.dna_dict['pCMV_ABE_3'], left='ATCAAGATGCTATAATGAGTTTAAACCCGCTGATC', right='TGTCACAGCTTGGGGGTGACGGTGGAGGAGGT', project='pCMV_ABE', product=None, process_description=description0)
-editfeature(DNA.dna_dict['pCMV_ABE_4'], query=None, key_attribute='sequence', min_match=None, max_mismatch=0, target_attribute='feature_id', operation=createattribute(value='f4'), project=None, new_copy=False, product=None, process_description=description0)
-editfeature(DNA.dna_dict['pCMV_ABE_4'], query='f4', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='strand', operation=replaceattribute(query_re=None,value=0), project=None, new_copy=False, product=None, process_description=description0)
-editfeature(DNA.dna_dict['pCMV_ABE_4'], query='f4', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='qualifier:label', operation=createattribute(value='fragment-4'), project=None, new_copy=False, product=None, process_description=description0)
+description1 = 'The C-terminus of Target-AID (fragment2) was amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT) (Addgene 79620) using primer pairs HM128/RS046.'
+QUEEN(seq='TTTAAACTCATTATAGCATCTTGATCTTGTTCTCTC', product='RS046', process_description=description1)
 
-description1 = 'The insert fragment encoding the C-terminus region of Target-AID was amplified from pcDNA-pCMV-nCas9 using RS051/RS046.'
-DNA.queried_features_dict['pCMV-nCas-PmCDA1-ugi_9'] = DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'].searchdna(query='TGGAGGAGGTACCGGCGG', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description1)
-DNA.queried_features_dict['pCMV-nCas-PmCDA1-ugi_10'] = DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'].searchdna(query='TCTTGATCTTGTTCTCTC', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description1)
-DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_6'] = cropdna(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi'], start=DNA.queried_features_dict['pCMV-nCas-PmCDA1-ugi_9'][0].end, end=DNA.queried_features_dict['pCMV-nCas-PmCDA1-ugi_10'][0].start, project='pCMV-nCas-PmCDA1-ugi', product=None, process_description=description1)
-DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_7'] = modifyends(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_6'], left='GCTTGGGGGTGACGGTGGAGGAGGTACCGGCGG', right='GAGAGAACAAGATCAAGATGCTATAATGAGTTTAAA', project='pCMV-nCas-PmCDA1-ugi', product=None, process_description=description1)
-editfeature(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_7'], query=None, key_attribute='sequence', min_match=None, max_mismatch=0, target_attribute='feature_id', operation=createattribute(value='f5'), project=None, new_copy=False, product=None, process_description=description1)
-editfeature(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_7'], query='f5', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='strand', operation=replaceattribute(query_re=None,value=0), project=None, new_copy=False, product=None, process_description=description1)
-editfeature(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_7'], query='f5', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='qualifier:label', operation=createattribute(value='fragment-5'), project=None, new_copy=False, product=None, process_description=description1)
+description2 = 'The backbone fragment (fragment3) was amplified from pCMV-ABE7.10 using RS047/RS048'
+QUEEN(seq='ATCAAGATGCTATAATGAGTTTAAACCCGCTGATC', product='RS047', process_description=description2)
+QUEEN(seq='ACCTCCTCCACCGTCACCCCCAAGCTGTGACA', product='RS052', process_description=description2)
 
-description2 = 'The Target-ACE plasmid (pCMV-Target-ACE) was constructed by assembling the insert fragment and a backbone fragment.'
-DNA.dna_dict['pCMV_ABE_5'] = modifyends(DNA.dna_dict['pCMV_ABE_4'], left='*{25}/-{25}', right='-{25}/*{25}', project='pCMV_ABE', product=None, process_description=description2)
-DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_8'] = modifyends(DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_7'], left='*{25}/-{25}', right='-{25}/*{25}', project='pCMV-nCas-PmCDA1-ugi', product=None, process_description=description2)
-DNA.dna_dict['pCMV-Target-ACE'] = joindna(*[DNA.dna_dict['pCMV_ABE_5'], DNA.dna_dict['pCMV-nCas-PmCDA1-ugi_8']], topology='circular', project='pCMV-Target-ACE', product=None, process_description=description2)
-DNA.dna_dict['pCMV-Target-ACE_0'], = cutdna(DNA.dna_dict['pCMV-Target-ACE'], '4582/4582', crop=False, project='pCMV-Target-ACE', product=None, process_description=description2)
-DNA.dna_dict['pCMV-Target-ACE_1'] = joindna(*[DNA.dna_dict['pCMV-Target-ACE_0']], topology='circular', project='pCMV-Target-ACE', product=None, process_description=description2)
-DNA.dna_dict['pCMV-Target-ACE_1'].writedna('reconstructed_pCMV-Target-ACE.gbk')
+description3 = 'The backbone fragment (fragment4) was amplified from pCMV-ABE7.10 using RS047/RS052'
+pCMV_ABE.searchsequence(query=RS047.seq[-18:], product='FW4', process_description=description3)
+pCMV_ABE.searchsequence(query=RS052.seq[-18:], product='RV4', process_description=description3)
+cropdna(pCMV_ABE, start=FW4[0].end, end=RV4[0].start, project='addgene-102919', product='fragment4', process_description=description3)
+modifyends(fragment4, left=RS047.seq, right=RS052.rcseq, product='fragment4', process_description=description3)
+QUEEN(seq='GCTTGGGGGTGACGGTGGAGGAGGTACCGGCGG', product='RS051', process_description=description3)
+
+description4 = 'The insert fragment (fragment5) encoding the C-terminus region of Target-AID was amplified from pcDNA-pCMV-nCas9 using RS051/RS046.'
+pCMV_nCas_CDA1_ugi.searchsequence(query=RS051.seq[-18:], product='FW5', process_description=description4)
+pCMV_nCas_CDA1_ugi.searchsequence(query=RS046.seq[-18:], product='RV5', process_description=description4)
+cropdna(pCMV_nCas_CDA1_ugi, start=FW5[0].end, end=RV5[0].start, project='addgene-79620', product='fragment5', process_description=description4)
+modifyends(fragment5, left=RS051.seq, right=RS046.rcseq, product='fragment5', process_description=description4)
+
+description5 = 'The Target-ACE plasmid (pCMV-Target-ACE) was constructed by assembling the insert fragment and a backbone fragment.'
+modifyends(fragment4, left='*{25}/-{25}', right='-{25}/*{25}', product='fragment4', process_description=description5)
+modifyends(fragment5, left='*{25}/-{25}', right='-{25}/*{25}', product='fragment5', process_description=description5)
+joindna(*[fragment4, fragment5], topology='circular', product='pCMV_Target_ACE', process_description=description5)
+pCMV_Target_ACE.writedna()

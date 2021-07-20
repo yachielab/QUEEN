@@ -339,7 +339,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
     if feature_list is None:
         feature_list = brick.dnafeatures    
     else:
-        brick.dnafeatures = copy.deepcopy(feature_list)
+        brick._dnafeatures = copy.deepcopy(feature_list)
         brick._features_dict = dict(list(map(lambda x:(x._id, x), brick.dnafeatures)))
 
     for i, feat in enumerate(brick.dnafeatures):

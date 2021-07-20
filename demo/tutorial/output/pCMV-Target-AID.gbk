@@ -7,47 +7,47 @@ SOURCE      .
   ORGANISM  .
             .
 FEATURES             Location/Qualifiers
-     source          1..3283
+     source          1..3308
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /broken_feature="pCMV_ABE:1:8727:-:0..8727:5331..8613"
-     primer_bind     complement(251..267)
+                     /broken_feature="pCMV-ABE:1:8727:-:0..8727:5306..8613"
+     primer_bind     complement(276..292)
                      /label="M13 rev"
                      /note="common sequencing primer, one of multiple similar
                      variants"
-     primer_bind     complement(251..267)
+     primer_bind     complement(276..292)
                      /label="M13 Reverse"
                      /note="In lacZ gene. Also called M13-rev"
-     primer_bind     complement(264..286)
+     primer_bind     complement(289..311)
                      /label="M13/pUC Reverse"
                      /note="In lacZ gene"
-     protein_bind    275..291
+     protein_bind    300..316
                      /label="lac operator"
                      /bound_moiety="lac repressor encoded by lacI"
                      /note="The lac repressor binds to the lac operator to
                      inhibit transcription in E. coli. This inhibition can be
                      relieved by adding lactose or
                      isopropyl-beta-D-thiogalactopyranoside (IPTG)."
-     promoter        complement(299..329)
+     promoter        complement(324..354)
                      /label="lac promoter"
                      /note="promoter for the E. coli lac operon"
-     protein_bind    344..365
+     protein_bind    369..390
                      /label="CAP binding site"
                      /bound_moiety="E. coli catabolite activator protein"
                      /note="CAP binding activates transcription in the presence
                      of cAMP."
-     primer_bind     complement(482..499)
+     primer_bind     complement(507..524)
                      /label="L4440"
                      /note="L4440 vector, forward primer"
-     rep_origin      complement(653..1241)
+     rep_origin      complement(678..1266)
                      /direction=LEFT
                      /label="ori"
                      /note="high-copy-number ColE1/pMB1/pBR322/pUC origin of
                      replication"
-     primer_bind     complement(733..752)
+     primer_bind     complement(758..777)
                      /label="pBR322ori-F"
                      /note="pBR322 origin, forward primer"
-     CDS             complement(1412..2272)
+     CDS             complement(1437..2297)
                      /codon_start=1
                      /gene="bla"
                      /product="beta-lactamase"
@@ -60,374 +60,403 @@ FEATURES             Location/Qualifiers
                      EPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSA
                      LPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGAS
                      LIKHW"
-     primer_bind     2035..2054
+     primer_bind     2060..2079
                      /label="Amp-R"
                      /note="Ampicillin resistance gene, reverse primer"
-     promoter        complement(2273..2377)
+     promoter        complement(2298..2402)
                      /gene="bla"
                      /label="AmpR promoter"
-     primer_bind     complement(2456..2475)
+     primer_bind     complement(2481..2500)
                      /label="pRS-marker"
                      /note="pRS vectors, use to sequence yeast selectable
                      marker"
-     enhancer        2647..3026
+     enhancer        2672..3051
                      /label="CMV enhancer"
                      /note="human cytomegalovirus immediate early enhancer"
-     promoter        3027..3230
+     promoter        3052..3255
                      /label="CMV promoter"
                      /note="human cytomegalovirus (CMV) immediate early
                      promoter"
-     primer_bind     3181..3201
+     primer_bind     3206..3226
                      /label="CMV-F"
                      /note="Human CMV immediate early promoter, forward primer"
-     source          3324..8653
+     source          3349..8678
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
                      /broken_feature="pCMV-nCas-PmCDA1-ugi:1:10419:-:0..10419:39
                      15..9244"
-     CDS             3355..7458
+     CDS             3380..7483
                      /codon_start=1
                      /product="nickase mutant of the Cas9 endonuclease from the
                      Streptococcus pyogenes Type II CRISPR/Cas system"
                      /label="Cas9(D10A)"
                      /note="generates RNA-guided single strand nicks in DNA due
                      to the D10A mutation in the RuvC catalytic domain"
-     CDS             7471..7491
+     CDS             7496..7516
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
                      40) large T antigen"
                      /label="SV40 NLS"
                      /translation="PKKKRKV"
-     CDS             7699..7764
+     CDS             7724..7789
                      /codon_start=1
                      /product="three tandem FLAG(R) epitope tags, followed by an
                      enterokinase cleavage site"
                      /label="3xFLAG"
                      /translation="DYKDHDGDYKDHDIDYKDDDDK"
-     CDS             8398..8418
+     CDS             8423..8443
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
                      40) large T antigen"
                      /label="SV40 NLS"
                      /translation="PKKKRKV"
-     source          8700..8752
+     source          8725..8752
                      /organism="synthetic DNA construct"
                      /mol_type="other DNA"
-                     /broken_feature="pCMV_ABE:1:8727:-:0..8727:5278..5330"
-     primer_bind     complement(8702..8719)
+                     /broken_feature="pCMV-ABE:1:8727:-:0..8727:5278..5305"
+     primer_bind     complement(8727..8744)
                      /label="BGH-rev"
                      /note="Bovine growth hormone terminator, reverse primer.
                      Also called BGH reverse"
-     polyA_signal    join(8708..8752,1..180)
+     polyA_signal    join(8733..8752,1..205)
                      /label="bGH poly(A) signal"
                      /note="bovine growth hormone polyadenylation signal"
-     primer_bind     3272..3291
+     primer_bind     3297..3316
                      /label="T7"
                      /note="T7 promoter, forward primer"
-     promoter        3272..3290
+     promoter        3297..3315
                      /label="T7 promoter"
                      /note="promoter for bacteriophage T7 RNA polymerase"
-     CDS             3310..3330
+     CDS             3335..3355
                      /codon_start=1
                      /product="nuclear localization signal of SV40 (simian virus
                      40) large T antigen"
                      /label="SV40 NLS"
-     CDS             8425..8676
+     CDS             8450..8701
                      /codon_start=1
                      /product="uracil-DNA glycosylase inhibitor from a Bacillus
                      subtilis bacteriophage (Mol et al., 1995)"
                      /label="UGI"
      source          1..8752
-                     /building_history_3="QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi']
-                     –=–QUEEN(seq=None,–record='input/addgene_79620.gbk',–projec
-                     t='pCMV-nCas-PmCDA1-ugi',–topology='linear',–format=None,–p
-                     roduct='pCMV_nCas_PmCDA1_ugi',–process_description='')"
-                     /building_history_8="QUEEN.queried_features_dict['pCMV-nCas
-                     -PmCDA1-ugi_0']–=–QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi'].se
-                     archsequence(query=QUEEN.dna_dict['dna'].seq[-18:],–product
-                     ='FW1',–process_description='The–N-terminus–of–Target-AID–w
-                     as–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HP
-                     RT)–(Addgene–79620)–using–primer–pairs–RS045/HM129.')"
-                     /building_history_11="QUEEN.queried_features_dict['pCMV-nCa
-                     s-PmCDA1-ugi_1']–=–QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi'].s
-                     earchsequence(query=QUEEN.dna_dict['dna_0'].seq[-18:],–prod
-                     uct='RV1',–process_description='The–N-terminus–of–Target-AI
-                     D–was–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA
-                     (HPRT)–(Addgene–79620)–using–primer–pairs–RS045/HM129.')"
-                     /building_history_12="QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_
-                     0']–=–cropdna(QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi'],–start
-                     =QUEEN.queried_features_dict['pCMV-nCas-PmCDA1-ugi_0'][0].e
-                     nd,–end=QUEEN.queried_features_dict['pCMV-nCas-PmCDA1-ugi_1
-                     '][0].start,–project='pCMV-nCas-PmCDA1-ugi',–product='fragm
-                     ent1',–process_description='The–N-terminus–of–Target-AID–wa
-                     s–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPR
-                     T)–(Addgene–79620)–using–primer–pairs–RS045/HM129.')"
-                     /building_history_4="QUEEN.dna_dict['dna']–=–QUEEN(seq='GAG
-                     AGCCGCCACCATGGCACCGAAGAAGAAGCG',–record=None,–project='dna'
-                     ,–topology='linear',–format=None,–product='RS045',–process_
-                     description='The–N-terminus–of–Target-AID–was–amplified–fro
-                     m–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–796
-                     20)–using–primer–pairs–RS045/HM129.')"
-                     /building_history_5="QUEEN.dna_dict['dna_0']–=–QUEEN(seq='C
-                     TGGGGCACGATATGATCCACGTCGTAGTCGGAGA',–record=None,–project='
-                     dna',–topology='linear',–format=None,–product='HM129',–proc
-                     ess_description='The–N-terminus–of–Target-AID–was–amplified
-                     –from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene
-                     –79620)–using–primer–pairs–RS045/HM129.')"
-                     /building_history_13="QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_
-                     1']–=–modifyends(QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_0'],–
-                     left=QUEEN.dna_dict['dna'].seq,–right=QUEEN.dna_dict['dna_0
-                     '].getdnaseq(strand=-1),–project='pCMV-nCas-PmCDA1-ugi',–pr
-                     oduct='fragment1',–process_description='The–N-terminus–of–T
-                     arget-AID–was–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–
-                     pH1-gRNA(HPRT)–(Addgene–79620)–using–primer–pairs–RS045/HM1
-                     29.')"
-                     /building_history_34="QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_
-                     4']–=–modifyends(QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_1'],–
-                     left='*{25}/-{25}',–right='-{28}/*{28}',–project='pCMV-nCas
-                     -PmCDA1-ugi',–product='fragment1',–process_description='The
-                     –Target-AID–plasmid–(pCMV-Target-AID)–was–constructed–by–as
-                     sembling–two–insert–fragments–and–a–backbone–fragments.')"
-                     /building_history_18="QUEEN.queried_features_dict['pCMV-nCa
-                     s-PmCDA1-ugi_2']–=–QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi'].s
-                     earchsequence(query=QUEEN.dna_dict['dna_5'].seq[-18:],–prod
-                     uct='FW2',–process_description='The–C-terminus–of–Target-AI
-                     D–was–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA
-                     (HPRT)–(Addgene–79620)–using–primer–pairs–HM128/RS046.')"
-                     /building_history_21="QUEEN.queried_features_dict['pCMV-nCa
-                     s-PmCDA1-ugi_3']–=–QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi'].s
-                     earchsequence(query=QUEEN.dna_dict['dna_6'].seq[-18:],–prod
-                     uct='RV2',–process_description='The–C-terminus–of–Target-AI
-                     D–was–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA
-                     (HPRT)–(Addgene–79620)–using–primer–pairs–HM128/RS046.')"
+                     /building_history_2="QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_0
+                     ']–=–QUEEN(record='input/addgene_79620.gbk',–project='pCMV-
+                     nCas-PmCDA1-ugi',–product='pCMV_nCas_PmCDA1_ugi')"
+                     /building_history_2=""
+                     /building_history_6="QUEEN.queried_features_dict['pCMV-nCas
+                     -PmCDA1-ugi_0_0']–=–QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_0'
+                     ].searchsequence(query=QUEEN.dna_dict['dna_0'].seq[-18:],–p
+                     roduct='FW1',–process_description='The–N-terminus–of–Target
+                     -AID–was–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-g
+                     RNA(HPRT)–(Addgene–79620)–using–primer–pairs–RS045/HM129.')
+                     "
+                     /building_history_6="query:GGCACCGAAGAAGAAGCG"
+                     /building_history_7="QUEEN.queried_features_dict['pCMV-nCas
+                     -PmCDA1-ugi_0_1']–=–QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_0'
+                     ].searchsequence(query=QUEEN.dna_dict['dna_1'].seq[-18:],–p
+                     roduct='RV1',–process_description='The–N-terminus–of–Target
+                     -AID–was–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-g
+                     RNA(HPRT)–(Addgene–79620)–using–primer–pairs–RS045/HM129.')
+                     "
+                     /building_history_7="query:CCACGTCGTAGTCGGAGA"
+                     /building_history_8="QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_1
+                     ']–=–cropdna(QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_0'],–star
+                     t=QUEEN.queried_features_dict['pCMV-nCas-PmCDA1-ugi_0_0'][0
+                     ].end,–end=QUEEN.queried_features_dict['pCMV-nCas-PmCDA1-ug
+                     i_0_1'][0].start,–project='pCMV-nCas-PmCDA1-ugi',–product='
+                     fragment1',–process_description='The–N-terminus–of–Target-A
+                     ID–was–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRN
+                     A(HPRT)–(Addgene–79620)–using–primer–pairs–RS045/HM129.')"
+                     /building_history_8="start:3914; end:6442"
+                     /building_history_4="QUEEN.dna_dict['dna_0']–=–QUEEN(seq='G
+                     AGAGCCGCCACCATGGCACCGAAGAAGAAGCG',–product='RS045',–process
+                     _description='The–N-terminus–of–Target-AID–was–amplified–fr
+                     om–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–79
+                     620)–using–primer–pairs–RS045/HM129.')"
+                     /building_history_4=""
+                     /building_history_5="QUEEN.dna_dict['dna_1']–=–QUEEN(seq='C
+                     TGGGGCACGATATGATCCACGTCGTAGTCGGAGA',–product='HM129',–proce
+                     ss_description='The–N-terminus–of–Target-AID–was–amplified–
+                     from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–
+                     79620)–using–primer–pairs–RS045/HM129.')"
+                     /building_history_5=""
+                     /building_history_9="QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_2
+                     ']–=–modifyends(QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_1'],–l
+                     eft=QUEEN.dna_dict['dna_0'].seq,–right=QUEEN.dna_dict['dna_
+                     1'].rcseq,–product='fragment1',–process_description='The–N-
+                     terminus–of–Target-AID–was–amplified–from–pcDNA3.1_pCMV-nCa
+                     s-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–79620)–using–primer–pa
+                     irs–RS045/HM129.')"
+                     /building_history_9="left:GAGAGCCGCCACCATGGCACCGAAGAAGAAGCG
+                     ; right:TCTCCGACTACGACGTGGATCATATCGTGCCCCAG;
+                     leftobj:QUEEN.dna_dict['dna_0'].seq;
+                     rightobj:QUEEN.dna_dict['dna_1'].rcseq"
                      /building_history_22="QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_
-                     2']–=–cropdna(QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi'],–start
-                     =QUEEN.queried_features_dict['pCMV-nCas-PmCDA1-ugi_2'][0].e
-                     nd,–end=QUEEN.queried_features_dict['pCMV-nCas-PmCDA1-ugi_3
-                     '][0].start,–project='pCMV-nCas-PmCDA1-ugi',–product='fragm
-                     ent2',–process_description='The–C-terminus–of–Target-AID–wa
-                     s–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPR
-                     T)–(Addgene–79620)–using–primer–pairs–HM128/RS046.')"
-                     /building_history_14="QUEEN.dna_dict['dna_5']–=–QUEEN(seq='
-                     CTACGACGTGGATCATATCGTGCCCCAGTCTTTTC',–record=None,–project=
-                     'dna',–topology='linear',–format=None,–product='HM128',–pro
-                     cess_description='The–C-terminus–of–Target-AID–was–amplifie
-                     d–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgen
-                     e–79620)–using–primer–pairs–HM128/RS046.')"
-                     /building_history_15="QUEEN.dna_dict['dna_6']–=–QUEEN(seq='
-                     TTTAAACTCATTATAGCATCTTGATCTTGTTCTCTC',–record=None,–project
-                     ='dna',–topology='linear',–format=None,–product='RS046',–pr
+                     6']–=–modifyends(QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_2'],–
+                     left='*{25}/-{25}',–right='-{28}/*{28}',–product='fragment1
+                     ',–process_description='The–Target-AID–plasmid–(pCMV-Target
+                     -AID)–was–constructed–by–assembling–two–insert–fragments–an
+                     d–a–backbone–fragments.')"
+                     /building_history_22="left:*{25}/-{25}; right:-{28}/*{28};
+                     leftobj:'*{25}/-{25}'; rightobj:'-{28}/*{28}'"
+                     /building_history_12="QUEEN.queried_features_dict['pCMV-nCa
+                     s-PmCDA1-ugi_0_2']–=–QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_0
+                     '].searchsequence(query=QUEEN.dna_dict['dna_9'].seq[-18:],–
+                     product='FW2',–process_description='The–C-terminus–of–Targe
+                     t-AID–was–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-
+                     gRNA(HPRT)–(Addgene–79620)–using–primer–pairs–HM128/RS046.'
+                     )"
+                     /building_history_12="query:TCGTGCCCCAGTCTTTTC"
+                     /building_history_13="QUEEN.queried_features_dict['pCMV-nCa
+                     s-PmCDA1-ugi_0_3']–=–QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_0
+                     '].searchsequence(query=QUEEN.dna_dict['dna_10'].seq[-18:],
+                     –product='RV2',–process_description='The–C-terminus–of–Targ
+                     et-AID–was–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1
+                     -gRNA(HPRT)–(Addgene–79620)–using–primer–pairs–HM128/RS046.
+                     ')"
+                     /building_history_13="query:TCTTGATCTTGTTCTCTC"
+                     /building_history_14="QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_
+                     3']–=–cropdna(QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_0'],–sta
+                     rt=QUEEN.queried_features_dict['pCMV-nCas-PmCDA1-ugi_0_2'][
+                     0].end,–end=QUEEN.queried_features_dict['pCMV-nCas-PmCDA1-u
+                     gi_0_3'][0].start,–project='pCMV-nCas-PmCDA1-ugi',–product=
+                     'fragment2',–process_description='The–C-terminus–of–Target-
+                     AID–was–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gR
+                     NA(HPRT)–(Addgene–79620)–using–primer–pairs–HM128/RS046.')"
+                     /building_history_14="start:6484; end:9244"
+                     /building_history_10="QUEEN.dna_dict['dna_9']–=–QUEEN(seq='
+                     CTACGACGTGGATCATATCGTGCCCCAGTCTTTTC',–product='HM128',–proc
+                     ess_description='The–C-terminus–of–Target-AID–was–amplified
+                     –from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene
+                     –79620)–using–primer–pairs–HM128/RS046.')"
+                     /building_history_10=""
+                     /building_history_11="QUEEN.dna_dict['dna_10']–=–QUEEN(seq=
+                     'TTTAAACTCATTATAGCATCTTGATCTTGTTCTCTC',–product='RS046',–pr
                      ocess_description='The–C-terminus–of–Target-AID–was–amplifi
                      ed–from–pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addge
                      ne–79620)–using–primer–pairs–HM128/RS046.')"
+                     /building_history_11=""
+                     /building_history_15="QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_
+                     4']–=–modifyends(QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_3'],–
+                     left=QUEEN.dna_dict['dna_9'].seq,–right=QUEEN.dna_dict['dna
+                     _10'].rcseq,–product='fragment2',–process_description='The–
+                     C-terminus–of–Target-AID–was–amplified–from–pcDNA3.1_pCMV-n
+                     Cas-PmCDA1-ugi–pH1-gRNA(HPRT)–(Addgene–79620)–using–primer–
+                     pairs–HM128/RS046.')"
+                     /building_history_15="left:CTACGACGTGGATCATATCGTGCCCCAGTCTT
+                     TTC; right:GAGAGAACAAGATCAAGATGCTATAATGAGTTTAAA;
+                     leftobj:QUEEN.dna_dict['dna_9'].seq;
+                     rightobj:QUEEN.dna_dict['dna_10'].rcseq"
                      /building_history_23="QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_
-                     3']–=–modifyends(QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_2'],–
-                     left=QUEEN.dna_dict['dna_5'].seq,–right=QUEEN.dna_dict['dna
-                     _6'].getdnaseq(strand=-1),–project='pCMV-nCas-PmCDA1-ugi',–
-                     product='fragment2',–process_description='The–C-terminus–of
-                     –Target-AID–was–amplified–from–pcDNA3.1_pCMV-nCas-PmCDA1-ug
-                     i–pH1-gRNA(HPRT)–(Addgene–79620)–using–primer–pairs–HM128/R
-                     S046.')"
-                     /building_history_35="QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_
-                     5']–=–modifyends(QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_3'],–
-                     left='*{28}/-{28}',–right='-{25}/*{25}',–project='pCMV-nCas
-                     -PmCDA1-ugi',–product='fragment2',–process_description='The
-                     –Target-AID–plasmid–(pCMV-Target-AID)–was–constructed–by–as
-                     sembling–two–insert–fragments–and–a–backbone–fragments.')"
-                     /building_history_2="QUEEN.dna_dict['pCMV_ABE']–=–QUEEN(seq
-                     =None,–record='input/addgene_102919.gbk',–project='pCMV_ABE
-                     ',–topology='linear',–format=None,–product='pCMV_ABE',–proc
-                     ess_description='')"
-                     /building_history_28="QUEEN.queried_features_dict['pCMV_ABE
-                     _4']–=–QUEEN.dna_dict['pCMV_ABE'].searchsequence(query=QUEE
-                     N.dna_dict['dna_11'].seq[-18:],–product='FW3',–process_desc
-                     ription='The–backbone–fragment–was–amplified–from–pCMV-ABE7
-                     .10–using–RS047/RS048.')"
-                     /building_history_31="QUEEN.queried_features_dict['pCMV_ABE
-                     _5']–=–QUEEN.dna_dict['pCMV_ABE'].searchsequence(query=QUEE
-                     N.dna_dict['dna_12'].seq[-18:],–product='RV3',–process_desc
-                     ription='The–backbone–fragment–was–amplified–from–pCMV-ABE7
-                     .10–using–RS047/RS048.')"
-                     /building_history_32="QUEEN.dna_dict['pCMV_ABE_0']–=–cropdn
-                     a(QUEEN.dna_dict['pCMV_ABE'],–start=QUEEN.queried_features_
-                     dict['pCMV_ABE_4'][0].end,–end=QUEEN.queried_features_dict[
-                     'pCMV_ABE_5'][0].start,–project='pCMV_ABE',–product='fragme
-                     nt3',–process_description='The–backbone–fragment–was–amplif
-                     ied–from–pCMV-ABE7.10–using–RS047/RS048.')"
-                     /building_history_24="QUEEN.dna_dict['dna_11']–=–QUEEN(seq=
-                     'ATCAAGATGCTATAATGAGTTTAAACCCGCTGATC',–record=None,–project
-                     ='dna',–topology='linear',–format=None,–product='RS047',–pr
-                     ocess_description='The–backbone–fragment–was–amplified–from
-                     –pCMV-ABE7.10–using–RS047/RS048.')"
-                     /building_history_25="QUEEN.dna_dict['dna_12']–=–QUEEN(seq=
-                     'CTTCGGTGCCATGGTGGCGGCTCTCCCTATAG',–record=None,–project='d
-                     na',–topology='linear',–format=None,–product='RS048',–proce
-                     ss_description='The–backbone–fragment–was–amplified–from–pC
-                     MV-ABE7.10–using–RS047/RS048.')"
-                     /building_history_33="QUEEN.dna_dict['pCMV_ABE_1']–=–modify
-                     ends(QUEEN.dna_dict['pCMV_ABE_0'],–left=QUEEN.dna_dict['dna
-                     _11'].seq,–right=QUEEN.dna_dict['dna_12'].getdnaseq(strand=
-                     -1),–project='pCMV_ABE',–product='fragment3',–process_descr
-                     iption='The–backbone–fragment–was–amplified–from–pCMV-ABE7.
-                     10–using–RS047/RS048.')"
-                     /building_history_36="QUEEN.dna_dict['pCMV_ABE_2']–=–modify
-                     ends(QUEEN.dna_dict['pCMV_ABE_1'],–left='*{25}/-{25}',–righ
-                     t='-{25}/*{25}',–project='pCMV_ABE',–product='fragment3',–p
-                     rocess_description='The–Target-AID–plasmid–(pCMV-Target-AID
-                     )–was–constructed–by–assembling–two–insert–fragments–and–a–
-                     backbone–fragments.')"
-                     /building_history_38="QUEEN.dna_dict['pCMV-Target-AID']–=–j
-                     oindna(*[QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_4'],–QUEEN.dn
-                     a_dict['pCMV-nCas-PmCDA1-ugi_5'],–QUEEN.dna_dict['pCMV_ABE_
-                     2']],–topology='circular',–project='pCMV-Target-AID',–produ
+                     8']–=–modifyends(QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_4'],–
+                     left='*{28}/-{28}',–right='-{25}/*{25}',–product='fragment2
+                     ',–process_description='The–Target-AID–plasmid–(pCMV-Target
+                     -AID)–was–constructed–by–assembling–two–insert–fragments–an
+                     d–a–backbone–fragments.')"
+                     /building_history_23="left:*{28}/-{28}; right:-{25}/*{25};
+                     leftobj:'*{28}/-{28}'; rightobj:'-{25}/*{25}'"
+                     /building_history_3="QUEEN.dna_dict['pCMV-ABE_0']–=–QUEEN(r
+                     ecord='input/addgene_102919.gbk',–project='pCMV_ABE',–produ
+                     ct='pCMV_ABE')"
+                     /building_history_3=""
+                     /building_history_18="QUEEN.queried_features_dict['pCMV-ABE
+                     _0_4']–=–QUEEN.dna_dict['pCMV-ABE_0'].searchsequence(query=
+                     QUEEN.dna_dict['dna_18'].seq[-18:],–product='FW3',–process_
+                     description='The–backbone–fragment–was–amplified–from–pCMV-
+                     ABE7.10–using–RS047/RS048.')"
+                     /building_history_18="query:AGTTTAAACCCGCTGATC"
+                     /building_history_19="QUEEN.queried_features_dict['pCMV-ABE
+                     _0_5']–=–QUEEN.dna_dict['pCMV-ABE_0'].searchsequence(query=
+                     QUEEN.dna_dict['dna_19'].seq[-18:],–product='RV3',–process_
+                     description='The–backbone–fragment–was–amplified–from–pCMV-
+                     ABE7.10–using–RS047/RS048.')"
+                     /building_history_19="query:TGGCGGCTCTCCCTATAG"
+                     /building_history_20="QUEEN.dna_dict['pCMV-ABE_1']–=–cropdn
+                     a(QUEEN.dna_dict['pCMV-ABE_0'],–start=QUEEN.queried_feature
+                     s_dict['pCMV-ABE_0_4'][0].end,–end=QUEEN.queried_features_d
+                     ict['pCMV-ABE_0_5'][0].start,–project='pCMV-ABE',–product='
+                     fragment3',–process_description='The–backbone–fragment–was–
+                     amplified–from–pCMV-ABE7.10–using–RS047/RS048.')"
+                     /building_history_20="start:5277; end:8613"
+                     /building_history_16="QUEEN.dna_dict['dna_18']–=–QUEEN(seq=
+                     'ATCAAGATGCTATAATGAGTTTAAACCCGCTGATC',–product='RS047',–pro
+                     cess_description='The–backbone–fragment–was–amplified–from–
+                     pCMV-ABE7.10–using–RS047/RS048.')"
+                     /building_history_16=""
+                     /building_history_17="QUEEN.dna_dict['dna_19']–=–QUEEN(seq=
+                     'CTTCGGTGCCATGGTGGCGGCTCTCCCTATAG',–product='RS048',–proces
+                     s_description='The–backbone–fragment–was–amplified–from–pCM
+                     V-ABE7.10–using–RS047/RS048.')"
+                     /building_history_17=""
+                     /building_history_21="QUEEN.dna_dict['pCMV-ABE_2']–=–modify
+                     ends(QUEEN.dna_dict['pCMV-ABE_1'],–left=QUEEN.dna_dict['dna
+                     _18'].seq,–right=QUEEN.dna_dict['dna_19'].rcseq,–product='f
+                     ragment3',–process_description='The–backbone–fragment–was–a
+                     mplified–from–pCMV-ABE7.10–using–RS047/RS048.')"
+                     /building_history_21="left:ATCAAGATGCTATAATGAGTTTAAACCCGCTG
+                     ATC; right:CTATAGGGAGAGCCGCCACCATGGCACCGAAG;
+                     leftobj:QUEEN.dna_dict['dna_18'].seq;
+                     rightobj:QUEEN.dna_dict['dna_19'].rcseq"
+                     /building_history_24="QUEEN.dna_dict['pCMV-ABE_4']–=–modify
+                     ends(QUEEN.dna_dict['pCMV-ABE_2'],–left='*{25}/-{25}',–righ
+                     t='-{25}/*{25}',–product='fragment3',–process_description='
+                     The–Target-AID–plasmid–(pCMV-Target-AID)–was–constructed–by
+                     –assembling–two–insert–fragments–and–a–backbone–fragments.'
+                     )"
+                     /building_history_24="left:*{25}/-{25}; right:-{25}/*{25};
+                     leftobj:'*{25}/-{25}'; rightobj:'-{25}/*{25}'"
+                     /building_history_25="QUEEN.dna_dict['pCMV-Target-AID']–=–j
+                     oindna(*[QUEEN.dna_dict['pCMV-nCas-PmCDA1-ugi_6'],–QUEEN.dn
+                     a_dict['pCMV-nCas-PmCDA1-ugi_8'],–QUEEN.dna_dict['pCMV-ABE_
+                     4']],–topology='circular',–project='pCMV-Target-AID',–produ
                      ct='pCMV_Target_AID',–process_description='The–Target-AID–p
                      lasmid–(pCMV-Target-AID)–was–constructed–by–assembling–two–
                      insert–fragments–and–a–backbone–fragments.')"
+                     /building_history_25="topology:circular"
 ORIGIN
-        1 tgccttcctt gaccctggaa ggtgccactc ccactgtcct ttcctaataa aatgaggaaa
-       61 ttgcatcgca ttgtctgagt aggtgtcatt ctattctggg gggtggggtg gggcaggaca
-      121 gcaaggggga ggattgggaa gacaatagca ggcatgctgg ggatgcggtg ggctctatgg
-      181 cttctgaggc ggaaagaacc agctggggct cgataccgtc gacctctagc tagagcttgg
-      241 cgtaatcatg gtcatagctg tttcctgtgt gaaattgtta tccgctcaca attccacaca
-      301 acatacgagc cggaagcata aagtgtaaag cctagggtgc ctaatgagtg agctaactca
-      361 cattaattgc gttgcgctca ctgcccgctt tccagtcggg aaacctgtcg tgccagctgc
-      421 attaatgaat cggccaacgc gcggggagag gcggtttgcg tattgggcgc tcttccgctt
-      481 cctcgctcac tgactcgctg cgctcggtcg ttcggctgcg gcgagcggta tcagctcact
-      541 caaaggcggt aatacggtta tccacagaat caggggataa cgcaggaaag aacatgtgag
-      601 caaaaggcca gcaaaaggcc aggaaccgta aaaaggccgc gttgctggcg tttttccata
-      661 ggctccgccc ccctgacgag catcacaaaa atcgacgctc aagtcagagg tggcgaaacc
-      721 cgacaggact ataaagatac caggcgtttc cccctggaag ctccctcgtg cgctctcctg
-      781 ttccgaccct gccgcttacc ggatacctgt ccgcctttct cccttcggga agcgtggcgc
-      841 tttctcatag ctcacgctgt aggtatctca gttcggtgta ggtcgttcgc tccaagctgg
-      901 gctgtgtgca cgaacccccc gttcagcccg accgctgcgc cttatccggt aactatcgtc
-      961 ttgagtccaa cccggtaaga cacgacttat cgccactggc agcagccact ggtaacagga
-     1021 ttagcagagc gaggtatgta ggcggtgcta cagagttctt gaagtggtgg cctaactacg
-     1081 gctacactag aagaacagta tttggtatct gcgctctgct gaagccagtt accttcggaa
-     1141 aaagagttgg tagctcttga tccggcaaac aaaccaccgc tggtagcggt ggtttttttg
-     1201 tttgcaagca gcagattacg cgcagaaaaa aaggatctca agaagatcct ttgatctttt
-     1261 ctacggggtc tgacgctcag tggaacgaaa actcacgtta agggattttg gtcatgagat
-     1321 tatcaaaaag gatcttcacc tagatccttt taaattaaaa atgaagtttt aaatcaatct
-     1381 aaagtatata tgagtaaact tggtctgaca gttaccaatg cttaatcagt gaggcaccta
-     1441 tctcagcgat ctgtctattt cgttcatcca tagttgcctg actccccgtc gtgtagataa
-     1501 ctacgatacg ggagggctta ccatctggcc ccagtgctgc aatgataccg cgagacccac
-     1561 gctcaccggc tccagattta tcagcaataa accagccagc cggaagggcc gagcgcagaa
-     1621 gtggtcctgc aactttatcc gcctccatcc agtctattaa ttgttgccgg gaagctagag
-     1681 taagtagttc gccagttaat agtttgcgca acgttgttgc cattgctaca ggcatcgtgg
-     1741 tgtcacgctc gtcgtttggt atggcttcat tcagctccgg ttcccaacga tcaaggcgag
-     1801 ttacatgatc ccccatgttg tgcaaaaaag cggttagctc cttcggtcct ccgatcgttg
-     1861 tcagaagtaa gttggccgca gtgttatcac tcatggttat ggcagcactg cataattctc
-     1921 ttactgtcat gccatccgta agatgctttt ctgtgactgg tgagtactca accaagtcat
-     1981 tctgagaata gtgtatgcgg cgaccgagtt gctcttgccc ggcgtcaata cgggataata
-     2041 ccgcgccaca tagcagaact ttaaaagtgc tcatcattgg aaaacgttct tcggggcgaa
-     2101 aactctcaag gatcttaccg ctgttgagat ccagttcgat gtaacccact cgtgcaccca
-     2161 actgatcttc agcatctttt actttcacca gcgtttctgg gtgagcaaaa acaggaaggc
-     2221 aaaatgccgc aaaaaaggga ataagggcga cacggaaatg ttgaatactc atactcttcc
-     2281 tttttcaata ttattgaagc atttatcagg gttattgtct catgagcgga tacatatttg
-     2341 aatgtattta gaaaaataaa caaatagggg ttccgcgcac atttccccga aaagtgccac
-     2401 ctgacgtcga cggatcggga gatcgatctc ccgatcccct agggtcgact ctcagtacaa
-     2461 tctgctctga tgccgcatag ttaagccagt atctgctccc tgcttgtgtg ttggaggtcg
-     2521 ctgagtagtg cgcgagcaaa atttaagcta caacaaggca aggcttgacc gacaattgca
-     2581 tgaagaatct gcttagggtt aggcgttttg cgctgcttcg cgatgtacgg gccagatata
-     2641 cgcgttgaca ttgattattg actagttatt aatagtaatc aattacgggg tcattagttc
-     2701 atagcccata tatggagttc cgcgttacat aacttacggt aaatggcccg cctggctgac
-     2761 cgcccaacga cccccgccca ttgacgtcaa taatgacgta tgttcccata gtaacgccaa
-     2821 tagggacttt ccattgacgt caatgggtgg agtatttacg gtaaactgcc cacttggcag
-     2881 tacatcaagt gtatcatatg ccaagtacgc cccctattga cgtcaatgac ggtaaatggc
-     2941 ccgcctggca ttatgcccag tacatgacct tatgggactt tcctacttgg cagtacatct
-     3001 acgtattagt catcgctatt accatggtga tgcggttttg gcagtacatc aatgggcgtg
-     3061 gatagcggtt tgactcacgg ggatttccaa gtctccaccc cattgacgtc aatgggagtt
-     3121 tgttttggca ccaaaatcaa cgggactttc caaaatgtcg taacaactcc gccccattga
-     3181 cgcaaatggg cggtaggcgt gtacggtggg aggtctatat aagcagagct ggtttagtga
-     3241 accgtcagat ccgctagaga tccgcggccg ctaatacgac tcactatagg gagagccgcc
-     3301 accatggcac cgaagaagaa gcgtaaagtc ggaatccacg gagttcctgc ggcaatggac
-     3361 aagaagtact ccattgggct cgctatcggc acaaacagcg tcggttgggc cgtcattacg
-     3421 gacgagtaca aggtgccgag caaaaaattc aaagttctgg gcaataccga tcgccacagc
-     3481 ataaagaaga acctcattgg cgccctcctg ttcgactccg gggagacggc cgaagccacg
-     3541 cggctcaaaa gaacagcacg gcgcagatat acccgcagaa agaatcggat ctgctacctg
-     3601 caggagatct ttagtaatga gatggctaag gtggatgact ctttcttcca taggctggag
-     3661 gagtcctttt tggtggagga ggataaaaag cacgagcgcc acccaatctt tggcaatatc
-     3721 gtggacgagg tggcgtacca tgaaaagtac ccaaccatat atcatctgag gaagaagctt
-     3781 gtagacagta ctgataaggc tgacttgcgg ttgatctatc tcgcgctggc gcatatgatc
-     3841 aaatttcggg gacacttcct catcgagggg gacctgaacc cagacaacag cgatgtcgac
-     3901 aaactcttta tccaactggt tcagacttac aatcagcttt tcgaagagaa cccgatcaac
-     3961 gcatccggag ttgacgccaa agcaatcctg agcgctaggc tgtccaaatc ccggcggctc
-     4021 gaaaacctca tcgcacagct ccctggggag aagaagaacg gcctgtttgg taatcttatc
-     4081 gccctgtcac tcgggctgac ccccaacttt aaatctaact tcgacctggc cgaagatgcc
-     4141 aagcttcaac tgagcaaaga cacctacgat gatgatctcg acaatctgct ggcccagatc
-     4201 ggcgaccagt acgcagacct ttttttggcg gcaaagaacc tgtcagacgc cattctgctg
-     4261 agtgatattc tgcgagtgaa cacggagatc accaaagctc cgctgagcgc tagtatgatc
-     4321 aagcgctatg atgagcacca ccaagacttg actttgctga aggcccttgt cagacagcaa
-     4381 ctgcctgaga agtacaagga aattttcttc gatcagtcta aaaatggcta cgccggatac
-     4441 attgacggcg gagcaagcca ggaggaattt tacaaattta ttaagcccat cttggaaaaa
-     4501 atggacggca ccgaggagct gctggtaaag cttaacagag aagatctgtt gcgcaaacag
-     4561 cgcactttcg acaatggaag catcccccac cagattcacc tgggcgaact gcacgctatc
-     4621 ctcaggcggc aagaggattt ctaccccttt ttgaaagata acagggaaaa gattgagaaa
-     4681 atcctcacat ttcggatacc ctactatgta ggccccctcg cccggggaaa ttccagattc
-     4741 gcgtggatga ctcgcaaatc agaagagacc atcactccct ggaacttcga ggaagtcgtg
-     4801 gataaggggg cctctgccca gtccttcatc gaaaggatga ctaactttga taaaaatctg
-     4861 cctaacgaaa aggtgcttcc taaacactct ctgctgtacg agtacttcac agtttataac
-     4921 gagctcacca aggtcaaata cgtcacagaa gggatgagaa agccagcatt cctgtctgga
-     4981 gagcagaaga aagctatcgt ggacctcctc ttcaagacga accggaaagt taccgtgaaa
-     5041 cagctcaaag aagactattt caaaaagatt gaatgtttcg actctgttga aatcagcgga
-     5101 gtggaggatc gcttcaacgc atccctggga acgtatcacg atctcctgaa aatcattaaa
-     5161 gacaaggact tcctggacaa tgaggagaac gaggacattc ttgaggacat tgtcctcacc
-     5221 cttacgttgt ttgaagatag ggagatgatt gaagaacgct tgaaaactta cgctcatctc
-     5281 ttcgacgaca aagtcatgaa acagctcaag aggcgccgat atacaggatg ggggcggctg
-     5341 tcaagaaaac tgatcaatgg gatccgagac aagcagagtg gaaagacaat cctggatttt
-     5401 cttaagtccg atggatttgc caaccggaac ttcatgcagt tgatccatga tgactctctc
-     5461 acctttaagg aggacatcca gaaagcacaa gtttctggcc agggggacag tcttcacgag
-     5521 cacatcgcta atcttgcagg tagcccagct atcaaaaagg gaatactgca gaccgttaag
-     5581 gtcgtggatg aactcgtcaa agtaatggga aggcataagc ccgagaatat cgttatcgag
-     5641 atggcccgag agaaccaaac tacccagaag ggacagaaga acagtaggga aaggatgaag
-     5701 aggattgaag agggtataaa agaactgggg tcccaaatcc ttaaggaaca cccagttgaa
-     5761 aacacccagc ttcagaatga gaagctctac ctgtactacc tgcagaacgg cagggacatg
-     5821 tacgtggatc aggaactgga catcaatcgg ctctccgact acgacgtgga tcatatcgtg
-     5881 ccccagtctt ttctcaaaga tgattctatt gataataaag tgttgacaag atccgataaa
-     5941 aatagaggga agagtgataa cgtcccctca gaagaagttg tcaagaaaat gaaaaattat
-     6001 tggcggcagc tgctgaacgc caaactgatc acacaacgga agttcgataa tctgactaag
-     6061 gctgaacgag gtggcctgtc tgagttggat aaagccggct tcatcaaaag gcagcttgtt
-     6121 gagacacgcc agatcaccaa gcacgtggcc caaattctcg attcacgcat gaacaccaag
-     6181 tacgatgaaa atgacaaact gattcgagag gtgaaagtta ttactctgaa gtctaagctg
-     6241 gtctcagatt tcagaaagga ctttcagttt tataaggtga gagagatcaa caattaccac
-     6301 catgcgcatg atgcctacct gaatgcagtg gtaggcactg cacttatcaa aaaatatccc
-     6361 aagcttgaat ctgaatttgt ttacggagac tataaagtgt acgatgttag gaaaatgatc
-     6421 gcaaagtctg agcaggaaat aggcaaggcc accgctaagt acttctttta cagcaatatt
-     6481 atgaattttt tcaagaccga gattacactg gccaatggag agattcggaa gcgaccactt
-     6541 atcgaaacaa acggagaaac aggagaaatc gtgtgggaca agggtaggga tttcgcgaca
-     6601 gtccggaagg tcctgtccat gccgcaggtg aacatcgtta aaaagaccga agtacagacc
-     6661 ggaggcttct ccaaggaaag tatcctcccg aaaaggaaca gcgacaagct gatcgcacgc
-     6721 aaaaaagatt gggaccccaa gaaatacggc ggattcgatt ctcctacagt cgcttacagt
-     6781 gtactggttg tggccaaagt ggagaaaggg aagtctaaaa aactcaaaag cgtcaaggaa
-     6841 ctgctgggca tcacaatcat ggagcgatca agcttcgaaa aaaaccccat cgactttctc
-     6901 gaggcgaaag gatataaaga ggtcaaaaaa gacctcatca ttaagcttcc caagtactct
-     6961 ctctttgagc ttgaaaacgg ccggaaacga atgctcgcta gtgcgggcga gctgcagaaa
-     7021 ggtaacgagc tggcactgcc ctctaaatac gttaatttct tgtatctggc cagccactat
-     7081 gaaaagctca aagggtctcc cgaagataat gagcagaagc agctgttcgt ggaacaacac
-     7141 aaacactacc ttgatgagat catcgagcaa ataagcgaat tctccaaaag agtgatcctc
-     7201 gccgacgcta acctcgataa ggtgctttct gcttacaata agcacaggga taagcccatc
-     7261 agggagcagg cagaaaacat tatccacttg tttactctga ccaacttggg cgcgcctgca
-     7321 gccttcaagt acttcgacac caccatagac agaaagcggt acacctctac aaaggaggtc
-     7381 ctggacgcca cactgattca tcagtcaatt acggggctct atgaaacaag aatcgacctc
-     7441 tctcagctcg gtggagacag cagggctgac cccaagaaga agaggaaggt gggtggagga
-     7501 ggtaccggcg gtggaggctc agcagaatac gtacgagctc tgtttgactt caatgggaat
-     7561 gacgaggagg atctcccctt taagaagggc gatattctcc gcatcagaga taagcccgaa
-     7621 gaacaatggt ggaatgccga ggatagcgaa gggaaaaggg gcatgattct ggtgccatat
-     7681 gtggagaaat attccggtga ctacaaagac catgatgggg attacaaaga ccacgacatc
-     7741 gactacaaag acgacgacga taaatcaggg atgacagacg ccgagtacgt gcgcattcat
-     7801 gagaaactgg atatttacac cttcaagaag cagttcttca acaacaagaa atctgtgtca
-     7861 caccgctgct acgtgctgtt tgagttgaag cgaaggggcg aaagaagggc ttgcttttgg
-     7921 ggctatgccg tcaacaagcc ccaaagtggc accgagagag gaatacacgc tgagatattc
-     7981 agtatccgaa aggtggaaga gtatcttcgg gataatcctg ggcagtttac gatcaactgg
-     8041 tattccagct ggagtccttg cgctgattgt gccgagaaaa ttctggaatg gtataatcag
-     8101 gaacttcggg gaaacgggca cacattgaaa atctgggcct gcaagctgta ctacgagaag
-     8161 aatgcccgga accagatagg actctggaat ctgagggaca atggtgtagg cctgaacgtg
-     8221 atggtttccg agcactatca gtgttgtcgg aagattttca tccaaagctc tcataaccag
-     8281 ctcaatgaaa accgctggtt ggagaaaaca ctgaaacgtg cggagaagtg gagatccgag
-     8341 ctgagcatca tgatccaggt caagattctg cataccacta agtctccagc cgttggtccc
-     8401 aagaagaaaa gaaaagtcgg taccatgacc aacctttccg acatcataga gaaggaaaca
-     8461 ggcaaacagt tggtcatcca agagtcgata ctcatgcttc ctgaagaagt tgaggaggtc
-     8521 attgggaata agccggaaag tgacattctc gtacacactg cgtatgatga gagcaccgat
-     8581 gagaacgtga tgctgctcac gtcagatgcc ccagagtaca aaccctgggc tctggtgatt
-     8641 caggactcta atggagagaa caagatcaag atgctataat gagtttaaac ccgctgatca
-     8701 gcctcgactg tgccttctag ttgccagcca tctgttgttt gcccctcccc cg
+        1 ccatctgttg tttgcccctc ccccgtgcct tccttgaccc tggaaggtgc cactcccact
+       61 gtcctttcct aataaaatga ggaaattgca tcgcattgtc tgagtaggtg tcattctatt
+      121 ctggggggtg gggtggggca ggacagcaag ggggaggatt gggaagacaa tagcaggcat
+      181 gctggggatg cggtgggctc tatggcttct gaggcggaaa gaaccagctg gggctcgata
+      241 ccgtcgacct ctagctagag cttggcgtaa tcatggtcat agctgtttcc tgtgtgaaat
+      301 tgttatccgc tcacaattcc acacaacata cgagccggaa gcataaagtg taaagcctag
+      361 ggtgcctaat gagtgagcta actcacatta attgcgttgc gctcactgcc cgctttccag
+      421 tcgggaaacc tgtcgtgcca gctgcattaa tgaatcggcc aacgcgcggg gagaggcggt
+      481 ttgcgtattg ggcgctcttc cgcttcctcg ctcactgact cgctgcgctc ggtcgttcgg
+      541 ctgcggcgag cggtatcagc tcactcaaag gcggtaatac ggttatccac agaatcaggg
+      601 gataacgcag gaaagaacat gtgagcaaaa ggccagcaaa aggccaggaa ccgtaaaaag
+      661 gccgcgttgc tggcgttttt ccataggctc cgcccccctg acgagcatca caaaaatcga
+      721 cgctcaagtc agaggtggcg aaacccgaca ggactataaa gataccaggc gtttccccct
+      781 ggaagctccc tcgtgcgctc tcctgttccg accctgccgc ttaccggata cctgtccgcc
+      841 tttctccctt cgggaagcgt ggcgctttct catagctcac gctgtaggta tctcagttcg
+      901 gtgtaggtcg ttcgctccaa gctgggctgt gtgcacgaac cccccgttca gcccgaccgc
+      961 tgcgccttat ccggtaacta tcgtcttgag tccaacccgg taagacacga cttatcgcca
+     1021 ctggcagcag ccactggtaa caggattagc agagcgaggt atgtaggcgg tgctacagag
+     1081 ttcttgaagt ggtggcctaa ctacggctac actagaagaa cagtatttgg tatctgcgct
+     1141 ctgctgaagc cagttacctt cggaaaaaga gttggtagct cttgatccgg caaacaaacc
+     1201 accgctggta gcggtggttt ttttgtttgc aagcagcaga ttacgcgcag aaaaaaagga
+     1261 tctcaagaag atcctttgat cttttctacg gggtctgacg ctcagtggaa cgaaaactca
+     1321 cgttaaggga ttttggtcat gagattatca aaaaggatct tcacctagat ccttttaaat
+     1381 taaaaatgaa gttttaaatc aatctaaagt atatatgagt aaacttggtc tgacagttac
+     1441 caatgcttaa tcagtgaggc acctatctca gcgatctgtc tatttcgttc atccatagtt
+     1501 gcctgactcc ccgtcgtgta gataactacg atacgggagg gcttaccatc tggccccagt
+     1561 gctgcaatga taccgcgaga cccacgctca ccggctccag atttatcagc aataaaccag
+     1621 ccagccggaa gggccgagcg cagaagtggt cctgcaactt tatccgcctc catccagtct
+     1681 attaattgtt gccgggaagc tagagtaagt agttcgccag ttaatagttt gcgcaacgtt
+     1741 gttgccattg ctacaggcat cgtggtgtca cgctcgtcgt ttggtatggc ttcattcagc
+     1801 tccggttccc aacgatcaag gcgagttaca tgatccccca tgttgtgcaa aaaagcggtt
+     1861 agctccttcg gtcctccgat cgttgtcaga agtaagttgg ccgcagtgtt atcactcatg
+     1921 gttatggcag cactgcataa ttctcttact gtcatgccat ccgtaagatg cttttctgtg
+     1981 actggtgagt actcaaccaa gtcattctga gaatagtgta tgcggcgacc gagttgctct
+     2041 tgcccggcgt caatacggga taataccgcg ccacatagca gaactttaaa agtgctcatc
+     2101 attggaaaac gttcttcggg gcgaaaactc tcaaggatct taccgctgtt gagatccagt
+     2161 tcgatgtaac ccactcgtgc acccaactga tcttcagcat cttttacttt caccagcgtt
+     2221 tctgggtgag caaaaacagg aaggcaaaat gccgcaaaaa agggaataag ggcgacacgg
+     2281 aaatgttgaa tactcatact cttccttttt caatattatt gaagcattta tcagggttat
+     2341 tgtctcatga gcggatacat atttgaatgt atttagaaaa ataaacaaat aggggttccg
+     2401 cgcacatttc cccgaaaagt gccacctgac gtcgacggat cgggagatcg atctcccgat
+     2461 cccctagggt cgactctcag tacaatctgc tctgatgccg catagttaag ccagtatctg
+     2521 ctccctgctt gtgtgttgga ggtcgctgag tagtgcgcga gcaaaattta agctacaaca
+     2581 aggcaaggct tgaccgacaa ttgcatgaag aatctgctta gggttaggcg ttttgcgctg
+     2641 cttcgcgatg tacgggccag atatacgcgt tgacattgat tattgactag ttattaatag
+     2701 taatcaatta cggggtcatt agttcatagc ccatatatgg agttccgcgt tacataactt
+     2761 acggtaaatg gcccgcctgg ctgaccgccc aacgaccccc gcccattgac gtcaataatg
+     2821 acgtatgttc ccatagtaac gccaataggg actttccatt gacgtcaatg ggtggagtat
+     2881 ttacggtaaa ctgcccactt ggcagtacat caagtgtatc atatgccaag tacgccccct
+     2941 attgacgtca atgacggtaa atggcccgcc tggcattatg cccagtacat gaccttatgg
+     3001 gactttccta cttggcagta catctacgta ttagtcatcg ctattaccat ggtgatgcgg
+     3061 ttttggcagt acatcaatgg gcgtggatag cggtttgact cacggggatt tccaagtctc
+     3121 caccccattg acgtcaatgg gagtttgttt tggcaccaaa atcaacggga ctttccaaaa
+     3181 tgtcgtaaca actccgcccc attgacgcaa atgggcggta ggcgtgtacg gtgggaggtc
+     3241 tatataagca gagctggttt agtgaaccgt cagatccgct agagatccgc ggccgctaat
+     3301 acgactcact atagggagag ccgccaccat ggcaccgaag aagaagcgta aagtcggaat
+     3361 ccacggagtt cctgcggcaa tggacaagaa gtactccatt gggctcgcta tcggcacaaa
+     3421 cagcgtcggt tgggccgtca ttacggacga gtacaaggtg ccgagcaaaa aattcaaagt
+     3481 tctgggcaat accgatcgcc acagcataaa gaagaacctc attggcgccc tcctgttcga
+     3541 ctccggggag acggccgaag ccacgcggct caaaagaaca gcacggcgca gatatacccg
+     3601 cagaaagaat cggatctgct acctgcagga gatctttagt aatgagatgg ctaaggtgga
+     3661 tgactctttc ttccataggc tggaggagtc ctttttggtg gaggaggata aaaagcacga
+     3721 gcgccaccca atctttggca atatcgtgga cgaggtggcg taccatgaaa agtacccaac
+     3781 catatatcat ctgaggaaga agcttgtaga cagtactgat aaggctgact tgcggttgat
+     3841 ctatctcgcg ctggcgcata tgatcaaatt tcggggacac ttcctcatcg agggggacct
+     3901 gaacccagac aacagcgatg tcgacaaact ctttatccaa ctggttcaga cttacaatca
+     3961 gcttttcgaa gagaacccga tcaacgcatc cggagttgac gccaaagcaa tcctgagcgc
+     4021 taggctgtcc aaatcccggc ggctcgaaaa cctcatcgca cagctccctg gggagaagaa
+     4081 gaacggcctg tttggtaatc ttatcgccct gtcactcggg ctgaccccca actttaaatc
+     4141 taacttcgac ctggccgaag atgccaagct tcaactgagc aaagacacct acgatgatga
+     4201 tctcgacaat ctgctggccc agatcggcga ccagtacgca gacctttttt tggcggcaaa
+     4261 gaacctgtca gacgccattc tgctgagtga tattctgcga gtgaacacgg agatcaccaa
+     4321 agctccgctg agcgctagta tgatcaagcg ctatgatgag caccaccaag acttgacttt
+     4381 gctgaaggcc cttgtcagac agcaactgcc tgagaagtac aaggaaattt tcttcgatca
+     4441 gtctaaaaat ggctacgccg gatacattga cggcggagca agccaggagg aattttacaa
+     4501 atttattaag cccatcttgg aaaaaatgga cggcaccgag gagctgctgg taaagcttaa
+     4561 cagagaagat ctgttgcgca aacagcgcac tttcgacaat ggaagcatcc cccaccagat
+     4621 tcacctgggc gaactgcacg ctatcctcag gcggcaagag gatttctacc cctttttgaa
+     4681 agataacagg gaaaagattg agaaaatcct cacatttcgg ataccctact atgtaggccc
+     4741 cctcgcccgg ggaaattcca gattcgcgtg gatgactcgc aaatcagaag agaccatcac
+     4801 tccctggaac ttcgaggaag tcgtggataa gggggcctct gcccagtcct tcatcgaaag
+     4861 gatgactaac tttgataaaa atctgcctaa cgaaaaggtg cttcctaaac actctctgct
+     4921 gtacgagtac ttcacagttt ataacgagct caccaaggtc aaatacgtca cagaagggat
+     4981 gagaaagcca gcattcctgt ctggagagca gaagaaagct atcgtggacc tcctcttcaa
+     5041 gacgaaccgg aaagttaccg tgaaacagct caaagaagac tatttcaaaa agattgaatg
+     5101 tttcgactct gttgaaatca gcggagtgga ggatcgcttc aacgcatccc tgggaacgta
+     5161 tcacgatctc ctgaaaatca ttaaagacaa ggacttcctg gacaatgagg agaacgagga
+     5221 cattcttgag gacattgtcc tcacccttac gttgtttgaa gatagggaga tgattgaaga
+     5281 acgcttgaaa acttacgctc atctcttcga cgacaaagtc atgaaacagc tcaagaggcg
+     5341 ccgatataca ggatgggggc ggctgtcaag aaaactgatc aatgggatcc gagacaagca
+     5401 gagtggaaag acaatcctgg attttcttaa gtccgatgga tttgccaacc ggaacttcat
+     5461 gcagttgatc catgatgact ctctcacctt taaggaggac atccagaaag cacaagtttc
+     5521 tggccagggg gacagtcttc acgagcacat cgctaatctt gcaggtagcc cagctatcaa
+     5581 aaagggaata ctgcagaccg ttaaggtcgt ggatgaactc gtcaaagtaa tgggaaggca
+     5641 taagcccgag aatatcgtta tcgagatggc ccgagagaac caaactaccc agaagggaca
+     5701 gaagaacagt agggaaagga tgaagaggat tgaagagggt ataaaagaac tggggtccca
+     5761 aatccttaag gaacacccag ttgaaaacac ccagcttcag aatgagaagc tctacctgta
+     5821 ctacctgcag aacggcaggg acatgtacgt ggatcaggaa ctggacatca atcggctctc
+     5881 cgactacgac gtggatcata tcgtgcccca gtcttttctc aaagatgatt ctattgataa
+     5941 taaagtgttg acaagatccg ataaaaatag agggaagagt gataacgtcc cctcagaaga
+     6001 agttgtcaag aaaatgaaaa attattggcg gcagctgctg aacgccaaac tgatcacaca
+     6061 acggaagttc gataatctga ctaaggctga acgaggtggc ctgtctgagt tggataaagc
+     6121 cggcttcatc aaaaggcagc ttgttgagac acgccagatc accaagcacg tggcccaaat
+     6181 tctcgattca cgcatgaaca ccaagtacga tgaaaatgac aaactgattc gagaggtgaa
+     6241 agttattact ctgaagtcta agctggtctc agatttcaga aaggactttc agttttataa
+     6301 ggtgagagag atcaacaatt accaccatgc gcatgatgcc tacctgaatg cagtggtagg
+     6361 cactgcactt atcaaaaaat atcccaagct tgaatctgaa tttgtttacg gagactataa
+     6421 agtgtacgat gttaggaaaa tgatcgcaaa gtctgagcag gaaataggca aggccaccgc
+     6481 taagtacttc ttttacagca atattatgaa ttttttcaag accgagatta cactggccaa
+     6541 tggagagatt cggaagcgac cacttatcga aacaaacgga gaaacaggag aaatcgtgtg
+     6601 ggacaagggt agggatttcg cgacagtccg gaaggtcctg tccatgccgc aggtgaacat
+     6661 cgttaaaaag accgaagtac agaccggagg cttctccaag gaaagtatcc tcccgaaaag
+     6721 gaacagcgac aagctgatcg cacgcaaaaa agattgggac cccaagaaat acggcggatt
+     6781 cgattctcct acagtcgctt acagtgtact ggttgtggcc aaagtggaga aagggaagtc
+     6841 taaaaaactc aaaagcgtca aggaactgct gggcatcaca atcatggagc gatcaagctt
+     6901 cgaaaaaaac cccatcgact ttctcgaggc gaaaggatat aaagaggtca aaaaagacct
+     6961 catcattaag cttcccaagt actctctctt tgagcttgaa aacggccgga aacgaatgct
+     7021 cgctagtgcg ggcgagctgc agaaaggtaa cgagctggca ctgccctcta aatacgttaa
+     7081 tttcttgtat ctggccagcc actatgaaaa gctcaaaggg tctcccgaag ataatgagca
+     7141 gaagcagctg ttcgtggaac aacacaaaca ctaccttgat gagatcatcg agcaaataag
+     7201 cgaattctcc aaaagagtga tcctcgccga cgctaacctc gataaggtgc tttctgctta
+     7261 caataagcac agggataagc ccatcaggga gcaggcagaa aacattatcc acttgtttac
+     7321 tctgaccaac ttgggcgcgc ctgcagcctt caagtacttc gacaccacca tagacagaaa
+     7381 gcggtacacc tctacaaagg aggtcctgga cgccacactg attcatcagt caattacggg
+     7441 gctctatgaa acaagaatcg acctctctca gctcggtgga gacagcaggg ctgaccccaa
+     7501 gaagaagagg aaggtgggtg gaggaggtac cggcggtgga ggctcagcag aatacgtacg
+     7561 agctctgttt gacttcaatg ggaatgacga ggaggatctc ccctttaaga agggcgatat
+     7621 tctccgcatc agagataagc ccgaagaaca atggtggaat gccgaggata gcgaagggaa
+     7681 aaggggcatg attctggtgc catatgtgga gaaatattcc ggtgactaca aagaccatga
+     7741 tggggattac aaagaccacg acatcgacta caaagacgac gacgataaat cagggatgac
+     7801 agacgccgag tacgtgcgca ttcatgagaa actggatatt tacaccttca agaagcagtt
+     7861 cttcaacaac aagaaatctg tgtcacaccg ctgctacgtg ctgtttgagt tgaagcgaag
+     7921 gggcgaaaga agggcttgct tttggggcta tgccgtcaac aagccccaaa gtggcaccga
+     7981 gagaggaata cacgctgaga tattcagtat ccgaaaggtg gaagagtatc ttcgggataa
+     8041 tcctgggcag tttacgatca actggtattc cagctggagt ccttgcgctg attgtgccga
+     8101 gaaaattctg gaatggtata atcaggaact tcggggaaac gggcacacat tgaaaatctg
+     8161 ggcctgcaag ctgtactacg agaagaatgc ccggaaccag ataggactct ggaatctgag
+     8221 ggacaatggt gtaggcctga acgtgatggt ttccgagcac tatcagtgtt gtcggaagat
+     8281 tttcatccaa agctctcata accagctcaa tgaaaaccgc tggttggaga aaacactgaa
+     8341 acgtgcggag aagtggagat ccgagctgag catcatgatc caggtcaaga ttctgcatac
+     8401 cactaagtct ccagccgttg gtcccaagaa gaaaagaaaa gtcggtacca tgaccaacct
+     8461 ttccgacatc atagagaagg aaacaggcaa acagttggtc atccaagagt cgatactcat
+     8521 gcttcctgaa gaagttgagg aggtcattgg gaataagccg gaaagtgaca ttctcgtaca
+     8581 cactgcgtat gatgagagca ccgatgagaa cgtgatgctg ctcacgtcag atgccccaga
+     8641 gtacaaaccc tgggctctgg tgattcagga ctctaatgga gagaacaaga tcaagatgct
+     8701 ataatgagtt taaacccgct gatcagcctc gactgtgcct tctagttgcc ag
 //

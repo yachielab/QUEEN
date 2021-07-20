@@ -1,94 +1,85 @@
 import sys
-sys.path.append("../../")
-from dnaquine import *
-DNA.dna_dict['pCMV-ABEmax'] = DNA(seq=None, record='input/addgene_112095.gbk', project='pCMV-ABEmax', topology='linear', format=None, product=None, process_description=None)
-DNA.dna_dict['pCMV-BE4max'] = DNA(seq=None, record='input/addgene_112093.gbk', project='pCMV-BE4max', topology='linear', format=None, product=None, process_description=None)
-DNA.dna_dict['opt-pmCDA1-ugi'] = DNA(seq=None, record='input/puc-optimized-pmcda1-ugi.gbk', project='opt-pmCDA1-ugi', topology='linear', format=None, product=None, process_description=None)
+sys.path.append("/Users/hideto/dropbox/HIDETO_MORI.LAB/Experiments/Project/Dbrick/github")
+from QUEEN.queen import *
+set_namespace(globals())
+QUEEN(record='input/addgene_112093.gbk', product='pCMV_BE4max')
+QUEEN(record='input/addgene_112095.gbk', product='pCMV_ABEmax')
+QUEEN(record='input/puc-optimized-pmcda1-ugi.gbk', product='opt_CDA1_ugi')
 
-description0 = 'The fragment encoding the codon-optimized C-terminal region of Target-AIDmax was amplified with primer pair SI1304/SI1307.'
-DNA.queried_features_dict['opt-pmCDA1-ugi_14'] = DNA.dna_dict['opt-pmCDA1-ugi'].searchdna(query='AGGAGGAACTGGAGGAGG', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description0)
-DNA.queried_features_dict['opt-pmCDA1-ugi_15'] = DNA.dna_dict['opt-pmCDA1-ugi'].searchdna(query='CATTTTGATTTTGTTCTC', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description0)
-DNA.dna_dict['opt-pmCDA1-ugi_0'] = cropdna(DNA.dna_dict['opt-pmCDA1-ugi'], start=DNA.queried_features_dict['opt-pmCDA1-ugi_14'][0].end, end=DNA.queried_features_dict['opt-pmCDA1-ugi_15'][0].start, project='opt-pmCDA1-ugi', product=None, process_description=description0)
-DNA.dna_dict['opt-pmCDA1-ugi_1'] = modifyends(DNA.dna_dict['opt-pmCDA1-ugi_0'], left='CCTGTCTCAGCTGGGAGGTGACGGCGGAGGAGGAACTGGAGGAGG', right='GAGAACAAAATCAAAATGCTGTGATAATGAGTTTAAACCCGCTGA', project='opt-pmCDA1-ugi', product=None, process_description=description0)
-editfeature(DNA.dna_dict['opt-pmCDA1-ugi_1'], query=None, key_attribute='sequence', min_match=None, max_mismatch=0, target_attribute='feature_id', operation=createattribute(value='f7'), project=None, new_copy=False, product=None, process_description=description0)
-editfeature(DNA.dna_dict['opt-pmCDA1-ugi_1'], query='f7', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='strand', operation=replaceattribute(query_re=None,value=0), project=None, new_copy=False, product=None, process_description=description0)
-editfeature(DNA.dna_dict['opt-pmCDA1-ugi_1'], query='f7', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='qualifier:label', operation=createattribute(value='fragment-7'), project=None, new_copy=False, product=None, process_description=description0)
+description1 = 'The fragment encoding a nCas9 fragment (fragment6) was amplified from pCMV-BE4max using SI1308/SI1305.'
+QUEEN(seq='GTCACCTCCCAGCTGAGACAGGTCG', product='SI1305', process_description=description1)
 
-description1 = 'The backbone fragment was amplified from pCMV-ABEmax using SI1310/SI1309.'
-DNA.queried_features_dict['pCMV-ABEmax_16'] = DNA.dna_dict['pCMV-ABEmax'].searchdna(query='TGAGTTTAAACCCGCTGA', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description1)
-DNA.queried_features_dict['pCMV-ABEmax_17'] = DNA.dna_dict['pCMV-ABEmax'].searchdna(query='TTCTTCTTTGGTGACTCG', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description1)
-DNA.dna_dict['pCMV-ABEmax_0'] = cropdna(DNA.dna_dict['pCMV-ABEmax'], start=DNA.queried_features_dict['pCMV-ABEmax_16'][0].end, end=DNA.queried_features_dict['pCMV-ABEmax_17'][0].start, project='pCMV-ABEmax', product=None, process_description=description1)
-DNA.dna_dict['pCMV-ABEmax_1'] = modifyends(DNA.dna_dict['pCMV-ABEmax_0'], left='TGATAATGAGTTTAAACCCGCTGA', right='CGAGTCACCAAAGAAGAAGCGGAAAGTC', project='pCMV-ABEmax', product=None, process_description=description1)
-editfeature(DNA.dna_dict['pCMV-ABEmax_1'], query=None, key_attribute='sequence', min_match=None, max_mismatch=0, target_attribute='feature_id', operation=createattribute(value='f8'), project=None, new_copy=False, product=None, process_description=description1)
-editfeature(DNA.dna_dict['pCMV-ABEmax_1'], query='f8', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='strand', operation=replaceattribute(query_re=None,value=0), project=None, new_copy=False, product=None, process_description=description1)
-editfeature(DNA.dna_dict['pCMV-ABEmax_1'], query='f8', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='qualifier:label', operation=createattribute(value='fragment-8'), project=None, new_copy=False, product=None, process_description=description1)
+description2 = 'The fragment encoding the codon-optimized C-terminal region of Target-AIDmax (fragment7) was amplified with primer pair SI1304/SI1307.'
+QUEEN(seq='CCTGTCTCAGCTGGGAGGTGACGGCGGAGGAGGAACTGGAGGAGG', product='SI1304', process_description=description2)
+QUEEN(seq='TCAGCGGGTTTAAACTCATTATCACAGCATTTTGATTTTGTTCTC', product='SI1307', process_description=description2)
+opt_CDA1_ugi.searchsequence(query=SI1304.seq[-18:], product='FW7', process_description=description2)
+opt_CDA1_ugi.searchsequence(query=SI1307.seq[-18:], product='RV7', process_description=description2)
+cropdna(opt_CDA1_ugi, start=FW7[0].end, end=RV7[0].start, project='puc-optimized-pmcda1-ugi', product='fragment7', process_description=description2)
+modifyends(fragment7, left=SI1304.seq, right=SI1307.rcseq, product='fragment7', process_description=description2)
 
-description2 = 'The Target-AIDmax plasmid (pCMV-Target-AIDmax) was constructed by assembling the two insert fragments and the backbone fragment.'
-DNA.dna_dict['opt-pmCDA1-ugi_2'] = modifyends(DNA.dna_dict['opt-pmCDA1-ugi_1'], left='*{22}/-{22}', right='-{24}/*{24}', project='opt-pmCDA1-ugi', product=None, process_description=description2)
-DNA.dna_dict['pCMV-ABEmax_2'] = modifyends(DNA.dna_dict['pCMV-ABEmax_1'], left='*{24}/-{24}', right='-{22}/*{22}', project='pCMV-ABEmax', product=None, process_description=description2)
+description3 = 'The backbone fragment (fragment8) was amplified from pCMV-ABEmax using SI1310/SI1309.'
+QUEEN(seq='TGATAATGAGTTTAAACCCGCTGA', product='SI1310', process_description=description3)
+QUEEN(seq='GACTTTCCGCTTCTTCTTTGGTGACTCG', product='SI1309', process_description=description3)
+pCMV_ABEmax.searchsequence(query=SI1310.seq[-18:], product='FW8', process_description=description3)
+pCMV_ABEmax.searchsequence(query=SI1309.seq[-18:], product='RV8', process_description=description3)
+cropdna(pCMV_ABEmax, start=FW8[0].end, end=RV8[0].start, project='addgene-112095', product='fragment8', process_description=description3)
+modifyends(fragment8, left=SI1310.seq, right=SI1309.rcseq, product='fragment8', process_description=description3)
 
-description3 = 'The rAPOBEC1 fragment was obtained from BE4max using SI1352/SI1357.'
-DNA.queried_features_dict['pCMV-BE4max_21'] = DNA.dna_dict['pCMV-BE4max'].searchdna(query='GAGACTGGGCCTGTCGCC', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description3)
-DNA.queried_features_dict['pCMV-BE4max_22'] = DNA.dna_dict['pCMV-BE4max'].searchdna(query='GCCTGTGGCCCACAGGAT', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description3)
-DNA.dna_dict['pCMV-BE4max_3'] = cropdna(DNA.dna_dict['pCMV-BE4max'], start=DNA.queried_features_dict['pCMV-BE4max_21'][0].end, end=DNA.queried_features_dict['pCMV-BE4max_22'][0].start, project='pCMV-BE4max', product=None, process_description=description3)
-DNA.dna_dict['pCMV-BE4max_4'] = modifyends(DNA.dna_dict['pCMV-BE4max_3'], left='GATGACGATGACAAGTCTGGCTCCTCAGAGACTGGGCCTGTCGCC', right='ATCCTGTGGGCCACAGGCCTGAAG', project='pCMV-BE4max', product=None, process_description=description3)
-editfeature(DNA.dna_dict['pCMV-BE4max_4'], query=None, key_attribute='sequence', min_match=None, max_mismatch=0, target_attribute='feature_id', operation=createattribute(value='f10'), project=None, new_copy=False, product=None, process_description=description3)
-editfeature(DNA.dna_dict['pCMV-BE4max_4'], query='f10', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='strand', operation=replaceattribute(query_re=None,value=0), project=None, new_copy=False, product=None, process_description=description3)
-editfeature(DNA.dna_dict['pCMV-BE4max_4'], query='f10', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='qualifier:label', operation=createattribute(value='fragment-10'), project=None, new_copy=False, product=None, process_description=description3)
+description4 = 'The Target-AIDmax plasmid (pCMV-Target-AIDmax) was constructed by assembling the two insert fragments and the backbone fragment.'
+modifyends(fragment7, left='*{22}/-{22}', right='-{24}/*{24}', product='fragment7', process_description=description4)
 
-description4 = 'The 2×UGI fragment was obtained from BE4max using SI1359/SI1350.'
-DNA.queried_features_dict['pCMV-BE4max_23'] = DNA.dna_dict['pCMV-BE4max'].searchdna(query='AATCTGAGCGACATCATT', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description4)
-DNA.queried_features_dict['pCMV-BE4max_24'] = DNA.dna_dict['pCMV-BE4max'].searchdna(query='ACTTTCCTCTTCTTCTTG', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description4)
-DNA.dna_dict['pCMV-BE4max_5'] = cropdna(DNA.dna_dict['pCMV-BE4max'], start=DNA.queried_features_dict['pCMV-BE4max_23'][0].end, end=DNA.queried_features_dict['pCMV-BE4max_24'][0].start, project='pCMV-BE4max', product=None, process_description=description4)
-DNA.dna_dict['pCMV-BE4max_6'] = modifyends(DNA.dna_dict['pCMV-BE4max_5'], left='ATCCTGTGGGCCACAGGCCTGAAGACTAATCTGAGCGACATCATT', right='CAAGAAGAAGAGGAAAGTCTAATAATGAGTTTAAACCCGCTGATC', project='pCMV-BE4max', product=None, process_description=description4)
-editfeature(DNA.dna_dict['pCMV-BE4max_6'], query=None, key_attribute='sequence', min_match=None, max_mismatch=0, target_attribute='feature_id', operation=createattribute(value='f11'), project=None, new_copy=False, product=None, process_description=description4)
-editfeature(DNA.dna_dict['pCMV-BE4max_6'], query='f11', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='strand', operation=replaceattribute(query_re=None,value=0), project=None, new_copy=False, product=None, process_description=description4)
-editfeature(DNA.dna_dict['pCMV-BE4max_6'], query='f11', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='qualifier:label', operation=createattribute(value='fragment-11'), project=None, new_copy=False, product=None, process_description=description4)
+description5 = 'An nCas9 fragment (fragment9) was obtained from pCMV-Target-AIDmax using SI447/SI1105.'
+QUEEN(seq='GCCACATAGCAGAACTTTAAAAGTG', product='SI447', process_description=description5)
+QUEEN(seq='CTTGTCATCGTCATCCTTGTA', product='SI1105', process_description=description5)
 
-description5 = 'The backbone fragment was obtained from BE4max using SI1351/SI448.'
-DNA.queried_features_dict['pCMV-BE4max_25'] = DNA.dna_dict['pCMV-BE4max'].searchdna(query='AGTTTAAACCCGCTGATC', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description5)
-DNA.queried_features_dict['pCMV-BE4max_26'] = DNA.dna_dict['pCMV-BE4max'].searchdna(query='AAAGTTCTGCTATGTGGC', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description5)
-DNA.dna_dict['pCMV-BE4max_7'] = cropdna(DNA.dna_dict['pCMV-BE4max'], start=DNA.queried_features_dict['pCMV-BE4max_25'][0].end, end=DNA.queried_features_dict['pCMV-BE4max_26'][0].start, project='pCMV-BE4max', product=None, process_description=description5)
-DNA.dna_dict['pCMV-BE4max_8'] = modifyends(DNA.dna_dict['pCMV-BE4max_7'], left='TAATAATGAGTTTAAACCCGCTGATC', right='GCCACATAGCAGAACTTTAAAAGTG', project='pCMV-BE4max', product=None, process_description=description5)
-editfeature(DNA.dna_dict['pCMV-BE4max_8'], query=None, key_attribute='sequence', min_match=None, max_mismatch=0, target_attribute='feature_id', operation=createattribute(value='f12'), project=None, new_copy=False, product=None, process_description=description5)
-editfeature(DNA.dna_dict['pCMV-BE4max_8'], query='f12', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='strand', operation=replaceattribute(query_re=None,value=0), project=None, new_copy=False, product=None, process_description=description5)
-editfeature(DNA.dna_dict['pCMV-BE4max_8'], query='f12', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='qualifier:label', operation=createattribute(value='fragment-12'), project=None, new_copy=False, product=None, process_description=description5)
-DNA.dna_dict['pCMV-BE4max_9'] = modifyends(DNA.dna_dict['pCMV-BE4max_4'], left='*{15}/-{15}', right='-{24}/*{24}', project='pCMV-BE4max', product=None, process_description=description5)
-DNA.dna_dict['pCMV-BE4max_10'] = modifyends(DNA.dna_dict['pCMV-BE4max_6'], left='*{24}/-{24}', right='-{26}/*{26}', project='pCMV-BE4max', product=None, process_description=description5)
-DNA.dna_dict['pCMV-BE4max_11'] = modifyends(DNA.dna_dict['pCMV-BE4max_8'], left='*{26}/-{26}', right='-{25}/*{25}', project='pCMV-BE4max', product=None, process_description=description5)
+description6 = 'The rAPOBEC1 fragment (fragment10) was obtained from BE4max using SI1352/SI1357.'
+QUEEN(seq='GATGACGATGACAAGTCTGGCTCCTCAGAGACTGGGCCTGTCGCC', product='SI1352', process_description=description6)
+QUEEN(seq='CTTCAGGCCTGTGGCCCACAGGAT', product='SI1357', process_description=description6)
+pCMV_BE4max.searchsequence(query=SI1352.seq[-18:], product='FW10', process_description=description6)
+pCMV_BE4max.searchsequence(query=SI1357.seq[-18:], product='RV10', process_description=description6)
+cropdna(pCMV_BE4max, start=FW10[0].end, end=RV10[0].start, project='addgene-112093', product='fragment10', process_description=description6)
+modifyends(fragment10, left=SI1352.seq, right=SI1357.rcseq, product='fragment10', process_description=description6)
 
-description6 = 'An ABEmax fragment obtained from pCMV-ABEmax using SI945/SI1305'
-DNA.queried_features_dict['pCMV-ABEmax_28'] = DNA.dna_dict['pCMV-ABEmax'].searchdna(query='AATACGACTCACTATAGG', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description6)
-DNA.queried_features_dict['pCMV-ABEmax_29'] = DNA.dna_dict['pCMV-ABEmax'].searchdna(query='CCCAGCTGAGACAGGTCG', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description6)
-DNA.dna_dict['pCMV-ABEmax_3'] = cropdna(DNA.dna_dict['pCMV-ABEmax'], start=DNA.queried_features_dict['pCMV-ABEmax_28'][0].end, end=DNA.queried_features_dict['pCMV-ABEmax_29'][0].start, project='pCMV-ABEmax', product=None, process_description=description6)
-DNA.dna_dict['pCMV-ABEmax_4'] = modifyends(DNA.dna_dict['pCMV-ABEmax_3'], left='AGATCCGCGGCCGCTAATACGACTCACTATAGG', right='CGACCTGTCTCAGCTGGGAGGTGAC', project='pCMV-ABEmax', product=None, process_description=description6)
-editfeature(DNA.dna_dict['pCMV-ABEmax_4'], query=None, key_attribute='sequence', min_match=None, max_mismatch=0, target_attribute='feature_id', operation=createattribute(value='f13'), project=None, new_copy=False, product=None, process_description=description6)
-editfeature(DNA.dna_dict['pCMV-ABEmax_4'], query='f13', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='strand', operation=replaceattribute(query_re=None,value=0), project=None, new_copy=False, product=None, process_description=description6)
-editfeature(DNA.dna_dict['pCMV-ABEmax_4'], query='f13', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='qualifier:label', operation=createattribute(value='fragment-13'), project=None, new_copy=False, product=None, process_description=description6)
+description7 = 'The 2×UGI fragment (fragment11) was obtained from BE4max using SI1359/SI1350.'
+QUEEN(seq='ATCCTGTGGGCCACAGGCCTGAAGACTAATCTGAGCGACATCATT', product='SI1359', process_description=description7)
+QUEEN(seq='GATCAGCGGGTTTAAACTCATTATTAGACTTTCCTCTTCTTCTTG', product='SI1350', process_description=description7)
+pCMV_BE4max.searchsequence(query=SI1359.seq[-18:], product='FW11', process_description=description7)
+pCMV_BE4max.searchsequence(query=SI1350.seq[-18:], product='RV11', process_description=description7)
+cropdna(pCMV_BE4max, start=FW11[0].end, end=RV11[0].start, project='addgene-112093', product='fragment11', process_description=description7)
+modifyends(fragment11, left=SI1359.seq, right=SI1350.rcseq, product='fragment11', process_description=description7)
 
-description7 = 'The Target-ACEmax plasmid (pCMV-BE4max(C)) was constructed by assembling a insert fragment and two backbone fragments.'
-DNA.dna_dict['opt-pmCDA1-ugi_3'] = modifyends(DNA.dna_dict['opt-pmCDA1-ugi_2'], left='*{22}/-{22}', right='-{24}/*{24}', project='opt-pmCDA1-ugi', product=None, process_description=description7)
-DNA.dna_dict['pCMV-ABEmax_5'] = modifyends(DNA.dna_dict['pCMV-ABEmax_2'], left='*{24}/-{24}', right='-{103}/*{103}', project='pCMV-ABEmax', product=None, process_description=description7)
-DNA.dna_dict['pCMV-ABEmax_6'] = modifyends(DNA.dna_dict['pCMV-ABEmax_4'], left='*{103}/-{103}', right='-{22}/*{22}', project='pCMV-ABEmax', product=None, process_description=description7)
-DNA.dna_dict['pCMV-Target-ACEmax'] = joindna(*[DNA.dna_dict['opt-pmCDA1-ugi_3'], DNA.dna_dict['pCMV-ABEmax_5'], DNA.dna_dict['pCMV-ABEmax_6']], topology='circular', project='pCMV-Target-ACEmax', product=None, process_description=description7)
-DNA.dna_dict['pCMV-Target-ACEmax_0'], = cutdna(DNA.dna_dict['pCMV-Target-ACEmax'], '5834/5834', crop=False, project='pCMV-Target-ACEmax', product=None, process_description=description7)
-DNA.dna_dict['pCMV-Target-ACEmax_1'] = joindna(*[DNA.dna_dict['pCMV-Target-ACEmax_0']], topology='circular', project='pCMV-Target-ACEmax', product=None, process_description=description7)
+description8 = 'The backbone fragment (fragment12) was obtained from BE4max using SI1351/SI448.'
+QUEEN(seq='TAATAATGAGTTTAAACCCGCTGATC', product='SI1351', process_description=description8)
+QUEEN(seq='CACTTTTAAAGTTCTGCTATGTGGC', product='SI448', process_description=description8)
+pCMV_BE4max.searchsequence(query=SI1351.seq[-18:], product='FW12', process_description=description8)
+pCMV_BE4max.searchsequence(query=SI448.seq[-18:], product='RV12', process_description=description8)
+cropdna(pCMV_BE4max, start=FW12[0].end, end=RV12[0].start, project='addgene-112093', product='fragment12', process_description=description8)
+modifyends(fragment12, left=SI1351.seq, right=SI448.rcseq, product='fragment12', process_description=description8)
 
-description8 = 'An ABEmax fragment obtained from pCMV-Target-ACEmax using SI447/SI1105.'
-DNA.queried_features_dict['pCMV-Target-ACEmax_1_31'] = DNA.dna_dict['pCMV-Target-ACEmax_1'].searchdna(query='AGCAGAACTTTAAAAGTG', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description8)
-DNA.queried_features_dict['pCMV-Target-ACEmax_1_32'] = DNA.dna_dict['pCMV-Target-ACEmax_1'].searchdna(query='GTCATCGTCATCCTTGTA', key_attribute='sequence', min_match=None, max_mismatch=0, product=None, process_description=description8)
-DNA.dna_dict['pCMV-Target-ACEmax_2'] = cropdna(DNA.dna_dict['pCMV-Target-ACEmax_1'], start=DNA.queried_features_dict['pCMV-Target-ACEmax_1_31'][0].end, end=DNA.queried_features_dict['pCMV-Target-ACEmax_1_32'][0].start, project='pCMV-Target-ACEmax', product=None, process_description=description8)
-DNA.dna_dict['pCMV-Target-ACEmax_3'] = modifyends(DNA.dna_dict['pCMV-Target-ACEmax_2'], left='GCCACATAGCAGAACTTTAAAAGTG', right='TACAAGGATGACGATGACAAG', project='pCMV-Target-ACEmax', product=None, process_description=description8)
-editfeature(DNA.dna_dict['pCMV-Target-ACEmax_3'], query=None, key_attribute='sequence', min_match=None, max_mismatch=0, target_attribute='feature_id', operation=createattribute(value='f14'), project=None, new_copy=False, product=None, process_description=description8)
-editfeature(DNA.dna_dict['pCMV-Target-ACEmax_3'], query='f14', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='strand', operation=replaceattribute(query_re=None,value=0), project=None, new_copy=False, product=None, process_description=description8)
-editfeature(DNA.dna_dict['pCMV-Target-ACEmax_3'], query='f14', key_attribute='feature_id', min_match=None, max_mismatch=0, target_attribute='qualifier:label', operation=createattribute(value='fragment-14'), project=None, new_copy=False, product=None, process_description=description8)
-DNA.dna_dict['pCMV-Target-ACEmax_4'] = modifyends(DNA.dna_dict['pCMV-Target-ACEmax_3'], left='*{25}/-{25}', right='-{15}/*{15}', project='pCMV-Target-ACEmax', product=None, process_description=description8)
-DNA.dna_dict['pCMV-BE4max_12'] = modifyends(DNA.dna_dict['pCMV-BE4max_9'], left='*{15}/-{15}', right='-{24}/*{24}', project='pCMV-BE4max', product=None, process_description=description8)
-DNA.dna_dict['pCMV-BE4max_13'] = modifyends(DNA.dna_dict['pCMV-BE4max_10'], left='*{24}/-{24}', right='-{26}/*{26}', project='pCMV-BE4max', product=None, process_description=description8)
-DNA.dna_dict['pCMV-BE4max_14'] = modifyends(DNA.dna_dict['pCMV-BE4max_11'], left='*{26}/-{26}', right='-{25}/*{25}', project='pCMV-BE4max', product=None, process_description=description8)
+description9 = 'The BE4max(C) plasmid (pCMV-BE4max(C)) was constructedby assembling the three insert fragments and the backbone fragment.'
+modifyends(fragment10, left='*{15}/-{15}', right='-{24}/*{24}', product='fragment10', process_description=description9)
+modifyends(fragment11, left='*{24}/-{24}', right='-{26}/*{26}', product='fragment11', process_description=description9)
+modifyends(fragment12, left='*{26}/-{26}', right='-{25}/*{25}', product='fragment12', process_description=description9)
 
-description9 = 'The ACBEmax plasmid (pCMV-ACBEmax) was constructed by assembling the ABEmax fragment with the three fragments encoding the rAPOBEC1 domain, 2×UGI domain, and the backbone fragment.'
-DNA.dna_dict['pCMV-ACBEmax'] = joindna(*[DNA.dna_dict['pCMV-Target-ACEmax_4'], DNA.dna_dict['pCMV-BE4max_12'], DNA.dna_dict['pCMV-BE4max_13'], DNA.dna_dict['pCMV-BE4max_14']], topology='circular', project='pCMV-ACBEmax', product=None, process_description=description9)
-DNA.dna_dict['pCMV-ACBEmax_0'], = cutdna(DNA.dna_dict['pCMV-ACBEmax'], '2504/2504', crop=False, project='pCMV-ACBEmax', product=None, process_description=description9)
-DNA.dna_dict['pCMV-ACBEmax_1'] = joindna(*[DNA.dna_dict['pCMV-ACBEmax_0']], topology='circular', project='pCMV-ACBEmax', product=None, process_description=description9)
-DNA.dna_dict['pCMV-ACBEmax_1'].writedna('reconstructed_pCMV-ACBEmax.gbk')
+description10 = 'An ABEmax fragment (fragment13) obtained from pCMV-ABEmax using SI945/SI1305'
+QUEEN(seq='AGATCCGCGGCCGCTAATACGACTCACTATAGG', product='SI945', process_description=description10)
+pCMV_ABEmax.searchsequence(query=SI945.seq[-18:], product='FW13', process_description=description10)
+pCMV_ABEmax.searchsequence(query=SI1305.seq[-18:], product='RV13', process_description=description10)
+cropdna(pCMV_ABEmax, start=FW13[0].end, end=RV13[0].start, project='addgene-112095', product='fragment13', process_description=description10)
+modifyends(fragment13, left=SI945.seq, right=SI1305.rcseq, product='fragment13', process_description=description10)
+
+description11 = 'The Target-ACEmax plasmid (pCMV-Target-ACEmax) was constructed by assembling a insert fragment and two backbone fragments.'
+modifyends(fragment8, left='*{24}/-{24}', right='-{103}/*{103}', product='fragment8_2', process_description=description11)
+modifyends(fragment13, left='*{103}/-{103}', right='-{22}/*{22}', product='fragment13', process_description=description11)
+joindna(*[fragment7, fragment8_2, fragment13], topology='circular', product='pCMV_Target_ACEmax', process_description=description11)
+
+description12 = 'An ABEmax fragment (fragment14) obtained from pCMV-Target-ACEmax using SI447/SI1105.'
+pCMV_Target_ACEmax.searchsequence(query=SI447.seq[-18:], product='FW14', process_description=description12)
+pCMV_Target_ACEmax.searchsequence(query=SI1105.seq[-18:], product='RV14', process_description=description12)
+cropdna(pCMV_Target_ACEmax, start=FW14[0].end, end=RV14[0].start, project='puc-optimized-pmcda1-ugi', product='fragment14', process_description=description12)
+modifyends(fragment14, left=SI447.seq, right=SI1105.rcseq, product='fragment14', process_description=description12)
+
+description13 = 'The ACBEmax plasmid (pCMV-ACBEmax) was constructed by assembling the ABEmax fragment with the three fragments encoding the rAPOBEC1 domain, 2×UGI domain, and the backbone fragment.'
+modifyends(fragment14, left='*{25}/-{25}', right='-{15}/*{15}', product='fragment14', process_description=description13)
+joindna(*[fragment14, fragment10, fragment11, fragment12], topology='circular', product='pCMV_ACBEmax', process_description=description13)
+pCMV_ACBEmax.writedna()

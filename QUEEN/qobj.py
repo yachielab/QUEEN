@@ -141,7 +141,10 @@ class DNAfeature(SeqFeature):
                 if key in ["_start", "_end", "__digestion_topl", "_digestion_topr", "_digestion_bottomr", "_digestion_bottoml", "subject", "query"]: 
                     pass
                 else:
-                    self.__dict__[key] = copy.deepcopy(feature.__dict__[key]) 
+                    if key == "_original":
+                        self._original = str(feature._original)
+                    else:
+                        self.__dict__[key] = copy.deepcopy(feature.__dict__[key]) 
         
         #Start->End direction should be 5' to 3' on the top strand.
         if self.location.strand == -1:

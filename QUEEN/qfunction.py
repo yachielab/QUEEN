@@ -134,11 +134,7 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_desc
                 s = feat.start
                 e = feat.end
                 if "_original" not in feat.__dict__:
-                    if s > e:
-                        feat._original = str(dna.seq)[s:len(dna.seq)] + str(dna.seq)[:e]
-                    else:
-                        feat._original = str(dna.seq)[s:e].upper()
-                    #feat.original_location = feat.location
+                    feat._original = dna.getdnaseq(s, e, feat.location.strand if feat.location.strand !=0 else 1) 
                 if s > e:
                     if len(feat.location.parts) == 1:
                         length = len(dna.seq) - s + e
@@ -261,11 +257,7 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_desc
                 s = feat.start
                 e = feat.end
                 if "_original" not in feat.__dict__:
-                    if s > e:
-                        feat._original = str(dna.seq)[s:len(dna.seq)] + str(dna.seq)[:e]
-                    else:
-                        feat._original = str(dna.seq)[s:e].upper()    
-                    #feat.original_location = feat.location
+                    feat._original = dna.getdnaseq(s, e, feat.location.strand if feat.location.strand !=0 else 1) 
                 feat = copy.deepcopy(feat)
                 if len(feat.location.parts) == 1 and s <= e:
                     if e > start and s < end:
@@ -855,9 +847,9 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_descri
                                     new_feat  = feat1.__class__(feature=new_feat, subject=construct)
                                     new_feat1 = feat1.__class__(feature=feat1, subject=construct)
                                     new_feat2 = feat1.__class__(feature=feat2, subject=construct) 
-                                    s = new_feat.start
-                                    e = new_feat.end        
-                                    if construct.getdnaseq(new_feat1.start, new_feat2.end, new_feat.location.strand if new_feat.location.strand !=0 else 1) in new_feat.original:
+                                    s = new_feat.start 
+                                    e = new_feat.end if new_feat.end <= len(construct.seq) else new_feat.end - len(construct.seq) 
+                                    if construct.getdnaseq(s, e, new_feat.location.strand if new_feat.location.strand !=0 else 1) in new_feat.original:
                                         construct._dnafeatures[feat1_index] = feat1.__class__(feature=new_feat)
                                         construct._dnafeatures[feat1_index].qualifiers["broken_feature"] = [note]
                                         del feats[feats.index(feat2)] 
@@ -955,7 +947,7 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_descri
                 sfeat = sfeat if sfeat > 0 else len(construct.seq) - sfeat
                 efeat = feat.end+(poss-1)    
             
-            if feat.original == construct.getdnaseq(sfeat, efeat, strand=1):
+            if feat.original == construct.getdnaseq(sfeat, efeat, strand=feat.location.strand):
                 if sfeat < efeat:
                     location = FeatureLocation(sfeat, efeat, feat.location.strand) 
                 else:
@@ -2349,7 +2341,7 @@ def _circularizedna(dna):
     seq_origin = dna.seq
     feats_origin = dna.dnafeatures
     if dna.topology == "circular" and dna.record.annotations["topology"] == "circular":
-        print("The DNA object is already circularized")
+        print("The QUEEN object topology is circular")
 
     if (dna._right_end_top * dna._left_end_bottom == 1 and dna._right_end_bottom * dna._left_end_top == 1) and len(dna._right_end) > 0 and (dna._left_end_top == -1 or dna._left_end_bottom == -1):
         if str(dna._right_end) == str(dna._left_end): 
@@ -2394,8 +2386,6 @@ def _circularizedna(dna):
                     pos_s2  = int(note2.split(":")[-1].split("..")[0].replace(" ",""))
                     pos_e2  = int(note2.split(":")[-1].split("..")[1].replace(" ","")) 
                     if s1 > e2 and length1 == length2 and "_original" in feat1.__dict__ and "_original" in feat2.__dict__ and feat1.original == feat2.original and feat1.location.strand == feat2.location.strand:
-                        #print(feat1)
-                        #print(feat2) 
                         note        = "{}:{}..{}".format(label, pos_s1, pos_e2)
                         new_seq     = seq_origin[s1:e1] + seq_origin[s2:e2]
                         feat1_index = dna.dnafeatures.index(feat1)
@@ -2415,9 +2405,8 @@ def _circularizedna(dna):
                         new_feat  = feat1.__class__(feature=new_feat, subject=dna)
                         new_feat1 = feat1.__class__(feature=feat1, subject=dna)
                         new_feat2 = feat1.__class__(feature=feat2, subject=dna) 
-                        s = new_feat.start
-                        e = new_feat.end                                    
-                        #if (len(new_seq) - len(ovhg) == e - s and len(new_seq) - len(ovhg) <= len(feat1.original)) or 
+                        s = new_feat.start 
+                        e = new_feat.end if new_feat.end <= len(dna.seq) else new_feat.end - len(dna.seq)
                         if new_feat._original == dna.getdnaseq(new_feat1.start, new_feat2.end, new_feat.location.strand if new_feat.location.strand !=0 else 1):
                             dna._dnafeatures[feat1_index].qualifiers["broken_feature"] = [note]
                             if len(new_seq) - len(ovhg) == length1:
@@ -2469,6 +2458,8 @@ def visualize(dna, map_view="linear", feature_list=None, start=0, end=None, stan
 
     if feature_list is None:
         feature_list = dna.dnafeatures
+        if map_view == "circular":
+            feature_list.sort(key=lambda x:len(dna.getdnaseq(x.start, x.end)))
     if map_view == "circular":
         fig, axes = vc.visualize(dna, format=0, feature_list=feature_list, unvisible_types=["source"], visible_types=[], bottom=400 * diamater_scale, label_box=label_box, fontsize=fontsize, 
         view_title=view_title, view_axis=view_axis, tick_space=tick_space)

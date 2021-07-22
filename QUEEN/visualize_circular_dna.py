@@ -800,10 +800,11 @@ def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], vi
     ax.yaxis.set_ticklabels([])
     ax2.set_axis_off()
     if feature_list is None:
-        feature_list = birck.dnafeatures    
+        feature_list = birck.dnafeatures
+        feature_list.sort(key=lambda x:len(brick.getdnaseq(x.start, x.end)))
     else:
-        brick._dnafeatures = feature_list
-    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, brick.dnafeatures, len(brick.seq), unvisible_types=unvisible_types, visible_types=visible_types, format=format, bottom=bottom, enlarge=1.0, label_box=label_box, fontsize=fontsize, view_axis=view_axis, tick_space=tick_space) 
+        pass
+    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, feature_list, len(brick.seq), unvisible_types=unvisible_types, visible_types=visible_types, format=format, bottom=bottom, enlarge=1.0, label_box=label_box, fontsize=fontsize, view_axis=view_axis, tick_space=tick_space) 
    
     if view_title == True:
         renderer    = figure.canvas.get_renderer()

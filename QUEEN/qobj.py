@@ -82,22 +82,22 @@ class DNAfeature(SeqFeature):
             return self.type
         
         elif name == "_original":
-            seq = self.subject.getdnaseq(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
+            seq = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
         
         elif name == "original":
             if "_original" in self.__dict__:
                 return self._original 
             else:
-                return self.subject.getdnaseq(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
+                return self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
         
         elif name == "seq" or name == "sequence":
-            seq           = self.subject.getdnaseq(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
+            seq           = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
             seq           = Qseq(seq)
             seq.qkey      = self._start.qkey
             seq.parental_id = self._start.parental_id 
             seq.parent    = self 
             seq.parental_class = "DNAfeature"
-            seq = self.subject.getdnaseq(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
+            seq = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
             return seq
         
         elif name == "strand":
@@ -704,7 +704,7 @@ class QUEEN():
         if start == 0 and end == len(self.seq):
             subject = self.seq
         else:
-            subject = self.getdnaseq(start, end, strand=1)
+            subject = self.printsequence(start, end, strand=1)
 
         feat_list = [] 
         if query is None:
@@ -827,11 +827,11 @@ class QUEEN():
                 elif qorigin.parental_class == "QUEEN": 
                     parental_id = qorigin.parental_id 
                     if qorigin.name != None: 
-                        if "getdnaseq" in qorigin.name:
+                        if "printsequence" in qorigin.name:
                             if len(qorigin.name.split("_")) == 2: 
-                                seqname = "QUEEN.dna_dict['{}'].getdnaseq(strand={})".format(parental_id, qorigin.name.split("_")[-1]) 
+                                seqname = "QUEEN.dna_dict['{}'].printsequence(strand={})".format(parental_id, qorigin.name.split("_")[-1]) 
                             else:
-                                seqname = "QUEEN.dna_dict['{}'].getdnaseq(start={}, end={}, strand={})".format(parental_id, *qorigin.name.split("_")[1:])
+                                seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={})".format(parental_id, *qorigin.name.split("_")[1:])
                         if qorigin.name == "rcseq":
                             seqname = "QUEEN.dna_dict['{}'].rcseq".format(parental_id)
                     else:
@@ -937,11 +937,11 @@ class QUEEN():
                 elif query.parental_class == "QUEEN": 
                     parental_id = query.parental_id 
                     if query.name != None:
-                        if "getdnaseq" in query.name:
+                        if "printsequence" in query.name:
                             if len(query.name.split("_")) == 2: 
-                                seqname = "QUEEN.dna_dict['{}'].getdnaseq(strand={})".format(parental_id, query.name.split("_")[-1]) 
+                                seqname = "QUEEN.dna_dict['{}'].printsequence(strand={})".format(parental_id, query.name.split("_")[-1]) 
                             else:
-                                seqname = "QUEEN.dna_dict['{}'].getdnaseq(start={}, end={}, strand={})".format(parental_id, *query.name.split("_")[1:])
+                                seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={})".format(parental_id, *query.name.split("_")[1:])
                         if query.name == "rcseq":
                             seqname = "QUEEN.dna_dict['{}'].rcseq".format(parental_id)
                     else:
@@ -1079,7 +1079,7 @@ class QUEEN():
         else:
             return joindna(other, self, __direct==0) 
     
-    def getdnaseq(self, start=None, end=None, strand=2, hide_middle=None, linebreak=None, display=False):
+    def printsequence(self, start=None, end=None, strand=2, hide_middle=None, linebreak=None, display=False):
         whole = False
         if linebreak is None:
             width = len(self.seq) + 1
@@ -1185,9 +1185,9 @@ class QUEEN():
         return_seq = Qseq(return_seq) 
         return_seq.__dict__ = self.seq.__dict__ 
         if start == 0 or None and end == len(self.seq) or None:
-            return_seq.name = "getdnaseq_{}".format(strand)
+            return_seq.name = "printsequence_{}".format(strand)
         else:
-            return_seq.name = "getdnaseq_{}_{}_{}".format(start, end, strand)
+            return_seq.name = "printsequence_{}_{}_{}".format(start, end, strand)
         return return_seq
 
     def _setfeatureid(self):

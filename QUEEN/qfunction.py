@@ -547,7 +547,9 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_desc
                     spos = spos - len(dna.seq) if spos > len(dna.seq) else spos 
                     epos = epos + len(dna.seq) if epos < 0 else epos
                     new_positions.append((spos,epos))
-        
+    
+    new_positions_original = new_positions[:] 
+    new_positions_original = ["{}/{}".format(*posset) for posset in new_positions_original]
     if crop == True:
         crop_positions = (new_positions[0], new_positions[1])
     
@@ -593,6 +595,7 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_desc
     else:
         for subdna in dnas:
             subdna._project = project
+    
     if __direct == 1:
         products = []
         dna_keys = list(dnas[0].__class__.dna_dict.keys())
@@ -637,8 +640,8 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_desc
         for subdna in dnas:
             history_feature = _combine_history(subdna, history_features)
             subdna._history_feature = history_feature
-            add_history(subdna, [building_history, "positions:{}".format(",".join(list(map(str, positions))))])
-    
+            add_history(subdna, [building_history, "positions:{}".format(",".join(list(map(str, new_positions_original)))), "num_products:{}".format(len(dnas))])
+
     if product is None:
         pass 
     else:
@@ -1344,8 +1347,8 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
                     args.append("{}".format(seqname))
                 history_features.append(left_origin.parent._history_feature) 
             
-            elif left_origin.parental_class == "RE":
-                args.append("RE_sites['{}'].{}".format(left_origin.parent.name, left_origin.name)) 
+            elif left_origin.parental_class == "Cutsite":
+                args.append("cs.lib['{}'].{}".format(left_origin.parent.name, left_origin.name)) 
 
             else:
                 args.append("'{}'".format(left_origin)) 
@@ -1406,8 +1409,8 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
                     args.append("{}".format(seqname))
                 history_features.append(right_origin.parent._history_feature) 
             
-            elif right_origin.parental_class == "RE":
-                args.append("RE_sites['{}'].{}".format(right_origin.parent.name, right_origin.name)) 
+            elif right_origin.parental_class == "Cutsite":
+                args.append("cs.lib['{}'].{}".format(right_origin.parent.name, right_origin.name)) 
 
             else:
                 args.append("'{}'".format(right_origin)) 
@@ -1716,8 +1719,8 @@ def editsequence(dna, source_sequence, destination_sequence, start=0, end=None, 
                 fsource = "{}".format(seqname)
             history_features.append(source_sequence.parent._history_feature) 
         
-        elif source_sequence.parental_class == "RE":
-            fsource = "RE_sites['{}'].{}".format(source_sequence.parent.name, source_sequence.name)
+        elif source_sequence.parental_class == "Cutsite":
+            fsource = "cs.lib['{}'].{}".format(source_sequence.parent.name, source_sequence.name)
         else:
             fsourcee = "'{}'".format(source_sequence) 
     else:
@@ -2213,81 +2216,81 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
             largs.append("=".join(item)) 
         command = operation.func.__name__[1:] + "(" + ",".join(largs) + ")"
         
-        if __direct == 1 and new_copy == True:
-            if type(query) == dna.seq.__class__:
-                if query.parental_class == "DNAFeature":
-                    qkey = left_origin.qkey
-                    for qindex, qfeat in enumerate(dna.__class__.queried_features_dict[qkey]):
-                        if qfeat._second_id == query.parental_id:
-                            break
-                    if type(query.item)   == int:
-                        fquery = "QUEEN.queried_features_dict['{}'][{}].{}[{}]".format(qkey, qindex, "seq" , query.item)
-                    elif type(query.item) == slice:
-                        sl_start = query.item.start
-                        sl_stop  = query.item.stop 
-                        sl_step  = query.item.step
-                        sl_start = "" if sl_start is None else sl_start
-                        sl_stop  = "" if sl_stop is None else sl_stop
-                        if sl_step == 1 or sl_step == None:
-                            fquery = "QUEEN.queried_features_dict['{}'][{}].seq[{}:{}]".format(qkey, qindex, sl_start, sl_stop)
-                        else:
-                            fquery = "QUEEN.queried_features_dict['{}'][{}].seq[{}:{}:{}]".format(qkey, qindex, sl_start, sl_stop, sl_step)
+        if type(query) == dna.seq.__class__:
+            if query.parental_class == "DNAFeature":
+                qkey = left_origin.qkey
+                for qindex, qfeat in enumerate(dna.__class__.queried_features_dict[qkey]):
+                    if qfeat._second_id == query.parental_id:
+                        break
+                if type(query.item)   == int:
+                    fquery = "QUEEN.queried_features_dict['{}'][{}].{}[{}]".format(qkey, qindex, "seq" , query.item)
+                elif type(query.item) == slice:
+                    sl_start = query.item.start
+                    sl_stop  = query.item.stop 
+                    sl_step  = query.item.step
+                    sl_start = "" if sl_start is None else sl_start
+                    sl_stop  = "" if sl_stop is None else sl_stop
+                    if sl_step == 1 or sl_step == None:
+                        fquery = "QUEEN.queried_features_dict['{}'][{}].seq[{}:{}]".format(qkey, qindex, sl_start, sl_stop)
                     else:
-                        fquery = "QUEEN.queried_features_dict['{}'][{}].seq".format(qkey, qindex)
-                    history_features.append(query.parent.subject._history_feature) 
-                
-                elif query.parental_class == "QUEEN": 
-                    parental_id = query.parental_id 
-                    if query.name != None: 
-                        if "printsequence" in query.name:
-                            if len(query.name.split("_")) == 2: 
-                                seqname = "QUEEN.dna_dict['{}'].printsequence(strand={})".format(parental_id, query.name.split("_")[-1]) 
-                            else:
-                                seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={})".format(parental_id, *query.name.split("_")[1:])
-                        elif query.name == "rcseq":
-                            seqname = "QUEEN.dna_dict['{}'].rcseq".format(parental_id) 
-                    else:
-                        seqname = "QUEEN.dna_dict['{}'].seq".format(parental_id)
-                    if type(query.item)   == int:
-                        args.append("QUEEN.dna_dict['{}'].seq[{}]".format(parental_id, query.item))
-                    elif type(query.item) == slice:
-                        sl_start = query.item.start
-                        sl_stop  = query.item.stop 
-                        sl_step  = query.item.step
-                        sl_start = "" if sl_start is None else sl_start
-                        sl_stop  = "" if sl_stop is None else sl_stop
-                        if sl_step == 1 or sl_step == None:
-                            fquery = "{}[{}:{}]".format(seqname, sl_start, sl_stop)
-                        else:
-                            fquery = "{}[{}:{}:{}]".format(seqname, sl_start, sl_stop, sl_step)
-                    else:
-                        fquery = "{}".format(seqname)
-                    history_features.append(query.parent._history_feature) 
-                elif query.parental_class == "RE":
-                    fquery = "RE_sites['{}'].{}".format(qorigin.parent.name, qorigin.name) 
-
+                        fquery = "QUEEN.queried_features_dict['{}'][{}].seq[{}:{}:{}]".format(qkey, qindex, sl_start, sl_stop, sl_step)
                 else:
-                    fquery = "'{}'".format(query) 
-    
+                    fquery = "QUEEN.queried_features_dict['{}'][{}].seq".format(qkey, qindex)
+                history_features.append(query.parent.subject._history_feature) 
+            
+            elif query.parental_class == "QUEEN": 
+                parental_id = query.parental_id 
+                if query.name != None: 
+                    if "printsequence" in query.name:
+                        if len(query.name.split("_")) == 2: 
+                            seqname = "QUEEN.dna_dict['{}'].printsequence(strand={})".format(parental_id, query.name.split("_")[-1]) 
+                        else:
+                            seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={})".format(parental_id, *query.name.split("_")[1:])
+                    elif query.name == "rcseq":
+                        seqname = "QUEEN.dna_dict['{}'].rcseq".format(parental_id) 
+                else:
+                    seqname = "QUEEN.dna_dict['{}'].seq".format(parental_id)
+                if type(query.item)   == int:
+                    args.append("QUEEN.dna_dict['{}'].seq[{}]".format(parental_id, query.item))
+                elif type(query.item) == slice:
+                    sl_start = query.item.start
+                    sl_stop  = query.item.stop 
+                    sl_step  = query.item.step
+                    sl_start = "" if sl_start is None else sl_start
+                    sl_stop  = "" if sl_stop is None else sl_stop
+                    if sl_step == 1 or sl_step == None:
+                        fquery = "{}[{}:{}]".format(seqname, sl_start, sl_stop)
+                    else:
+                        fquery = "{}[{}:{}:{}]".format(seqname, sl_start, sl_stop, sl_step)
+                else:
+                    fquery = "{}".format(seqname)
+                history_features.append(query.parent._history_feature) 
+            elif query.parental_class == "Cutsite":
+                fquery = "cs.lib['{}'].{}".format(qorigin.parent.name, qorigin.name) 
+
             else:
                 fquery = "'{}'".format(query) 
-            
-            if source is not None:
-                qkeys = set([]) 
-                for feat in source:
-                    if "_qkey" in feat.__dict__:
-                        qkeys.add(feat._qkey)
-                
-                if len(set(qkeys)) == 1:
-                    source = "QUEEN.queried_features_dict['{}']".format(list(qkeys)[0])
-                else:
-                    pass 
 
-            if project is None:
-                pass
+        else:
+            fquery = "'{}'".format(query) 
+        
+        if source is not None:
+            qkeys = set([]) 
+            for feat in source:
+                if "_qkey" in feat.__dict__:
+                    qkeys.add(feat._qkey)
+            
+            if len(set(qkeys)) == 1:
+                source = "QUEEN.queried_features_dict['{}']".format(list(qkeys)[0])
             else:
-                dna._project = project
+                pass 
+
+        if project is None:
+            pass
+        else:
+            dna._project = project
                             
+        if __direct == 1 and new_copy == True:
             project             = "" if project is None else ", project='" + project + "'"
             fproduct            = "" if product is None else ", product='" + product + "'"
             process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
@@ -2328,7 +2331,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
                 if type(args[i]) is str and i != 7 and i != 1:
                     args[i] = "'" + args[i] + "'" 
             building_history = "editfeature(QUEEN.dna_dict['{}'], key_attribute={}, query={}, source={}, start={}, end={}, strand={}, target_attribute={}, operation={}, new_copy={}{}{}{})".format(dna._unique_id, *args, project, fproduct, process_description)
-            add_history(dna, history=[building_history, "key_attribute:{}; query:{}; start:{}; end:{}; strand:{}; target_attribute:{}; operation:{}".format(key_attribute, fquery, start, end, strand, target_attribute, command)])
+            add_history(dna, [building_history, "key_attribute:{}; query:{}; start:{}; end:{}; strand:{}; target_attribute:{}; operation:{}".format(key_attribute, fquery, start, end, strand, target_attribute, command)])
 
     else:
         raise ValueError("The operational function can be selected from only 'createattribute', 'removeattribute', 'replaceattribute'.")
@@ -2448,7 +2451,7 @@ def _circularizedna(dna):
     dna._features_dict = dict(list(map(lambda x:(x._id, x), dna.dnafeatures)))
     return dna
 
-def visualizedna(dna, map_view="linear", feature_list=None, start=0, end=None, standard_scale="auto", width_scale=1.0, height_scale=1.0, label_location=None, linebreak=None, seq=False, label_box=True, fontsize=None, diamater_scale=1.0, view_title=True, view_axis=True, tick_space="auto"):
+def visualizedna(dna, map_view="linear", feature_list=None, start=0, end=None, standard_scale="auto", width_scale=1.0, height_scale=1.0, label_location=None, linebreak=None, seq=False, label_visible=2, fontsize=None, diamater_scale=1.0, title_visible=True, axis_visible=True, tick_space="auto"):
     if fontsize is None and map_view == "linear":
         fontsize = 12
     elif fontsize is None and map_view == "circular":
@@ -2461,11 +2464,11 @@ def visualizedna(dna, map_view="linear", feature_list=None, start=0, end=None, s
         if map_view == "circular":
             feature_list.sort(key=lambda x:len(dna.printsequence(x.start, x.end)))
     if map_view == "circular":
-        fig, axes = vc.visualize(dna, format=0, feature_list=feature_list, unvisible_types=["source"], visible_types=[], bottom=400 * diamater_scale, label_box=label_box, fontsize=fontsize, 
-        view_title=view_title, view_axis=view_axis, tick_space=tick_space)
+        fig, axes = vc.visualize(dna, format=0, feature_list=feature_list, unvisible_types=["source"], visible_types=[], bottom=400 * diamater_scale, label_visible=label_visible, fontsize=fontsize, 
+        title_visible=title_visible, axis_visible=axis_visible, tick_space=tick_space)
     else:
         fig, ax = vl.visualize(dna, start=start, end=end, feature_list=feature_list, wrap_width=linebreak, annotation_loc=label_location, unvisible_types=["source"], visible_types=[], enlarge_w=width_scale, enlarge_h=height_scale, 
-        fontsize=fontsize, with_seq=seq, nucl_char=None, nucl_color_dict=None, label_box=label_box, scale=standard_scale, view_title=view_title, view_axis=view_axis, tick_space=tick_space)
+        fontsize=fontsize, with_seq=seq, nucl_char=None, nucl_color_dict=None, label_visible=label_visible, scale=standard_scale, title_visible=title_visible, axis_visible=axis_visible, tick_space=tick_space)
     return fig
 
 def quine(*dnas, output=None, description_only=False, _return=False):
@@ -2660,6 +2663,7 @@ def quine(*dnas, output=None, description_only=False, _return=False):
             for name in name_dict:
                 if name in row and match.group(0) in name:
                     row = row.replace(name, name_dict[name])
+
 
         matches = re.findall("QUEEN.dna_dict\['[^\[\]]+'\]",row)
         if len(matches) > 0:

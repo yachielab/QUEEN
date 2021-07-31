@@ -39,7 +39,7 @@ def hex_to_rgb(value):
     lv = len(value)
     return tuple(int(value[i:i+lv//3], 16) for i in range(0, lv, lv//3))
 
-def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, annotation_loc="both", label_box=True, fontsize=12, project="", view_title=True, view_axis=True, tick_space="auto"):
+def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, annotation_loc="both", label_visible=True, fontsize=12, project="", title_visible=True, axis_visible=True, tick_space="auto"):
     y = 0
     y_list      = [] 
     ty_list     = [] 
@@ -96,6 +96,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                 else:
                     pass 
             
+            wd1 = 0.82
             if abs(ge-gs) < head_length * 1.2:
                 hl  = abs(ge-gs)
                 margin1 = head_length * 0.15 
@@ -105,27 +106,27 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                     hl2 = 0
                     wd2 = 0 
                 else:
-                    wd2 = 0.8 * ((hl2/hl) ** 1.0)
+                    wd2 = 0.8 * ((hl2/hl) ** 1.0) * wd1/0.8
             else:
                 hl  = head_length 
                 hl2 = hl*0.85  
                 margin1 = hl * 0.15 
                 margin2 = hl * 0.25 
-                wd2     = 0.65
+                wd2     = 0.65 * wd1/0.8
 
-            if "facecolor_dna.py" in feat.qualifiers:
-                if type(feat.qualifiers["facecolor_dna.py"]) == list:
-                    facecolor = feat.qualifiers["facecolor_dna.py"][0] 
+            if "facecolor_QUEEN" in feat.qualifiers:
+                if type(feat.qualifiers["facecolor_QUEEN"]) == list:
+                    facecolor = feat.qualifiers["facecolor_QUEEN"][0] 
                 else:
-                    facecolor = feat.qualifiers["facecolor_dna.py"]
+                    facecolor = feat.qualifiers["facecolor_QUEEN"]
             else:
                 facecolor = "#ffffec" 
             
-            if "edgecolor_dna.py" in feat.qualifiers:
-                if type(feat.qualifiers["edgecolor_dna.py"]) == list:
-                    edgecolor = feat.qualifiers["edgecolor_dna.py"][0] 
+            if "edgecolor_QUEEN" in feat.qualifiers:
+                if type(feat.qualifiers["edgecolor_QUEEN"]) == list:
+                    edgecolor = feat.qualifiers["edgecolor_QUEEN"][0] 
                 else:
-                    edgecolor = feat.qualifiers["edgecolor_dna.py"]
+                    edgecolor = feat.qualifiers["edgecolor_QUEEN"]
             else:
                 if strand == 1:
                     edgecolor = "#FACAC8" 
@@ -148,38 +149,38 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                 if "broken_feature" in feat.qualifiers:
                     if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
                         if gs == 0 and ge >= length:
-                            ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                            ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd1, head_width=wd1, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd2, head_width=wd2, head_length=0, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                         elif gs == 0:
-                            ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=hl, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                            ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd1, head_width=wd1, head_length=hl, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs-margin2, dy=0, width=wd2, head_width=wd2, head_length=hl2, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                         else:
-                            ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                            ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd1, head_width=wd1, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                             ax.arrow(x=gs+margin1, y=-1*y, dx=ge-gs-margin1, dy=0, width=wd2, head_width=wd2, head_length=0, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                     else:
-                        ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=hl, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                        ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd1, head_width=wd1, head_length=hl, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                         ax.arrow(x=gs+margin1, y=-1*y, dx=ge-gs-(margin1+margin2), dy=0, width=wd2, head_width=wd2, head_length=hl2, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                 else:
-                    ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=hl, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                    ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd1, head_width=wd1, head_length=hl, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                     ax.arrow(x=gs+margin1, y=-1*y, dx=ge-gs-(margin1+margin2), dy=0, width=wd2, head_width=wd2, head_length=hl2, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
             
             elif strand == -1:
                 if "broken_feature" in feat.qualifiers:
                     if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
                         if gs == 0 and ge >= length:
-                            ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                            ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=wd1, head_width=wd1, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                             ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=wd2, head_width=wd2, head_length=0, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                         elif gs == 0:
-                            ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                            ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=wd1, head_width=wd1, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                             ax.arrow(x=ge-margin1, y=-1*y, dx=gs-ge+margin1, dy=0, width=wd2, head_width=wd2, head_length=0, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                         else:
-                            ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=0.8, head_width=0.8, head_length=hl, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                            ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=wd1, head_width=wd1, head_length=hl, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                             ax.arrow(x=ge, y=-1*y, dx=gs-ge+margin2, dy=0, width=wd2, head_width=wd2, head_length=hl2, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                     else:
-                        ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=0.8, head_width=0.8, head_length=hl, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                        ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=wd1, head_width=wd1, head_length=hl, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                         ax.arrow(x=ge-margin1, y=-1*y, dx=gs-ge+(margin1+margin2), dy=0, width=wd2, head_width=wd2, head_length=hl2, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                 else:
-                    ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=0.8, head_width=0.8, head_length=hl, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                    ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=wd1, head_width=wd1, head_length=hl, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                     ax.arrow(x=ge-margin1, y=-1*y, dx=gs-ge+(margin1+margin2), dy=0, width=wd2, head_width=wd2, head_length=hl2, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
             
             else:
@@ -187,22 +188,24 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                 if "broken_feature" in feat.qualifiers:
                     if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
                         if gs == 0 and ge >= length:
-                            ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                            ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd1, head_width=wd1, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd2, head_width=wd2, head_length=0, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                         elif gs == 0:
-                            ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                            ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd1, head_width=wd1, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs-margin2, dy=0, width=wd2, head_width=wd2, head_length=0, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                         else:
-                            ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                            ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd1, head_width=wd1, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                             ax.arrow(x=gs+margin1, y=-1*y, dx=ge-gs-margin1, dy=0, width=wd2, head_width=wd2, head_length=0, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                     else:
-                        ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                        ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd1, head_width=wd1, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                         ax.arrow(x=gs+margin1, y=-1*y, dx=ge-gs-(margin1+margin2), dy=0, width=wd2, head_width=wd2, head_length=0, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                 else: 
-                    ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=0.8, head_width=0.8, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
+                    ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd1, head_width=wd1, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                     ax.arrow(x=gs+margin1, y=-1*y, dx=ge-gs-(margin1+margin2), dy=0, width=wd2, head_width=wd2, head_length=0, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
-            
-            label_position_list.append((label,(gs+ge-hl*0.5)/2, -1*y, gs, ge, hl, edgecolor, facecolor))
+            if strand  == -1:   
+                label_position_list.append((label,(gs+ge+hl*0.5)/2, -1*y, gs, ge, hl, edgecolor, facecolor))
+            else:
+                label_position_list.append((label,(gs+ge-hl*0.5)/2, -1*y, gs, ge, hl, edgecolor, facecolor))
             for j in range(gs,ge):
                 gene_position_matrix[y][j] = 1    
             y_list.append(y)
@@ -232,39 +235,41 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                 text_position_matrix.append([0] * length)
                 t += 1       
             
-            if label_box == True:
+            if label_visible == 2:
                 if annotation_loc == "both": 
                     if t % 2 == 0:
-                        ax.text(tx, t//2+1, label, ha="center",va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100, fontsize=fontsize)
+                        ax.text(tx, t//2+1, label, ha="center",va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc, pad=0.2), zorder=100, fontsize=fontsize)
                         ax.plot([(gs+ge)/2, (gs+ge)/2], [t//2+1, ty], lw=0.5, color="k", zorder=0)
                         ty_list.append(t//2+1)
                     
                     else:
-                        if view_axis == True:
+                        if axis_visible == True:
                             bufspace = 0.8 * fontsize/12
                         else:
                             bufspace = 0 
-                        ax.text(tx, -1*max(y_list)-1-bufspace-t//2, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100, fontsize=fontsize)
+                        ax.text(tx, -1*max(y_list)-1-bufspace-t//2, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc, pad=0.2), zorder=100, fontsize=fontsize)
                         ax.plot([(gs+ge)/2, (gs+ge)/2], [-1*max(y_list)-1-bufspace-t//2, ty], lw=0.5, color="k", zorder=0)
                         ty_list.append(-1*max(y_list)-1-bufspace-t//2)
                 
                 elif annotation_loc == "bottom":
-                    if view_axis == True:
+                    if axis_visible == True:
                         bufspace = 0.8 * fontsize/12
                     else:
                         bufspace = 0 
-                    ax.text(tx, -1*max(y_list)-1-bufspace-t, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100, fontsize=fontsize)
+                    ax.text(tx, -1*max(y_list)-1-bufspace-t, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc, pad=0.2), zorder=100, fontsize=fontsize)
                     ax.plot([(gs+ge)/2, (gs+ge)/2], [-1*max(y_list)-1-bufspace-t, ty], lw=0.5, color="k", zorder=0)
                     ty_list.append(-1*max(y_list)-1-bufspace-t)
                     
                 else:
-                    ax.text(tx, t+1, label, ha="center",va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc), zorder=100, fontsize=fontsize)
+                    ax.text(tx, t+1, label, ha="center",va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc, pad=0.2), zorder=100, fontsize=fontsize)
                     ax.plot([(gs+ge)/2, (gs+ge)/2], [t+1, ty], lw=0.5, color="k", zorder=0)
                     ty_list.append(t+1)
 
                 for j in range(ts, te):
                     text_position_matrix[t][j] = 1
         else:
+            if label_visible == 0:
+                text.set_visible(False)
             ty_list.append(ty) 
     return ax, y_list, ty_list
 
@@ -292,7 +297,7 @@ def colorbar(ax, color_dict, ref_seq, char=False, fontsize=10):
     ax.patch.set_alpha(0.0)
     return bars
 
-def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, label_box=True, feature_list=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, scale="auto", fontsize=12, with_seq=False, nucl_char=None, nucl_color_dict=None, view_title=True, view_axis=True, tick_space="auto"):
+def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, label_visible=True, feature_list=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, scale="auto", fontsize=12, with_seq=False, nucl_char=None, nucl_color_dict=None, title_visible=True, axis_visible=True, tick_space="auto"):
     brick = copy.deepcopy(brick) 
     width = wrap_width 
     if nucl_color_dict == None:
@@ -314,7 +319,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
         width = abs(end-start)  
 
     ceil = 0   
-    fig       = plt.figure(figsize=(3,0.35))
+    fig       = plt.figure(figsize=(3,0.30))
     axes_list = [] 
     
     visible   = 1
@@ -357,29 +362,29 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
             else:
                 label = feat.type
 
-            if "facecolor_dna.py" not in feat.qualifiers and "edgecolor_dna.py" not in feat.qualifiers:
+            if "facecolor_QUEEN" not in feat.qualifiers and "edgecolor_QUEEN" not in feat.qualifiers:
                 if label in label_color_dict:
-                    feat.qualifiers["edgecolor_dna.py"] = [label_color_dict[label][1]]
-                    feat.qualifiers["facecolor_dna.py"] = [label_color_dict[label][0]] 
+                    feat.qualifiers["edgecolor_QUEEN"] = [label_color_dict[label][1]]
+                    feat.qualifiers["facecolor_QUEEN"] = [label_color_dict[label][0]] 
                 
                 else:
                     cflag = 0 
                     for _type in feature_color_dict:
                         if feat.type == _type:
-                            feat.qualifiers["edgecolor_dna.py"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][1]]
-                            feat.qualifiers["facecolor_dna.py"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][0]]
+                            feat.qualifiers["edgecolor_QUEEN"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][1]]
+                            feat.qualifiers["facecolor_QUEEN"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][0]]
                             feature_color_count[_type] += 1 
                             cflag = 1
                             break
                         else:
                             pass
                     if cflag == 0:
-                        feat.qualifiers["edgecolor_dna.py"] = [misc_colors[misc_color_count%len(misc_colors)][1]]
-                        feat.qualifiers["facecolor_dna.py"] = [misc_colors[misc_color_count%len(misc_colors)][0]] 
+                        feat.qualifiers["edgecolor_QUEEN"] = [misc_colors[misc_color_count%len(misc_colors)][1]]
+                        feat.qualifiers["facecolor_QUEEN"] = [misc_colors[misc_color_count%len(misc_colors)][0]] 
                         misc_color_count += 1 
                 
                 if flag == 1:
-                    label_color_dict[label] = (feat.qualifiers["facecolor_dna.py"][0], feat.qualifiers["edgecolor_dna.py"][0]) 
+                    label_color_dict[label] = (feat.qualifiers["facecolor_QUEEN"][0], feat.qualifiers["edgecolor_QUEEN"][0]) 
             
             if "label" in feat.qualifiers:
                 if type(feat.qualifiers["label"]) == list:
@@ -446,7 +451,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
 
         zero_position = sub_start + 1
         ax  = fig.add_axes([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h], label=str(num)) 
-        ax, y_list, ty_list = map_feat(fig, ax, sub_brick.dnafeatures, len(sub_brick.seq), head_length, unvisible_types=unvisible_types, visible_types=visible_types, enlarge_w=enlarge_w, enlarge_h=enlarge_h, annotation_loc=annotation_loc, label_box=label_box, fontsize=fontsize, project=sub_brick.project, view_title=view_title, view_axis=view_axis)
+        ax, y_list, ty_list = map_feat(fig, ax, sub_brick.dnafeatures, len(sub_brick.seq), head_length, unvisible_types=unvisible_types, visible_types=visible_types, enlarge_w=enlarge_w, enlarge_h=enlarge_h, annotation_loc=annotation_loc, label_visible=label_visible, fontsize=fontsize, project=sub_brick.project, title_visible=title_visible, axis_visible=axis_visible)
         
         ty_list.append(0)  
         y_list.append(0) 
@@ -494,8 +499,8 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
             ax_seq.set_xticklabels(tick_labels)
             ax_seq.set_xlim(0, len(sub_brick.seq)) 
             if num == 0:
-                if view_title == True:
-                    ax.set_title(brick.project, fontsize=fontsize * 1.125)
+                if title_visible == True:
+                    ax.set_title(brick.project, fontsize=fontsize * 1.125, pad=15)
                 ax.set_position([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
                 ax_seq.set_position([0, -0.65*enlarge_h, enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h]) 
                 ceil = -0.65*enlarge_h
@@ -503,7 +508,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
                 ax.set_position([0, ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
                 ax_seq.set_position([0, ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom))-0.65*enlarge_h, enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h]) 
                 ceil = ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom))-0.65*enlarge_h
-            if view_axis == False:
+            if axis_visible == False:
                 ax_seq.spines["bottom"].set_visible(False) 
                 ax_seq.set_xticks([]) 
         else:
@@ -512,7 +517,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
             ax.set_xlim(0, len(sub_brick.seq))
             ax_seq = None
             if num == 0:
-                if view_title == True:
+                if title_visible == True:
                     ax.set_title(brick.project, fontsize=fontsize * 1.125)
                 ax.set_position([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
                 ceil = 0
@@ -520,7 +525,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
                 ax.set_position([0, ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
                 ceil = ceil-1.0*enlarge_h-1.2*enlarge_h*(abs(ytop-ybottom))  
             
-            if view_axis == False:
+            if axis_visible == False:
                 ax.spines["bottom"].set_visible(False) 
                 ax.set_xticks([])
         

@@ -29,7 +29,7 @@ feature_color_dict["rep_origin"]   = [('#fff2ae', '#ffd92f')]
 feature_color_dict["misc_feature"] = [('#fbb4ae', '#e41a1c'), ('#b3cde3', '#377eb8'), ('#ccebc5', '#4daf4a'), ('#decbe4', '#984ea3'), ('#fed9a6', '#ff7f00')]  
 misc_colors = [('#ffffcc', '#d9d927'), ('#e5d8bd', '#a65628'), ('#fddaec', '#f781bf'), ('#f2f2f2', '#999999'), ('#fbb4ae', '#e41a1c')]
 
-def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_types=["source"], visible_types=[], enlarge=1.0, format=1, bottom=300, fontsize=10, label_box=True, view_axis=True, tick_space="auto"):
+def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_types=["source"], visible_types=[], enlarge=1.0, format=1, bottom=300, fontsize=10, label_visible=True, axis_visible=True, tick_space="auto"):
     if format == 0 or format == 1:
         outer    = 62 * 1.2
         inner    = 45 * 1.2
@@ -97,29 +97,29 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
             else:
                 label = feat.type
 
-            if "facecolor_dna.py" not in feat.qualifiers and "edgecolor_dna.py" not in feat.qualifiers:
+            if "facecolor_QUEEN" not in feat.qualifiers and "edgecolor_QUEEN" not in feat.qualifiers:
                 if label in label_color_dict:
-                    feat.qualifiers["edgecolor_dna.py"] = [label_color_dict[label][1]]
-                    feat.qualifiers["facecolor_dna.py"] = [label_color_dict[label][0]] 
+                    feat.qualifiers["edgecolor_QUEEN"] = [label_color_dict[label][1]]
+                    feat.qualifiers["facecolor_QUEEN"] = [label_color_dict[label][0]] 
                 
                 else:
                     cflag = 0 
                     for _type in feature_color_dict:
                         if feat.type == _type:
-                            feat.qualifiers["edgecolor_dna.py"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][1]]
-                            feat.qualifiers["facecolor_dna.py"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][0]]
+                            feat.qualifiers["edgecolor_QUEEN"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][1]]
+                            feat.qualifiers["facecolor_QUEEN"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][0]]
                             feature_color_count[_type] += 1 
                             cflag = 1
                             break
                         else:
                             pass
                     if cflag == 0:
-                        feat.qualifiers["edgecolor_dna.py"] = [misc_colors[misc_color_count%len(misc_colors)][1]]
-                        feat.qualifiers["facecolor_dna.py"] = [misc_colors[misc_color_count%len(misc_colors)][0]] 
+                        feat.qualifiers["edgecolor_QUEEN"] = [misc_colors[misc_color_count%len(misc_colors)][1]]
+                        feat.qualifiers["facecolor_QUEEN"] = [misc_colors[misc_color_count%len(misc_colors)][0]] 
                         misc_color_count += 1 
                 
                 if flag == 1:
-                    label_color_dict[label] = (feat.qualifiers["facecolor_dna.py"][0], feat.qualifiers["edgecolor_dna.py"][0]) 
+                    label_color_dict[label] = (feat.qualifiers["facecolor_QUEEN"][0], feat.qualifiers["edgecolor_QUEEN"][0]) 
                  
 
     for i, feat in enumerate(feats):
@@ -195,19 +195,19 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                         pass 
             
             
-            if "facecolor_dna.py" in feat.qualifiers:
-                if type(feat.qualifiers["facecolor_dna.py"]) == list:
-                    facecolor = feat.qualifiers["facecolor_dna.py"][0] 
+            if "facecolor_QUEEN" in feat.qualifiers:
+                if type(feat.qualifiers["facecolor_QUEEN"]) == list:
+                    facecolor = feat.qualifiers["facecolor_QUEEN"][0] 
                 else:
-                    facecolor = feat.qualifiers["facecolor_dna.py"]
+                    facecolor = feat.qualifiers["facecolor_QUEEN"]
             else:
                 facecolor = "#ffffec" 
             
-            if "edgecolor_dna.py" in feat.qualifiers:
-                if type(feat.qualifiers["edgecolor_dna.py"]) == list:
-                    edgecolor = feat.qualifiers["edgecolor_dna.py"][0] 
+            if "edgecolor_QUEEN" in feat.qualifiers:
+                if type(feat.qualifiers["edgecolor_QUEEN"]) == list:
+                    edgecolor = feat.qualifiers["edgecolor_QUEEN"][0] 
                 else:
-                    edgecolor = feat.qualifiers["edgecolor_dna.py"]
+                    edgecolor = feat.qualifiers["edgecolor_QUEEN"]
             else:
                 if strand == 1:
                     edgecolor = "#FACAC8" 
@@ -216,10 +216,10 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                 else:
                     edgecolor = "#CCCCCC"
                 
-            #if "note_dna.py" in feat.qualifiers:
-            #    note   = feat.qualifiers["note_dna.py"]
+            #if "note_QUEEN" in feat.qualifiers:
+            #    note   = feat.qualifiers["note_QUEEN"]
             #    if type(note) == list:
-            #        note   = feat.qualifiers["note_dna.py"][0]
+            #        note   = feat.qualifiers["note_QUEEN"][0]
             #    label = note
 
             if gs < ge: 
@@ -397,7 +397,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                 
                 tflag = 0 
                 t_width = (new_pos_list[-1][0] - new_pos_list[0][0]) 
-                if t_width < w-2*head_length or label_box == False:
+                if t_width < w-2*head_length or label_visible <= 1:
                     if t_width < w-2*head_length:
                         tflag = 1
                     else:
@@ -431,7 +431,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                 
                 gs_origin, ge_origin = int(new_gs_origin), int(new_ge_origin) 
                 for char, (theta, height, y, pos, x, btw) in zip(label, new_pos_list):
-                    if tflag == 1 or label_box==True:
+                    if tflag == 1 or label_visible>=1:
                         ax.text(theta, height, char, ha="center", va="center", rotation=rotation(theta), zorder=10, fontsize=fontsize)
               
                 if width > 1.2 * head_length:
@@ -558,6 +558,8 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                     width_list = []
                     for char in label:
                         text        = ax2.text(slide, 0, char, ha="right", va="center")
+                        if label_visible == 0:
+                            text.set_visible(False) 
                         bbox_text   = text.get_window_extent(renderer=renderer)
                         bbox_text   = Bbox(coordinate.transform(bbox_text))
                         text.set_visible(False)
@@ -744,7 +746,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
     else:
         ylim = max([max(y_list)*lane_h + bottom_h, max(ty_list)]) + 3 * lane_h
         
-    if view_axis == True:
+    if axis_visible == True:
         if tick_space == "auto":
             if   length < 1000:
                 space = 250
@@ -786,7 +788,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
         fig.set_size_inches(6 * ylim/fig_width, 6 * ylim/fig_width)
     return ax, y_list, ty_list, fig_width, ylim, bottom_h
 
-def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], visible_types=[], bottom=None, fontsize=8, label_box=True, view_axis=True, view_title=True, tick_space="auto"):
+def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], visible_types=[], bottom=None, fontsize=8, label_visible=True, axis_visible=True, title_visible=True, tick_space="auto"):
     brick = copy.deepcopy(brick) 
     figure = plt.figure(figsize=(6,6))
     ax      = figure.add_axes([0,0,1,1], polar=True, label="hoge")
@@ -804,9 +806,9 @@ def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], vi
         feature_list.sort(key=lambda x:len(brick.getdnaseq(x.start, x.end)))
     else:
         pass
-    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, feature_list, len(brick.seq), unvisible_types=unvisible_types, visible_types=visible_types, format=format, bottom=bottom, enlarge=1.0, label_box=label_box, fontsize=fontsize, view_axis=view_axis, tick_space=tick_space) 
+    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, feature_list, len(brick.seq), unvisible_types=unvisible_types, visible_types=visible_types, format=format, bottom=bottom, enlarge=1.0, label_visible=label_visible, fontsize=fontsize, axis_visible=axis_visible, tick_space=tick_space) 
    
-    if view_title == True:
+    if title_visible == True:
         renderer    = figure.canvas.get_renderer()
         coordinate  = ax2.transData.inverted() 
         brick_id    = brick.project

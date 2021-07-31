@@ -5,7 +5,7 @@ from graphviz import Digraph
 sys.path.append("/".join(__file__.split("/")[:-1]))
 from qfunction import *
 
-def traceflow(*dnas, operational_function_only=True):
+def traceflow(*dnas, operational_function_only=True, visible_ipnode=True):
     dnatree_dict = {}   
     histories        = quine(*dnas, _return=True) 
     new_histories    = [] 
@@ -55,15 +55,16 @@ def traceflow(*dnas, operational_function_only=True):
     dg.attr(rankdir='LR')
     dg.attr(fontname="arial") 
     dg.attr(nodesep="0.1")
-    dg.attr(ranksep="0.1")
+    dg.attr(ranksep="0.2")
     
-    if operational_function_only==False:
-        sdg = Digraph(name="cluster_search")
-        sdg.attr(rankdir='LR')
-        sdg.attr(fontname="arial") 
-        sdg.attr(nodesep="0.1")
-        sdg.attr(ranksep="0.1")
+    #if operational_function_only==False:
+    #    sdg = Digraph(name="cluster_search")
+    #    sdg.attr(rankdir='LR')
+    #    sdg.attr(fontname="arial") 
+    #    sdg.attr(nodesep="0.1")
+    #    sdg.attr(ranksep="0.1")
     
+    removedproducts = [] 
     product_funcname_dict = {} 
     for h, history in enumerate(new_histories):
         info    = history[1] 
@@ -79,9 +80,9 @@ def traceflow(*dnas, operational_function_only=True):
         for key in re.finditer("QUEEN.dna_dict\['([^\[\]]+)'\]", source):
             key = key.group(0)
             sourcename = unique_name_dict[key]
-            sourcenames.append(sourcename) 
-            if sourcename not in nodes:
-                dg.node(sourcename, label=name_dict[key]) 
+            sourcenames.append(sourcename)
+            if sourcename not in nodes and sourcename not in removedproducts:
+                dg.node(sourcename, label=name_dict[key], margin="0.01", shape="oval", fontname="Arial") 
                 nodes.add(sourcename) 
             else:
                 pass
@@ -111,7 +112,8 @@ def traceflow(*dnas, operational_function_only=True):
             funclabel = "searchfeature"
             funcname  = "searchfeature_{}".format(h)
         else:
-            funcname = None
+            funclabel = None
+            funcname  = None
         
         if matcho is not None:
             productnames = [] 
@@ -121,11 +123,15 @@ def traceflow(*dnas, operational_function_only=True):
                 productname = unique_name_dict[key]
                 productnames.append(productname) 
                 if productname not in nodes:
-                    dg.node(productname, label=name_dict[key], margin="0.01", shape="oval", fontname="Arial") 
-                    nodes.add(productname) 
+                    if visible_ipnode == True or funclabel == "cropdna" or funclabel == "cutdna" or funclabel == "joindna":
+                        dg.node(productname, label=name_dict[key], margin="0.01", shape="oval", fontname="Arial") 
+                        nodes.add(productname) 
+                    else:
+                        if funclabel is not None:
+                            removedproducts.append(productname) 
                 else:
-                    pass
-        
+                    pass 
+
         else:
             productnames = [] 
             product = matchs.group(1)
@@ -134,7 +140,7 @@ def traceflow(*dnas, operational_function_only=True):
                 productname = unique_name_dict[key]
                 productnames.append(productname) 
                 if productname not in nodes:
-                    sdg.node(productname, label=name_dict[key], margin="0.01", shape="oval", fontname="Arial") 
+                    dg.node(productname, label=name_dict[key], margin="0.0", shape="box", fontname="Arial") 
                     nodes.add(productname) 
                 else:
                     pass
@@ -148,7 +154,7 @@ def traceflow(*dnas, operational_function_only=True):
                 temp = '<tr><td port="{}" border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#909090"><font color="white" point-size="16"><b> </b>{}<b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#49AE22"><font color="white" point-size="16"><B>{}</B><b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -167,24 +173,24 @@ def traceflow(*dnas, operational_function_only=True):
                         infotext += temp.format(key, key, value)
                 
                 if sourcenames[0] + "_search" not in nodes:
-                    sdg.node(sourcenames[0] + "_search", label=unique_name_name_dict[sourcenames[0]]) 
+                    dg.node(sourcenames[0] + "_search", label=unique_name_name_dict[sourcenames[0]], margin="0.01", shape="oval", fontname="Arial") 
                     nodes.add(sourcenames[0] + "_search") 
                 else:
                     pass
  
-                sdg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
-                sdg.edge(sourcenames[0] + "_search", funcname+":func", arrowhead="dot")
+                dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
+                dg.edge(sourcenames[0] + "_search", funcname+":func", arrowhead="dot")
                 
                 if query_flag == 1:
                     if queryname + "_search" not in nodes:
-                        sdg.node(queryname + "_search", label=unique_name_name_dict[queryname]) 
+                        dg.node(queryname + "_search", label=unique_name_name_dict[queryname], margin="0.01", shape="oval", fontname="Arial") 
                         nodes.add(queryname + "_search") 
                     else:
                         pass
-                    sdg.edge(queryname + "_search", funcname+":query", arrowhead="dot")
+                    dg.edge(queryname + "_search", funcname+":query", arrowhead="odot")
                 
                 for product in productnames:
-                    sdg.edge(funcname+":func", product)
+                    dg.edge(funcname+":func", product)
 
                 #for productname in productnames:
                 #    product_funcname_dict[productname] = funcname 
@@ -192,14 +198,14 @@ def traceflow(*dnas, operational_function_only=True):
             elif funclabel == "joindna":
                 info      = info.split("; ")
                 info_dict = dict([item.split(":") for item in info])
-                temp = '<tr><td border="1" color="#909090" bgcolor="#909090" port="f{}"> </td></tr>'
+                temp = '<tr><td border="1" color="#E76453" bgcolor="#E76453" port="f{}"> </td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="0">',
                       '<tr>',
                       '<td>',
                       '<table cellpadding="0" cellspacing="0" border="0">',
                       '<tr>',
-                      '<td border="1" color="#909090" bgcolor="#909090" port="f0"> </td>',
-                      '<td port="func" rowspan="{}" border="1" color="#909090" bgcolor="#909090" align="left"><font color="white" point-size="16">joindna</font><b> </b></td>',
+                      '<td border="1" color="#E76453" bgcolor="#E76453" port="f0"> </td>',
+                      '<td port="func" rowspan="{}" border="1" color="#FF584B" bgcolor="#E76453" align="left"><font color="white" point-size="16"><B>joindna</B></font><b> </b></td>',
                       '</tr>'
                       '{}',
                       '</table>'
@@ -216,8 +222,11 @@ def traceflow(*dnas, operational_function_only=True):
             
                 dg.node(funcname, label.format(len(sourcenames), sourcelabel, info_dict["topology"]), shape="plaintext", fontname="Arial", margin="0.05")
                 for s, source in enumerate(sourcenames):
-                    dg.edge(source, funcname+":f"+str(s), arrowhead="dot") 
-                
+                    if visible_ipnode == True or source in nodes: 
+                        dg.edge(source, funcname+":f"+str(s), arrowhead="dot")
+                    else:
+                        dg.edge(product_funcname_dict[source] + ":func", funcname+":f"+str(s), arrowhead="dot")
+
                 for product in productnames:
                     dg.edge(funcname+":func", product)
             
@@ -227,32 +236,62 @@ def traceflow(*dnas, operational_function_only=True):
                 temp = '<tr><td port="{}" border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#909090"><font color="white" point-size="16"><b> </b>{}<b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#007FFA"><font color="white" point-size="16"><B>{}</B><b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
                 
-                infotext = ""
-                if info_dict is not None:
-                    for key, value in info_dict.items():
-                        infotext += temp.format(key, key, value)
-                dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
-                dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
-                  
-                if operational_function_only == False:
+                if operational_function_only == True:
+                    infotext = ""
+                    if info_dict is not None:
+                        for key, value in info_dict.items():
+                            infotext += temp.format(key, key, value)
+                    dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
+                    if visible_ipnode == True or sourcenames[0] in nodes: 
+                        dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
+                    else:  
+                        dg.edge(product_funcname_dict[sourcenames[0]] + ":func", funcname+":func", arrowhead="dot")
+
+                else:
+                    startunique = None
                     start_match = re.search("start=(QUEEN.queried_features_dict\['[^\[\]]+'\])",source)
                     if start_match is not None:    
-                        uniquename  = start_match.group(1) 
-                        productname = unique_name_dict[uniquename] 
+                        uniquename   = start_match.group(1) 
+                        startunique  = unique_name_dict[uniquename]
+                        startname    = name_dict[uniquename]
+                        rsource      = source.replace(uniquename, startname) 
+                        smatch       = re.search("start=([^=]+),", rsource) 
+                        info_dict["start"] = smatch.group(1) 
                         #searchname  = product_funcname_dict[productname]  
                         #dg.edge(productname, funcname+":start", style="invis") 
-                    
+                
+                    endunique = None 
                     end_match = re.search("end=(QUEEN.queried_features_dict\['[^\[\]]+'\])",source) 
                     if end_match is not None:    
-                        uniquename  = end_match.group(1) 
-                        productname = unique_name_dict[uniquename] 
+                        uniquename = end_match.group(1) 
+                        endunique  = unique_name_dict[uniquename] 
+                        endname    = name_dict[uniquename] 
+                        rsource    = source.replace(uniquename, endname) 
+                        ematch     = re.search("end=([^=]+)[,\)]", rsource) 
+                        info_dict["end"] = ematch.group(1) 
                         #searchname  = product_funcname_dict[productname]  
                         #dg.edge(productname, funcname+":end", style="invis") 
+                   
+                    infotext = ""
+                    if info_dict is not None:
+                        for key, value in info_dict.items():
+                            infotext += temp.format(key, key, value)
+                    
+                    dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
+                    if visible_ipnode == True or sourcenames[0] in nodes: 
+                        dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
+                    else:
+                        dg.edge(product_funcname_dict[sourcenames[0]] + ":func", funcname+":func", arrowhead="dot")
+                   
+                    if startunique is not None:
+                        dg.edge(startunique, funcname+":start", arrowhead="odot")
+                    if endunique is not None:
+                        dg.edge(endunique, funcname+":end", arrowhead="odot")
 
                 for productname in productnames:
                     dg.edge(funcname+":func", productname)
@@ -260,31 +299,78 @@ def traceflow(*dnas, operational_function_only=True):
             elif funclabel == "cutdna":
                 info      = info.split("; ")
                 info_dict = dict([item.split(":") for item in info if ":" in item])
-                temp = '<tr><td port="{}" border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
+                temp = '<tr><td port="{}" border="1" align="left"><b> </b><i>{} = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#909090"><font color="white" point-size="16"><b> </b>{}<b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#007FFA"><font color="white" point-size="16"><B>{}</B><b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
                 
                 infotext = ""
-                if info_dict is not None:
+                if operational_function_only == True:
                     for key, value in info_dict.items():
-                        infotext += temp.format(key, key, value)
-                dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
-                dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
-                
-                if operational_function_only == False:
-                    for pos_match in re.search("QUEEN.queried_features_dict\['[^\[\]]+'\]",source) is not None:    
+                        if key  == "positions":
+                            for v, pos in enumerate(value.split(",")):
+                                infotext += temp.format(key+"_"+str(v), key+"</i>[{}]".format(v), pos)
+                        else:
+                            pass
+                    dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
+                    if visible_ipnode == True or sourcenames[0] in nodes: 
+                        dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
+                    else:
+                        dg.edge(product_funcname_dict[sourcenames[0]] + ":func", funcname+":func", arrowhead="dot")
+
+                else:   
+                    cutsitenames = [] 
+                    uniquenames  = [] 
+                    rsource = source
+                    for pos_match in re.finditer("(QUEEN.queried_features_dict\['[^\[\]]+'\])(\[[0-9]+\])",source):    
                         uniquename  = pos_match.group(1) 
-                        productname = unique_name_dict[unique_name] 
-                        #seachname   = product_funcname_dict[productname]  
-                        #dg.edge(productname, funcname+":positions") 
+                        cutsitename = name_dict[uniquename] 
+                        rsource     = rsource.replace(uniquename, cutsitename)
+                        uniquename  = unique_name_dict[uniquename]
+                        uniquenames.append(uniquename) 
+                        #uniquenames.append(uniquename+"_"+pos_match.group(2)[1:-1]) 
+                        cutsitenames.append(cutsitename+pos_match.group(2))
+                    rsource  = rsource.split(",") 
+                    elements = [] 
+                    for element in rsource[1:]:
+                        if "=" in element:
+                            break
+                        else:
+                            elements.append(element.replace(" ","")) 
+
+                    info_dict["positions"] = ",".join(elements)  
+                    for key, value in info_dict.items():
+                        if key  == "positions":
+                            for v, pos in enumerate(value.split(",")):
+                                infotext += temp.format(key+"_"+str(v), key+"</i>[{}]".format(v), pos)
+                        else:
+                            pass
+                
+                    dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
+                    if visible_ipnode == True or sourcenames[0] in nodes: 
+                        dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
+                    else:
+                        dg.edge(product_funcname_dict[sourcenames[0]] + ":func", funcname+":func", arrowhead="dot")
+                    
+                    for key, value in info_dict.items():
+                        if key  == "positions":
+                            for v, pos in enumerate(value.split(",")):
+                                for cutsitename, uniquename in zip(cutsitenames, uniquenames):
+                                    if cutsitename in pos:
+                                        dg.edge(uniquename, funcname+":" + key + "_" + str(v), arrowhead="dot")
+                                else:
+                                    pass 
+                        else:
+                            pass
+
 
                 for productname in productnames:
                     dg.edge(funcname+":func", productname)
 
+            
             elif funclabel == "modifyends" and len(sourcenames) > 1:  
                 info = info.split("; ")
                 if len(info) > 1:
@@ -294,7 +380,7 @@ def traceflow(*dnas, operational_function_only=True):
                 temp = '<tr><td border="1" align="left" port="{}"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#909090"><font color="white" point-size="16"><b> </b>{}<b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#FF8926"><font color="white" point-size="16"><B>{}</B><b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -320,15 +406,21 @@ def traceflow(*dnas, operational_function_only=True):
                 
                 for sourcename in sourcenames:
                     if matchl is not None and sourcename in matchl.group(1):
-                        dg.edge(sourcename, funcname+":left", arrowhead="dot")
+                        dg.edge(sourcename, funcname+":left", arrowhead="odot")
                     elif matchr is not None and sourcename in matchr.group(1):
-                        dg.edge(sourcename, funcname+":right", arrowhead="dot")
+                        dg.edge(sourcename, funcname+":right", arrowhead="odot")
                     else:
-                        dg.edge(sourcename, funcname+":func", arrowhead="dot")
-            
-                for productname in productnames:
-                    dg.edge(funcname+":func", productname)
-            
+                        if visible_ipnode == True or sourcenames[0] in nodes: 
+                            dg.edge(sourcename, funcname+":func", arrowhead="dot")
+                        else:  
+                            dg.edge(product_funcname_dict[sourcename] + ":func", funcname+":func", arrowhead="dot")
+ 
+                if visible_ipnode == True: 
+                    for productname in productnames:
+                        dg.edge(funcname+":func", productname)
+                else:
+                    product_funcname_dict[productname] = funcname
+
             elif funclabel == "modifyends":
                 info = info.split("; ")
                 if len(info) > 1:
@@ -338,7 +430,7 @@ def traceflow(*dnas, operational_function_only=True):
                 temp = '<tr><td border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#909090"><font color="white" point-size="16"><b> </b>{}<b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#FF8926"><font color="white" point-size="16"><B>{}</B><b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -348,10 +440,48 @@ def traceflow(*dnas, operational_function_only=True):
                         value = info_dict[key] 
                         infotext += temp.format(key, value)
                 dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
-                dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
-                
+                if visible_ipnode == True or sourcenames[0] in nodes: 
+                    dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
+                else:
+                    dg.edge(product_funcname_dict[sourcenames[0]] + ":func", funcname+":func", arrowhead="dot")
+
+                if visible_ipnode == True: 
+                    for productname in productnames:
+                        dg.edge(funcname+":func", productname)
+                else:
+                    product_funcname_dict[productname] = funcname
+
+            elif funclabel == "flipdna":
+                info = info.split("; ")
+                if len(info) > 1:
+                    info_dict = dict([item.split(":") for item in info])
+                else:
+                    info_dict = None
+                temp = '<tr><td border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
+                label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
+                      '<tr>',
+                      '<td port="func" border="1" bgcolor="#009F22"><font color="white" point-size="16"><b> </b><B>{}</B><b> </b></font></td>',
+                      '</tr>',
+                      '{}',
+                      '</table>>'])
+                infotext = ""
+                if info_dict is not None:
+                    for key, value in info_dict.items():
+                        infotext += temp.format(key, value)
+                dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
+                if visible_ipnode == True or sourcenames[0] in nodes: 
+                    dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
+                else:
+                    dg.edge(product_funcname_dict[sourcenames[0]] + ":func", funcname+":func", arrowhead="dot")
+
                 for productname in productnames:
                     dg.edge(funcname+":func", productname)
+    
+                if visible_ipnode == True: 
+                    for productname in productnames:
+                        dg.edge(funcname+":func", productname)
+                else:
+                    product_funcname_dict[productname] = funcname
 
             else:
                 info = info.split("; ")
@@ -362,7 +492,7 @@ def traceflow(*dnas, operational_function_only=True):
                 temp = '<tr><td border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#909090"><font color="white" point-size="16"><b> </b>{}<b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#87861D"><font color="white" point-size="16"><b> </b><B>{}</B><b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -371,12 +501,15 @@ def traceflow(*dnas, operational_function_only=True):
                     for key, value in info_dict.items():
                         infotext += temp.format(key, value)
                 dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
-                dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
+                if visible_ipnode == True or sourcenames[0] in nodes: 
+                    dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
+                else:
+                    dg.edge(product_funcname_dict[sourcenames[0]] + ":func", funcname+":func", arrowhead="dot")
 
                 for productname in productnames:
                     dg.edge(funcname+":func", productname)
     
-    
+
     sourcenames = [] 
     for h, history in enumerate(new_histories):
         info    = history[1] 
@@ -396,16 +529,16 @@ def traceflow(*dnas, operational_function_only=True):
             s.attr(rank='same')
             for i in range(len(sourcenames[:-1])):
                 s.edge(sourcenames[i], sourcenames[i+1], style="invis")
-
-    if operational_function_only == False: 
-        pdg = Digraph(name="cluster_operation")
-        pdg.attr(rankdir='LR')
-        pdg.attr(fontname="arial") 
-        pdg.attr(nodesep="0.1")
-        pdg.attr(ranksep="0.1")
-        pdg.subgraph(sdg) 
-        pdg.subgraph(dg)
-        dg = pdg  
+    
+    #if operational_function_only == False: 
+    #    pdg = Digraph(name="cluster_operation")
+    #    pdg.attr(rankdir='LR')
+    #    pdg.attr(fontname="arial") 
+    #    pdg.attr(nodesep="0.1")
+    #    pdg.attr(ranksep="0.1")
+    #    pdg.subgraph(sdg) 
+    #    pdg.subgraph(dg)
+    #    dg = pdg  
     
     return dg
 

@@ -697,6 +697,8 @@ class QUEEN():
             QUEEN._namespace[product] = self
 
     def searchsequence(self, query, start=0, end=None, strand=2, product=None, process_description=None, _direct=1):
+        if "__dict__" in dir(query) and "cutsite" in query.__dict__:
+            query = query.cutsite
         qorigin = query
         start   = 0 if start == len(self.seq) else start
         end     = len(self.seq) if end is None else end
@@ -772,7 +774,7 @@ class QUEEN():
                         new_feat._digestion_bottomr     = bottomr
                         new_feat.qualifiers["cut_site"] = [Qseq(cutsite)]
                     new_feat.qualifiers["note_searchseqeunce"] = ["query:{}".format(qorigin)]
-                    if type(qorigin) == Qseq and qorigin.parental_class == "RE":
+                    if type(qorigin) == Qseq and qorigin.parental_class == "Cutsite":
                         new_feat.qualifiers["label"] = [qorigin.parent.name]
                     feat_list.append(new_feat)  
                 else:
@@ -851,8 +853,8 @@ class QUEEN():
                     else:
                         qorigin = "{}".format(seqname)
                 
-                elif qorigin.parental_class == "RE":
-                    qorigin = "RE_sites['{}'].{}".format(qorigin.parent.name, qorigin.name) 
+                elif qorigin.parental_class == "Cutsite":
+                    qorigin = "cs.lib['{}'].{}".format(qorigin.parent.name, qorigin.name) 
                 else:
                     qorigin = "'{}'".format(qorigin) 
             else:
@@ -962,8 +964,8 @@ class QUEEN():
                     else:
                         query = "{}".format(seqname)
                 
-                elif qorigin.parental_class == "RE":
-                    qorigin = "RE_sites['{}'].{}".format(qorigin.parent.name, qorigin.name) 
+                elif qorigin.parental_class == "Cutsite":
+                    qorigin = "cs.lib['{}'].{}".format(qorigin.parent.name, qorigin.name) 
                 else:
                     query = "'{}'".format(query) 
             else:

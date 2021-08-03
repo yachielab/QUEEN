@@ -21,8 +21,10 @@ from Bio.SeqFeature import SeqFeature, FeatureLocation, CompoundLocation, Featur
 warnings.simplefilter('ignore', BiopythonParserWarning)
 
 sys.path.append("/".join(__file__.split("/")[:-1]))
+import cutsite as cs
 import visualize_circular_dna as vc
 import visualize_linear_dna as vl 
+import qgraph as qg 
 
 def _assigndnafeatures(dnafeatures):
     features = [] 
@@ -1348,8 +1350,9 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
                 history_features.append(left_origin.parent._history_feature) 
             
             elif left_origin.parental_class == "Cutsite":
+                if left_origin.parent.name not in cs.defaultkeys:
+                    cs.new_cutsites.append((left_origin.parent.name, left_origin.parent.cutsite)) 
                 args.append("cs.lib['{}'].{}".format(left_origin.parent.name, left_origin.name)) 
-
             else:
                 args.append("'{}'".format(left_origin)) 
             ends.append(left) 
@@ -1410,6 +1413,8 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
                 history_features.append(right_origin.parent._history_feature) 
             
             elif right_origin.parental_class == "Cutsite":
+                if right_origin.parent.name not in cs.defaultkeys:
+                    cs.new_cutsites.append((right_origin.parent.name, right_origin.parent.cutsite)) 
                 args.append("cs.lib['{}'].{}".format(right_origin.parent.name, right_origin.name)) 
 
             else:
@@ -1720,6 +1725,8 @@ def editsequence(dna, source_sequence, destination_sequence, start=0, end=None, 
             history_features.append(source_sequence.parent._history_feature) 
         
         elif source_sequence.parental_class == "Cutsite":
+            if source_sequence.parent.name not in cs.defaultkeys:
+                cs.new_cutsites.append((source_sequence.parent.name, source_origin.parent.cutsite)) 
             fsource = "cs.lib['{}'].{}".format(source_sequence.parent.name, source_sequence.name)
         else:
             fsourcee = "'{}'".format(source_sequence) 
@@ -2265,9 +2272,11 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
                 else:
                     fquery = "{}".format(seqname)
                 history_features.append(query.parent._history_feature) 
+            
             elif query.parental_class == "Cutsite":
+                if query.parent.name not in cs.defaultkeys:
+                    cs.new_cutsites.append((query.parent.name, query.parent.cutsite)) 
                 fquery = "cs.lib['{}'].{}".format(qorigin.parent.name, qorigin.name) 
-
             else:
                 fquery = "'{}'".format(query) 
 
@@ -2451,7 +2460,7 @@ def _circularizedna(dna):
     dna._features_dict = dict(list(map(lambda x:(x._id, x), dna.dnafeatures)))
     return dna
 
-def visualizedna(dna, map_view="linear", feature_list=None, start=0, end=None, standard_scale="auto", width_scale=1.0, height_scale=1.0, label_location=None, linebreak=None, seq=False, label_visible=2, fontsize=None, diamater_scale=1.0, title_visible=True, axis_visible=True, tick_space="auto"):
+def visualizedna(dna, map_view="linear", feature_list=None, start=0, end=None, standard_scale="auto", width_scale=1.0, height_scale=1.0, label_location=None, linebreak=None, seq=False, label_visible=2, fontsize=None, diamater_scale=1.0, title_visible=True, axis_visible=True, tick_space="auto", label_color="k"):
     if fontsize is None and map_view == "linear":
         fontsize = 12
     elif fontsize is None and map_view == "circular":
@@ -2465,10 +2474,10 @@ def visualizedna(dna, map_view="linear", feature_list=None, start=0, end=None, s
             feature_list.sort(key=lambda x:len(dna.printsequence(x.start, x.end)))
     if map_view == "circular":
         fig, axes = vc.visualize(dna, format=0, feature_list=feature_list, unvisible_types=["source"], visible_types=[], bottom=400 * diamater_scale, label_visible=label_visible, fontsize=fontsize, 
-        title_visible=title_visible, axis_visible=axis_visible, tick_space=tick_space)
+        title_visible=title_visible, axis_visible=axis_visible, tick_space=tick_space, labelcolor=label_color)
     else:
         fig, ax = vl.visualize(dna, start=start, end=end, feature_list=feature_list, wrap_width=linebreak, annotation_loc=label_location, unvisible_types=["source"], visible_types=[], enlarge_w=width_scale, enlarge_h=height_scale, 
-        fontsize=fontsize, with_seq=seq, nucl_char=None, nucl_color_dict=None, label_visible=label_visible, scale=standard_scale, title_visible=title_visible, axis_visible=axis_visible, tick_space=tick_space)
+        fontsize=fontsize, with_seq=seq, nucl_char=None, nucl_color_dict=None, label_visible=label_visible, scale=standard_scale, title_visible=title_visible, axis_visible=axis_visible, tick_space=tick_space, labelcolor=label_color)
     return fig
 
 def quine(*dnas, output=None, description_only=False, _return=False):
@@ -2598,7 +2607,10 @@ def quine(*dnas, output=None, description_only=False, _return=False):
     if description_only == False and _return == False:
         print("import sys", file=o)  
         print("sys.path.append(\"{}".format("/".join(__file__.split("/")[:-2])  + "\")"), file=o)
-        print("from QUEEN.queen import *", file=o)  
+        print("from QUEEN.queen import *", file=o) 
+        print("from QUEEN import cutsite as cs", file=o) 
+        for cutsite in cs.new_cutsites:
+            print("cs.lib[{}] = {}".format(cutsite[0], cutsiite[1]), file=o) 
         if dna.__class__._namespaceflag == 1:
             print("set_namespace(globals())", file=o)   
     
@@ -2679,4 +2691,8 @@ def quine(*dnas, output=None, description_only=False, _return=False):
     if output is not None:
         o.close() 
     
+def traceflow(*dnas, operational_function_only=True, visible_ipnode=True):
+    histories = quine(*dnas, _return=True)
+    graph     = qg.generateflow(histories, operational_function_only, visible_ipnode)
+    return graph 
 

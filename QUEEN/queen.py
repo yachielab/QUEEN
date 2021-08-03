@@ -29,4 +29,5 @@ joindna      = qfunction.joindna
 flipdna      = qfunction.flipdna
 editsequence = qfunction.editsequence
 editfeature  = qfunction.editfeature
-visualizedna = qfunction.visualizedna 
+visualizedna = qfunction.visualizedna
+traceflow    = qfunction.traceflow

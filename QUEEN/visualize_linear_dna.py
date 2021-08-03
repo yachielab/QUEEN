@@ -39,7 +39,7 @@ def hex_to_rgb(value):
     lv = len(value)
     return tuple(int(value[i:i+lv//3], 16) for i in range(0, lv, lv//3))
 
-def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, annotation_loc="both", label_visible=True, fontsize=12, project="", title_visible=True, axis_visible=True, tick_space="auto"):
+def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, annotation_loc="both", label_visible=True, fontsize=12, project="", title_visible=True, axis_visible=True, tick_space="auto", labelcolor="k"):
     y = 0
     y_list      = [] 
     ty_list     = [] 
@@ -214,7 +214,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
     coordinate  = ax.transData.inverted() 
     for label, tx, ty, gs, ge, hl, ec, fc in label_position_list:
         fc = "#ffffec" #facecolor 
-        text      = ax.text(tx, ty, label, ha="center", va="center", fontsize=fontsize)
+        text      = ax.text(tx, ty-0.05, label, ha="center", va="center", fontsize=fontsize, color=labelcolor, fontweight="bold" if labelcolor=="w" else "normal")
         bbox_text = text.get_window_extent(renderer=renderer)
         bbox_text = Bbox(coordinate.transform(bbox_text))
         width = bbox_text.width*length
@@ -297,7 +297,7 @@ def colorbar(ax, color_dict, ref_seq, char=False, fontsize=10):
     ax.patch.set_alpha(0.0)
     return bars
 
-def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, label_visible=True, feature_list=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, scale="auto", fontsize=12, with_seq=False, nucl_char=None, nucl_color_dict=None, title_visible=True, axis_visible=True, tick_space="auto"):
+def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, label_visible=True, feature_list=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, scale="auto", fontsize=12, with_seq=False, nucl_char=None, nucl_color_dict=None, title_visible=True, axis_visible=True, tick_space="auto", labelcolor="k"):
     brick = copy.deepcopy(brick) 
     width = wrap_width 
     if nucl_color_dict == None:
@@ -451,7 +451,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
 
         zero_position = sub_start + 1
         ax  = fig.add_axes([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h], label=str(num)) 
-        ax, y_list, ty_list = map_feat(fig, ax, sub_brick.dnafeatures, len(sub_brick.seq), head_length, unvisible_types=unvisible_types, visible_types=visible_types, enlarge_w=enlarge_w, enlarge_h=enlarge_h, annotation_loc=annotation_loc, label_visible=label_visible, fontsize=fontsize, project=sub_brick.project, title_visible=title_visible, axis_visible=axis_visible)
+        ax, y_list, ty_list = map_feat(fig, ax, sub_brick.dnafeatures, len(sub_brick.seq), head_length, unvisible_types=unvisible_types, visible_types=visible_types, enlarge_w=enlarge_w, enlarge_h=enlarge_h, annotation_loc=annotation_loc, label_visible=label_visible, fontsize=fontsize, project=sub_brick.project, title_visible=title_visible, axis_visible=axis_visible, labelcolor=labelcolor)
         
         ty_list.append(0)  
         y_list.append(0) 

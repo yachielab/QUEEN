@@ -2,7 +2,7 @@ import os
 import sys 
 import regex as re 
 sys.path.append("/".join(__file__.split("/")[:-1]))
-from qobj import Qseq
+from qseq import Qseq
 
 def compilecutsite(site):
     ref1 = r"([ATGCRYKMSWBDHVN]+)\([\-0-9]+/[\-0-9]+\)"
@@ -28,7 +28,16 @@ class _CUTSITES:
         self.__dict__[key] = Cutsite(compilecutsite(item), item, key)
 
     def __getitem__(self, key):
-        return self.__dict__[key] 
+        return self.__dict__[key]
+    
+    def items(self):
+        return self.__dict__.items()
+
+    def keys(self): 
+        return self.__dict__.keys() 
+    
+    def values(self): 
+        return self.__dict__.values() 
 
 class Cutsite:
     def __repr__(self):
@@ -288,4 +297,5 @@ lib["XmaI"]      = "C^CCGG_G"
 lib["XmnI"]      = "GAANN^_NNTTC"
 lib["ZraI"]      = "GAC^_GTC"
 
-default_keys = frozenset(lib.__dict__.keys()) 
+defaultkeys  = frozenset(lib.__dict__.keys())
+new_cutsites = []

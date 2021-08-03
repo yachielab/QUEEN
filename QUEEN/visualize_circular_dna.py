@@ -29,7 +29,7 @@ feature_color_dict["rep_origin"]   = [('#fff2ae', '#ffd92f')]
 feature_color_dict["misc_feature"] = [('#fbb4ae', '#e41a1c'), ('#b3cde3', '#377eb8'), ('#ccebc5', '#4daf4a'), ('#decbe4', '#984ea3'), ('#fed9a6', '#ff7f00')]  
 misc_colors = [('#ffffcc', '#d9d927'), ('#e5d8bd', '#a65628'), ('#fddaec', '#f781bf'), ('#f2f2f2', '#999999'), ('#fbb4ae', '#e41a1c')]
 
-def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_types=["source"], visible_types=[], enlarge=1.0, format=1, bottom=300, fontsize=10, label_visible=True, axis_visible=True, tick_space="auto"):
+def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_types=["source"], visible_types=[], enlarge=1.0, format=1, bottom=300, fontsize=10, label_visible=True, axis_visible=True, tick_space="auto", labelcolor="k"):
     if format == 0 or format == 1:
         outer    = 62 * 1.2
         inner    = 45 * 1.2
@@ -432,7 +432,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                 gs_origin, ge_origin = int(new_gs_origin), int(new_ge_origin) 
                 for char, (theta, height, y, pos, x, btw) in zip(label, new_pos_list):
                     if tflag == 1 or label_visible>=1:
-                        ax.text(theta, height, char, ha="center", va="center", rotation=rotation(theta), zorder=10, fontsize=fontsize)
+                        ax.text(theta, height, char, ha="center", va="center", rotation=rotation(theta), zorder=10, fontsize=fontsize, color=labelcolor)
               
                 if width > 1.2 * head_length:
                     if strand == 1:
@@ -574,7 +574,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                     rotation = lambda x:(-1.0*x)*180/np.pi+180
                 
                 for char, (theta, height, y, pos, x, width) in zip(label,new_pos_list):
-                    ax.text(theta, height, char, ha="center", va="center", rotation=rotation(theta), zorder=10)
+                    ax.text(theta, height, char, ha="center", va="center", rotation=rotation(theta), zorder=10, color=labelcolor)
 
             else:
                 flag = 0 
@@ -719,7 +719,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                     rotation = lambda x:(-1.0*x)*180/np.pi+180
                 
                 for char, (theta, target, old_theta, y, old_height, width) in zip(label, modified_pos_list):
-                    ax.text(theta, y, char, ha="center", va="center", rotation=rotation(theta))
+                    ax.text(theta, y, char, ha="center", va="center", rotation=rotation(theta), color=labelcolor)
                 
                 mid = modified_pos_list[len(new_pos_list) // 2]
                 s = modified_pos_list[0]
@@ -788,7 +788,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
         fig.set_size_inches(6 * ylim/fig_width, 6 * ylim/fig_width)
     return ax, y_list, ty_list, fig_width, ylim, bottom_h
 
-def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], visible_types=[], bottom=None, fontsize=8, label_visible=True, axis_visible=True, title_visible=True, tick_space="auto"):
+def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], visible_types=[], bottom=None, fontsize=8, label_visible=True, axis_visible=True, title_visible=True, tick_space="auto", labelcolor="k"):
     brick = copy.deepcopy(brick) 
     figure = plt.figure(figsize=(6,6))
     ax      = figure.add_axes([0,0,1,1], polar=True, label="hoge")
@@ -806,7 +806,7 @@ def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], vi
         feature_list.sort(key=lambda x:len(brick.getdnaseq(x.start, x.end)))
     else:
         pass
-    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, feature_list, len(brick.seq), unvisible_types=unvisible_types, visible_types=visible_types, format=format, bottom=bottom, enlarge=1.0, label_visible=label_visible, fontsize=fontsize, axis_visible=axis_visible, tick_space=tick_space) 
+    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, feature_list, len(brick.seq), unvisible_types=unvisible_types, visible_types=visible_types, format=format, bottom=bottom, enlarge=1.0, label_visible=label_visible, fontsize=fontsize, axis_visible=axis_visible, tick_space=tick_space, labelcolor=labelcolor) 
    
     if title_visible == True:
         renderer    = figure.canvas.get_renderer()

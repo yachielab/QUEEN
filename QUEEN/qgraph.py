@@ -3,11 +3,9 @@ import re
 import sys 
 from graphviz import Digraph
 sys.path.append("/".join(__file__.split("/")[:-1]))
-from qfunction import *
 
-def traceflow(*dnas, operational_function_only=True, visible_ipnode=True):
+def generateflow(histories, operational_function_only=True, visible_ipnode=True):
     dnatree_dict = {}   
-    histories        = quine(*dnas, _return=True) 
     new_histories    = [] 
     name_dict        = {} 
     unique_name_dict = {}
@@ -82,7 +80,7 @@ def traceflow(*dnas, operational_function_only=True, visible_ipnode=True):
             sourcename = unique_name_dict[key]
             sourcenames.append(sourcename)
             if sourcename not in nodes and sourcename not in removedproducts:
-                dg.node(sourcename, label=name_dict[key], margin="0.01", shape="oval", fontname="Arial") 
+                dg.node(sourcename, label=name_dict[key], margin="0.05", shape="oval", fontname="Arial") 
                 nodes.add(sourcename) 
             else:
                 pass
@@ -124,7 +122,7 @@ def traceflow(*dnas, operational_function_only=True, visible_ipnode=True):
                 productnames.append(productname) 
                 if productname not in nodes:
                     if visible_ipnode == True or funclabel == "cropdna" or funclabel == "cutdna" or funclabel == "joindna":
-                        dg.node(productname, label=name_dict[key], margin="0.01", shape="oval", fontname="Arial") 
+                        dg.node(productname, label=name_dict[key], margin="0.05", shape="oval", fontname="Arial") 
                         nodes.add(productname) 
                     else:
                         if funclabel is not None:
@@ -140,7 +138,11 @@ def traceflow(*dnas, operational_function_only=True, visible_ipnode=True):
                 productname = unique_name_dict[key]
                 productnames.append(productname) 
                 if productname not in nodes:
-                    dg.node(productname, label=name_dict[key], margin="0.0", shape="box", fontname="Arial") 
+                    if len(name_dict[key]) > 4:
+                        margin = "0.05"
+                    else:
+                        margin = "0.0"
+                    dg.node(productname, label=name_dict[key], margin=margin, shape="box", fontname="Arial") 
                     nodes.add(productname) 
                 else:
                     pass
@@ -173,7 +175,7 @@ def traceflow(*dnas, operational_function_only=True, visible_ipnode=True):
                         infotext += temp.format(key, key, value)
                 
                 if sourcenames[0] + "_search" not in nodes:
-                    dg.node(sourcenames[0] + "_search", label=unique_name_name_dict[sourcenames[0]], margin="0.01", shape="oval", fontname="Arial") 
+                    dg.node(sourcenames[0] + "_search", label=unique_name_name_dict[sourcenames[0]], margin="0.05", shape="oval", fontname="Arial") 
                     nodes.add(sourcenames[0] + "_search") 
                 else:
                     pass
@@ -183,7 +185,7 @@ def traceflow(*dnas, operational_function_only=True, visible_ipnode=True):
                 
                 if query_flag == 1:
                     if queryname + "_search" not in nodes:
-                        dg.node(queryname + "_search", label=unique_name_name_dict[queryname], margin="0.01", shape="oval", fontname="Arial") 
+                        dg.node(queryname + "_search", label=unique_name_name_dict[queryname], margin="0.05", shape="oval", fontname="Arial") 
                         nodes.add(queryname + "_search") 
                     else:
                         pass
@@ -360,7 +362,7 @@ def traceflow(*dnas, operational_function_only=True, visible_ipnode=True):
                             for v, pos in enumerate(value.split(",")):
                                 for cutsitename, uniquename in zip(cutsitenames, uniquenames):
                                     if cutsitename in pos:
-                                        dg.edge(uniquename, funcname+":" + key + "_" + str(v), arrowhead="dot")
+                                        dg.edge(uniquename, funcname+":" + key + "_" + str(v), arrowhead="odot")
                                 else:
                                     pass 
                         else:
@@ -460,7 +462,7 @@ def traceflow(*dnas, operational_function_only=True, visible_ipnode=True):
                 temp = '<tr><td border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#009F22"><font color="white" point-size="16"><b> </b><B>{}</B><b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#009F22"><font color="white" point-size="16"><b></b><B>{}</B><b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -474,9 +476,6 @@ def traceflow(*dnas, operational_function_only=True, visible_ipnode=True):
                 else:
                     dg.edge(product_funcname_dict[sourcenames[0]] + ":func", funcname+":func", arrowhead="dot")
 
-                for productname in productnames:
-                    dg.edge(funcname+":func", productname)
-    
                 if visible_ipnode == True: 
                     for productname in productnames:
                         dg.edge(funcname+":func", productname)
@@ -509,7 +508,6 @@ def traceflow(*dnas, operational_function_only=True, visible_ipnode=True):
                 for productname in productnames:
                     dg.edge(funcname+":func", productname)
     
-
     sourcenames = [] 
     for h, history in enumerate(new_histories):
         info    = history[1] 

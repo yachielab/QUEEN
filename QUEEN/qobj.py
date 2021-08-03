@@ -1,5 +1,5 @@
 import sys
-import copy 
+import copy
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature, FeatureLocation, CompoundLocation, FeatureLocation, ExactPosition
@@ -7,63 +7,8 @@ from functools import total_ordering
 
 sys.path.append("/".join(__file__.split("/")[:-1]))
 from qfunction import *
-
-class Qint(int):
-    def __init__(self, num):
-        self.qkey        = None
-        self.parent      = None
-        self.parental_id = None
-        self.name        = None
-        self._qint       = True
-
-class Qseq(str):
-    def __init__(self, seq):
-        self.qkey           = None
-        self.parent         = None
-        self.parental_id    = None
-        self.parental_class = None
-        self.name           = None 
-        self.item           = None
-        
-    def __getitem__(self, item):
-        value = super().__getitem__(item) 
-        if self.parental_class == "QUEEN" and self.parent is not None and self.parent.topology == "circular":
-            if type(item) == slice:
-                if item.start is None:
-                    start = 0 
-                elif item.start < 0:
-                    start = len(self) + item.start
-                else:
-                    start = item.start
-                
-                if item.stop is None:
-                    stop = len(self)
-                elif item.stop < 0:
-                    stop = len(self) + item.stop
-                else:
-                    stop = item.stop
-                
-                if item.step is None:
-                    step = 1
-
-                if start > stop: 
-                    value = str(self)[start:] + str(self)[:stop]
-                    value = value[::step] 
-                else:
-                    value = super().__getitem__(item)
-            else:
-                pass 
-            value = Qseq(value)
-        else:
-            value = Qseq(value)
-        value.qkey           = self.qkey
-        value.parent         = None
-        value.parental_id    = self.parental_id
-        value.parental_class = self.parental_class 
-        value.name           = self.name
-        value.item           = item
-        
-        return value
+from qint import Qint
+from qseq import Qseq
 
 @total_ordering
 class DNAfeature(SeqFeature):
@@ -772,7 +717,7 @@ class QUEEN():
                         new_feat._digestion_topr        = topr
                         new_feat._digestion_bottoml     = bottoml
                         new_feat._digestion_bottomr     = bottomr
-                        new_feat.qualifiers["cut_site"] = [Qseq(cutsite)]
+                        new_feat.qualifiers["cutsite"] = [Qseq(cutsite)]
                     new_feat.qualifiers["note_searchseqeunce"] = ["query:{}".format(qorigin)]
                     if type(qorigin) == Qseq and qorigin.parental_class == "Cutsite":
                         new_feat.qualifiers["label"] = [qorigin.parent.name]
@@ -854,7 +799,12 @@ class QUEEN():
                         qorigin = "{}".format(seqname)
                 
                 elif qorigin.parental_class == "Cutsite":
-                    qorigin = "cs.lib['{}'].{}".format(qorigin.parent.name, qorigin.name) 
+                    if qorigin.parent.name not in cs.defaultkeys:
+                        cs.new_cutsites.append((qorigin.parent.name, qorigin.parent.cutsite)) 
+                    if qorigin.name == "cutsite":
+                        qorigin = "cs.lib['{}'].{}".format(qorigin.parent.name, qorigin.name) 
+                    else:
+                        qorigin = "cs.lib['{}']".format(qorigin.parent.name) 
                 else:
                     qorigin = "'{}'".format(qorigin) 
             else:
@@ -865,13 +815,13 @@ class QUEEN():
             if start == 0 and end == len(self.seq):
                 if strand == 2:
                     building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}{}{})".format(qkey, self._unique_id, qorigin, fproduct, process_description)
-                    add_history(self, [building_history, "query:{}".format(query)])
+                    add_history(self, [building_history, "query:{}".format(qorigin)])
                 else:
                     building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}, strand={}{}{})".format(qkey, self._unique_id, qorigin, strand, fproduct, process_description)
-                    add_history(self, [building_history, "query:{}; strand{}".format(query, strand)])
+                    add_history(self, [building_history, "query:{}; strand{}".format(qorigin, strand)])
             else:
                 building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}, start={}, end={}, strand={}{}{})".format(qkey, self._unique_id, qorigin, start, end, strand, fproduct, process_description)   
-                add_history(self, [building_history, "query:{}; start:{}; end:{}; strand:{}".format(query, start, end, strand)])
+                add_history(self, [building_history, "query:{}; start:{}; end:{}; strand:{}".format(qorigin, start, end, strand)])
             QUEEN._qnum += 1 
         
         if product is None:
@@ -964,8 +914,10 @@ class QUEEN():
                     else:
                         query = "{}".format(seqname)
                 
-                elif qorigin.parental_class == "Cutsite":
-                    qorigin = "cs.lib['{}'].{}".format(qorigin.parent.name, qorigin.name) 
+                elif query.parental_class == "Cutsite":
+                    if query.parent.name not in cs.defaultkeys:
+                        cs.new_cutsites.append((query.parent.name, query.parent.cutsite)) 
+                    query = "cs.lib['{}'].{}".format(query.parent.name, query.name) 
                 else:
                     query = "'{}'".format(query) 
             else:

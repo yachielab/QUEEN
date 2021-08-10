@@ -1,11 +1,13 @@
 import os 
-import re
+import regex as re
 import sys 
 from graphviz import Digraph
 sys.path.append("/".join(__file__.split("/")[:-1]))
 
-def generateflow(histories, operational_function_only=True, visible_ipnode=True):
-    dnatree_dict = {}   
+def generateflow(histories, operational_function_only=True, visible_ipnode=True, process_classification=True):
+    sdgs         = {} 
+    clusters     = {} 
+    dnatree_dict = {}       
     new_histories    = [] 
     name_dict        = {} 
     unique_name_dict = {}
@@ -47,14 +49,14 @@ def generateflow(histories, operational_function_only=True, visible_ipnode=True)
             new_histories.append([history, info]) 
         else:
             pass 
-
+    
     nodes = set([])  
     dg = Digraph(name="cluster_operation")
     dg.attr(rankdir='LR')
     dg.attr(fontname="arial") 
     dg.attr(nodesep="0.1")
     dg.attr(ranksep="0.2")
-    
+    sdgs["__main__"] = dg 
     #if operational_function_only==False:
     #    sdg = Digraph(name="cluster_search")
     #    sdg.attr(rankdir='LR')
@@ -152,11 +154,11 @@ def generateflow(histories, operational_function_only=True, visible_ipnode=True)
         else:
             if funclabel == "searchsequence" or funclabel == "searchfeature":
                 info      = info.split("; ")
-                info_dict = dict([item.split(":") for item in info if ":" in item])
+                info_dict = dict([item.split(": ") for item in info if ": " in item])
                 temp = '<tr><td port="{}" border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#49AE22"><font color="white" point-size="16"><B>{}</B><b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#BDD0FC"><font color="black" point-size="16">{}<b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -172,17 +174,21 @@ def generateflow(histories, operational_function_only=True, visible_ipnode=True)
                     
                 if info_dict is not None:
                     for key, value in info_dict.items():
-                        infotext += temp.format(key, key, value)
+                        if key != "_source":
+                            infotext += temp.format(key, key, value)
+
+                #if sourcenames[0] + "_search" not in nodes:
+                #    dg.node(sourcenames[0] + "_search", label=unique_name_name_dict[sourcenames[0]], margin="0.05", shape="oval", fontname="Arial") 
+                #    nodes.add(sourcenames[0] + "_search") 
                 
-                if sourcenames[0] + "_search" not in nodes:
-                    dg.node(sourcenames[0] + "_search", label=unique_name_name_dict[sourcenames[0]], margin="0.05", shape="oval", fontname="Arial") 
-                    nodes.add(sourcenames[0] + "_search") 
-                else:
-                    pass
- 
+                if sourcenames[0] not in nodes:
+                    dg.node(sourcenames[0], label=unique_name_name_dict[sourcenames[0]], margin="0.05", shape="oval", fontname="Arial") 
+                    nodes.add(sourcenames[0]) 
+                
                 dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
-                dg.edge(sourcenames[0] + "_search", funcname+":func", arrowhead="dot")
-                
+                #dg.edge(sourcenames[0] + "_search", funcname+":func", arrowhead="dot")
+                dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
+
                 if query_flag == 1:
                     if queryname + "_search" not in nodes:
                         dg.node(queryname + "_search", label=unique_name_name_dict[queryname], margin="0.05", shape="oval", fontname="Arial") 
@@ -199,15 +205,15 @@ def generateflow(histories, operational_function_only=True, visible_ipnode=True)
 
             elif funclabel == "joindna":
                 info      = info.split("; ")
-                info_dict = dict([item.split(":") for item in info])
-                temp = '<tr><td border="1" color="#E76453" bgcolor="#E76453" port="f{}"> </td></tr>'
+                info_dict = dict([item.split(": ") for item in info])
+                temp = '<tr><td border="1" color="#FFCECB" bgcolor="#FFCECB" port="f{}"> </td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="0">',
                       '<tr>',
                       '<td>',
                       '<table cellpadding="0" cellspacing="0" border="0">',
                       '<tr>',
-                      '<td border="1" color="#E76453" bgcolor="#E76453" port="f0"> </td>',
-                      '<td port="func" rowspan="{}" border="1" color="#FF584B" bgcolor="#E76453" align="left"><font color="white" point-size="16"><B>joindna</B></font><b> </b></td>',
+                      '<td border="1" color="#FFCECB" bgcolor="#FFCECB" port="f0"> </td>',
+                      '<td port="func" rowspan="{}" border="1" color="#FFCECB" bgcolor="#FFCECB" align="left"><font color="black" point-size="16">joindna</font><b> </b></td>',
                       '</tr>'
                       '{}',
                       '</table>'
@@ -234,11 +240,11 @@ def generateflow(histories, operational_function_only=True, visible_ipnode=True)
             
             elif funclabel == "cropdna":
                 info      = info.split("; ")
-                info_dict = dict([item.split(":") for item in info if ":" in item])
+                info_dict = dict([item.split(": ") for item in info if ": " in item])
                 temp = '<tr><td port="{}" border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#007FFA"><font color="white" point-size="16"><B>{}</B><b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">{}<b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -247,7 +253,8 @@ def generateflow(histories, operational_function_only=True, visible_ipnode=True)
                     infotext = ""
                     if info_dict is not None:
                         for key, value in info_dict.items():
-                            infotext += temp.format(key, key, value)
+                            if key != "_source":
+                                infotext += temp.format(key, key, value)
                     dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
                     if visible_ipnode == True or sourcenames[0] in nodes: 
                         dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
@@ -282,7 +289,8 @@ def generateflow(histories, operational_function_only=True, visible_ipnode=True)
                     infotext = ""
                     if info_dict is not None:
                         for key, value in info_dict.items():
-                            infotext += temp.format(key, key, value)
+                            if key != "_source":
+                                infotext += temp.format(key, key, value)
                     
                     dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
                     if visible_ipnode == True or sourcenames[0] in nodes: 
@@ -300,11 +308,11 @@ def generateflow(histories, operational_function_only=True, visible_ipnode=True)
             
             elif funclabel == "cutdna":
                 info      = info.split("; ")
-                info_dict = dict([item.split(":") for item in info if ":" in item])
+                info_dict = dict([item.split(": ") for item in info if ": " in item])
                 temp = '<tr><td port="{}" border="1" align="left"><b> </b><i>{} = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#007FFA"><font color="white" point-size="16"><B>{}</B><b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">{}<b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -376,13 +384,13 @@ def generateflow(histories, operational_function_only=True, visible_ipnode=True)
             elif funclabel == "modifyends" and len(sourcenames) > 1:  
                 info = info.split("; ")
                 if len(info) > 1:
-                    info_dict = dict([item.split(":") for item in info])
+                    info_dict = dict([item.split(": ") for item in info])
                 else:
                     info_dict = None
                 temp = '<tr><td border="1" align="left" port="{}"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#FF8926"><font color="white" point-size="16"><B>{}</B><b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">{}<b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -426,13 +434,13 @@ def generateflow(histories, operational_function_only=True, visible_ipnode=True)
             elif funclabel == "modifyends":
                 info = info.split("; ")
                 if len(info) > 1:
-                    info_dict = dict([item.split(":") for item in info])
+                    info_dict = dict([item.split(": ") for item in info])
                 else:
                     info_dict = None
                 temp = '<tr><td border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#FF8926"><font color="white" point-size="16"><B>{}</B><b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">{}<b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -456,20 +464,21 @@ def generateflow(histories, operational_function_only=True, visible_ipnode=True)
             elif funclabel == "flipdna":
                 info = info.split("; ")
                 if len(info) > 1:
-                    info_dict = dict([item.split(":") for item in info])
+                    info_dict = dict([item.split(": ") for item in info])
                 else:
                     info_dict = None
                 temp = '<tr><td border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#009F22"><font color="white" point-size="16"><b></b><B>{}</B><b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16"><b></b>{}<b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
                 infotext = ""
                 if info_dict is not None:
                     for key, value in info_dict.items():
-                        infotext += temp.format(key, value)
+                        if key != "_source":
+                            infotext += temp.format(key, value)
                 dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
                 if visible_ipnode == True or sourcenames[0] in nodes: 
                     dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
@@ -485,20 +494,21 @@ def generateflow(histories, operational_function_only=True, visible_ipnode=True)
             else:
                 info = info.split("; ")
                 if len(info) > 1:
-                    info_dict = dict([item.split(":") for item in info])
+                    info_dict = dict([item.split(": ") for item in info])
                 else:
                     info_dict = None
                 temp = '<tr><td border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#87861D"><font color="white" point-size="16"><b> </b><B>{}</B><b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16"><b></b>{}<b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
                 infotext = ""
                 if info_dict is not None:
                     for key, value in info_dict.items():
-                        infotext += temp.format(key, value)
+                        if key != "_source":
+                            infotext += temp.format(key, value)
                 dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
                 if visible_ipnode == True or sourcenames[0] in nodes: 
                     dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
@@ -507,6 +517,53 @@ def generateflow(histories, operational_function_only=True, visible_ipnode=True)
 
                 for productname in productnames:
                     dg.edge(funcname+":func", productname)
+            
+            #classification by process_discription
+            if info_dict is not None and "_source" in info_dict:
+                name = info_dict["_source"]  
+                if name not in sdgs:
+                    sdgs[name] = dg.subgraph(name="cluster_source{}".format(len(list(sdgs.keys()))))
+                sdg_obj = sdgs[name]
+                sdg     = sdgs[name].graph
+                sdg.attr(rankdir='LR')
+                sdg.attr(label=name) 
+                sdgflag = 1
+            else:
+                sdg = dg 
+                sdgflag = 0 
+            
+            if process_classification == True:
+                match_description = re.search("process_description='(.*)'", history) 
+                if match_description is not None: 
+                    description = match_description.group(1) 
+                    if ":" in description:
+                        description = description.split(":")[0] 
+                    
+                    if description not in clusters.keys():
+                        clusters[description] = sdg.subgraph(name="cluster_{}".format(len(list(clusters.keys()))))
+                        with clusters[description] as subg:
+                            subg.attr(label=description + "\l") 
+                            subg.attr(rankdir='LR') 
+                    
+                    with clusters[description] as subg:
+                        subg.node(funcname) 
+                        for sourcename in sourcenames:
+                            if sourcename not in product_funcname_dict:
+                                subg.node(sourcename)
+
+                        if visible_ipnode == True or funclabel not in ["modifyends", "flipdna"]: 
+                            for productname in productnames:
+                                subg.node(productname)
+                        else: 
+                            pass
+                        
+                        if funclabel in ["searchsequence", "searchfeature"] and query_flag == 1:
+                            subg.node(queryname + "_search") 
+            
+            if sdgflag == 1:                
+                sdg_obj.parent.subgraph(sdg_obj.graph)
+            else:
+                pass 
     
     sourcenames = [] 
     for h, history in enumerate(new_histories):

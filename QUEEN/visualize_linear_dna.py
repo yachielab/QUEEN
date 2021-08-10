@@ -26,7 +26,8 @@ matplotlib.rcParams['ytick.major.size']  = 4
 color_dict = {"G":"#f2f059", "C":"#74b2d7", "A":"#79E5B7", "T":"#ff776c", "N":"#FFFFFF", "-":"#FFFFFF"}
 
 feature_color_dict = collections.defaultdict(list)
-feature_color_dict["CDS"]          = [('#92c6ff', '#4c72b0'), ('#97f0aa', '#55a868'), ('#ff9f9a', '#c44e52'), ('#d0bbff', '#8172b2'), ('#fffea3', '#ccb974')]  
+#feature_color_dict["CDS"]          = [('#ff9d9a', '#e15759'), ('#f1ce63', '#b6992d'), ('#86bcb6', '#499894'), ('#fabfd2', '#D37295'), ("#A0CBE8", "#4E79A7")]
+feature_color_dict["CDS"]          = [('#ff9f9a', '#c44e52'), ('#92c6ff', '#4c72b0'), ('#97f0aa', '#55a868'), ('#d0bbff', '#8172b2'), ('#fffea3', '#ccb974')]
 feature_color_dict["primer_bind"]  = [('#a6cee3', '#1f78b4'), ('#b2df8a', '#33a02c'), ('#fb9a99', '#e31a1c'), ('#fdbf6f', '#ff7f00'), ('#cab2d6', '#6a3d9a')] 
 feature_color_dict["primer"]       = [('#a6cee3', '#1f78b4'), ('#b2df8a', '#33a02c'), ('#fb9a99', '#e31a1c'), ('#fdbf6f', '#ff7f00'), ('#cab2d6', '#6a3d9a')] 
 feature_color_dict["promoter"]     = [('#b0e0e6', '#64b5cd'), ('#92c6ff', '#4c72b0'), ('#97f0aa', '#55a868')]  

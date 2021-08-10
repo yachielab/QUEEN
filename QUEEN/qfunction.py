@@ -57,6 +57,12 @@ def _combine_history(dna, history_features):
     return history_feature
 
 def add_history(dna, histories): 
+    if dna.__class__._keep == 1:
+        dna.__class__.dna_dict[dna._unique_id] = dna
+    
+    if dna.__class__._source is not None and dna.__class__._source != "__main__":
+        histories[1] = histories[1] + "; _source: {}".format(dna.__class__._source) 
+
     dna.__class__._num_history += 1 
     dna._history_feature.qualifiers["building_history_{}".format(dna.__class__._num_history)] = [] 
     for h, history in enumerate(histories):
@@ -132,7 +138,7 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_desc
             
             #Linearization
             for feat in dna.dnafeatures:
-                strand = feat.location.strand
+                strand = feat.strand
                 s = feat.start
                 e = feat.end
                 if "_original" not in feat.__dict__:
@@ -146,7 +152,7 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_desc
                         feat.location = CompoundLocation(locations)
                         feat.location.strand = strand
 
-                    strand = feat.location.strand
+                    strand = feat.strand
                     if len(feat.location.parts) == 2:
                         feat1 = copy.deepcopy(feat)
                         feat1.location = feat.location.parts[0]
@@ -628,6 +634,7 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_desc
                     args.append(str(pos))
                 else:
                     args.append("'" + str(pos) + "'")
+        
         if crop == True:
             fcrop = ", crop=True"
         else:
@@ -642,7 +649,7 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_desc
         for subdna in dnas:
             history_feature = _combine_history(subdna, history_features)
             subdna._history_feature = history_feature
-            add_history(subdna, [building_history, "positions:{}".format(",".join(list(map(str, new_positions_original)))), "num_products:{}".format(len(dnas))])
+            add_history(subdna, [building_history, "positions: {}".format(",".join(list(map(str, new_positions_original)))), "num_products: {}".format(len(dnas))])
 
     if product is None:
         pass 
@@ -719,7 +726,7 @@ def cropdna(dna, start=0, end=None, project=None, product=None, process_descript
         
         history_feature = _combine_history(subdna, history_features)
         subdna._history_feature = history_feature
-        add_history(subdna,[building_history, "start:{}; end:{}".format(*new_positions)]) 
+        add_history(subdna,[building_history, "start: {}; end: {}".format(*new_positions)]) 
     
     if product is None:
         pass 
@@ -984,7 +991,7 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_descri
         
         history_feature = _combine_history(construct, history_features)         
         construct._history_feature = history_feature 
-        add_history(construct, [building_history, "topology:{}".format(topology)]) 
+        add_history(construct, [building_history, "topology: {}".format(topology)]) 
 
     for dnafeature in construct.dnafeatures:
         dnafeature.subject = construct
@@ -1430,7 +1437,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
         building_history    = "QUEEN.dna_dict[{}] = modifyends(QUEEN.dna_dict[{}], left={}, right={}{}{}{})".format(args[0], args[1], args[2], args[3], project, fproduct, process_description)  
         history_feature     = _combine_history(new_dna, history_features) 
         new_dna._history_feature = history_feature
-        add_history(new_dna, [building_history, "left:{}; right:{}; leftobj:{}; rightobj:{}".format(*ends, args[2], args[3])]) 
+        add_history(new_dna, [building_history, "left: {}; right: {}; leftobj: {}; rightobj: {}".format(*ends, args[2], args[3])]) 
 
     for dnafeature in new_dna.dnafeatures:
         dnafeature.subject = new_dna
@@ -1557,73 +1564,79 @@ def get_matchlist_regex(dna, query, value=None, subject=None, s=None, e=None, st
     if strand == -1:
         pre_s = s 
         match_iter = list(match_iter)
-        match_iter.reverse() 
+        match_iter.reverse()
+        match_set = set([]) 
         for match in match_iter:
             result  = {"start":None, "end":None, "strand":None, "match":None} 
             span    = match.span() 
-            span    = (e-span[1], e-span[0])
-            result["start"]  = span[0]
-            result["end"]    = span[1]
-            result["strand"] = strand
-            result["match"]  = match
-            match_list.append(result) 
-            
-            if mode == "edit":
-                groups, literals = sre_parse.parse_template(value, query_pattern)
-                groups   = dict(groups) 
-                literals = list(literals) 
-                literals.reverse() 
-                if len(groups) == 0:
-                    destination = flipdna(dna.__class__(seq=match.expand(value)), _direct=0) 
-                else:
-                    destination = dna.__class__(seq="", _direct=0)
-                    for index, literal in enumerate(literals): #["A","A",None,"A"]  
-                        index = len(literals) - index - 1
-                        if literal is None:
-                            sub_span = match.span(groups[index])
-                            sub_span = (e-sub_span[1], e-sub_span[0])
-                            destination = destination + dna[sub_span[0]:sub_span[1]]
-                        else:
-                            destination = destination + flipdna(dna.__class__(seq=literal, _direct=0))
-                
-                if span[0] == pre_s:
-                    segment = segment + destination
-                else:
-                    segment = segment + dna[pre_s:span[0]] + destination
-                pre_s   = span[1]
+            span    = (span[0] - e if span[0] > e else span[0], span[1] - e if span[1] > e else span[1])
+            if span not in match_set:
+                match_set.add(span) 
+                span    = (e-span[1], e-span[0])
+                result["start"]  = span[0]
+                result["end"]    = span[1]
+                result["strand"] = strand
+                result["match"]  = match
+                match_list.append(result)     
+                if mode == "edit":
+                    groups, literals = sre_parse.parse_template(value, query_pattern)
+                    groups   = dict(groups) 
+                    literals = list(literals) 
+                    literals.reverse() 
+                    if len(groups) == 0:
+                        destination = flipdna(dna.__class__(seq=match.expand(value)), _direct=0) 
+                    else:
+                        destination = dna.__class__(seq="", _direct=0)
+                        for index, literal in enumerate(literals): #["A","A",None,"A"]  
+                            index = len(literals) - index - 1
+                            if literal is None:
+                                sub_span = match.span(groups[index])
+                                sub_span = (e-sub_span[1], e-sub_span[0])
+                                destination = destination + dna[sub_span[0]:sub_span[1]]
+                            else:
+                                destination = destination + flipdna(dna.__class__(seq=literal, _direct=0))
+                    
+                    if span[0] == pre_s:
+                        segment = segment + destination
+                    else:
+                        segment = segment + dna[pre_s:span[0]] + destination
+                    pre_s   = span[1]
         
         if mode == "edit" and pre_s != e:
             segment = segment + dna[pre_s:e]
     else:
         pre_s = 0  
+        match_set = set([]) 
         for match in match_iter:
             result  = {"start":None, "end":None, "strand":None, "match":None} 
             span    = match.span() 
-            result["start"]  = s + span[0]
-            result["end"]    = s + span[1]
-            result["strand"] = strand
-            result["match"]  = match
-            match_list.append(result) 
-            
-            if mode == "edit":
-                groups, literals = sre_parse.parse_template(value, query_pattern)
-                groups = dict(groups)
-                if len(groups) == 0:
-                    destination = dna.__class__(seq=match.expand(value), _direct=0)
-                else:
-                    destination = dna.__class__(seq="", _direct=0)
-                    for index, literal in enumerate(literals):
-                        if literal is None:
-                            sub_span    = match.span(groups[index])
-                            destination = destination + dna[s+sub_span[0]:s+sub_span[1]]
-                        else:
-                            destination = destination + dna.__class__(seq=literal, _direct=0)
-                
-                if span[0] == pre_s:
-                    segment = segment + destination
-                else:
-                    segment = segment + dna[s+pre_s:s+span[0]] + destination
-                pre_s = span[1]
+            span    = (span[0] - e if span[0] > e else span[0], span[1] - e if span[1] > e else span[1])
+            if span not in match_set:
+                match_set.add(span) 
+                result["start"]  = s + span[0]
+                result["end"]    = s + span[1]
+                result["strand"] = strand
+                result["match"]  = match
+                match_list.append(result) 
+                if mode == "edit":
+                    groups, literals = sre_parse.parse_template(value, query_pattern)
+                    groups = dict(groups)
+                    if len(groups) == 0:
+                        destination = dna.__class__(seq=match.expand(value), _direct=0)
+                    else:
+                        destination = dna.__class__(seq="", _direct=0)
+                        for index, literal in enumerate(literals):
+                            if literal is None:
+                                sub_span    = match.span(groups[index])
+                                destination = destination + dna[s+sub_span[0]:s+sub_span[1]]
+                            else:
+                                destination = destination + dna.__class__(seq=literal, _direct=0)
+                    
+                    if span[0] == pre_s:
+                        segment = segment + destination
+                    else:
+                        segment = segment + dna[s+pre_s:s+span[0]] + destination
+                    pre_s = span[1]
         
         if mode == "edit" and s+pre_s != e:
             segment = segment + dna[s+pre_s:e]
@@ -1743,7 +1756,7 @@ def editsequence(dna, source_sequence, destination_sequence, start=0, end=None, 
         if len(history_features) > 1:
             history_feature = _combine_history(new_dna, history_features) 
             new_dna.history_feature = history_feature
-        add_history(new_dna, [building_history, "source:{}; destination:{}; start:{}; end:{}; strand:{}".format(source_sequence, destination_sequence, start, end, strand)])  
+        add_history(new_dna, [building_history, "source: {}; destination: {}; start: {}; end: {}; strand: {}".format(source_sequence, destination_sequence, start, end, strand)])  
 
     if product is None:
         pass 
@@ -2070,7 +2083,7 @@ def _createattribute(dna=None, feat_list=None, target_attribute=None, value=None
                 new_dnafeatures.append(new_feat)
 
     dna._dnafeatures = list(dict([(feat._id, feat) for feat in new_dnafeatures]).values()) 
-    dna._features_dict = dict(list(map(lambda x:(x._id, x), dna.dnafeatures))) 
+    dna._features_dict = dict(list(map(lambda x:(x._id, x), dna._dnafeatures))) 
     return dna 
 
 def createattribute(value=None):
@@ -2317,7 +2330,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
                         args[i] = "'" + args[i] + "'" 
                 building_history = "QUEEN.dna_dict['{}'] = editfeature(QUEEN.dna_dict['{}'], key_attribute={}, query={}, source={}, start={}, end={}, strand={}, target_attribute={}, operation={}, new_copy={}{}{}{})".format(dna._unique_id, original_id, *args, project, fproduct, project, process_description) 
             
-            add_history(dna, [building_history, "key_attribute:{}; query:{}; start:{}; end:{}; strand:{}; target_attribute:{}; operation:{}".format(key_attribute, fquery, start, end, strand, target_attribute, command)])
+            add_history(dna, [building_history, "key_attribute: {}; query: {}; start: {}; end: {}; strand: {}; target_attribute: {}; operation: {}".format(key_attribute, fquery, start, end, strand, target_attribute, command)])
             if product is None:
                 pass 
             else:
@@ -2340,7 +2353,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
                 if type(args[i]) is str and i != 7 and i != 1:
                     args[i] = "'" + args[i] + "'" 
             building_history = "editfeature(QUEEN.dna_dict['{}'], key_attribute={}, query={}, source={}, start={}, end={}, strand={}, target_attribute={}, operation={}, new_copy={}{}{}{})".format(dna._unique_id, *args, project, fproduct, process_description)
-            add_history(dna, [building_history, "key_attribute:{}; query:{}; start:{}; end:{}; strand:{}; target_attribute:{}; operation:{}".format(key_attribute, fquery, start, end, strand, target_attribute, command)])
+            #add_history(dna, [building_history, "key_attribute:{}; query:{}; start:{}; end:{}; strand:{}; target_attribute:{}; operation:{}".format(key_attribute, fquery, start, end, strand, target_attribute, command)])
 
     else:
         raise ValueError("The operational function can be selected from only 'createattribute', 'removeattribute', 'replaceattribute'.")
@@ -2397,7 +2410,7 @@ def _circularizedna(dna):
                     length2 = int(note2.split(":")[-4])
                     pos_s2  = int(note2.split(":")[-1].split("..")[0].replace(" ",""))
                     pos_e2  = int(note2.split(":")[-1].split("..")[1].replace(" ","")) 
-                    if s1 > e2 and length1 == length2 and "_original" in feat1.__dict__ and "_original" in feat2.__dict__ and feat1.original == feat2.original and feat1.location.strand == feat2.location.strand:
+                    if (s1 >= e2) and length1 == length2 and "_original" in feat1.__dict__ and "_original" in feat2.__dict__ and feat1.original == feat2.original and feat1.location.strand == feat2.location.strand:
                         note        = "{}:{}..{}".format(label, pos_s1, pos_e2)
                         new_seq     = seq_origin[s1:e1] + seq_origin[s2:e2]
                         feat1_index = dna.dnafeatures.index(feat1)
@@ -2547,7 +2560,7 @@ def quine(*dnas, output=None, description_only=False, _return=False):
             pd = None
             descriptions.append(pd)
         
-        if process_description is not None:
+        if process_description is not None and _return == False:
             history[1] = history[1].replace(" ","").replace("–"," ").replace(process_description,"")
             history[1] = history[1].replace(", )",")") 
         else:
@@ -2587,7 +2600,7 @@ def quine(*dnas, output=None, description_only=False, _return=False):
         if matches is not None:
             for match in matches:
                 var_nums.append(var_num_dict[match])
-        
+    
         if len(var_nums) > 0:
             if max(var_nums) == 1:
                 pass 
@@ -2602,13 +2615,19 @@ def quine(*dnas, output=None, description_only=False, _return=False):
         o = open(output, "w") 
     elif output is None:
         o = None
-   
+    elif type(output) is io.TextIOWrapper:
+        o = output
+    elif type(output) is tempfile._TemporaryFileWrapper:
+        o = output
+
     pre_process_description = "''"
     if description_only == False and _return == False:
         print("import sys", file=o)  
         print("sys.path.append(\"{}".format("/".join(__file__.split("/")[:-2])  + "\")"), file=o)
         print("from QUEEN.queen import *", file=o) 
         print("from QUEEN import cutsite as cs", file=o) 
+        print("QUEEN._keep = 1", file=o)
+        print("QUEEN._source = __name__", file=o)
         for cutsite in cs.new_cutsites:
             print("cs.lib[{}] = {}".format(cutsite[0], cutsiite[1]), file=o) 
         if dna.__class__._namespaceflag == 1:
@@ -2622,7 +2641,10 @@ def quine(*dnas, output=None, description_only=False, _return=False):
         return new_histories
 
     if description_only == False:
-        texts.append(result + ".writedna()".format(dnas[0].project))
+        texts.append("QUEEN._keep   = None")
+        texts.append("QUEEN._source = None")
+        texts.append("if __name__ == '__main__':") 
+        texts.append("    " + result + ".writedna()".format(dnas[0].project))
     
     name_dict = {}
     for row in texts:
@@ -2687,12 +2709,21 @@ def quine(*dnas, output=None, description_only=False, _return=False):
     
     for row in new_rows:
         print(row, file=o) 
-
+    
+    #print("#diff(QUEEN.dna_dict[list(QUEEN.dna_dict.keys())[-1]],'quiend_dna.gbk')".format(), file=o)
     if output is not None:
         o.close() 
-    
+
 def traceflow(*dnas, operational_function_only=True, visible_ipnode=True):
     histories = quine(*dnas, _return=True)
     graph     = qg.generateflow(histories, operational_function_only, visible_ipnode)
     return graph 
 
+#def diff(dna, source, source_dbtype="local"):
+#    source = QUEEN(record=source, dbtype=source_dbtype)
+#    o = tempfile.NamedTemporaryFile(dir=".")
+#    oname = o.name 
+#    o.close() 
+#    quine(source, output=oname + ".py")
+#    exec("import {} as source".format(oname))
+    

@@ -5,8 +5,39 @@ class Qseq(str):
         self.parental_id    = None
         self.parental_class = None
         self.name           = None 
-        self.item           = None
+        self.item           = None        
+    
+    """
+    def __eq__(self, other):
+        if type(other) == str:
+            return super().__eq__(other) 
+
+        elif not isinstance(other, Qseq):
+            return NotImplemented
         
+        else:
+            flag1 = 0 
+            if self.parental_class == "QUEEN" and self.parent is not None and self.parent.topology == "circular":
+                flag1 = 1 
+            
+            flag2 = 0 
+            if other.parental_class == "QUEEN" and other.parent is not None and other.parent.topology == "circular":
+                flag2 = 1  
+            
+            if flag1 == 1 and flag2 == 1 and len(self) == len(other) and str(self) != str(other):
+                flag = 0 
+                for i in range(1 , len(self)):
+                    if str(self[i:] + self[:i]) == str(other):
+                        return True 
+                    else:
+                        pass 
+                
+                if flag == 0:
+                    return False
+            else:
+                return super().__eq__(other) 
+    """
+
     def __getitem__(self, item):
         value = super().__getitem__(item) 
         if self.parental_class == "QUEEN" and self.parent is not None and self.parent.topology == "circular":
@@ -46,4 +77,5 @@ class Qseq(str):
         value.item           = item
         
         return value
+    
 

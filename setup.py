@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #
-# Copyright (C) 2012-2020 Michael Waskom
+# Copyright (C) Hideto Mori
 
 DESCRIPTION = "QUEEN (a Python module to universally program, QUinE, and Edit Nucleotide sequences)"
 LONG_DESCRIPTION = """\

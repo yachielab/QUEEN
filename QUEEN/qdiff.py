@@ -5,7 +5,7 @@ import sys
 def get_processsets(histories):
     #An element of process_set is composed of (sourcenames, func, productnames, process_id) 
     new_histories = []  
-    for h, numerate(histories):
+    for h, hisotry in enumerate(histories):
         info = history[2] 
         history = history[1]
         match0  = re.search("(QUEEN.queried_features_dict\['[^\[\]]+'\]) = (.*)",history)
@@ -30,7 +30,7 @@ def get_processsets(histories):
                 unique_name_name_dict[match.group(1)] = name_dict[match.group(0)] 
             new_histories.append([history, info]) 
         
-        elif　match0 is not None:
+        elif match0 is not None:
             match3 = re.search("QUEEN.queried_features_dict\['([^\[\]]+)'\]", match0.group(1))
             if match2 is not None:
                 name_dict[match3.group(0)] = match2.group(1) 

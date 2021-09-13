@@ -1,0 +1,84 @@
+LOCUS       pGGA-EGFP               1125 bp    DNA     circular UNK 01-JAN-1980
+DEFINITION  .
+ACCESSION   pGGA-EGFP
+VERSION     pGGA-EGFP
+KEYWORDS    .
+SOURCE      .
+  ORGANISM  .
+            .
+FEATURES             Location/Qualifiers
+     source          1..1088
+                     /label="dna"
+                     /crop_trail="[EGFP:dna:0..1102]:8..1095:1102"
+     source          1..1088
+                     /label="EGFP"
+                     /description="Record of build history"
+                     /build_history_10="DNA.dna_dict['EGFP_2'] =
+                     modifyends(DNA.dna_dict['EGFP_1'], left='GGTCTCGCCAT',
+                     right='GGAGGGAGACC', project='EGFP', comment='')"
+                     /crop_trail="[EGFP:EGFP:0..1102]:8..1095:1102"
+                     /build_history_14="DNA.dna_dict['EGFP_4'] =
+                     cropdna(DNA.dna_dict['EGFP_2'], start=(7, 11), end=(1091,
+                     1095), project='EGFP', comment='')"
+     source          5..1084
+                     /label="EGFP"
+                     /description="Record of build history"
+                     /build_history_6="DNA.dna_dict['EGFP'] = DNA(seq=None,
+                     record='EGFP.fasta', project='EGFP', topology='linear',
+                     format=None)"
+                     /build_history_9="DNA.dna_dict['EGFP_0'] =
+                     editdna(DNA.dna_dict['EGFP'], key_attribute='sequence',
+                     query=None, target_attribute='feature ID',
+                     operation=createattribute(value='insert1'), project='EGFP',
+                     new_copy=True, comment='')"
+                     /build_history_10="DNA.dna_dict['EGFP_1'] =
+                     editdna(DNA.dna_dict['EGFP_0'], key_attribute='feature ID',
+                     query='insert1', target_attribute='qualifier:label',
+                     operation=createattribute(value='EGFP'), project='EGFP',
+                     new_copy=True, comment='')"
+     misc_feature    5..1084
+                     /label="EGFP"
+     source          join(1085..1125,1..4)
+                     /organism="synthetic DNA construct"
+                     /lab_host="Escherichia coli"
+                     /mol_type="other DNA"
+                     /crop_trail="[pGGA:N.A:0..2174]:315..359:2174"
+     misc_feature    join(1085..1125,1..4)
+                     /label="BsaI insert"
+                     /note="fragment released by digestion with BsaI"
+     source          join(1085..1125,1..4)
+                     /label="pGGA"
+                     /description="Record of build history"
+                     /build_history_1="DNA.dna_dict['pGGA'] = DNA(seq=None,
+                     record='pGGA.gb', project='pGGA', topology='linear',
+                     format=None)"
+                     /crop_trail="[pGGA:pGGA:0..2174]:315..359:2174"
+                     /build_history_5="DNA.dna_dict['pGGA_1'] =
+                     cropdna(DNA.dna_dict['pGGA'], start=(314, 318), end=(355,
+                     359), project='pGGA', comment='')"
+                     /build_history_16="DNA.dna_dict['pGGA-EGFP'] =
+                     joindna(*[DNA.dna_dict['EGFP_4'],DNA.dna_dict['pGGA_1']],
+                     topology='circular', project='', comment='pGGA-EGFP')"
+     source          1..1125
+                     /label="pGGA-EGFP"
+ORIGIN
+        1 ccatatgtcc accaacttat cagtgataaa gaatccgcgc gttcaatcgg accagcggag
+       61 gctggtccgg aggccagacg tgaaacccaa catacccctg atcgtaattc tgaggtcgac
+      121 tctagaggat ccccgggtac cggtcgccac catggtgagc aagggcgagg agctgttcac
+      181 cggggtggtg cccatcctgg gtcgagctgg acggcgacgt aaacggccac aagttcagcg
+      241 tgtccggcga gggcgagggc gatgccacct acggcaagct gaccctgaag ttcatctgca
+      301 ccaccggcaa gctgcccgtg ccctggccca ccctcgtgac caccctgacc tacggcgtgc
+      361 agtgcttcag ccgctacccc gaccacatga agcagcacga cttcttcaag tccgccatgc
+      421 ccgaaggcta cgtccaggag cgcaccatct tcttcaagga cgacggcaac tacaagaccc
+      481 gcgccgaggt gaagttcgag ggcgacaccc tggtgaaccg catcgagctg aagggcatcg
+      541 acttcaagga ggacggcaac atcctggggc acaagctgga gtacaactac aacagccaca
+      601 acgtctatat catggccgac aagcagaaga acggcatcaa ggtgaacttc aagatccgcc
+      661 acaacatcga ggacggcagc gtgcagctcg ccgaccacta ccagcagaac acccccatcg
+      721 gcgacggccc cgtgctgctg cccgacaacc actacctgag cacccagtcc gccctgagca
+      781 aagaccccaa cgagaagcgc gatcacatgg tcctgctgga attccaactg agcgccggtc
+      841 gctaccatta ccaacttgtc tggtgtcaaa aataataggc ctactagtcg gccgtacggg
+      901 ccctttcgtc tcgcgcgttt cggtgatgac ggtgaaaacc tctgacacat gcagctcccg
+      961 gagacggtca cagcttgtct gtaagcggat gccgggagca gacaagcccg tcagggcgcg
+     1021 tcagcgggtg ttggcgggtg tcggggctgg cttaactatg cggcatcaga gcagattgta
+     1081 ctgaggagcg agaccgcttt ccagatctga taacttgtgg tctca
+//

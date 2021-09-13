@@ -2013,19 +2013,32 @@ def _replaceattribute(dna=None, feat_list=None, target_attribute=None, query_re=
             else:
                 dna = joindna(dna[0:s], segment, dna[e:len(dna.seq)], topology=dna.topology, __direct=0) 
             
+            tmpnum = 0 
+            tmpremoves = []
             for tmpfeat in dna.dnafeatures:
                 if "_tmpid" in tmpfeat.__dict__:
                     if tmpid == tmpfeat._tmpid:
-                        pass 
-                        #print(s,e) 
-                        #print(tmpfeat) 
+                        if tmpnum == 0:
+                            tmpfeat.set_position([s, s+len(segment.seq)], "locaiton")
+                            if "broken_feature" in tmpfeat.qualifiers:
+                                del tmpfeat.qualifiers["broken_feature"] 
+                        else:
+                            tmpremoves.append(tmpfeat) 
+                        #print(tmpid, s,s+len(segment.seq)) 
+                        #print(tmpid, tmpfeat) 
         
+        new_dnafeatures = [] 
         for tmpfeat in dna.dnafeatures:
-            if "_tmpid" in tmpfeat.__dict__:
-                del tmpfeat._tmpid
+            if tmpfeat in tmpremoves:
+                pass
+            else:
+                if "_tmpid" in tmpfeat.__dict__:
+                    del tmpfeat._tmpid
+                new_dnafeatures.append(tmpfeat) 
+        dna._dnafeatures = new_dnafeatures
+        dna._features_dict = dict(list(map(lambda x:(x._id, x), dna.dnafeatures)))
 
         _exec += 1
-        
         if set(dna.seq) < set("ATGCRYKMSWBDHVNatgcrykmsbdhvn-"):
             pass 
         else: 
@@ -2035,16 +2048,17 @@ def _replaceattribute(dna=None, feat_list=None, target_attribute=None, query_re=
         for feat in feat_list:
             feat = dna._features_dict[feat._id] 
             feat.subject = dna 
-            feat.set_position(value, "start") 
+            feat.set_position([value, feat.end], "start") 
             _exec += 1 
     
     elif target_attribute == "end":
         for feat in feat_list:
             feat = dna._features_dict[feat._id] 
             feat.subject = dna 
-            feat.set_position(value, "end") 
+            feat.set_position([feat.start, value], "end") 
             _exec += 1 
 
+    
     elif target_attribute == "strand":
         for feat in feat_list:
             feat = dna._features_dict[feat._id]

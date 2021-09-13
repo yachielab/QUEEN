@@ -147,7 +147,7 @@ class DNAfeature(SeqFeature):
                 location = CompoundLocation([FeatureLocation(s, len(self.subject.seq)), FeatureLocation(0, e, strand)]) 
             self.location = location 
 
-        elif type(value[0]) is list and type(value[1]) is list:
+        elif type(position[0]) is list and type(position[1]) is list:
             locations = [] 
             strand = self.location.strand
             for s,e in zip(value[0], value[1]):

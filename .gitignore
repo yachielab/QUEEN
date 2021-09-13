@@ -3,6 +3,7 @@
 *.swp
 /.ipynb_checkpoints/
 /__pycache__/
+/demo/test/
 /demo/tutorial/.ipynb_checkpoints/
 /demo/sakata_et_al_2020/.ipynb_checkpoints/
 /demo/sakata_et_al_2020/BE_plasmids_construction_v2.ipynb

@@ -116,29 +116,29 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
             else:
                 label = feat.type
 
-            if "facecolor_QUEEN" not in feat.qualifiers and "edgecolor_QUEEN" not in feat.qualifiers:
+            if "facecolor_queen" not in feat.qualifiers and "edgecolor_queen" not in feat.qualifiers:
                 if label in label_color_dict:
-                    feat.qualifiers["edgecolor_QUEEN"] = [label_color_dict[label][1]]
-                    feat.qualifiers["facecolor_QUEEN"] = [label_color_dict[label][0]] 
+                    feat.qualifiers["edgecolor_queen"] = [label_color_dict[label][1]]
+                    feat.qualifiers["facecolor_queen"] = [label_color_dict[label][0]] 
                 
                 else:
                     cflag = 0 
                     for _type in feature_color_dict:
                         if feat.type == _type:
-                            feat.qualifiers["edgecolor_QUEEN"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][1]]
-                            feat.qualifiers["facecolor_QUEEN"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][0]]
+                            feat.qualifiers["edgecolor_queen"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][1]]
+                            feat.qualifiers["facecolor_queen"] = [feature_color_dict[_type][feature_color_count[_type]%len(feature_color_dict[_type])][0]]
                             feature_color_count[_type] += 1 
                             cflag = 1
                             break
                         else:
                             pass
                     if cflag == 0:
-                        feat.qualifiers["edgecolor_QUEEN"] = [misc_colors[misc_color_count%len(misc_colors)][1]]
-                        feat.qualifiers["facecolor_QUEEN"] = [misc_colors[misc_color_count%len(misc_colors)][0]] 
+                        feat.qualifiers["edgecolor_queen"] = [misc_colors[misc_color_count%len(misc_colors)][1]]
+                        feat.qualifiers["facecolor_queen"] = [misc_colors[misc_color_count%len(misc_colors)][0]] 
                         misc_color_count += 1 
                 
                 if flag == 1:
-                    label_color_dict[label] = (feat.qualifiers["facecolor_QUEEN"][0], feat.qualifiers["edgecolor_QUEEN"][0]) 
+                    label_color_dict[label] = (feat.qualifiers["facecolor_queen"][0], feat.qualifiers["edgecolor_queen"][0]) 
                  
 
     for i, feat in enumerate(feats):
@@ -214,19 +214,19 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                         pass 
             
             
-            if "facecolor_QUEEN" in feat.qualifiers:
-                if type(feat.qualifiers["facecolor_QUEEN"]) == list:
-                    facecolor = feat.qualifiers["facecolor_QUEEN"][0] 
+            if "facecolor_queen" in feat.qualifiers:
+                if type(feat.qualifiers["facecolor_queen"]) == list:
+                    facecolor = feat.qualifiers["facecolor_queen"][0] 
                 else:
-                    facecolor = feat.qualifiers["facecolor_QUEEN"]
+                    facecolor = feat.qualifiers["facecolor_queen"]
             else:
                 facecolor = "#ffffec" 
             
-            if "edgecolor_QUEEN" in feat.qualifiers:
-                if type(feat.qualifiers["edgecolor_QUEEN"]) == list:
-                    edgecolor = feat.qualifiers["edgecolor_QUEEN"][0] 
+            if "edgecolor_queen" in feat.qualifiers:
+                if type(feat.qualifiers["edgecolor_queen"]) == list:
+                    edgecolor = feat.qualifiers["edgecolor_queen"][0] 
                 else:
-                    edgecolor = feat.qualifiers["edgecolor_QUEEN"]
+                    edgecolor = feat.qualifiers["edgecolor_queen"]
             else:
                 if strand == 1:
                     edgecolor = "#FACAC8" 

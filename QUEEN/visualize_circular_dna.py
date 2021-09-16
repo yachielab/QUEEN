@@ -388,30 +388,20 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                                 flag = 1
                             else:
                                 flag = 0
-                                break    
-                        
+                                break     
                         if flag == 1:
                             y = y + yy + 1
                             gene_position_matrix.append([0] * length)
                         else:
                             y = y + yy
                     else:
-                        for yy1, row in enumerate(gene_position_matrix[y:]):
-                            if 1 in row[gs_origin:]:
-                                flag1 = 1
+                        for yy, row in enumerate(gene_position_matrix[y:]):
+                            if 1 in row[gs_origin:] or 1 in row[:ge_origin]:
+                                flag = 1
                             else:
-                                flag1 = 0
-                                break    
-                        
-                        for yy2, row in enumerate(gene_position_matrix[y:]):
-                            if 1 in row[:ge_origin]:
-                                flag2 = 1
-                            else:
-                                flag2 = 0
-                                break    
+                                flag = 0
 
-                        yy = max([yy1, yy2]) 
-                        if flag1 == 1 or flag2 == 1:
+                        if flag == 1:
                             y = y + yy + 1
                             gene_position_matrix.append([0] * length)
                         else:
@@ -553,7 +543,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                         ax.bar([gs], [outer], bottom=y*lane_h+375, width=width, align="edge", fc=facecolor, ec=edgecolor, lw=0.0)
 
                 label_position_list.append((label, width,  gs, ge,  middle,  y, facecolor, edgecolor))
-           
+            
             if gs_origin < ge_origin:
                 for j in range(gs_origin,ge_origin):
                     gene_position_matrix[y][j] = 1  

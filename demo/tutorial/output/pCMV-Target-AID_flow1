@@ -5,10 +5,10 @@ digraph cluster_operation {
 	ranksep=0.2
 	RS045 [label=RS045 fontname=Arial margin=0.05 shape=oval]
 	HM129 [label=HM129 fontname=Arial margin=0.05 shape=oval]
-	"pcDNA31_Target_AID–2" [label=pcDNA31_Target_AID fontname=Arial margin=0.05 shape=note]
+	"pcDNA31_Target_AID–0" [label=pcDNA31_Target_AID fontname=Arial margin=0.05 shape=note]
 	extract1 [label=extract1 fontname=Arial margin=0.05 shape=oval]
 	cropdna_4 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">cropdna<b> </b></font></td></tr><tr><td port="start" border="1" align="left"><b> </b><i>start </i> = 3914</td></tr><tr><td port="end" border="1" align="left"><b> </b><i>end </i> = 6442</td></tr></table>> fontname=Arial shape=plaintext]
-	"pcDNA31_Target_AID–2" -> cropdna_4:func [arrowhead=dot]
+	"pcDNA31_Target_AID–0" -> cropdna_4:func [arrowhead=dot]
 	fragment1 [label=fragment1 fontname=Arial margin=0.05 shape=oval]
 	modifyends_5 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">modifyends<b> </b></font></td></tr><tr><td border="1" align="left" port="left"><b> </b><i>left </i> = RS045.seq</td></tr><tr><td border="1" align="left" port="right"><b> </b><i>right </i> = HM129.rcseq</td></tr></table>> fontname=Arial shape=plaintext]
 	cropdna_4:func -> extract1
@@ -17,10 +17,10 @@ digraph cluster_operation {
 	HM129 -> modifyends_5:right [arrowhead=odot]
 	HM128 [label=HM128 fontname=Arial margin=0.05 shape=oval]
 	RS046 [label=RS046 fontname=Arial margin=0.05 shape=oval]
-	"pcDNA31_Target_AID–1" [label=pcDNA31_Target_AID fontname=Arial margin=0.05 shape=note]
+	"pcDNA31_Target_AID–3" [label=pcDNA31_Target_AID fontname=Arial margin=0.05 shape=note]
 	extract2 [label=extract2 fontname=Arial margin=0.05 shape=oval]
 	cropdna_8 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">cropdna<b> </b></font></td></tr><tr><td port="start" border="1" align="left"><b> </b><i>start </i> = 6484</td></tr><tr><td port="end" border="1" align="left"><b> </b><i>end </i> = 9244</td></tr></table>> fontname=Arial shape=plaintext]
-	"pcDNA31_Target_AID–1" -> cropdna_8:func [arrowhead=dot]
+	"pcDNA31_Target_AID–3" -> cropdna_8:func [arrowhead=dot]
 	fragment2 [label=fragment2 fontname=Arial margin=0.05 shape=oval]
 	modifyends_9 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">modifyends<b> </b></font></td></tr><tr><td border="1" align="left" port="left"><b> </b><i>left </i> = HM128.seq</td></tr><tr><td border="1" align="left" port="right"><b> </b><i>right </i> = RS046.rcseq</td></tr></table>> fontname=Arial shape=plaintext]
 	cropdna_8:func -> extract2
@@ -29,10 +29,10 @@ digraph cluster_operation {
 	RS046 -> modifyends_9:right [arrowhead=odot]
 	RS047 [label=RS047 fontname=Arial margin=0.05 shape=oval]
 	RS048 [label=RS048 fontname=Arial margin=0.05 shape=oval]
-	"pCMV_ABE–0" [label=pCMV_ABE fontname=Arial margin=0.05 shape=note]
+	"pCMV_ABE–1" [label=pCMV_ABE fontname=Arial margin=0.05 shape=note]
 	extract3 [label=extract3 fontname=Arial margin=0.05 shape=oval]
 	cropdna_12 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">cropdna<b> </b></font></td></tr><tr><td port="start" border="1" align="left"><b> </b><i>start </i> = 5277</td></tr><tr><td port="end" border="1" align="left"><b> </b><i>end </i> = 8613</td></tr></table>> fontname=Arial shape=plaintext]
-	"pCMV_ABE–0" -> cropdna_12:func [arrowhead=dot]
+	"pCMV_ABE–1" -> cropdna_12:func [arrowhead=dot]
 	fragment3 [label=fragment3 fontname=Arial margin=0.05 shape=oval]
 	modifyends_13 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">modifyends<b> </b></font></td></tr><tr><td border="1" align="left" port="left"><b> </b><i>left </i> = RS047.seq</td></tr><tr><td border="1" align="left" port="right"><b> </b><i>right </i> = RS048.rcseq</td></tr></table>> fontname=Arial shape=plaintext]
 	cropdna_12:func -> extract3
@@ -64,8 +64,8 @@ digraph cluster_operation {
 	{
 		rankdir=LR
 		rank=same
-		"pcDNA31_Target_AID–2"
-		"pcDNA31_Target_AID–1"
-		"pCMV_ABE–0"
+		"pcDNA31_Target_AID–0"
+		"pcDNA31_Target_AID–3"
+		"pCMV_ABE–1"
 	}
 }

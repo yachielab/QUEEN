@@ -5,6 +5,7 @@ import copy
 import math
 import random
 import string
+import hashlib
 import collections
 import functools
 import warnings
@@ -99,7 +100,6 @@ def deletehistory(dna):
             for key in old_keys:
                 del feat.qualifiers[key] 
 
-
 def make_processid(dna, chars, process_id=None):
     new_chars = chars
     for key in re.finditer("QUEEN.dna_dict\['([^\[\]]+)'\]", chars):
@@ -116,10 +116,10 @@ def make_processid(dna, chars, process_id=None):
         num = 0
         for char in new_chars:
             num += ord(char) 
-        
+
         random.seed(num) 
         while process_id is None or process_id in dna.__class__._processes:
-            process_id = ''.join(random.choices(string.ascii_letters + string.digits, k=10)) 
+            process_id = hashlib.md5(new_chars.encode('UTF-8')).hexdigest() + ''.join(random.choices(string.ascii_letters + string.digits, k=4)) 
 
     dna.__class__._processes[process_id] = new_chars 
     dna._processids.append(process_id) 

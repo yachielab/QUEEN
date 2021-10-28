@@ -29,6 +29,8 @@ def check_processids(dna):
     
 def export(names, descriptions, histories, o=None, do=False):
     num = -1
+    pre_process_name = None
+    pre_process_description = None
     for h, (process_name, process_description, history) in enumerate(zip(names, descriptions, histories)):
         if do == True:
             if (process_description is None and process_name is None) or (str(process_name) == str(pre_process_name) and str(process_description) == str(pre_process_description)):
@@ -37,13 +39,16 @@ def export(names, descriptions, histories, o=None, do=False):
                 print("{}:{}".format(process_name, process_description, file=o))
         
         else:
-            if (process_description is None and process_name is None) or (str(process_name) == str(pre_process_name) and str(process_description) == str(pre_process_description)):
+            #if (process_description is None and process_name is None) or (str(process_name) == str(pre_process_name) and str(process_description) == str(pre_process_description)):
+            if str(process_name) == str(pre_process_name) and str(process_description) == str(pre_process_description):
                 pass
             else:
                 if h > 0:
                     print("", file=o)
-                num += 1
-                print("process{}={{'name':{}, 'description':{}}}".format(num+1, str(process_name), str(process_description)), file=o) 
+                
+                if process_name != None and process_description != None:
+                    num += 1
+                    print("process{}={{'name':{}, 'description':{}}}".format(num+1, str(process_name), str(process_description)), file=o) 
 
             if "QUEEN.queried_feature_dict" in history[1][0:len("QUEEN.queried_feature_dict")]:
                 print(history[1], file=o)
@@ -92,13 +97,13 @@ def quine(*dnas, output=None, author=None, project=None, description_only=False,
     names         = [] 
     descriptions  = []
     new_histories = [] 
-    processid_originals_dict = {}  
+    processid_originalids_dict = {}  
     for history in histories:
         history = list(history)
         if re.search("process_description=None",history[1].replace(" ","").replace("–"," ")) is None:
             process_description = re.search("process_description='[^=]*'",history[1].replace(" ","").replace("–"," "))
             if process_description is None:
-                pd = pre_pd                
+                pd = None                
             else: 
                 process_description = history[1].replace(" ","").replace("–"," ")[process_description.start():process_description.end()] 
                 pd = process_description.split("=")[1]    
@@ -136,21 +141,32 @@ def quine(*dnas, output=None, author=None, project=None, description_only=False,
         
         original_id = history[3].split(",")[0]
         if "-" not in original_id:
-            process_id = project + "-" + original_id 
-            originals = "[]"
+            process_id = original_id 
+            if len(history[3].split(",")) > 1:
+                original_ids = "[" + ",".join(list(map(lambda x:"'{}'".format(x), history[3].split(",")[1:]))) + "]"
+            else:
+                original_ids = []
         else:
-            process_id = original_id.split("-")[1]   
-            process_id = project + "-" + process_id 
-            if original_id != process_id:
-                originals = "[" + ",".join(list(map(lambda x:"'{}'".format(x), history[3].split(",")))) + "]"
-            else: 
-                _ids = history[3].split(",") 
-                if len(_ids) == 1:
-                    originals = "[]"
-                else:
-                    originals = "[" + ",".join(list(map(lambda x:"'{}'".format(x), _ids[1:]))) + "]"
+            process_id = original_id
+            if len(history[3].split(",")) > 1:
+                original_ids = "[" + ",".join(list(map(lambda x:"'{}'".format(x), history[3].split(",")[1:]))) + "]"
+            else:
+                original_ids = []
+
+        #else:
+            #process_id = original_id.split("-")[1]   
+            #original_project = original_id.split("-")[0]  
+            #process_id = project + "-" + process_id 
+            #if original_project != project:
+            #original_ids = "[" + ",".join(list(map(lambda x:"'{}'".format(x), history[3].split(",")))) + "]"
+            #else: 
+            #    _ids = history[3].split(",") 
+            #    if len(_ids) == 1:
+            #        original_ids = "[]"
+            #    else:
+            #        original_ids = "[" + ",".join(list(map(lambda x:"'{}'".format(x), _ids[1:]))) + "]"
         
-        processid_originals_dict[process_id] = originals
+        processid_originalids_dict[process_id] = original_ids
         if process_description is not None and _return == False:
             if pnflag == 1: 
                 history[1] = history[1].replace(process_description,"")
@@ -168,7 +184,7 @@ def quine(*dnas, output=None, author=None, project=None, description_only=False,
         pre_pd = pd
     histories = new_histories
 
-    #Remove non-used variable 
+    #Remove non-used variables 
     outtext = export(names, descriptions, histories, io.StringIO())
     text    = outtext.getvalue().rstrip()
     var_num_dict = collections.defaultdict(int) 
@@ -187,6 +203,8 @@ def quine(*dnas, output=None, author=None, project=None, description_only=False,
     new_names        = [] 
     new_descriptions = []
     new_histories    = []
+    
+    source_descriptions_dict = collections.defaultdict(list) 
     texts = [row for row in text.split("\n") if row[0:len("QUEEN.")] == "QUEEN."] 
     for row, name, description, history in zip(texts, names, descriptions, histories):
         row      = row.rstrip() 
@@ -207,12 +225,39 @@ def quine(*dnas, output=None, author=None, project=None, description_only=False,
             else:
                 new_names.append(name) 
                 new_descriptions.append(description) 
-                new_histories.append(history) 
+                new_histories.append(history)  
+                info = history[2]
+                if len(info) > 1:
+                    info = info.split("; ")
+                    info_dict = dict([item.split(": ") for item in info])
+                    if "_source" in info_dict:
+                        if description is not None:
+                            source_descriptions_dict[info_dict["_source"]].append(description) 
+                    else:
+                        if description is not None:
+                            source_descriptions_dict[dnas[0].project].append(description) 
+                else:
+                    if description is not None:
+                        source_descriptions_dict[dnas[0].project].append(description) 
         else:
             new_names.append(name) 
             new_descriptions.append(description) 
             new_histories.append(history) 
-
+            
+            info = history[2]
+            if len(info) > 1:
+                info = info.split("; ")
+                info_dict = dict([item.split(": ") for item in info])
+                if "_source" in info_dict:
+                    if description is not None:
+                        source_descriptions_dict[info_dict["_source"]].append(description) 
+                else: 
+                    if description is not None:
+                        source_descriptions_dict[dnas[0].project].append(description) 
+    
+    for key in source_descriptions_dict:
+        source_descriptions_dict[key] = list(sorted(set(source_descriptions_dict[key]), key=source_descriptions_dict[key].index)) 
+    
     if type(output) is str:
         o = open(output, "w") 
     elif output is None:
@@ -236,8 +281,8 @@ def quine(*dnas, output=None, author=None, project=None, description_only=False,
         texts.append("if __name__ == '__main__':") 
         texts.append("    " + "check = quine(" + result + ", author=None, project=project, _check=True)".format(project))
         texts.append("    if check == True:") 
-        texts.append("        " + result + ".writedna()")
-    
+        texts.append("        " + result + ".outputgbk()")
+
     name_dict = {}
     for row in texts:
         match1 = re.search("(QUEEN.queried_features_dict\['[^\[\]]+'\]) = ",row)
@@ -307,14 +352,16 @@ def quine(*dnas, output=None, author=None, project=None, description_only=False,
             source1      = match.group(0) + ", "
             source2      = match.group(0) + ")"
             process_id   = match.group(1) 
-            originals    = processid_originals_dict[process_id] 
+            original_ids = processid_originalids_dict[process_id] 
             if source1 in row:
-                new_new_rows.append(row.replace(source1, "")[:-1] +  ", process_id='{}', originals={})".format(process_id, originals))
+                new_new_rows.append(row.replace(source1, "")[:-1] + ", process_id='{}', original_ids={})".format(process_id, original_ids))
             elif source2 in row:
-                new_new_rows.append(row.replace(source2, "") +  "process_id='{}', originals={})".format(process_id, originals))
+                new_new_rows.append(row.replace(source2, "") + "process_id='{}', original_ids={})".format(process_id, original_ids))
         else:
             new_new_rows.append(row) 
-    new_rows = new_new_rows
+    
+    new_rows      = new_new_rows
+    project_names = [] 
     if _check == True and sys.argv[0] != "":
         check_flag = 0 
         with open(sys.argv[0]) as f:
@@ -322,11 +369,21 @@ def quine(*dnas, output=None, author=None, project=None, description_only=False,
             for line in f:
                 line = line.rstrip()
                 if check_flag == 1:
-                    #line = re.sub(", originals=\[([^=]*)\]\)", ")", line) 
-                    if line == new_rows[lnum]:
-                        pass 
+                    match = re.search("process_id='([^=]*)-([^=]*)'", line)
+                    query = new_rows[lnum]
+                    if match is not None:
+                        project_names.append(match.group(1))
+                        query = re.sub(", _sourcefile=.*\)", ")".format(project), query)
+                        line  = re.sub(", _sourcefile=.*\)", ")".format(project), line)
+                        if line == query:
+                            pass 
+                        else: 
+                            identical = 0 
                     else:
-                        identical = 0 
+                        if line == query:
+                            pass 
+                        else:
+                            identical = 0 
                     lnum += 1 
                 
                 if line == "":
@@ -340,7 +397,7 @@ def quine(*dnas, output=None, author=None, project=None, description_only=False,
             now = datetime.datetime.now()
             print("#" * 80, file=o)
             print("#This source code was auto-generated by 'quine' funtion of QUEEN 1.0.0.", file=o)
-            print("#Project Name    :{}".format(", ".join(list(map(lambda x: x.project, dnas)))), file=o)
+            print("#Project Name    :{}".format(", ".join(list(map(lambda x: x.project if x.project not in project_names else x.project + "_modified", dnas)))), file=o)
             print("#File Name       :{}".format(outname), file=o) 
             print("#Creation Date   :{}".format("{0:%Y-%m-%d}".format(now)), file=o)      
             if author is not None:
@@ -356,10 +413,35 @@ def quine(*dnas, output=None, author=None, project=None, description_only=False,
             if dna.__class__._namespaceflag == 1 and execution == False:
                 print("set_namespace(globals())", file=o)
             print("", file=o) 
+            for row in new_rows:
+                match = re.search("process_id='([^=]*)'", row)
+                if match is not None:
+                    if "-" in match.group(1):
+                        if outname is not None:
+                            row = row[:-1] + ", _sourcefile='{}')".format(outname.split("/")[-1].rstrip(".py")) 
+                        else:
+                            row = row[:-1] + ", _sourcefile='{}')".format(dnas[0].project + "_construction")  
+                    else:
+                        if dnas[0].project in project_names:
+                            row = re.sub("process_id='([^=]*)'", "process_id='{}_modified-\\1'".format(project), row)
+                            if outname is not None:
+                                row = row[:-1] + ", _sourcefile='{}')".format(outname.split("/")[-1].rstrip(".py"))
+                        else:
+                            row = re.sub("process_id='([^=]*)'", "process_id='{}-\\1'".format(project), row)
+                            if outname is not None:
+                                row = row[:-1] + ", _sourcefile='{}')".format(outname.split("/")[-1].rstrip(".py"))
+                print(row, file=o)
+        else:
+            if len(source_descriptions_dict) == 1:
+                for key in source_descriptions_dict:
+                    for value in source_descriptions_dict[key]:
+                        print(value[1:-1], file=o) 
+            else:
+                for key in source_descriptions_dict:
+                    print("{}{}".format(key.rstrip("_construction").rstrip(), " construction" if "construction" not in key.rstrip("_construction") else "")) 
+                    for value in source_descriptions_dict[key]:
+                        print("    " + value[1:-1], file=o) 
 
-        for row in new_rows:
-            print(row, file=o)
-        
         if output is not None:
             o.close()
 
@@ -378,6 +460,8 @@ def quine(*dnas, output=None, author=None, project=None, description_only=False,
             flag = 1
 
         fname = outname.split("/")[-1]
+        if fname[-3:] == ".py":
+            fname = fname[:-3] 
         vardict = {}
         dnas[0].__class__._source = fname
         
@@ -385,13 +469,13 @@ def quine(*dnas, output=None, author=None, project=None, description_only=False,
         exec("varnames = dir({})".format(fname), locals(), vardict) 
         exec("queen_objects = {}.QUEEN._products".format(fname), locals(), vardict) 
         
-        #for line in open(outname + ".py"):
-        #    print(line) 
         if flag == 1:
             dnas[0].__class__._namespaceflag = 1
             dnas[0].__class__._namespace = _globalspace
-
-        os.remove(outname + ".py") 
+        
+        if type(output) is tempfile._TemporaryFileWrapper: 
+            os.remove(outname + ".py") 
+        
         dnas[0].__class__._source = None 
         for name, obj in vardict["queen_objects"].items():
             for key in obj._history_feature.qualifiers:
@@ -400,8 +484,8 @@ def quine(*dnas, output=None, author=None, project=None, description_only=False,
         keys = list(vardict["queen_objects"].keys())
         
         if dnas[0] == vardict["queen_objects"][keys[-1]]:
-            print("The quine code correctly reconstructed the given QUEEN object.")
+            print("The {} QUEEN object was reconstructed using its quine code.".format(dnas[0].project))
             dnas[0]._productids = keys[:-1]   
         else: 
-            raise ValueError("The quined QUEEN object is not identical to original one") 
+            raise ValueError("The {} QUEEN object could not be reconstructed using its quine code. There may be bugs in QUEEN implementation. It would be helpful if you could tell us the details about your code on the Github issue (https://github.com/yachielab/QUEEN/issues).".format(dnas[0].project)) 
 

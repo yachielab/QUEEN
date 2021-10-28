@@ -73,7 +73,7 @@ def make_newhistories(histories, search_function=True):
     return new_histories, process_notes, name_dict, unique_name_dict, unique_name_name_dict
 
 
-def visualizeflow(*dnas, search_function=None, intermediate_product=None, process_classification=None, process_description=None, split_input=None, sf=None, ip=None, pc=None, pd=None, si=None):
+def visualizeflow(*dnas, search_function=None, intermediate_product=None, process_classification=None, process_description=None, split_input=None, sf=None, ip=None, pc=None, pd=None, si=None, alias_dict=None):
     intermediate_product = ip if intermediate_product is None else intermediate_product
     intermediate_product = False if intermediate_product is None else intermediate_product
     
@@ -91,12 +91,23 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
 
     pd_visible = process_description
 
+    if alias_dict is None:
+        alias_dict = {}
+
     histories     = quine.quine(*dnas, _return=True)
     sdgs          = {} 
     sdgs_nodes    = collections.defaultdict(set) 
     clusters      = {} 
     
     new_histories, process_notes, name_dict, unique_name_dict, unique_name_name_dict = make_newhistories(histories, search_function=search_function) 
+    for key in unique_name_dict:
+        if unique_name_dict[key] in alias_dict:
+            unique_name_dict[key] = alias_dict[unique_name_dict[key]] 
+    
+    for key in name_dict:
+        if name_dict[key] in alias_dict:
+            name_dict[key] = alias_dict[name_dict[key]] 
+
 
     process_notes = list(process_notes)
     inputs = [] 
@@ -121,13 +132,27 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
         if len(info) > 1:
             info = info.split("; ")
             info_dict = dict([item.split(": ") for item in info])
+            for key1 in info_dict:
+                if key1 ==  "_source":
+                    flag = 0
+                    for key2 in alias_dict:
+                        if key2 == info_dict["_source"]:
+                            info_dict["_source"] = info_dict["_source"].replace(key2, alias_dict[key2])
+                            flag = 1
+                            break
+
+                    if flag == 0:
+                        for key2 in alias_dict:
+                            if key2 in info_dict["_source"]:
+                                info_dict["_source"] = info_dict["_source"].replace(key2, alias_dict[key2])
+
         else:
             info_dict = None
 
         matchi = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]) = QUEEN(\(record.*)", history) 
         matcho = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]) = (.*)", history) 
         matchs = re.search("(QUEEN.queried_features_dict\['[^\[\]]+'\]) = (.*)",history)
-        process_index       = process_notes.index((process_name, process_description))
+        process_index = process_notes.index((process_name, process_description))
 
         sourcenames = []
         if matchi is not None: 
@@ -246,7 +271,8 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                 temp = '<tr><td port="{}" border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#BDD0FC"><font color="black" point-size="16">{}<b> </b></font></td>',
+                      #'<td port="func" border="1" bgcolor="#BDD0FC"><font color="black" point-size="16">{}<b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">{}<b> </b></font></td>'
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -285,14 +311,16 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                     dg.edge(funcname+":func", product)
 
             elif funclabel == "joindna":
-                temp = '<tr><td border="1" color="#FFCECB" bgcolor="#FFCECB" port="f{}"> </td></tr>'
+                temp = '<tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f{}"> </td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="0">',
                       '<tr>',
                       '<td>',
                       '<table cellpadding="0" cellspacing="0" border="0">',
                       '<tr>',
-                      '<td border="1" color="#FFCECB" bgcolor="#FFCECB" port="f0"> </td>',
-                      '<td port="func" rowspan="{}" border="1" color="#FFCECB" bgcolor="#FFCECB" align="left"><font color="black" point-size="16">joindna</font><b> </b></td>',
+                      #'<td border="1" color="#FFCECB" bgcolor="#FFCECB" port="f0"> </td>',
+                      '<td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f0"> </td>',
+                      #'<td port="func" rowspan="{}" border="1" color="#FFCECB" bgcolor="#FFCECB" align="left"><font color="black" point-size="16">joindna</font><b> </b></td>',
+                      '<td port="func" rowspan="{}" border="1" color="#FFFDC7" bgcolor="#FFFDC7" align="left"><font color="black" point-size="16">joindna</font><b> </b></td>',
                       '</tr>'
                       '{}',
                       '</table>'
@@ -332,7 +360,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                 temp = '<tr><td port="{}" border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">{}<b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#FFFDC7"><font color="black" point-size="16">{}<b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -413,7 +441,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                 product_funcname_dict[productname] = (funcname, process_name, process_description, info_dict["_source"] if "_source" in info_dict else None) 
 
             elif funclabel == "cutdna":
-                temp_pros = '<tr><td border="1" color="#00000" bgcolor="#FFCECB" port="f{}">[{}]</td></tr>'
+                temp_pros = '<tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f{}">[{}]</td></tr>'
                 temp = '<tr><td port="{}" border="1" align="left"><b> </b><i>{} = {}</td></tr>'     
                 
                 label="".join(['<<table border="0" cellborder="0" cellspacing="0" cellpadding="0">',
@@ -421,8 +449,8 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                       '<td>',
                       '<table cellpadding="0" cellspacing="0" border="0">',
                       '<tr>',
-                      '<td port="func" rowspan="{}" border="1" color="#000000" bgcolor="#FFCECB" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td>',
-                      '<td border="1" color="#000000" bgcolor="#FFCECB" port="f0">[0]</td>',
+                      '<td port="func" rowspan="{}" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td>',
+                      '<td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td>',
                       '</tr>'
                       '{}',
                       '</table>'
@@ -534,7 +562,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                 temp = '<tr><td border="1" align="left" port="{}"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">{}<b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#FFFDC7"><font color="black" point-size="16">{}<b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -586,7 +614,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                 temp = '<tr><td border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">{}<b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#FFFDC7"><font color="black" point-size="16">{}<b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -620,7 +648,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                 temp = '<tr><td border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16">{}</font></td>',
+                      '<td port="func" border="1" bgcolor="#FFFDC7"><font color="black" point-size="16">{}</font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -658,7 +686,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                 temp = '<tr><td border="1" align="left"><b> </b><i>{} </i> = {}</td></tr>'
                 label="".join(['<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">',
                       '<tr>',
-                      '<td port="func" border="1" bgcolor="#FFCECB"><font color="black" point-size="16"><b></b>{}<b> </b></font></td>',
+                      '<td port="func" border="1" bgcolor="#FFFDC7"><font color="black" point-size="16"><b></b>{}<b> </b></font></td>',
                       '</tr>',
                       '{}',
                       '</table>>'])
@@ -695,6 +723,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                     sdgs[name] = dg.subgraph(name="cluster_source{}".format(len(list(sdgs.keys()))))
                 sdg_obj = sdgs[name]
                 sdg     = sdgs[name].graph
+                sdg.attr(style='dashed')
                 sdg.attr(rankdir='LR')
                 sdg.attr(label=name) 
                 sdgflag = 1
@@ -706,7 +735,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                         if productname not in nodes:
                             dg.node(productname, label=productname, margin="0.05", shape="oval", fontname="Arial") 
                             nodes.add(productname)
-                        dg.edge(funcname+":func", productname, arrowhead="dot")
+                        #dg.edge(funcname+":func", productname, arrowhead="dot")
                     sdgs_nodes[name].add(productname)
             else:
                 sdg = dg 
@@ -721,6 +750,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                         #with clusters[key] as subg:
                         subg = clusters[key].graph
                         if pd_visible == True:
+                            subg.attr(style="solid")
                             subg.attr(labeljust="l")
                             text = process_name + ": " + process_description if process_name is not None else process_description
                             text = text.split(" ") 
@@ -736,6 +766,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                                 charnum += len(unit) 
                             subg.attr(label=new_text+"\l") 
                         else:
+                            subg.attr(style="solid")
                             subg.attr(label=process_name if process_name is not None else process_description + "\l") 
                         subg.attr(rankdir='LR') 
                     
@@ -801,6 +832,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                 if intermediate_product == True: 
                     clusters[key] = sdg.subgraph(name=key)
                     with clusters[key] as subg:
+                        subg.attr(style='dashed') 
                         subg.node(productname, label=productname, margin="0.05", shape="oval", fontname="Arial")
                         subg.edge(funcname, productname, arrowhead="dot") 
                     if sdgflag == 1:                

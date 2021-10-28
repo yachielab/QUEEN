@@ -30,6 +30,6 @@ joindna       = qfunction.joindna
 flipdna       = qfunction.flipdna
 editsequence  = qfunction.editsequence
 editfeature   = qfunction.editfeature
-visualizedna  = qfunction.visualizedna
+visualizemap  = qfunction.visualizemap
 visualizeflow = qgraph.visualizeflow
 quine         = quine.quine

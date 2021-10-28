@@ -27,7 +27,7 @@ FEATURES             Location/Qualifiers
      misc_feature    2830..2863
                      /label=lox2272
      misc_feature    2870..2915
-                     /label=attB(PhiC31)
+                     /label=attB (PhiC31)
      misc_feature    2892..2893
                      /label=TT
      misc_feature    complement(2916..3452)
@@ -35,14 +35,14 @@ FEATURES             Location/Qualifiers
                      /note="Rabbit Beta Globin pA(2)"
      CDS             complement(3453..4172)
                      /codon_start=1
-                     /label=GFP1
+                     /label=GFP-1
                      /translation="MVSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTL
                      KFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDD
                      GNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIK
                      VNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLL
                      EFVTAAGITLGMDELYK"
      misc_feature    complement(4182..4227)
-                     /label=attP(PhiC31)
+                     /label=attP (PhiC31)
      misc_feature    4204..4205
                      /label=TT
                      /label=TT(1)
@@ -54,7 +54,7 @@ FEATURES             Location/Qualifiers
                      /label=vox
      CDS             4404..5198
                      /codon_start=1
-                     /label=NeoR1
+                     /label=NeoR-1
                      /translation="MIEQDGLHAGSPAAWVERLFGYDWAQQTIGCSDAAVFRLSAQGRP
                      VLFVKTDLSGALNELQDEAARLSWLATTGVPCAAVLDVVTEAGRDWLLLGEVPGQDLLS
                      SHLAPAEKVSIMADAMRRLHTLDPATCPFDHQAKHRIERARTRMEAGLVDQDDLDEEHQ
@@ -66,7 +66,7 @@ FEATURES             Location/Qualifiers
                      /label=vox
      CDS             5564..6283
                      /codon_start=1
-                     /label=GFP2
+                     /label=GFP-2
                      /translation="MVSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTL
                      KFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDD
                      GNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIK
@@ -85,7 +85,7 @@ FEATURES             Location/Qualifiers
                      /label=B3RT
      CDS             7031..7825
                      /codon_start=1
-                     /label=NeoR2
+                     /label=NeoR-2
                      /translation="MIEQDGLHAGSPAAWVERLFGYDWAQQTIGCSDAAVFRLSAQGRP
                      VLFVKTDLSGALNELQDEAARLSWLATTGVPCAAVLDVVTEAGRDWLLLGEVPGQDLLS
                      SHLAPAEKVSIMADAMRRLHTLDPATCPFDHQAKHRIERARTRMEAGLVDQDDLDEEHQ
@@ -97,7 +97,7 @@ FEATURES             Location/Qualifiers
                      /label=B3RT
      CDS             8190..8909
                      /codon_start=1
-                     /label=GFP3
+                     /label=GFP-3
                      /translation="MVSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTL
                      KFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDD
                      GNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIK
@@ -111,7 +111,7 @@ FEATURES             Location/Qualifiers
      misc_feature    9507..9540
                      /label=loxP
      misc_feature    9547..9596
-                     /label=attB(Bxb1)
+                     /label=attB (Bxb1)
      misc_feature    9571..9572
                      /label=GT
      misc_feature    complement(9597..10133)
@@ -119,14 +119,14 @@ FEATURES             Location/Qualifiers
                      /note="Rabbit Beta Globin pA"
      CDS             complement(10134..10853)
                      /codon_start=1
-                     /label=GFP4
+                     /label=GFP-4
                      /translation="MVSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTL
                      KFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDD
                      GNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIK
                      VNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLL
                      EFVTAAGITLGMDELYK"
      misc_feature    complement(10863..10915)
-                     /label=attP(Bxb1)
+                     /label=attP (Bxb1)
      misc_feature    10887..10888
                      /label=GT
      misc_feature    10928..10967

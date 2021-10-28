@@ -60,11 +60,8 @@ def _combine_history(dna, history_features):
                 history_feature.qualifiers[key] = feat.qualifiers[key]  
     return history_feature
 
-def add_history(dna, histories, _sourcefile=None):  
-    if _sourcefile is not None and sys.argv[0].split("/")[-1].rstrip(".py") != _sourcefile.rstrip(".py"):
-        histories[1] = histories[1] + "; _source: {}".format(_sourcefile) 
-
-    elif dna.__class__._source is not None and dna.__class__._source != "__main__":
+def add_history(dna, histories):  
+    if dna.__class__._source is not None and dna.__class__._source != "__main__":
         histories[1] = histories[1] + "; _source: {}".format(dna.__class__._source) 
 
     dna.__class__._num_history += 1 
@@ -192,17 +189,17 @@ def compile_cutsite(query):
                 brromrr = -1 * (len(query_bottom) - 1 - t) + nr 
     return cutsite, seq, topl, topr, bottoml, bottomr
 
-def cutdna(dna, *positions, crop=False, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, __direct=1):   
+def cutdna(dna, *positions, crop=False, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], __direct=1):   
     #Set process name, description and ID
     project = project if product is None else product
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
 
     dna = copy.deepcopy(dna)
-    #if process_description is None:
-    #    process_description = dna.__class__.process_description
-    #else:
-    #    dna.__class__.process_description = process_description 
+    if process_description is None:
+        process_description = dna.__class__.process_description
+    else:
+        dna.__class__.process_description = process_description 
    
     def extract(dna, start, end, project=None): 
         start_top    = start[0] 
@@ -215,7 +212,7 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_name
 
         if start == 0 and end == len(dna.seq):
             new_dna = copy.copy(dna)
-            new_dna._topology = "linear"
+            new_dna.topology = "linear"
             return new_dna
 
         if dna.topology == "circular":
@@ -553,7 +550,7 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_name
             subdna._dnafeatures = feats
 
             subdna._features_dict = dict(list(map(lambda x:(x._id, x), subdna.dnafeatures)))
-            subdna._topology = "linear"
+            subdna.topology = "linear"
             
             if start < len(dna._left_end) and dna.topology == "linear":
                 subdna._left_end          = dna._left_end
@@ -760,7 +757,7 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_name
             history_feature = _combine_history(subdna, history_features)
             subdna._history_feature = history_feature
             process_id, original_ids = make_processid(subdna, building_history, process_id, original_ids)
-            add_history(subdna, [building_history, "positions: {}".format(",".join(list(map(str, new_positions_original)))) + "; num_products: {}".format(len(dnas)), ",".join([process_id] + original_ids)], _sourcefile=_sourcefile)
+            add_history(subdna, [building_history, "positions: {}".format(",".join(list(map(str, new_positions_original)))) + "; num_products: {}".format(len(dnas)), ",".join([process_id] + original_ids)])
     else:
         for subdna in dnas:
             subdna.__dict__["_product_id"] = dna._product_id if "_product_id" in dna.__dict__ else dna._unique_id
@@ -780,14 +777,19 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_name
     else:
         return dnas
 
-def cropdna(dna, start=0, end=None, project=None, product=None, process_description=None, process_name=None, pd=None, pn=None, process_id=None, original_ids=[], _sourcefile=None, __direct=1):
+def cropdna(dna, start=0, end=None, project=None, product=None, process_description=None, process_name=None, pd=None, pn=None, process_id=None, original_ids=[], __direct=1):
     project = project if product is None else product
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
 
-    if start >= end and dna.topology == "linear":
-        start, end = end, start
+    if process_description is None:
+        process_description = dna.__class__.process_description
+    else:
+        dna.__class__.process_description = process_description 
 
+    #if project is None:
+    #    project = dna.project
+    
     if end is None or end == 0:
         end = len(dna.seq) 
     
@@ -835,7 +837,7 @@ def cropdna(dna, start=0, end=None, project=None, product=None, process_descript
         history_feature = _combine_history(subdna, history_features)
         subdna._history_feature = history_feature
         process_id, original_ids = make_processid(subdna, building_history, process_id, original_ids)
-        add_history(subdna, [building_history, "start: {}; end: {}".format(*new_positions), ",".join([process_id] + original_ids)], _sourcefile=_sourcefile) 
+        add_history(subdna, [building_history, "start: {}; end: {}".format(*new_positions), ",".join([process_id] + original_ids)]) 
     else:
         subdna.__dict__["_product_id"] = dna._product_id if "_product_id" in dna.__dict__ else dna._unique_id
 
@@ -853,10 +855,15 @@ def cropdna(dna, start=0, end=None, project=None, product=None, process_descript
             subdna.__class__._namespace[product] = subdna
     return subdna
 
-def joindna(*dnas, topology="linear", project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, __direct=1):
+def joindna(*dnas, topology="linear", project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], __direct=1):
     project             = project if product is None else product
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
+
+    if process_description is None:
+        process_description = dnas[0].__class__.process_description
+    else:
+        dnas[0].__class__.process_description = process_description 
 
     new_dnas = [] 
     for i, dna in enumerate(dnas):
@@ -869,7 +876,7 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
                 order = "third"
             else:
                 order = str(i) + "th" 
-            raise ValueError("The {} QUEEN object topology is 'circular.' Circular QUEEN objects cannot be connected with others.".format(order)) 
+            raise ValueError("The {} QUEEN object topology is 'circular'. Cicular QUEEN objects cannot be joined with others.".format(order)) 
         new_dnas.append(dna) 
     
     dnas = new_dnas
@@ -882,7 +889,7 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
     positions_list = [construct._positions] 
     if len(dnas) > 1:
         for dna in dnas[1:]:
-            feats   = dna.dnafeatures
+            feats   = dna.dnafeatures 
             if (dna._left_end_top * construct._right_end_bottom == 1 or dna._left_end_bottom * construct._right_end_top == 1) and ((dna._left_end_top == -1 or dna._left_end_bottom == -1) or (construct._right_end_top == -1 or construct._right_end_bottom == -1)):
                 if dna._left_end_top == 1:
                     sticky_end = dna._left_end 
@@ -891,20 +898,16 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
                 
                 ovhg    = dna._left_end
                 new_dna = cropdna(dna,len(ovhg),len(dna.seq),__direct=0) 
-                if (dna._left_end == construct._right_end):
+                if dna._left_end == construct._right_end:
                     pass
                     #print("The DNA objects were joined based on complementary sticky end of each fragment. The sticky end is '{}'".format(sticky_end)) 
                 else:
-                    raise ValueError("These QUEEN objects were not able to be joined. Please check end seqeunce structures of the QUEEN objects.")
+                    print("These QUEEN objects were not able to be joined. Please check sticky end seqeunces of the DNA objects")
                     return False
 
             else:
-                if (construct._right_end == "" and ((dna._left_end == "") or (dna._left_end == dna.seq))) or (construct._right_end_top == 1 and construct._right_end_bottom == 1 and dna._left_end_top == 1 and dna._left_end_bottom == 1):
-                    new_dna = dna
-                    ovhg = ""
-                else:
-                    raise ValueError("These QUEEN objects were not able to be joined. Please check end seqeunce structures of the QUEEN objects.")
-                    return False
+                new_dna = dna
+                ovhg = ""
             
             feats  = _slide(feats, len(construct.seq) - len(ovhg))
             feats1 = [feat for feat in construct.dnafeatures if "broken_feature" in feat.qualifiers]
@@ -981,7 +984,7 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
             construct._right_end        = dna._right_end
             construct._right_end_top    = dna._right_end_top
             construct._right_end_bottom = dna._right_end_bottom
-            construct._topology = "linear"
+            construct.topology = "linear"
             ovhg = dna._right_end
 
         construct._dnafeatures.sort(key=lambda x:x.location.parts[0].start.position)
@@ -1110,7 +1113,7 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
         history_feature = _combine_history(construct, history_features)         
         construct._history_feature = history_feature 
         process_id, original_ids = make_processid(construct, building_history, process_id, original_ids)
-        add_history(construct, [building_history, "topology: {}".format(topology), ",".join([process_id] + original_ids)], _sourcefile=_sourcefile) 
+        add_history(construct, [building_history, "topology: {}".format(topology), ",".join([process_id] + original_ids)]) 
     else:
         construct.__dict__["_product_id"] = dnas[0]._product_id if "_product_id" in dnas[0].__dict__ else dnas[0]._unique_id
 
@@ -1131,15 +1134,15 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
             construct.__class__._namespace[product] = construct
     return construct
 
-def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, __direct=1):
+def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], __direct=1):
     project             = project if product is None else product
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
 
-    #if process_description is None:
-    #    process_description = dna.__class__.process_description
-    #else:
-    #    dna.__class__.process_description = process_description 
+    if process_description is None:
+        process_description = dna.__class__.process_description
+    else:
+        dna.__class__.process_description = process_description 
     
     def parse(seq,count=0):
         l_bracket = re.compile("\(")
@@ -1278,8 +1281,8 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
         left_end = left_end_top + "/" + left_end_bottom
 
     if len(left_end_top) != len(left_end_bottom):
-        raise ValueError("Please specify a proper end sequence structure for the 'left' argument.")
-        
+        raise TypeError("The length of top and bottom strand sequence should be same.")
+    
     elif "-" in left_end or "*" in left_end:
         left_end_top, left_end_bottom = check_endseq(left_end_top, left_end_bottom)
         if left_end_top != False:
@@ -1289,7 +1292,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
                     left_end_top    = "".join([s if q != "-" else "-" for s,q in zip(dna.seq[:left_end_length], left_end_top)])
                     left_end_bottom = "".join([s if q != "-" else "-" for s,q in zip(dna.seq[:left_end_length].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")), left_end_bottom)])
                 else:
-                    raise ValueError("'*' cannot be used wih IUPAC nucleotide codes")
+                    TypeError("'*' cannot be used wih characters for DNA sequence.")
             
                 left_end_top, left_end_bottom = left_end_top.replace("-",""), left_end_bottom.replace("-","") 
                 if len(left_end_top) < len(left_end_bottom):
@@ -1315,7 +1318,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
                 left_end = left_end_top + "/" + left_end_bottom
 
         else:
-            raise ValueError("Please specify a proper end sequence structure for the 'left' argument.")
+            raise ValueError("The bottom strand sequence should be complent with the top strand sequence.")
     else:
         left_end_length = len(left_end_top) 
         left_length = len(left_end_top)
@@ -1329,9 +1332,9 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
         add_right = 1 
         right_end_top, right_end_bottom = right_end, right_end.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))
         right_end = right_end_top + "/" + right_end_bottom
-    
+
     if len(right_end_top) != len(right_end_bottom):
-        raise ValueError("Please specify a proper end sequence structure for the 'right' argument.")
+        raise ValueError("The length of top and bottom sequence should be same.")
     
     elif "-" in right_end or "*" in right_end:
         right_end_top, right_end_bottom = check_endseq(right_end_top, right_end_bottom)
@@ -1342,7 +1345,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
                     right_end_top    = "".join([s if q != "-" else "-" for s,q in zip(dna.seq[-1*right_end_length:], right_end_top)])
                     right_end_bottom = "".join([s if q != "-" else "-" for s,q in zip(dna.seq[-1*right_end_length:].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")), right_end_bottom)])
                 else:
-                    raise ValueError("'*' cannot be used wih characters for DNA sequence.")
+                    raise TypeError("'*' cannot be used wih characters for DNA sequence.")
 
                 right_end_top, right_end_bottom = right_end_top.replace("-",""), right_end_bottom.replace("-","") 
                 if len(right_end_top) < len(right_end_bottom):
@@ -1368,7 +1371,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
                 right_end = right_end_top + "/" + right_end_bottom
 
         else:
-            raise ValueError("Please specify a proper end sequence structure for the 'right' argument.")
+            raise ValueError("The bottom strand sequence should be complent with the top strand sequence.")
     else:
         right_end_length = len(right_end_top) 
         right_length = len(right_end_top)  
@@ -1381,6 +1384,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
         if add_left == 1 and add_right == 1:
             new_dna = dna.__class__(seq=left_end.split("/")[0] + dna.seq + right_end.split("/")[0] + "/" 
                     + left_end.split("/")[1] + dna.seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")) + right_end.split("/")[1], _direct=0) 
+            new_dna._history_feature = dna._history_feature 
             new_dna._dnafeatures     = _slide(dna.dnafeatures, len(left_end.split("/")[0])) 
             new_dna.record           = copy.copy(dna.record) 
             new_dna.record.features  = new_dna.dnafeatures
@@ -1406,9 +1410,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
             new_dna._right_end_top    = right_end_top 
             new_dna._right_end_bottom = right_end_bottom
             new_dna._positions = (-1,) * len(left_end.seq) + new_dna._positions
-        
-        new_dna._history_feature = dna._history_feature 
-        
+
         #Recover fragmented features if complete sequence is in the construct.
         new_features = [] 
         remove_features = [] 
@@ -1603,7 +1605,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
         history_feature     = _combine_history(new_dna, history_features) 
         new_dna._history_feature = history_feature
         process_id, original_ids = make_processid(new_dna, building_history, process_id, original_ids)
-        add_history(new_dna, [building_history, "left: {}; right: {}; leftobj: {}; rightobj: {}".format(*ends, args[2], args[3]), ",".join([process_id] + original_ids)], _sourcefile=_sourcefile) 
+        add_history(new_dna, [building_history, "left: {}; right: {}; leftobj: {}; rightobj: {}".format(*ends, args[2], args[3]), ",".join([process_id] + original_ids)]) 
     else:
         new_dna.__dict__["_product_id"] = dna._product_id if "_product_id" in dna.__dict__ else dna._unique_id
 
@@ -1624,15 +1626,15 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
             new_dna.__class__._namespace[product] = new_dna
     return new_dna
 
-def flipdna(dna, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, __direct=1):
+def flipdna(dna, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], __direct=1):
     project             = project if product is None else product
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
 
-    #if process_description is None:
-    #    process_description = dna.__class__.process_description
-    #else:
-    #    dna.__class__.process_description = process_description 
+    if process_description is None:
+        process_description = dna.__class__.process_description
+    else:
+        dna.__class__.process_description = process_description 
 
     if type(dna) is str:
         seq   = str(dna) 
@@ -1697,7 +1699,7 @@ def flipdna(dna, project=None, product=None, process_name=None, process_descript
         comp._product_id = comp._unique_id if product is None else product 
         building_history = "QUEEN.dna_dict['{}'] = flipdna(QUEEN.dna_dict['{}']{}{}{}{})".format(comp._product_id, dna._product_id, project, fproduct, process_name, process_description) 
         process_id, original_ids = make_processid(comp, building_history, process_id, original_ids)
-        add_history(comp, [building_history,"", ",".join([process_id] + original_ids)], _sourcefile=_sourcefile) 
+        add_history(comp, [building_history,"", ",".join([process_id] + original_ids)]) 
     else:
         comp.__dict__["_product_id"] = dna._product_id if "_product_id" in dna.__dict__ else dna._unique_id
 
@@ -1805,6 +1807,7 @@ def get_matchlist_regex(dna, query, value=None, subject=None, s=None, e=None, st
                                 destination = destination + dna[s+sub_span[0]:s+sub_span[1]]
                             else:
                                 destination = destination + dna.__class__(seq=literal, _direct=0)
+                    
                     if span[0] == pre_s:
                         segment = segment + destination
                     else:
@@ -1819,7 +1822,7 @@ def get_matchlist_regex(dna, query, value=None, subject=None, s=None, e=None, st
     else:
         return match_list
 
-def editsequence(dna, source_sequence, destination_sequence, start=0, end=None, strand=1, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, __direct=1):
+def editsequence(dna, source_sequence, destination_sequence, start=0, end=None, strand=1, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], __direct=1):
     project             = project if product is None else product
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
@@ -1855,11 +1858,6 @@ def editsequence(dna, source_sequence, destination_sequence, start=0, end=None, 
     else:
         new_dna = joindna(cropdna(dna, 0, s), segment, cropdna(dna, e, len(dna.seq))) 
     
-    if dna.topology == "circular":
-        new_dna._topology = "circular"
-    else:
-        pass 
-
     original_id = dna._product_id
     if project is None:
         new_dna._unique_id = dna._unique_id
@@ -1929,8 +1927,8 @@ def editsequence(dna, source_sequence, destination_sequence, start=0, end=None, 
         fsource = "'{}'".format(source_sequence)
     
     if __direct == 1:    
-        source_sequence      = repr(source_sequence) if source_sequence is not None else None
-        destination_sequence = repr(destination_sequence) if destination_sequence is not None else None
+        source_sequence      = "'" + source_sequence + "'" if source_sequence is not None else None
+        destination_sequence = "'" + destination_sequence + "'" if destination_sequence is not None else None
         project             = "" #if project is None else ", project='" + project + "'"
         fproduct            = "" if product is None else ", product='" + product + "'"
         process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
@@ -1938,14 +1936,14 @@ def editsequence(dna, source_sequence, destination_sequence, start=0, end=None, 
         
         new_dna._product_id = new_dna._unique_id if product is None else product 
         if start == 0 and end == len(dna.seq):
-            building_history     = "QUEEN.dna_dict['{}'] = editsequence(QUEEN.dna_dict['{}'], source_sequence={}, destination_sequence={}, strand={}{}{}{}{})".format(new_dna._product_id, original_id, fsource, destination_sequence, strand, project, fproduct, process_name, process_description)
+            building_history     = "QUEEN.dna_dict['{}'] = editsequence(QUEEN.dna_dict['{}'], query='{}', source_sequence={}, destination_sequence={}, strand={}{}{}{}{})".format(new_dna._product_id, original_id, query, fsource, destination_sequence, strand, project, fproduct, process_name, process_description)
         else:  
-            building_history     = "QUEEN.dna_dict['{}'] = editsequence(QUEEN.dna_dict['{}'], source_sequence={}, destination_sequence={}, start={}, end={}, strand={}{}{}{}{})".format(new_dna._product_id, original_id, fsource, destination_sequence, start, end, strand, project, fproduct, process_name, process_description)
+            building_history     = "QUEEN.dna_dict['{}'] = editsequence(QUEEN.dna_dict['{}'], query='{}', source_sequence={}, destination_sequence={}, start={}, end={}, strand={}{}{}{}{})".format(new_dna._product_id, original_id, query, fsource, destination_sequence, start, end, strand, project, fproduct, process_name, process_description)
         if len(history_features) > 1:
             history_feature = _combine_history(new_dna, history_features) 
             new_dna.history_feature = history_feature
         process_id, original_ids = make_processid(new_dna, building_history, process_id, original_ids)
-        add_history(new_dna, [building_history, "source: {}; destination: {}; start: {}; end: {}; strand: {}".format(source_sequence, destination_sequence, start, end, strand), ",".join([process_id] + original_ids)], _sourcefile=_sourcefile)  
+        add_history(new_dna, [building_history, "source: {}; destination: {}; start: {}; end: {}; strand: {}".format(source_sequence, destination_sequence, start, end, strand), ",".join([process_id] + original_ids)])  
 
     if product is None:
         pass  
@@ -2320,8 +2318,8 @@ def _search(dna, source, query, attribute=None, strand=None):
         else:
             pass 
 
-    #if attribute == "start" and attribute == "end":
-    #    raise TypeError("Positional value cannot be specified as 'key_attribute'. The 'start', 'end', and 'strand' argument are avaiable to define the sequence range for the search")         
+    if attribute == "start" and attribute == "end":
+        raise TypeError("Positional value cannot be specified as 'key_attribute'. The 'start', 'end', and 'strand' argument are avaiable to define the sequence range for the search")         
     
     feat_list  = [] 
     if attribute == "sequence":
@@ -2398,15 +2396,15 @@ def _search(dna, source, query, attribute=None, strand=None):
             feat_set.add(element)
     return new_feat_list
 
-def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=None, strand=2, target_attribute=None, operation=None, new_copy=True, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, __direct=1): 
+def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=None, strand=2, target_attribute=None, operation=None, new_copy=True, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], __direct=1): 
     project = project if product is None else product
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
 
-    #if process_description is None:
-    #    process_description = dna.__class__.process_description
-    #else:
-    #    dna.__class__.process_description = process_description
+    if process_description is None:
+        process_description = dna.__class__.process_description
+    else:
+        dna.__class__.process_description = process_description
 
     if new_copy == False:
         pass 
@@ -2440,8 +2438,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
         for item in operation.keywords.items():
             item = list(item) 
             if type(item[1]) is str:
-                item[1] = repr(item[1]) 
-                #"'" + item[1] + "'"
+                item[1] = "'" + item[1] + "'"
             else:
                 item[1] = str(item[1]) 
             largs.append("=".join(item)) 
@@ -2502,10 +2499,10 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
                     cs.new_cutsites.append((query.parent.name, query.parent.cutsite)) 
                 fquery = "cs.lib['{}'].{}".format(qorigin.parent.name, qorigin.name) 
             else:
-                fquery = "{}".format(repr(query))  
+                fquery = "'{}'".format(query) 
 
         else:
-            fquery = "{}".format(repr(query))  
+            fquery = "'{}'".format(query) 
         
         if source is not None:
             qkeys = set([]) 
@@ -2544,7 +2541,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
                 building_history = "QUEEN.dna_dict['{}'] = editfeature(QUEEN.dna_dict['{}'], key_attribute={}, query={}, source={}, start={}, end={}, strand={}, target_attribute={}, operation={}, new_copy={}{}{}{}{})".format(dna._product_id, original_id, *args, project, fproduct, project, process_name, process_description) 
             
             process_id, original_ids = make_processid(dna, building_history, process_id, original_ids)
-            add_history(dna, [building_history, "key_attribute: {}; query: {}; start: {}; end: {}; strand: {}; target_attribute: {}; operation: {}".format(key_attribute, fquery, start, end, strand, target_attribute, command), process_id, ",".join([process_id] + original_ids)], _sourcefile=_sourcefile)
+            add_history(dna, [building_history, "key_attribute: {}; query: {}; start: {}; end: {}; strand: {}; target_attribute: {}; operation: {}".format(key_attribute, fquery, start, end, strand, target_attribute, command), process_id, ",".join([process_id] + original_ids)])
             if product is None:
                 pass 
             else:
@@ -2573,7 +2570,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
             #add_history(dna, [building_history, "key_attribute:{}; query:{}; start:{}; end:{}; strand:{}; target_attribute:{}; operation:{}".format(key_attribute, fquery, start, end, strand, target_attribute, command), process_id])
 
     else:
-        raise ValueError("'operation' can take only one of 'createattribute,' 'removeattribute,' and 'replaceattribute.'")
+        raise ValueError("The operational function can be selected from only 'createattribute', 'removeattribute', 'replaceattribute'.")
 
     if new_copy == True:
         return dna 
@@ -2595,7 +2592,7 @@ def _circularizedna(dna):
             return False
     else:
         ovhg = ""
-    dna._topology = "circular"
+    dna.topology = "circular"
     
     remove_list = [] 
     feats1      = [feat for feat in dna.dnafeatures if "broken_feature" in feat.qualifiers]
@@ -2691,7 +2688,7 @@ def _circularizedna(dna):
     dna._features_dict = dict(list(map(lambda x:(x._id, x), dna.dnafeatures)))
     return dna
 
-def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None, width_scale="auto", height_scale=1.0, label_location=None, linebreak=None, seq=False, label_visible=2, fontsize=None, diamater_scale=1.0, title_visible=True, axis_visible=True, tick_space="auto", labelcolor="k", title=None):
+def visualizedna(dna, map_view="linear", feature_list=None, start=0, end=None, width_scale="auto", height_scale=1.0, label_location=None, linebreak=None, seq=False, label_visible=2, fontsize=None, diamater_scale=1.0, title_visible=True, axis_visible=True, tick_space="auto", labelcolor="k", title=None):
     if fontsize is None and map_view == "linear":
         fontsize = 12
     elif fontsize is None and map_view == "circular":

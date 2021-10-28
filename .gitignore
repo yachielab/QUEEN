@@ -3,6 +3,7 @@
 *.swp
 /.ipynb_checkpoints/
 /__pycache__/
+/QUEEN/.ipynb_checkpoints/
 /demo/test/
 /demo/Gateway/
 /demo/Moclo/
@@ -14,6 +15,8 @@
 /demo/sakata_et_al_2020/reconstructed_genbank/
 /demo/sakata_et_al_2020/output/
 /demo/Weinberg_et_aL_2017/2input_4output_decoder.ipynb
+/demo/sakata_et_al_2020/pCMV_Target_ACEmax_construction_v2.1.ipynb
+/demo/sakata_et_al_2020/pCMV_ACBEmax_construction_v2.1.ipynb
 /demo/Weinberg_et_aL_2017/output/
 /QUEEN.egg-info/
 /build/

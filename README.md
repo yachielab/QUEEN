@@ -131,7 +131,7 @@ pX330 plasmid encoding a Cas9 gene and a gRNA expression unit is provided in the
 #### Properties of QUEEN class objects 
 
 * **.project**: `str`  
-Project name of `QUEEN_object`_ _construction. In QUEEN, this property is also used as a dictionary key to access the `.productdict` described below. If a `QUEEN_object` is created from a GenBank or FASTA file, its sequence ID will be inherited here. Otherwise, the project name is automatically generated to be unique amongst the existing `.productdict` keys.
+Project name of `QUEEN_object` construction. In QUEEN, this property is also used as a dictionary key to access the `.productdict` described below. If a `QUEEN_object` is created from a GenBank or FASTA file, its sequence ID will be inherited here. Otherwise, the project name is automatically generated to be unique amongst the existing `.productdict` keys.
 
 * **.seq**: `str`  
 Top strand sequence (5′→3′). Sticky end gaps, if any, can be represented by `"-"`. This property cannot be directly edited; only the built-in operational functions of QUEEN described below can edit this property_._
@@ -140,7 +140,7 @@ Top strand sequence (5′→3′). Sticky end gaps, if any, can be represented b
 Bottom strand sequence (5′→3′). Sticky end gaps, if any, are represented by `"-"`. This property cannot be directly edited; only the built-in operational functions of QUEEN described below can edit this property_._
 
 * **.topology**: `str` (`"linear"` or `"circular"`)   
-Sequence topology. When a `QUEEN_object`_ _is created by loading from a GenBank file, the topology is set according to the description in the GenBank file. Only the built-in operational functions of QUEEN described below can edit this property_._
+Sequence topology. When a `QUEEN_object` is created by loading from a GenBank file, the topology is set according to the description in the GenBank file. Only the built-in operational functions of QUEEN described below can edit this property_._
 
 * **.dnafeatures**: `list` of `DNAfeature_objects`  
 When a `QUEEN_object` is loaded from a GenBank file, `.dnafeatures` will automatically be generated from the GenBank file's sequence features. Otherwise, `.dnafeatures` will be an empty list. Each `DNAfeature_object` with the following attributes provides an annotation for a given range of DNA sequence in a `QUEEN_object`.
@@ -158,7 +158,7 @@ When a `QUEEN_object` is loaded from a GenBank file, `.dnafeatures` will automat
       Start position of `DNAfeature_object` in `QUEEN_object`.
 
     * **.strand**: `int (1 or -1)`  
-      Direction of `DNAfeature_object` in `QUEEN_object`._ _Top strand (`1`) or bottom strand (`-1`).  
+      Direction of `DNAfeature_object` in `QUEEN_object`. Top strand (`1`) or bottom strand (`-1`).  
       
     * **.sequence**: `str`  
       Sequence of the `DNAfeature_object` for its encoded direction.
@@ -166,10 +166,10 @@ When a `QUEEN_object` is loaded from a GenBank file, `.dnafeatures` will automat
     * **.qualifiers**: `dict`  
 Qualifiers. When a GenBank file is imported, qualifiers of each feature will be registered here. Qualifier names and values will serve as dictionary keys and values, respectively. 
 
-`DNAfeature_object` can be edited only by the `editfeature()` function described below. DNAfeature class is implemented as a subclass of the Biopython_ _SeqFeature class. Therefore, apart from the above attributes, DNAfeature class inherits all the attributes and methods of SeqFeature class. For details about SeqFeature class, see (https://biopython.org/docs/dev/api/Bio.SeqFeature.html) 
+`DNAfeature_object` can be edited only by the `editfeature()` function described below. DNAfeature class is implemented as a subclass of the Biopython SeqFeature class. Therefore, apart from the above attributes, DNAfeature class inherits all the attributes and methods of SeqFeature class. For details about SeqFeature class, see (https://biopython.org/docs/dev/api/Bio.SeqFeature.html) 
 
 * **.productdict**: `dict`  
-Dictionary for all of the inherited `QUEEN_objects`_ _used to construct the present `QUEEN_object`. The `.project` of each `QUEEN_object` serves as a key of this dictionary.
+Dictionary for all of the inherited `QUEEN_objects` used to construct the present `QUEEN_object`. The `.project` of each `QUEEN_object` serves as a key of this dictionary.
 
 
 
@@ -316,7 +316,7 @@ feature_id  feature_type   qualifier:label     start  end   strand
   ##### Parameters
   
   * **query**: `regex` or `str` (default: `".+"`)  
-    Search query sequence. If the value is not provided, the user-specified search region of the `QUEEN_object` sequence with `start` and `end` explained below will be returned. It allows fuzzy matching and regular expression. For details, see [https://pypi.org/project/regex/](https://pypi.org/project/regex/). All IUPAC nucleotide symbols can be used. Restriction enzyme cut motif representation can be used to define a query with `"^"` and `"_"` or `"(_int_/_int_)"`. For example, EcoRI cut motif can be provided by `"G^AATT_C"`, where `"^"` and `"_"` represent the cut positions on the top and bottom strands, respectively, or by `"GAATTC(-5/-1)"` or `"(-5/-1)GAATTC"`, where the left and right integers between the parentheses represent the cut positions on the top and bottom strands, respectively. Similarly, the cut motif of a Type-IIS restriction enzyme BsaI can be given by `"GGTCTCN^NNN_N"`,  `"N^NNN_NGAGACC"`, `"GGTCTC(1/5)"` or `"(5/1)GAGACC"`. The returned `DNAfeature_objects`_ _obtained for a query restriction enzyme cut motif will hold the cutting rule in the `"qualifiers:cutsite"` attribute, which can be added to `QUEEN_object.dnafeatures` by `editfeature()` with the `createattribute` option as explained below. Regular expression is disabled for restriction enzyme cut motifs.
+    Search query sequence. If the value is not provided, the user-specified search region of the `QUEEN_object` sequence with `start` and `end` explained below will be returned. It allows fuzzy matching and regular expression. For details, see [https://pypi.org/project/regex/](https://pypi.org/project/regex/). All IUPAC nucleotide symbols can be used. Restriction enzyme cut motif representation can be used to define a query with `"^"` and `"_"` or `"(_int_/_int_)"`. For example, EcoRI cut motif can be provided by `"G^AATT_C"`, where `"^"` and `"_"` represent the cut positions on the top and bottom strands, respectively, or by `"GAATTC(-5/-1)"` or `"(-5/-1)GAATTC"`, where the left and right integers between the parentheses represent the cut positions on the top and bottom strands, respectively. Similarly, the cut motif of a Type-IIS restriction enzyme BsaI can be given by `"GGTCTCN^NNN_N"`,  `"N^NNN_NGAGACC"`, `"GGTCTC(1/5)"` or `"(5/1)GAGACC"`. The returned `DNAfeature_objects` obtained for a query restriction enzyme cut motif will hold the cutting rule in the `"qualifiers:cutsite"` attribute, which can be added to `QUEEN_object.dnafeatures` by `editfeature()` with the `createattribute` option as explained below. Regular expression is disabled for restriction enzyme cut motifs.
   
   * **start**: `int` (zero-based indexing; default: `0`)  
     Start position of the target range of the `QUEEN_object` sequence for the search. 
@@ -429,10 +429,10 @@ null        misc_feature  null              8357   8373  -       GTCAGAGGTGGCGAA
     * **key_attribute**: `str` (default: `"all"`)  
       Attribute type to be searched (`feature_id`, `feature_type`, `"qualifiers:*"`, or `sequence`). If the value is not provided, it will be applied to all of the attributes in the `QUEEN_object`, excluding `sequence`. However, if the `query` value is provided with only the four nucleotide letters (A, T, G, and C), this value will be automatically set to `sequence`.
   
-    * **query**: `regex`_ _or `str`(default: `".+"`)  
+    * **query**: `regex` or `str`(default: `".+"`)  
       Query term. `DNAfeature_objects` that have a value matches to this query for `key_attribute` designated above will be returned. It allows fuzzy matching and regular expression. For details, see [https://pypi.org/project/regex/](https://pypi.org/project/regex/). If the `key_attribute` is `sequence`, all IUPAC nucleotide symbols can be used.
   
-    * **source**: `list`_ _of_ `DNAfeature_objects` (default: `QUEEN_object.dnafeatures`)  
+    * **source**: `list` of_ `DNAfeature_objects` (default: `QUEEN_object.dnafeatures`)  
       Source `DNAfeature_objects` to be searched. `DNAfeature_objects` outside the search range defined by `start`, `end`, and `strand` will be removed from the source. Any `DNAfeature_objects` can be provided here. For example, a list of `DNAfeature_objects` _returned from another `searchsequence()` or `searchfeature()` operation can be used as the source to achieve an AND search with multiple queries.
     * **start**: `int` (zero-based indexing; default: `0`)  
       Start position of the target range of the `QUEEN_object` sequence for the search. 
@@ -544,12 +544,9 @@ ValueError: Invalid cut pattern.
 
 
 
-#### **Example code 12: Digest pX330 plasmid by EcoRI ** 
-
+#### Example code 12: Digest pX330 plasmid by EcoRI 
 Digestion of pX330 plasmid with EcoRI can be simulated as follows.
-
 1. Search for EcoRI recognition sites in pX330 with its cut motif and obtain the `DNAfeature_objects` representing its cut position(s) and motif.
-
 2. Use the `DNAfeature_objects` to cut pX330 by `cutdna()`.
 
 **Source code (continued from the previous code)**
@@ -951,7 +948,7 @@ feature_id  feature_type  qualifiers:label  start  end   strand
     * **input**:  `QUEEN object`  
     * **source_sequence**: `regex` or `str` (default: `".+"`)  
       Source sequence(s) to be replaced. If the value is not provided, the entire `QUEEN_object` sequence will be replaced with a `destination_sequence`. It allows fuzzy matching and regular expression. For details, see [https://pypi.org/project/regex/](https://pypi.org/project/regex/). All IUPAC nucleotide symbols can also be used. Substrings of the `regex` value can be isolated by enclosing them in parentheses. Each pair of parentheses is indexed sequentially by numbers from left to right. Isolated substrings can be replaced at once by providing a `destination_sequence` where each substring replacement is designated, referring to the index numbers. For details, see [https://docs.python.org/3/library/re.html#re.sub](https://docs.python.org/3/library/re.html#re.sub)<span style="text-decoration:underline;"> </span>
-    * **destination_sequence**: `str`_ _(default: `None`)  
+    * **destination_sequence**: `str` (default: `None`)  
       Destination sequence. 
     * **start**:`int` (zero-based indexing; default: `0`)  
       Start position of the target range of the `QUEEN_object` sequence to be searched for the replacement. 
@@ -1001,8 +998,8 @@ print(pEGFP)
     * **query**: `regex` or `str` (default: `".+"`)  
       Query term. `DNAfeature_objects` that have a value matches to the query value for `key_attribute` designated above will be subjected to the edit. It allows fuzzy matching and regular expression. For details, see [https://pypi.org/project/regex/](https://pypi.org/project/regex/). If the `key_attribute` is `sequence`, all IUPAC nucleotide symbols can be used.
   
-    * **source**:`list`_ _of_ _`DNAfeature_objects` (default: `QUEEN_object.dnafeatures`)  
-      Source `DNAfeature_objects` to be searched for the editing. `DNAfeature_objects`_ _outside the search range defined by `start`, `end`, and `strand` will be removed from the source. Any `DNAfeature_objects` can be provided here. For example, a list of `DNAfeature_objects`_ _returned from `searchsequence()` or `searchfeature()` operation can be used as the source.
+    * **source**:`list` of  `DNAfeature_objects` (default: `QUEEN_object.dnafeatures`)  
+      Source `DNAfeature_objects` to be searched for the editing. `DNAfeature_objects` outside the search range defined by `start`, `end`, and `strand` will be removed from the source. Any `DNAfeature_objects` can be provided here. For example, a list of `DNAfeature_objects`returned from `searchsequence()` or `searchfeature()` operation can be used as the source.
   
     * **start**:`int` (zero-based indexing; default: `0`)  
       Start position of the target range of the `QUEEN_object` sequence for the editing. 
@@ -1019,8 +1016,8 @@ print(pEGFP)
     * **operation**: `removeattribute()`, `createattribute(value="str")` or `replaceattribute(source_value=regex or str, destination_value=str or int)`  (default: `None`)  
       If the operation is not specified, this will work just as `searchfeature()`. 
       * **`removeattribute()`**: This removes `target_attribute` from the target `DNAfeature_objects` but only for `feature_id` or `"qualifiers:*"`. If `target_attribute` is `feature_id`, the entire `DNAfeature_objects`  will be erased from the `QUEEN_object`.
-      * **`createattribute(value="str")`**: This creates or overwrites target_attributes of the target`DNAfeature_objects` with `"str"`. If `target_attribute` is `feature_id` and there is no existing  `DNAfeature_object` with the same `feature_id` of `"str"`, it will create the new `DNAfeature_object` in the `QUEEN_object.dnafeatures`. If the search by `DNAfeature_objects` determines multiple `DNAfeature_objects` to be created, each `feature_id` of the new `DNAfeature_objects` is generated as `"str-number"`, where `numbers` follow the order they were searched. If the same `feature_id` of `"str"` already exists in the operating `QUEEN_object.dnafeatures`, the `DNAfeature_object` will be generated with the `feature_id="str-number"`. If `target_attribute` is `"qualifiers:*"`, the qualifier whose value is `"str"` will be added into the `.qualifiers` of the target `DNAfeature_object`_ _as long as it does not overlap with the existing `.qualifiers`.
-      * **`replaceattribute(source_value=regex or str, destination_value=str or int)`**: This will search for substrings in values of the target_attributes of the target `DNAfeature_object` that match to the `source_value` and replace them with the `destination_value`. Similar to `editsequence()`, substrings of the `regex` value can be isolated by enclosing them in parentheses. Each pair of parentheses is indexed sequentially by numbers from left to right. Isolated substrings can be replaced at once by providing a `destination_sequence` where each substring replacement is designated, referring to the index numbers. For details, see [https://docs.python.org/3/library/re.html#re.sub](https://docs.python.org/3/library/re.html#re.sub)<span style="text-decoration:underline;">.</span> If the `target_attribute` is `sequence`, the sequences corresponding to the target `DNAfeature_object` can be modified like `editsequence()`. When the `source_value` is not provided, the entire data value will be replaced with the `destination value`. If the `target_attribute` is `feature_id`, the replacement will be operated only when no conflict with the existing `DNAfeature_object`. If `target_attribute` is `start`, `end`, or `strand`, no `source_value`_ _is required, and the `destination_value` must be `int`.
+      * **`createattribute(value="str")`**: This creates or overwrites target_attributes of the target`DNAfeature_objects` with `"str"`. If `target_attribute` is `feature_id` and there is no existing  `DNAfeature_object` with the same `feature_id` of `"str"`, it will create the new `DNAfeature_object` in the `QUEEN_object.dnafeatures`. If the search by `DNAfeature_objects` determines multiple `DNAfeature_objects` to be created, each `feature_id` of the new `DNAfeature_objects` is generated as `"str-number"`, where `numbers` follow the order they were searched. If the same `feature_id` of `"str"` already exists in the operating `QUEEN_object.dnafeatures`, the `DNAfeature_object` will be generated with the `feature_id="str-number"`. If `target_attribute` is `"qualifiers:*"`, the qualifier whose value is `"str"` will be added into the `.qualifiers` of the target `DNAfeature_object` as long as it does not overlap with the existing `.qualifiers`.
+      * **`replaceattribute(source_value=regex or str, destination_value=str or int)`**: This will search for substrings in values of the target_attributes of the target `DNAfeature_object` that match to the `source_value` and replace them with the `destination_value`. Similar to `editsequence()`, substrings of the `regex` value can be isolated by enclosing them in parentheses. Each pair of parentheses is indexed sequentially by numbers from left to right. Isolated substrings can be replaced at once by providing a `destination_sequence` where each substring replacement is designated, referring to the index numbers. For details, see [https://docs.python.org/3/library/re.html#re.sub](https://docs.python.org/3/library/re.html#re.sub)<span style="text-decoration:underline;">.</span> If the `target_attribute` is `sequence`, the sequences corresponding to the target `DNAfeature_object` can be modified like `editsequence()`. When the `source_value` is not provided, the entire data value will be replaced with the `destination value`. If the `target_attribute` is `feature_id`, the replacement will be operated only when no conflict with the existing `DNAfeature_object`. If `target_attribute` is `start`, `end`, or `strand`, no `source_value` is required, and the `destination_value` must be `int`.
   
     * **new_copy**:`bool` (default: `True`)
       If `True`, it will first generate a copy of the `QUEEN_object` and edit it. Otherwise, the original `QUEEN_object` will be edited directly (Note that this mode does not record the operation process into the building history).
@@ -1147,3 +1144,253 @@ RE-24       misc_bind     SbfI             5879   5887  +       CCTGCAGG
 RE-26       misc_bind     SnaBI            698    704   +       TACGTA        
 RE-27       misc_bind     XbaI             427    433   +       TCTAGA
 ```
+
+
+
+### Common parameters of the quinable functions
+
+DNA construction process achieved by the search functions `searchsequence()` and `searchfeature()`, operational functions `cutdna()`, `cropdna()`, `modifyends()`, `flipdna()`, and `joindna()` and super functions `editsequence()` and `editfeature()` described up to here can progressively be recorded into the manipulating QUEEN object, which enables to generate a quine code that replicates the same QUEEN object by the `quine()` function described below. From here, we call these functions "quinable" functions.
+
+In addition to the parameters and options described above for the quinable functions, all of them can commonly take the three parameters, `process_name`, `process_description`, and `product`, that enable annotation and structured visualization of the construction process (see below). These optional parameters do not affect the behavior of the quinable functions.
+
+* **process_name (or pn): **`str` (default: `""`)
+This option enables users to provide label names for process flow groups. An experimental flow composed of sequential operations by quinable functions can be grouped and labeled with a user-defined name by providing the same name to the quinable function operations belonging to the same target group. Such group labels can be, for example, `"PCR 1"`, `"EcoRI digestion"`, `"Gibson Assembly"`, etc. `visualizeflow()` described below takes into account the group information to generate experimental flow maps from `QUEEN_objects`.
+
+* **process_description (or pd): **`str` (default: `""`)
+Similar to `process_name`, this option enables users to provide narrative descriptions of operations conferred by quinable functions. This enables the generation of the whole "Materials and Methods" description for a DNA construction process along with its DNA construction flow from a `QUEEN_object` (or a QUEEN-generated GenBank file) using the `quine()` function described below. 
+
+* **product: **`str` (default: `""`)
+This option enables users to provide label names for producing `QUEEN_objects`. The provided labels are stored in `QUEEN_objects.project`.
+
+
+### Quine
+
+**`quine (input=QUEEN_object, output=str, process_description=bool, execution=bool)`**  
+Generate "quine code" of `QUEEN_object` that produces the same `QUEEN_object`. A quine code can be executed as a Python script.
+
+
+##### Parameters
+* **input**: `QUEEN_object`
+* **output**: `str` (default: `STDOUT`)   
+Output file name.
+
+* **process_description**: `bool` (default: `False`)   
+If `True`, this will output the process_descriptions registered to quinable operations along with the process flows. The output can be used for the "Material and methods" of the `QUEEN_object` construction process.
+* **execution**: `bool` (default: `False`)  
+If `True`, this will reconstruct the `QUEEN_object` by generating and executing its quine code and confirm if the reconstructed `QUEEN_object` is identical to the original one. If `execution` is `True` and `output` is `None`, the quine code will be output into a temporary file instead of `STDOUT`; the temporary file will be removed after the operation. The execution won't happen if `process_description` is `True`.
+##### Return
+> if `execution` is `False`, `None`.
+> If `execution` is `True`, `True` if the reconstructed `QUEEN_object` is identical to the original one. Otherwise, `False`.
+
+  
+
+
+#### Example code 24: Obtain the quine code reconstructed pCMV-Target-AID
+
+The Target-AID plasmid (pCMV-Target-AID) was constructed by assembling two fragments encoding the N- and C-terminus halves of Target-AID, which were both amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT) (Addgene 79620) using primer pairs RS045/HM129 and HM128/RS046, respectively, with a backbone fragment amplified from pCMV-ABE7.10 using RS047/RS048. The construction process was simulated by using quinable functions, and the GenBank file was generated. The quine code generated from the GenBank file by `quine()` successfully reconstructed the same GenBank file. The Python scripts for the following Example codes 24-27 can be found in `"./demo/tutorial_ex24-28.ipynb"`. 
+
+**Source code**
+
+```python
+from QUEEN.queen import *
+︙(ommitted)
+pCMV_Target_AID = QUEEN(record="./output/pCMV-Target-AID.gbk")
+quine(pCMV_Target_AID, output="./output/pCMV-Target-AID_clone.py")
+```
+
+**Shell commands**
+
+```
+%python3 ./output/pCMV_Target_AID_clone.py > ./output/clone_pCMV-Target-AID.gbk
+%diff -s ./output/pCMV_Target_AID.gbk ./output/clone_pCMV_Target_AID.gbk
+```
+
+**Output**
+
+```
+Files ./output/clone_pCMV-Target-AID.gbk and ./output/pCMV-Target-AID.gbk are identical.
+```
+
+
+
+#### Example code 25: Inheritance of operational histories
+
+If a `QUEEN_object` is loaded from a QUEEN-generated GenBank file for a new DNA construction, the quine code of the original `QUEEN_object` will be inherited into the newly producing `QUEEN_object`. The following example demonstrates that a `QUEEN_object` representing a DNA fragment cropped from the `QUEEN_object` of pCMV-Target-AID holds not only the process history of the cropping but also the whole previous construction process of pCMV-Target-AID.
+
+Source code (continued from the previous code)
+
+```python
+description = "Extract a fragment spanning from 8,000 nt to 2,000 nt of pCMV-Target-AID"
+cropdna(pCMV_Target_AID, 8000, 2000, product="fragment", process_description=description)
+quine(fragment) 
+```
+
+Output (quine code generated from the "fragment" product)
+
+```
+︙(ommitted)
+description5 = 'Extract a fragment spanning from 8,000 nt to 2,000 nt of pCMV-Target-AID'
+cropdna(QUEEN.dna_dict['pCMV-BE4max_8'], start='8000/8000', end='2000/2000', project='pCMV-BE4max', product='fragment', process_description=description5)
+```
+
+There is an option `import_history=False` prepared for `QUEEN()` to disable the inheritance of operational process histories of previously generated `QUEEN_objects` to a newly producing `QUEEN_object`.
+
+
+
+#### NOTE 1: Editing of quine code
+
+`quine()` will provide each quinable process in a quine code with a unique process identifier in the process_id option, like `"process_id=QUEEN_object.project–XXXXXXXXXXXXXXXXXXXXXXXX"`, where `"Xs"` represents md5() transformation of the quinable operation excluding the `process_id` and `original_ids` (described below). This `process_id` serves as a checksum to validate if any modification is provided to the operation code. Therefore, when a new QUEEN script is created by editing a quine code generated from an existing `QUEEN_object` or combining different process parts from multiple quine codes, the newly generating `QUEEN_object` will hold these previous `process_ids`. These `process_ids` will be passed over to a list `original_ids` of the corresponding new operation when a new quine code is generated from the new `QUEEN_object`. Hence, editing histories of quine codes and their inheritances can also be tracked and stored in `QUEEN_objects`. 
+
+
+
+#### NOTE 2: Recording of variable names
+
+By default, QUEEN cannot track and record user-defined variable names of `QUEEN_objects` used in the original code. Therefore, the `.project` value of each `QUEEN_object` is used as its variable name when a quine code is generated. To generate a quine code with user-defined variable names for each operational step, the `QUEEN_object` needs to be generated with the Python command `set_namespace(globals())` executed. This enables providing variable names of producing objects as arguments of their operational functions and, therefore, the recovery of variable names in quine codes. 
+
+For example, Example code 19 can be written in this format as follows.
+
+
+
+#### Example code 26: Flip ampicillin-resistant gene in pX330 (variable embedding) 
+
+**Original code**
+
+```python
+import sys 
+from QUEEN.queen import * 
+set_namespace(globals())
+QUEEN(record="input/pX330.gbk", product="plasmid")
+plasmid.searchfeature(query="^AmpR$", product="sites")
+cutdna(plasmid, sites[0].start, sites[0].end, product="fragments")
+flipdna(fragments[0], product="fragments0_rc")
+joindna(fragments0_rc, fragments[1], topology="circular", product="new_plasmid")
+```
+
+**Quine code**
+
+```python
+import sys
+sys.path.append("/content/colab")
+from QUEEN.queen import *
+from QUEEN import cutsite as cs
+set_namespace(globals())
+QUEEN(record='input/pX330.gbk', product='plasmid', process_id='new_plasmid-9WZX2KEVGD9NVBR4DSWNBCSND320', original_ids=[])
+plasmid.searchfeature(key_attribute='all', query='^AmpR$', product='sites', process_id='new_plasmid-52D5THPBJ8G961IHBTPEGI4JH321', original_ids=[])
+cutdna(plasmid, sites[0].start, sites[0].end, product='fragments', process_id='new_plasmid-2XUXT7UUAIIY5UFUMC8TBPOHC322', original_ids=[])
+flipdna(fragments[0], product='fragments0_rc', process_id='new_plasmid-30A7468VURMAE1DIOMS3A7JJP324', original_ids=[])
+joindna(*[fragments0_rc, fragments[1]], topology='circular', product='new_plasmid', process_id='new_plasmid-649L08K2L92IMQ1SY8NDKX76B325', original_ids=[])
+```
+
+
+
+
+### Visualization
+
+QUEEN provides the following visualization functions.
+
+* **`visualizemap(input=QUEEN_object, map_view=str, feature_list=list, start=int, end=int, width_scale=float, height_scale=float, label_location=str, linebreak=int, seq=bool, diameter=float)`**
+  Generate annotated sequence map of `QUEEN_object` with selected `DNAfeature_objects`. Each feature annotation label is retrieved from the `"qualifier:label"` attribute. All feature annotations and their label Locations of feature annotation labels are automatically adjusted to prevent overlaps on the sequence map. The face color and edge color of each feature annotation are also automatically assigned from the default colormap. However, they can be determined by `"qualifiers:edgecolor_queen"` and `"qualifiers:facecolor_queen"` attributes of  `DNAfeature_objects`.
+  
+  
+    ##### Parameters
+  
+    * **input**: `QUEEN_object`
+    * **map_view**: `str` (`"linear"` or `"circular"`; default: `"linear"`)  
+      Visualization style. 
+    * **feature_list**: `list`of `DNAfeaure_objects` (default: `QUEEN_object.dnafeatures` excluding those with the feature type `"source"`)  
+      `DNAfeature_objects` to be displayed on the sequence map. 
+    * **fontsize**: `int` (default: `12` for `"circular"` map and `10` for `"linear"` map)  
+      Common font size. Separate font sizes can also be defined for different `DNAfeaure_objects` by editing the `"qualifiers:fontsize_queen"` attribute, which overrides the common font size. 
+    * **labelcolor**: `str`(default: `"black"`) 
+      Common font color for all feature labels. Separate font colors can also be defined for different `DNAfeaure_objects` by editing the `"qualifiers:labelcolor_queen"` attribute, which overrides the common font color.
+    * **display_label**: `0`, `1` or `2` (default: `2`)  
+      If `2`, all of the labels will be displayed. If `1`, only the feature labels that can fit inside the object boxes will be displayed. If `0`, feature labels won't be displayed.
+    * **tick_interval**: `int`(default: `None`)
+      Tick interval of sequence map (base pairs).\
+    * **display_axis**: `bool` (default: `True`)
+    * **title: **`str` (default: `QUEEN_object.project`)
+  
+    ##### Parameters available for only linear maps
+  
+  * **start**: `int` (zero-based indexing; default: `0`)  
+    Start position of the `QUEEN_object` sequence to be displayed. 
+  * **end**: `int` (zero-based indexing; default: the last sequence position of `QUEEN_object`)  
+    End position of the `QUEEN_object` sequence to be displayed. 
+  * **width_scale**: `float`(default: `None`)  
+    Scaling factor for the width of the sequence map.
+  * **height_scale**: `float`(default: `None`)  
+    Scaling factor for the height of the sequence map.
+  * **label_location**: `str`(default: `"either"` when `seq` is `False`, otherwise `"top"`)  
+    Feature label locations. Each feature label is generally placed inside the object box. However, if a feature label is larger than the object box, the label will be put outside. If this value is `"either"`, labels will be put below or above the object boxes, whichever is available. If this value is `"top"`, labels will be put above the object boxes. If `seq` is `True`, the value must be set to `"top"`.
+  * **linebreak**: `int` or `None` (default: Length of the `QUEEN_object` sequence)  
+    Sequence length for line break.
+  * **seq**: `bool` (default: `False`)  
+    When `True`, a color map representing the `QUEEN_object` sequence will be displayed below the sequence map.
+  ##### Parameters available for only circular maps
+  * **diameter_scale **
+    Scaling factor for the diameter of the sequence map.
+  
+  ##### Return
+  > `matplolib.pyplot.figure object`
+
+
+
+#### Example code 27: Visualization of pCMV-Target-AID
+
+**Source code (continued from the example code 24)**
+
+```python
+fig_a = visualizemap(fragment1, title="fragment-1")
+fig_b = visualizemap(fragment2, title="fragment-2")
+fig_c = visualizemap(fragment3, linebreak=120, seq=True, title="fragment-3")
+features = pCMV_Target_AID.searchfeature(key_attribute="feature_type", query="^(?!.*primer).*$")
+fig_d = visualizemap(pCMV_Target_AID, feature_list=features, map_view="circular", tick_interval=1000, title="pCMV-Target-AID")
+```
+
+Output figures
+
+[https://www.dropbox.com/s/r3tzg1t3x4r3w64/usermanual%20fig01.jpg?dl=0](https://www.dropbox.com/s/r3tzg1t3x4r3w64/usermanual%20fig01.jpg?dl=0)
+
+
+
+* **`visualizeflow(input=list of QUEEN_objects, search_function=bool, grouping=bool, process_classification=bool, intermediate_product=bool)`**
+  Generate flow charts representing construction processes of `QUEEN_objects` with four different types of nodes: file shape, round, uncolored rectangle, and colored box nodes, representing input gbk files, `QUEEN_objects`, `DNAfeature_objects`, and quinable functions, respectively.
+
+  ##### Parameters
+
+  * **input**: `list` of `QUEEN_objects`
+  * **search_function (or sf): **`bool` (default: `True`)  
+    If `True`, the generating flow charts will display all quinable processes involved to produce the `QUEEN_objects`. Otherwise, operations by the search functions will be omitted in the visualization.
+  * **grouping**: `bool` (default: `True`)   
+    If `True`, the operations that has a same `process_name` will be grouped by a parental box.
+  * **inherited_process (or ip): **`bool` (default: `False`)    
+    If `True`, the construction process of previous `QUEEN_objects` inherited in the present `QUEEN_object` construction will also be displayed. 
+  * **process_description (or pd)**: `bool` (default: `False`)    
+    If `True`, both `process_names` and `process_descriptiosn` will be displayed on the top left of the operational object box nodes. If `False`, only `process_names` will be displayed on the top center of the operational object box nodes. However, If `grouping` is `False`, none of them will be displayed.
+  * **alias_dict**: `dict` (default: `None`)    
+    Alias name dictionary for `QUEEN_objects.project` names. This will display the alias names instead of `QUEEN_objects.project`.
+
+
+  ##### Return
+  > `graphviz.dot.Digraph object`
+
+
+
+#### Example code 28: Visualization of the flow chart for pCMV-Target-AID construction
+
+**Source code (continued from the example code 24)**
+
+```
+graph_a = visualizeflow(pCMV_Target_AID, sf=False,ip=True, grouping=False)
+graph_b = visualizeflow(pCMV_Target_AID, sf=True, ip=True, grouping=False)
+graph_c = visualizeflow(pCMV_Target_AID, sf=True, ip=True, grouping=True, pd=True)
+graph_d = visualizeflow(pCMV_Target_AID) #default setting
+graph1.render("pCMV-Target-AID_flow1")
+graph2.render("pCMV-Target-AID_flow2")
+graph3.render("pCMV-Target-AID_flow3")
+graph4.render("pCMV-Target-AID_flow4")
+```
+
+Output figures
+
+[https://www.dropbox.com/s/bk6bqyuy5ywoc0y/usermanual%20fig02.jpg?dl=0](https://www.dropbox.com/s/bk6bqyuy5ywoc0y/usermanual%20fig02.jpg?dl=0) 

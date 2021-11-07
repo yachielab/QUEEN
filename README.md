@@ -77,6 +77,7 @@ dna = QUEEN(seq="CCGGTATGCG----/----ATACGCAGCT")
 
 #### Example code 3: Create a circular QUEEN class object
 The sequence topology of generating `QUEEN_object` can be specified by `"linear"` or` "circular"`.  
+
 **Source code**
 ```python
 from QUEEN.queen import *

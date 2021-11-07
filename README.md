@@ -1,5 +1,4 @@
 # QUEEN Installation and User Manual
-
 QUEEN (a framework to generate quinable and efficiently editable nucleotide sequence resources) is a Python programming module designed to describe, share credit DNA building processes and resources. DNA parts information can be imported from external annotated DNA files (GenBank and FASTA format). Output file (GenBank format) encodes the complete information of the constructed DNA and its annotations and enables the production of a quine code that self-reproduces the output file itself. In QUEEN, all of the manipulations required in DNA construction are covered by four simple operational functions, "cutdna", "modifyends", "flipdna", and "joindna" that can collectively represent any of the standard molecular DNA cloning processes, two search functions, "searchsequence" and "searchfeature", and two super functions, "editsequence" and "editfeature".  A new DNA can be designed by programming a Python script or using Jupyter Notebook, an interactive Python programming interpreter. The designed DNA product can be output in the GenBank file format that involves the history of its building process. The "quinable" feature of a QUEEN-generated GenBank file certifies that the annotated DNA material information and its production process are fully transparent, reproducible, inheritable, and modifiable by the community.
 
 <img src="img/ga.jpg" width="600x600">
@@ -10,26 +9,26 @@ QUEEN (a framework to generate quinable and efficiently editable nucleotide sequ
   - [Usage](#Usage)
   - [QUEEN class](#QUEEN-class)
   - [Output functions](#Output-functions)
-    - [printsequence](https://github.com/yachielab/QUEEN#printsequencestartint-endint--strandint-displaybool-hide_middleint-linebreakint)
-    - [printfeature](https://github.com/yachielab/QUEEN#printfeaturefeature_listlist-attributelist-seqbool-separationstr-outputstr-x_based_indexint)
-    - [outputgbk](https://github.com/yachielab/QUEEN#outputgbkoutputstr)
+    - [.printsequence()](https://github.com/yachielab/QUEEN#printsequencestartint-endint--strandint-displaybool-hide_middleint-linebreakint)
+    - [.printfeature()](https://github.com/yachielab/QUEEN#printfeaturefeature_listlist-attributelist-seqbool-separationstr-outputstr-x_based_indexint)
+    - [.outputgbk()](https://github.com/yachielab/QUEEN#outputgbkoutputstr)
   - [Search Function](#Search-Function)
-    - [searchsequence](https://github.com/yachielab/QUEEN#searchsequence-queryregex-or-str-startint-endint-strandint-productstr-process_namestr-process_descriptionstr)
-    - [searchfeature](https://github.com/yachielab/QUEEN#searchfeaturekey_attributestr-queryregex-or-str-sourcelist-of-dnafeature_objects-startint-endint-strandint-productstr-process_namestr-process_descriptionstr)
+    - [.searchsequence()](https://github.com/yachielab/QUEEN#searchsequence-queryregex-or-str-startint-endint-strandint-productstr-process_namestr-process_descriptionstr)
+    - [.searchfeature()](https://github.com/yachielab/QUEEN#searchfeaturekey_attributestr-queryregex-or-str-sourcelist-of-dnafeature_objects-startint-endint-strandint-productstr-process_namestr-process_descriptionstr)
   - [Operational functions](#Operational-functions)
-    - [cutdna](https://github.com/yachielab/QUEEN#cutdnainputqueen_object-cutsiteslist-of-int-intint-or--dnafeature_object-productstr-process_namestr-process_discriptionstr)
-      - [cropdna](https://github.com/yachielab/QUEEN#cropdnainputqueen_object-startint-intint-or--dnafeature_object-endint-intint-or--dnafeature_object-productstr-process_namestr-process_descriptionstr)
-    - [modifyends](https://github.com/yachielab/QUEEN#modifyendsinputqueen_object-leftstrstr-rightstrstr-productstr-process_namestr-process_descriptionstr)
-    - [flipdna](https://github.com/yachielab/QUEEN#flipdnainputqueen_object-productstr-process_namestr-process_descriptionstr)
-    - [joindna](https://github.com/yachielab/QUEEN#joindnainputslist-of-queen-objects-topologystr-productstr-process_namestr-process_descriptionstr)
-    - [editsequence](https://github.com/yachielab/QUEEN#editsequenceinputqueen-object-source_sequenceregex-or-str-destination_sequencestr-startint-endint-strandint-productstr-process_namestr-process_descriptionstr)
-    - [editfeature](https://github.com/yachielab/QUEEN#editfeatureinputqueen_object-key_attributestr-queryregex-or-str-sourcelist-of-dnafeature_objects-startint-endint-strandint-target_attributestr-operationfunction-new_copybool-productstr-process_namestr-process_descriptionstr)
+    - [cutdna()](https://github.com/yachielab/QUEEN#cutdnainputqueen_object-cutsiteslist-of-int-intint-or--dnafeature_object-productstr-process_namestr-process_discriptionstr)
+      - [cropdna()](https://github.com/yachielab/QUEEN#cropdnainputqueen_object-startint-intint-or--dnafeature_object-endint-intint-or--dnafeature_object-productstr-process_namestr-process_descriptionstr)
+    - [modifyends()](https://github.com/yachielab/QUEEN#modifyendsinputqueen_object-leftstrstr-rightstrstr-productstr-process_namestr-process_descriptionstr)
+    - [flipdna()](https://github.com/yachielab/QUEEN#flipdnainputqueen_object-productstr-process_namestr-process_descriptionstr)
+    - [joindna()](https://github.com/yachielab/QUEEN#joindnainputslist-of-queen-objects-topologystr-productstr-process_namestr-process_descriptionstr)
+    - [editsequence()](https://github.com/yachielab/QUEEN#editsequenceinputqueen-object-source_sequenceregex-or-str-destination_sequencestr-startint-endint-strandint-productstr-process_namestr-process_descriptionstr)
+    - [editfeature()](https://github.com/yachielab/QUEEN#editfeatureinputqueen_object-key_attributestr-queryregex-or-str-sourcelist-of-dnafeature_objects-startint-endint-strandint-target_attributestr-operationfunction-new_copybool-productstr-process_namestr-process_descriptionstr)
   - [Common parameters of the quinable functions](#Common-parameters-of-the-quinable-functions)
   - [Quine](#Quine)
-    - [quine](https://github.com/yachielab/QUEEN#quine-inputqueen_object-outputstr-process_descriptionbool-executionbool)
+    - [quine()](https://github.com/yachielab/QUEEN#quine-inputqueen_object-outputstr-process_descriptionbool-executionbool)
   - [Visualization](#Visualization)
-    - [visualizemap](https://github.com/yachielab/QUEEN#visualizemapinputqueen_object-map_viewstr-feature_listlist-startint-endint-width_scalefloat-height_scalefloat-label_locationstr-linebreakint-seqbool-diameterfloat)
-    - [visualizeflow](https://github.com/yachielab/QUEEN#visualizeflowinputlist-of-queen_objects-search_functionbool-groupingbool-process_classificationbool-intermediate_productbool)
+    - [visualizemap()](https://github.com/yachielab/QUEEN#visualizemapinputqueen_object-map_viewstr-feature_listlist-startint-endint-width_scalefloat-height_scalefloat-label_locationstr-linebreakint-seqbool-diameterfloat)
+    - [visualizeflow()](https://github.com/yachielab/QUEEN#visualizeflowinputlist-of-queen_objects-search_functionbool-groupingbool-process_classificationbool-intermediate_productbool)
    
 ## Software dependency
 Python 3.7.0 or later

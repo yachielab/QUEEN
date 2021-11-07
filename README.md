@@ -37,7 +37,7 @@ QUEEN provides the QUEEN class to define a double-stranded (ds)DNA object with s
 The QUEEN class can define a dsDNA object with sequence annotations. It can be created by specifying a DNA sequence or importing a sequence data file in GenBank or FASTA file format (single sequence entry). When a GenBank format file is imported, its NCBI accession number, Addgene plasmid ID, or Benchling share link can be provided instead of downloading the file to your local environment.
 
 
-##### Example code 1: Create a QUEEN class object (blunt-ends) 
+#### Example code 1: Create a QUEEN class object (blunt-ends) 
 
 A `QUEEN_object` (blunt-end) is created by providing its top-stranded sequence (5’-to-3’). By default, the DNA topology will be linear.
 
@@ -49,11 +49,12 @@ dna = QUEEN(seq="CCGGTATGCGTCGA")
 ```
 
 
-##### Example code 2: Create a QUEEN class object (sticky-end)
+
+#### Example code 2: Create a QUEEN class object (sticky-end)
 
 The left and right values separated by `"/"` show the top and bottom strand sequences of the generating `QUEEN_object`, respectively. The top strand sequence is provided in the 5’-to-3’ direction from left to right, whereas the bottom strand sequence is provided in the 3′-to-5′ direction from left to right. Single-stranded regions can be provided by `"-"` for the corresponding nucleotide positions on the opposite strands. A:T and G:C base-pairing rule is required between the two strings except for the single-stranded positions.
 
-<u>Source code</u>
+**Source code**
 
 ```python
 from QUEEN.queen import *
@@ -61,11 +62,12 @@ dna = QUEEN(seq="CCGGTATGCG----/----ATACGCAGCT")
 ```
 
 
-##### Example code 3: Create a circular QUEEN class object
+
+#### Example code 3: Create a circular QUEEN class object
 
 The sequence topology of generating `QUEEN_object` can be specified by `"linear"` or` "circular"`.
 
-<u>Source code</u>
+**Source code**
 
 ```python
 from QUEEN.queen import *
@@ -73,11 +75,12 @@ dna = QUEEN(seq="CCGGTATGCGTCGA", topology="circular")
 ```
 
 
-##### Example code 4.1: Create a QUEEN class object from a GenBank file in a local directory 
+
+#### Example code 4.1: Create a QUEEN class object from a GenBank file in a local directory 
 
 GenBank file can be loaded by specifying its local file path.
 
-<u>Source code</u>
+Source code
 
 ```python
 from QUEEN.queen import *
@@ -85,11 +88,11 @@ pUC19 = QUEEN(record="./input/pUC19.gbk")
 ```
 
 
-##### Example code 4.2: Create a QUEEN class object using a NCBI accession number
+#### Example code 4.2: Create a QUEEN class object using a NCBI accession number
 
 QUEEN_object can be generated from a NCBI accession number with `dbtype="ncbi"`. 
 
-<u>Source code</u>
+Source code
 
 ```python
 from QUEEN.queen import *
@@ -98,11 +101,11 @@ pUC19 = QUEEN(record="M77789.2", dbtype="ncbi")
 ```
 
 
-##### Example code 4.3: Create a QUEEN class object using an Addgene plasmid ID
+#### Example code 4.3: Create a QUEEN class object using an Addgene plasmid ID
 
 `QUEEN_object` can be generated from an Addgene plasmid ID with `dbtype="addgene"`.
 
-<u>Source code</u>
+Source code
 
 ```python
 from QUEEN.queen import *
@@ -110,11 +113,11 @@ from QUEEN.queen import *
 pUC19 = QUEEN(record="50005", dbtype="addgene")
 ```
 
-##### Example code 4.4: Create a QUEEN class object from a Benchling share link
+#### Example code 4.4: Create a QUEEN class object from a Benchling share link
 
 `QUEEN_object` can be generated from a Benchling shared link with `dbtype="benchling"`.
 
-<u>Source code</u>
+**Source code**
 
 ```python
 from QUEEN.queen import *
@@ -122,6 +125,7 @@ plasmid = QUEEN(record="https://benchling.com/s/seq-U4pePb09KHutQzjyOPQV", dbtyp
 ```
 
 pX330 plasmid encoding a Cas9 gene and a gRNA expression unit is provided in the above example. The `QUEEN_object` generated here is used in the following example codes in this document.
+
 
 
 #### Properties of QUEEN class objects 
@@ -167,6 +171,8 @@ Qualifiers. When a GenBank file is imported, qualifiers of each feature will be 
 * **.productdict**: `dict`  
 Dictionary for all of the inherited `QUEEN_objects`_ _used to construct the present `QUEEN_object`. The `.project` of each `QUEEN_object` serves as a key of this dictionary.
 
+
+
 ### Output functions
 
 `QUEEN_objects` hold a simple set of functions to output its information.
@@ -199,7 +205,10 @@ Dictionary for all of the inherited `QUEEN_objects`_ _used to construct the pres
   > If **strand** is `1` or `-1`, sequence of the defined strand (5’→3’)
   > If **strand** is `2`, `"str/str"`: "top strand sequence (5’→3’)/bottom strand sequence (3’→5’)"
 
-##### Example code 5: Print a dsDNA object
+
+
+#### Example code 5: Print a dsDNA object
+
 **Source code**
 
 ```python
@@ -242,7 +251,7 @@ fragment.printsequence(display=True)
     > `None`
 
 
-##### Example code 6: Print DNA features in a well-formatted table
+#### Example code 6: Print DNA features in a well-formatted table
 
 **Source code**
 ```python
@@ -293,7 +302,7 @@ feature_id  feature_type   qualifier:label     start  end   strand
     
         Output file name.
     
-    #####  Return
+    ##### Return
     > `None`
 
 ### Search Function
@@ -318,12 +327,12 @@ feature_id  feature_type   qualifier:label     start  end   strand
   * **strand**: `int`: `1` (top strand only), `-1` (bottom strand only), or `2` (both strands) (default: `2`)  
     Sequence strand to be searched.
   
-  ##### Return
+  #### Return
   > `list` (`list` of `DNAfeature_objects`)
 
 
 
-##### Example code 7: Search for a DNA sequence motif with regular expression
+#### Example code 7: Search for a DNA sequence motif with regular expression
 
 **Source code (continued from the previous code)**
 
@@ -362,7 +371,7 @@ start  end   strand  sequence
 
 
 
-##### Example code 8: Search for a DNA sequence motif with fuzzy matching
+#### Example code 8: Search for a DNA sequence motif with fuzzy matching
 
 Search for `"AAAAAAAA"` sequence, permitting a single nucleotide mismatch**.**
 
@@ -389,7 +398,7 @@ null        misc_feature  null              7844   7852  -       AGAAAAAA
 
 
 
-##### Example code 9: Search for a DNA sequence with the IUPAC nucleotide code
+#### Example code 9: Search for a DNA sequence with the IUPAC nucleotide code
 
 **Source code (continued from the previous code)**
 
@@ -440,7 +449,7 @@ null        misc_feature  null              8357   8373  -       GTCAGAGGTGGCGAA
   ​               
 
 
-##### Example code 10: Search for sequence features having specific attribute values  
+#### Example code 10: Search for sequence features having specific attribute values  
 
 Search for `DNAfeature_objects` with a feature type `"primer_bind"`, and then further screen ones holding a specific string in `"qualifiers:label"`.
 
@@ -481,7 +490,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
 * **`cutdna(input=QUEEN_object, *cutsites=*list of (int, "int/int", or  DNAfeature_object), product=str, process_name=str, process_discription="str")`**
   Cut `QUEEN_object` at queried positions or by queried `DNAfeature_object` and return a list of fragmented `QUEEN_object`. Each existing `DNAfeature_object` in the original `QUEEN_object` will be inherited to the generating `QUEEN_object`. Suppose any `DNAfeature_objects` are at the cut boundaries being split into fragments. In that case, each `DNAfeature_object` will also be carried over to the new `QUEEN_object` with the `"qualifiers:broken_feature"` attribute to be `"[.project of the original QUEEN_object]:[.feature_id of the original DNAfeature_object]:[sequence length of the original DNAfeature_object]:[sequence of the original DNAfeature_object]:[start..end positions of the original DNAfeature_object in the sequence of the original QUEEN_object]:[5'..3' end positions of the broken DNAfeature_object in the original DNAfeature_object]"`. This function also linearizes a circular `QUEEN_object`. 
 
-  **Parameters**
+  ##### Parameters
 
   * **input**: `QUEEN_object`  
   * **cutsites**: `list` of `int`,  `"int/int"`, and/or `DNAfeature_objects`  
@@ -496,7 +505,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
 
 
 
-  ##### Example code 11: Cut pX330 plasmid at multiple positions 
+  #### Example code 11: Cut pX330 plasmid at multiple positions 
 
 Cut a circular plasmid px330 at the three different positions, resulting in the generation of three fragments. Then, cut one of the three fragments again.
 
@@ -535,7 +544,7 @@ ValueError: Invalid cut pattern.
 
 
 
-##### **Example code 12: Digest pX330 plasmid by EcoRI ** 
+#### **Example code 12: Digest pX330 plasmid by EcoRI ** 
 
 Digestion of pX330 plasmid with EcoRI can be simulated as follows.
 
@@ -584,7 +593,7 @@ for fragment in fragments:
 
 
 
-##### Example code 13: Digest pX330 plasmid by Type-IIS restriction enzyme BbsI  
+#### Example code 13: Digest pX330 plasmid by Type-IIS restriction enzyme BbsI  
 
 **Source code (continued from the previous code)**
 
@@ -651,7 +660,7 @@ for fragment in fragments:
 
 
 
-  ##### Example code 14: Crop a sequence fragment within a specified region
+  #### Example code 14: Crop a sequence fragment within a specified region
 
 If the second fragment of "Example code 11" is for further manipulation, `cropdna()` is convenient.
 
@@ -687,20 +696,19 @@ ValueError: 'end' position must be larger than 'start' position.
 * **`modifyends(input=QUEEN_object, left="str/str", right="str/str", product=str, process_name=str, process_description="str")`**
   Modify sequence end structures of `QUEEN_object`. If the topology is `"circular"`, it won't work.
 
-  **Parameters**
+  ##### Parameters
   * **input**: `QUEEN_object`
   * **left**: `"str"`, `"str/str"` (default: `None`)  
     Left sequence end structure of `QUEEN_object`. The following examples show how to provide this parameter.
   * **right**: `"str"`, `"str/str"` (default: `None`)  
     Right sequence end structure of `QUEEN_object`. The following examples show how to describe the parameter. 
   
-  **Return**
-  
+  ##### Return
   > `QUEEN_object`
 
 
 
-##### Example code 15: Trim nucleotides from a blunt-ended dsDNA to generate a sticky-ended dsDNA
+#### Example code 15: Trim nucleotides from a blunt-ended dsDNA to generate a sticky-ended dsDNA
 
 Sticky ends can be generated by trimming nucleotides where their end structures are given by top and bottom strand strings with `"*"` and `"-"` separated by `"/"`, respectively. The letters `"-"` indicate nucleotide letters to be trimmed, and the letters `"*"` indicate ones to remain. 
 
@@ -757,7 +765,7 @@ ValueError: End sequence structures cannot be modified. The topology of the QUEE
 
 
 
-##### Example code 16: Add adapter sequences  
+#### Example code 16: Add adapter sequences  
 
 `modifyends()` can also add adapter sequences to DNA ends. 
 
@@ -789,18 +797,17 @@ fragment.printsequence(display=True)
 * **`flipdna(input=QUEEN_object, product=str, process_name=str, process_description="str")`**
   Invert `QUEEN_object`. 
 
-  **Parameters**
+  ###### Parameters
 
   * **input**: `QUEEN_object` 
 
-  **Return**
-  
+  ##### Return
   > `QUEEN_object`
 
 
 
 * **`joindna(*inputs=*list of QUEEN objects, topology=str, product=str, process_name=str, process_description="str")`** 
-  Assemble `QUEEN_object`. The connecting DNA end structures must be compatible (i.e., only blunt ends and compatible sticky ends can be assembled). If the assembly restores unfragmented sequences of DNAfeature_objects` that are fragmented before the assembly and hold `"qualifiers:broken_feature" attributes, the original `DNAfeature_objects` will be restored in the output `QUEEN_object` (the fragmented `DNAfeature_objects` will not be inherited). A single linear `QUEEN_object` processed by this function will be circularized.
+  Assemble `QUEEN_object`. The connecting DNA end structures must be compatible (i.e., only blunt ends and compatible sticky ends can be assembled). If the assembly restores unfragmented sequences of `DNAfeature_objects` that are fragmented before the assembly and hold `"qualifiers:broken_feature"` attributes, the original `DNAfeature_objects` will be restored in the output `QUEEN_object` (the fragmented `DNAfeature_objects` will not be inherited). A single linear `QUEEN_object` processed by this function will be circularized.
 
   ##### Parameters
 
@@ -813,7 +820,7 @@ fragment.printsequence(display=True)
 
 
 
-##### Example code 17: Clone an EGFP fragment into pX330
+#### Example code 17: Clone an EGFP fragment into pX330
 
 1. Generate a QUEEN class object for an EGFP fragment,
 2. Create EcoRI sites to both ends of the EGFP fragment,
@@ -872,18 +879,12 @@ ValueError: The QUEEN_objects cannot be joined due to the end structure incompat
 
 
 
-##### Example code 18: Create a gRNA expression plasmid
+#### Example code 18: Create a gRNA expression plasmid
 
 pX330 serves as a standard gRNA expression backbone plasmid. A gRNA spacer can simply be cloned into a BbsI-digested destination site of pX330 as follows:
 
-1. 
-Generate QUEEN object for a sticky-ended gRNA spacer dsDNA,
-
-
-2. 
-Digest pX330 by BbsI, and
-
-
+1. Generate QUEEN object for a sticky-ended gRNA spacer dsDNA,
+2. Digest pX330 by BbsI, and
 3. Assemble the spacer with the BbsI-digested pX330.
 
 **Source code (continued from the previous code)**
@@ -909,20 +910,11 @@ print(pgRNA)
 
 
 
-##### Example code 19:  Flip ampicillin-resistant gene in pX330
+#### Example code 19:  Flip ampicillin-resistant gene in pX330
 
-1. 
-Search for the ampicillin-resistant gene in pX330,
-
-
-2. 
-Cut pX330 with start and end positions of the ampicillin-resistant gene,
-
-
-3. 
-Flip the ampicillin-resistant gene fragment, and 
-
-
+1. Search for the ampicillin-resistant gene in pX330,
+2. Cut pX330 with start and end positions of the ampicillin-resistant gene,
+3. Flip the ampicillin-resistant gene fragment, and 
 4. Join it with the other fragment.
 
 **Source code (continued from the previous code)**
@@ -944,5 +936,214 @@ feature_id  feature_type  qualifiers:label  start  end   strand
 
 feature_id  feature_type  qualifiers:label  start  end   strand  
 2400        CDS           AmpR              6803   7664  -  
+```
 
+
+
+
+* **`editsequence(input=QUEEN object, source_sequence=regex or str, destination_sequence=str, start=int, end=int, strand=int, product=str, process_name=str, process_description="str")`**
+  Edit sequence of `QUEEN_object` by searching target sequence fragments matched to a `source_sequence` and replacing each of them with a `destination_sequence`. All `DNAfeature_objects` located on the edited sequence regions will be given the `"qualifiers:broken-feature"` attribute. In any sequence edit that confers change in the sequence length of the `QUEEN object`, the coordinates of all affected `DNAfeature_objects` will be adjusted. This is the parental function of `searchsequence()`. If `destination_sequence` is not provided, it works just as `searchsequence()`.
+  
+  
+    ##### Parameters
+  
+  
+    * **input**:  `QUEEN object`  
+    * **source_sequence**: `regex` or `str` (default: `".+"`)  
+      Source sequence(s) to be replaced. If the value is not provided, the entire `QUEEN_object` sequence will be replaced with a `destination_sequence`. It allows fuzzy matching and regular expression. For details, see [https://pypi.org/project/regex/](https://pypi.org/project/regex/). All IUPAC nucleotide symbols can also be used. Substrings of the `regex` value can be isolated by enclosing them in parentheses. Each pair of parentheses is indexed sequentially by numbers from left to right. Isolated substrings can be replaced at once by providing a `destination_sequence` where each substring replacement is designated, referring to the index numbers. For details, see [https://docs.python.org/3/library/re.html#re.sub](https://docs.python.org/3/library/re.html#re.sub)<span style="text-decoration:underline;"> </span>
+    * **destination_sequence**: `str`_ _(default: `None`)  
+      Destination sequence. 
+    * **start**:`int` (zero-based indexing; default: `0`)  
+      Start position of the target range of the `QUEEN_object` sequence to be searched for the replacement. 
+    * **end**:int (zero-based indexing; default: the last sequence position of `QUEEN_object`)  
+      End position of the target range of the `QUEEN_object` sequence to be searched for the replacement. 
+    * **strand**: `int`: `1` (top strand only), `-1` (bottom strand only), or `2` (both strands) (default: `2`)  
+      Sequence strand  to be searched for the replacement.
+  
+    ##### Return
+    > If `destination_sequence` is not provided, it will act as `searchsequence()` and return a `list` of `DNAFeature_objects`. Otherwise, `QUEEN_object` .
+
+
+
+#### Example code 20: Insert an EGFP sequence into pX330
+
+An EGFP sequence insertion to the EcoRI site demonstrated in Example code17 can be described with a simpler code using `editsequence()`.
+
+**Source code (continued from the previous code)**
+
+```python
+EGFP  = QUEEN(record="input/EGFP.fasta")
+pEGFP = editsequence(plasmid, "({})".format(cutsite.lib["EcoRI"].seq), r"\1{}\1".format(EGFP.seq))
+print(plasmid)
+print(pEGFP)
+```
+
+**Output**
+
+```
+<queen.QUEEN object; project='pX330', length='8484 bp', topology='circular'>
+<queen.QUEEN object; project='pX330', length='9267 bp', topology='linear'>
+```
+
+
+
+* **`editfeature(input=QUEEN_object, key_attribute=str, query=regex or str, source=list of DNAfeature_objects, start=int, end=int, strand=int, target_attribute=str, operation=function, new_copy=bool, product=str, process_name=str, process_description="str")`**
+  Search for `DNAfeature_objects` holding a `query` value in a designated `key_attribute` and edit a `target_attribute` of the same `DNAfeature_objects` with one of the three operations: `removeattribute`, `replaceattribute`, or `createattribute`. This is the parental function of `searchfeature()`. If `target_attribute` is not provided, it works just as `searchfeature()`.
+  
+  
+    ##### Parameters
+  
+    * **input**:  `QUEEN object`
+  
+    * **key_attribute**: `str` (default: `"all"`)  
+      Attribute type to be searched (`feature_id`, `feature_type`, `"qualifiers:*"`, or `sequence`). If the value is not provided, it will be applied to all of the attributes in the `QUEEN_object`, excluding `sequence`. However, if the `query` value is provided with only the four nucleotide letters (A, T, G, and C), this value will be automatically set to `sequence`.
+  
+    * **query**: `regex` or `str` (default: `".+"`)  
+      Query term. `DNAfeature_objects` that have a value matches to the query value for `key_attribute` designated above will be subjected to the edit. It allows fuzzy matching and regular expression. For details, see [https://pypi.org/project/regex/](https://pypi.org/project/regex/). If the `key_attribute` is `sequence`, all IUPAC nucleotide symbols can be used.
+  
+    * **source**:`list`_ _of_ _`DNAfeature_objects` (default: `QUEEN_object.dnafeatures`)  
+      Source `DNAfeature_objects` to be searched for the editing. `DNAfeature_objects`_ _outside the search range defined by `start`, `end`, and `strand` will be removed from the source. Any `DNAfeature_objects` can be provided here. For example, a list of `DNAfeature_objects`_ _returned from `searchsequence()` or `searchfeature()` operation can be used as the source.
+  
+    * **start**:`int` (zero-based indexing; default: `0`)  
+      Start position of the target range of the `QUEEN_object` sequence for the editing. 
+  
+    * **end**:`int` (zero-based indexing; default: the last sequence position of `QUEEN_object`)  
+      End position of the target range of the `QUEEN_object` sequence for the editing. 
+  
+    * **strand**: `int`: `1` (top strand only), `-1` (bottom strand only), or `2` (both strands) (default: `2`)  
+      Sequence strand to be searched.
+  
+    * **target_attribute**: `str` (default:`None`)  
+      Attribute type of the target `DNAfeature_objects` to be edited (`feature_id`, `feature_type`, `"qualifiers:*"`, `strand`, `start`, `end` or `sequence`). If the value is not provided, this will work just as `searchfeature()`. 
+  
+    * **operation**: `removeattribute()`, `createattribute(value="str")` or `replaceattribute(source_value=regex or str, destination_value=str or int)`  (default: `None`)  
+      If the operation is not specified, this will work just as `searchfeature()`. 
+      * **`removeattribute()`**: This removes `target_attribute` from the target `DNAfeature_objects` but only for `feature_id` or `"qualifiers:*"`. If `target_attribute` is `feature_id`, the entire `DNAfeature_objects`  will be erased from the `QUEEN_object`.
+      * **`createattribute(value="str")`**: This creates or overwrites target_attributes of the target`DNAfeature_objects` with `"str"`. If `target_attribute` is `feature_id` and there is no existing  `DNAfeature_object` with the same `feature_id` of `"str"`, it will create the new `DNAfeature_object` in the `QUEEN_object.dnafeatures`. If the search by `DNAfeature_objects` determines multiple `DNAfeature_objects` to be created, each `feature_id` of the new `DNAfeature_objects` is generated as `"str-number"`, where `numbers` follow the order they were searched. If the same `feature_id` of `"str"` already exists in the operating `QUEEN_object.dnafeatures`, the `DNAfeature_object` will be generated with the `feature_id="str-number"`. If `target_attribute` is `"qualifiers:*"`, the qualifier whose value is `"str"` will be added into the `.qualifiers` of the target `DNAfeature_object`_ _as long as it does not overlap with the existing `.qualifiers`.
+      * **`replaceattribute(source_value=regex or str, destination_value=str or int)`**: This will search for substrings in values of the target_attributes of the target `DNAfeature_object` that match to the `source_value` and replace them with the `destination_value`. Similar to `editsequence()`, substrings of the `regex` value can be isolated by enclosing them in parentheses. Each pair of parentheses is indexed sequentially by numbers from left to right. Isolated substrings can be replaced at once by providing a `destination_sequence` where each substring replacement is designated, referring to the index numbers. For details, see [https://docs.python.org/3/library/re.html#re.sub](https://docs.python.org/3/library/re.html#re.sub)<span style="text-decoration:underline;">.</span> If the `target_attribute` is `sequence`, the sequences corresponding to the target `DNAfeature_object` can be modified like `editsequence()`. When the `source_value` is not provided, the entire data value will be replaced with the `destination value`. If the `target_attribute` is `feature_id`, the replacement will be operated only when no conflict with the existing `DNAfeature_object`. If `target_attribute` is `start`, `end`, or `strand`, no `source_value`_ _is required, and the `destination_value` must be `int`.
+  
+    * **new_copy**:`bool` (default: `True`)
+      If `True`, it will first generate a copy of the `QUEEN_object` and edit it. Otherwise, the original `QUEEN_object` will be edited directly (Note that this mode does not record the operation process into the building history).
+  
+  
+    ##### Return
+    > If `operation` or target_attribute is not specified, it will act as `searchfeature()` and return a `list` of `DNAFeature_objects`
+    > If new_copy is True, `QUEEN_object`, otherwise `None`. 
+
+
+
+#### Example code 21: Insert a DNA string "AAAAA" to the 5’ end of every CDS
+
+**Source code (continued from the previous code)**
+
+```python
+new_plasmid = editfeature(plasmid, key_attribute="feature_type", query="CDS", 
+                           strand=1, target_attribute="sequence", operation=replaceattribute(r"(.+)", r"AAAAA\1"))
+for feat in new_plasmid.searchfeature(key_attribute="feature_type", query="CDS", strand=1):
+    print(feat.start, feat.end, new_plasmid.printsequence(feat.start, feat.start+20, strand=1), feat.qualifiers["label"][0], sep="\t")
+```
+
+**Output**
+
+```
+1231	1302	AAAAAGACTATAAGGACCAC	3xFLAG
+1308	1334	AAAAACCAAAGAAGAAGCGG	SV40 NLS
+1358	5464	AAAAAGACAAGAAGTACAGC	Cas9
+5464	5517	AAAAAAAAAGGCCGGCGGCC	nucleoplasmin NLS
+6823	7689	AAAAAATGAGTATTCAACAT	AmpR
+```
+
+
+
+#### Example code 22: Convert the feature type of every annotation from "CDS" to "gene"
+
+**Source code (continued from the previous code)**
+
+```python
+new_plasmid = editfeature(plasmid, key_attribute="feature_type", query="CDS", 
+target_attribute="feature_type", operation=replaceattribute("gene"))
+new_plasmid.printfeature()
+```
+
+**Output**
+
+```
+feature_id  feature_type   qualifier:label     start  end   strand  
+1           source         null                0      8484  +       
+100         promoter       U6 promoter         0      241   +       
+200         primer_bind    hU6-F               0      21    +       
+300         primer_bind    LKO.1 5'            171    191   +       
+400         misc_RNA       gRNA scaffold       267    343   +       
+500         enhancer       CMV enhancer        439    725   +       
+600         intron         hybrid intron       983    1211  +       
+700         regulatory     null                1222   1232  +       
+800         gene           3xFLAG              1231   1297  +       
+900         gene           SV40 NLS            1303   1324  +       
+1000        gene           Cas9                1348   5449  +       
+1100        gene           nucleoplasmin NLS   5449   5497  +       
+1200        primer_bind    BGH-rev             5524   5542  -       
+1300        polyA_signal   bGH poly(A) signal  5530   5738  +       
+1400        repeat_region  AAV2 ITR            5746   5887  +       
+1500        repeat_region  AAV2 ITR            5746   5876  +      
+1600        rep_origin     f1 ori              5961   6417  +       
+1700        primer_bind    F1ori-R             6048   6068  -       
+1800        primer_bind    F1ori-F             6258   6280  +       
+1900        primer_bind    pRS-marker          6433   6453  -       
+2000        primer_bind    pGEX 3'             6552   6575  +       
+2100        primer_bind    pBRforEco           6612   6631  -       
+2200        promoter       AmpR promoter       6698   6803  +       
+2300        gene           AmpR                6803   7664  +       
+2400        primer_bind    Amp-R               7021   7041  -       
+2500        rep_origin     ori                 7834   8423  +       
+2600        primer_bind    pBR322ori-F         8323   8343  +     
+```
+
+
+
+#### Example code 23: Add single cutter annotations to pX330
+
+1. Search for all of the single restriction enzyme cutters in pX330 using the library of restriction enzymes listed on [the website of NEW England Biolabs](https://international.neb.com/tools-and-resources/selection-charts/alphabetized-list-of-recognition-specificities).
+2. Add the single cutter annotations to pX330.
+
+**Source code (continued from the previous code)**
+
+```python
+unique_cutters = []
+for key, re in cutsite.lib.items():
+    sites = plasmid.searchsequence(re.cutsite)
+    if len(sites) == 1: 
+        unique_cutters.append(sites[0])
+    else:
+        pass
+new_plasmid = editfeature(plasmid, source=unique_cutters, target_attribute="feature_id", operation=createattribute("RE"))
+new_plasmid = editfeature(new_plasmid, key_attribute="feature_id", query="RE", target_attribute="feature_type", operation=replaceattribute("misc_bind"))
+features    = new_plasmid.searchfeature(key_attribute="feature_type", query="misc_bind")
+new_plasmid.printfeature(features, seq=True)
+```
+
+**Output**
+
+```
+RE-1        misc_bind     Acc65I           433    439   +       GGTACC        
+RE-2        misc_bind     AgeI             1216   1222  +       ACCGGT        
+RE-3        misc_bind     ApaI             2700   2706  +       GGGCCC        
+RE-4        misc_bind     BglII            1595   1601  +       AGATCT        
+RE-5        misc_bind     BsaBI            4839   4849  +       GATCACCATC    
+RE-6        misc_bind     BseRI            1098   1104  -       GAGGAG        
+RE-7        misc_bind     BsmI             4979   4985  +       GAATGC        
+RE-8        misc_bind     CspCI            4127   4139  +       CAAAGCACGTGG  
+RE-9        misc_bind     EcoRI            5500   5506  +       GAATTC        
+RE-10       misc_bind     EcoRV            3196   3202  +       GATATC        
+RE-11       misc_bind     FseI             5472   5480  +       GGCCGGCC      
+RE-12       misc_bind     FspI             7365   7371  +       TGCGCA        
+RE-13       misc_bind     KasI             5887   5893  +       GGCGCC        
+RE-16       misc_bind     NotI             5738   5746  +       GCGGCCGC      
+RE-17       misc_bind     PaqCI            1184   1191  +       CACCTGC       
+RE-19       misc_bind     PmlI             4132   4138  +       CACGTG        
+RE-20       misc_bind     PsiI             6317   6323  +       TTATAA        
+RE-22       misc_bind     PvuI             7218   7224  +       CGATCG        
+RE-23       misc_bind     SacII            7522   7528  +       CCGCGG        
+RE-24       misc_bind     SbfI             5879   5887  +       CCTGCAGG      
+RE-26       misc_bind     SnaBI            698    704   +       TACGTA        
+RE-27       misc_bind     XbaI             427    433   +       TCTAGA
 ```

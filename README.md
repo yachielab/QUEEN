@@ -10,10 +10,23 @@ QUEEN (a framework to generate quinable and efficiently editable nucleotide sequ
   - [Usage](#Usage)
   - [QUEEN class](#QUEEN-class)
   - [Output functions](#Output-functions)
+    - [printsequence](https://github.com/yachielab/QUEEN#printsequencestartint-endint--strandint-displaybool-hide_middleint-linebreakint)
+    - [printfeature](https://github.com/yachielab/QUEEN#printfeaturefeature_listlist-attributelist-seqbool-separationstr-outputstr-x_based_indexint)
+    - [outputgbk](https://github.com/yachielab/QUEEN#outputgbkoutputstr)
   - [Search Function](#Search-Function)
+    - [searchsequence](https://github.com/yachielab/QUEEN#searchsequence-queryregex-or-str-startint-endint-strandint-productstr-process_namestr-process_descriptionstr)
+    - [searchfeature](https://github.com/yachielab/QUEEN#searchfeaturekey_attributestr-queryregex-or-str-sourcelist-of-dnafeature_objects-startint-endint-strandint-productstr-process_namestr-process_descriptionstr)
   - [Operational functions](#Operational-functions)
+    - [cutdna](https://github.com/yachielab/QUEEN#cutdnainputqueen_object-cutsiteslist-of-int-intint-or--dnafeature_object-productstr-process_namestr-process_discriptionstr)
+      - [cropdna](https://github.com/yachielab/QUEEN#cropdnainputqueen_object-startint-intint-or--dnafeature_object-endint-intint-or--dnafeature_object-productstr-process_namestr-process_descriptionstr)
+    - [modifyends](https://github.com/yachielab/QUEEN#modifyendsinputqueen_object-leftstrstr-rightstrstr-productstr-process_namestr-process_descriptionstr)
+    - [flipdna](https://github.com/yachielab/QUEEN#flipdnainputqueen_object-productstr-process_namestr-process_descriptionstr)
+    - [joindna](https://github.com/yachielab/QUEEN#joindnainputslist-of-queen-objects-topologystr-productstr-process_namestr-process_descriptionstr)
+    - [editsequence](https://github.com/yachielab/QUEEN#editsequenceinputqueen-object-source_sequenceregex-or-str-destination_sequencestr-startint-endint-strandint-productstr-process_namestr-process_descriptionstr)
+    - [editfeature](https://github.com/yachielab/QUEEN#editfeatureinputqueen_object-key_attributestr-queryregex-or-str-sourcelist-of-dnafeature_objects-startint-endint-strandint-target_attributestr-operationfunction-new_copybool-productstr-process_namestr-process_descriptionstr)
   - [Common parameters of the quinable functions](#Common-parameters-of-the-quinable-functions)
   - [Quine](#Quine)
+    - [quine]()
   - [Visualization](#Visualization)
 
 
@@ -985,7 +998,7 @@ This option enables users to provide label names for producing `QUEEN_objects`. 
 
 
 ## Quine
-**`quine (input=QUEEN_object, output=str, process_description=bool, execution=bool)`**  
+##### **`quine (input=QUEEN_object, output=str, process_description=bool, execution=bool)`**  
 Generate "quine code" of `QUEEN_object` that produces the same `QUEEN_object`. A quine code can be executed as a Python script.
 
 #### Parameters

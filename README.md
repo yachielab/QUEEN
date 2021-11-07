@@ -76,7 +76,7 @@ dna = QUEEN(seq="CCGGTATGCG----/----ATACGCAGCT")
 
 
 #### Example code 3: Create a circular QUEEN class object
-The sequence topology of generating `QUEEN_object` can be specified by `"linear"` or` "circular"`.
+The sequence topology of generating `QUEEN_object` can be specified by `"linear"` or` "circular"`.  
 **Source code**
 ```python
 from QUEEN.queen import *
@@ -84,8 +84,9 @@ dna = QUEEN(seq="CCGGTATGCGTCGA", topology="circular")
 ```
 
 
-#### Example code 4.1: Create a QUEEN class object from a GenBank file in a local directory 
-GenBank file can be loaded by specifying its local file path.
+#### Example code 4.1: Create a QUEEN class object from a GenBank file in a local directory
+GenBank file can be loaded by specifying its local file path.  
+
 **Source code**
 ```python
 from QUEEN.queen import *
@@ -96,7 +97,6 @@ pUC19 = QUEEN(record="./input/pUC19.gbk")
 QUEEN_object can be generated from a NCBI accession number with `dbtype="ncbi"`. 
 
 **Source code**
-
 ```python
 from QUEEN.queen import *
 #"M77789.2" is NCBI accession number for pUC19 plasmid
@@ -105,7 +105,8 @@ pUC19 = QUEEN(record="M77789.2", dbtype="ncbi")
 
 
 #### Example code 4.3: Create a QUEEN class object using an Addgene plasmid ID
-`QUEEN_object` can be generated from an Addgene plasmid ID with `dbtype="addgene"`.
+`QUEEN_object` can be generated from an Addgene plasmid ID with `dbtype="addgene"`.  
+
 **Source code**
 ```python
 from QUEEN.queen import *
@@ -114,7 +115,8 @@ pUC19 = QUEEN(record="50005", dbtype="addgene")
 ```
 
 #### Example code 4.4: Create a QUEEN class object from a Benchling share link
-`QUEEN_object` can be generated from a Benchling shared link with `dbtype="benchling"`.
+`QUEEN_object` can be generated from a Benchling shared link with `dbtype="benchling"`.  
+
 **Source code**
 ```python
 from QUEEN.queen import *
@@ -190,6 +192,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
   
   
   #### Example code 5: Print a dsDNA object
+  
   **Source code**
   ```python
   from queen import *
@@ -226,6 +229,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
     
     
     #### Example code 6: Print DNA features in a well-formatted table
+    
     **Source code**
     ```python
     from queen import *
@@ -294,6 +298,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
   
   
   #### Example code 7: Search for a DNA sequence motif with regular expression
+  
   **Source code (continued from the previous code)**
   ```python
   match_list = plasmid.searchsequence(query="G[ATGC]{19}GGG")
@@ -329,7 +334,8 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
   
   
   #### Example code 8: Search for a DNA sequence motif with fuzzy matching
-  Search for `"AAAAAAAA"` sequence, permitting a single nucleotide mismatch**.**
+  Search for `"AAAAAAAA"` sequence, permitting a single nucleotide mismatch.  
+  
   **Source code (continued from the previous code)**
   ```python
   match_list = plasmid.searchsequence(query="(?:AAAAAAAA){s&lt;=1}")
@@ -350,7 +356,8 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
   ```
   
   
-  #### Example code 9: Search for a DNA sequence with the IUPAC nucleotide code
+  #### Example code 9: Search for a DNA sequence with the IUPAC nucleotide code  
+  
   **Source code (continued from the previous code)**
   ```python
   match_list = plasmid.searchsequence(query="SWSWSWDSDSBHBRHH")
@@ -390,7 +397,8 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
 
 
   #### Example code 10: Search for sequence features having specific attribute values  
-  Search for `DNAfeature_objects` with a feature type `"primer_bind"`, and then further screen ones holding a specific string in `"qualifiers:label"`.
+  Search for `DNAfeature_objects` with a feature type `"primer_bind"`, and then further screen ones holding a specific string in `"qualifiers:label"`.  
+  
   **Source code (continued from the previous code)**
   ```python
   feature_list = plasmid.searchfeature(key_attribute="feature_type", query="primer_bind")
@@ -437,7 +445,8 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   
   
   #### Example code 11: Cut pX330 plasmid at multiple positions 
-  Cut a circular plasmid px330 at the three different positions, resulting in the generation of three fragments. Then, cut one of the three fragments again.
+  Cut a circular plasmid px330 at the three different positions, resulting in the generation of three fragments. Then, cut one of the three fragments again.  
+  
   **Source code (continued from the previous code)**
   ```python
   print(plasmid)
@@ -472,7 +481,8 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   #### Example code 12: Digest pX330 plasmid by EcoRI 
   Digestion of pX330 plasmid with EcoRI can be simulated as follows. 
   1. Search for EcoRI recognition sites in pX330 with its cut motif and obtain the `DNAfeature_objects` representing its cut position(s) and motif.
-  2. Use the `DNAfeature_objects` to cut pX330 by `cutdna()`.
+  2. Use the `DNAfeature_objects` to cut pX330 by `cutdna()`.  
+  
   **Source code (continued from the previous code)**
   ```python
   sites     = plasmid.searchsequence("G^AATT_C")
@@ -510,6 +520,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
  
   
   #### Example code 13: Digest pX330 plasmid by Type-IIS restriction enzyme BbsI   
+  
   **Source code (continued from the previous code)**
   ```python
   sites = plasmid.searchsequence("GAAGAC(2/6)")
@@ -571,7 +582,8 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
 
 
   #### Example code 14: Crop a sequence fragment within a specified region
-  If the second fragment of "Example code 11" is for further manipulation, `cropdna()` is convenient.
+  If the second fragment of "Example code 11" is for further manipulation, `cropdna()` is convenient.  
+  
   **Source code (continued from the previous code)**
 
   ```python
@@ -611,7 +623,8 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   
  
   #### Example code 15: Trim nucleotides from a blunt-ended dsDNA to generate a sticky-ended dsDNA
-  Sticky ends can be generated by trimming nucleotides where their end structures are given by top and bottom strand strings with `"*"` and `"-"` separated by `"/"`, respectively. The letters `"-"` indicate nucleotide letters to be trimmed, and the letters `"*"` indicate ones to remain. 
+  Sticky ends can be generated by trimming nucleotides where their end structures are given by top and bottom strand strings with `"*"` and `"-"` separated by `"/"`, respectively. The letters `"-"` indicate nucleotide letters to be trimmed, and the letters `"*"` indicate ones to remain.  
+  
   **Source code (continued from the previous code)**
   ```python
   fragment = cropdna(plasmid, 100, 120)
@@ -629,21 +642,21 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   3' GAATTGCAACCGAACGGT-- 5'
   ```
   
-  The following codes achieve the same manipulation.
+  The following codes achieve the same manipulation.  
   **Source code (continued from the previous code)**
   ```python
   fragment = cropdna(plasmid,'105/100', '120/118')
   fragment.printsequence(display=True)
   ```
   
-  A regex-like format can also be used.
-  **Source code (continued from the previous code)**
+  A regex-like format can also be used.  
+  **Source code (continued from the previous code)** 
   ```python
   fragment = modifyends(fragment, "-{5}/*{5}","*{2}/-{2}")
   fragment.printsequence(display=True)
   ```
   
-  If a QUEEN object with circular topology is given, an error message will be returned.
+  If a QUEEN object with circular topology is given, an error message will be returned.  
   **Source code (continued from the previous code)**
   ```python
   fragment = modifyends(plasmid, "-----/*****", "**/--")
@@ -738,7 +751,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   <queen.QUEEN object; project='pX330', length='9267 bp', topology='circular'>
   ```
   
-  If connecting DNA end structures of the input `QUEEN_object` are not compatible, an error message will be returned.
+  If connecting DNA end structures of the input `QUEEN_object` are not compatible, an error message will be returned.  
   **Source code (continued from the previous code**
   ```python
   EGFP     = QUEEN(record="input/EGFP.fasta")
@@ -828,7 +841,8 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   
   
   #### Example code 20: Insert an EGFP sequence into pX330
-  An EGFP sequence insertion to the EcoRI site demonstrated in Example code17 can be described with a simpler code using `editsequence()`. 
+  An EGFP sequence insertion to the EcoRI site demonstrated in Example code17 can be described with a simpler code using `editsequence()`.  
+  
   **Source code (continued from the previous code)**
   ```python
   EGFP  = QUEEN(record="input/EGFP.fasta")
@@ -875,7 +889,8 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
     > If new_copy is True, `QUEEN_object`, otherwise `None`. 
 
   
-  #### Example code 21: Insert a DNA string "AAAAA" to the 5’ end of every CDS
+  #### Example code 21: Insert a DNA string "AAAAA" to the 5’ end of every CDS  
+  
   **Source code (continued from the previous code)**
   ```python
   new_plasmid = editfeature(plasmid, key_attribute="feature_type", query="CDS", 
@@ -895,7 +910,8 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
 
   
 
-  #### Example code 22: Convert the feature type of every annotation from "CDS" to "gene"
+  #### Example code 22: Convert the feature type of every annotation from "CDS" to "gene"  
+  
   **Source code (continued from the previous code)**
   ```python
   new_plasmid = editfeature(plasmid, key_attribute="feature_type", query="CDS", 
@@ -1067,6 +1083,7 @@ By default, QUEEN cannot track and record user-defined variable names of `QUEEN_
 
 For example, Example code 19 can be written in this format as follows.
 #### Example code 26: Flip ampicillin-resistant gene in pX330 (variable embedding) 
+
 **Original code**
 ```python
 import sys 
@@ -1178,7 +1195,8 @@ QUEEN provides the following visualization functions.
   > `graphviz.dot.Digraph object`
   
   
-  #### Example code 28: Visualization of the flow chart for pCMV-Target-AID construction
+  #### Example code 28: Visualization of the flow chart for pCMV-Target-AID construction  
+  
   **Source code (continued from the example code 24)**
   ```
   graph_a = visualizeflow(pCMV_Target_AID, sf=False,ip=True, grouping=False)

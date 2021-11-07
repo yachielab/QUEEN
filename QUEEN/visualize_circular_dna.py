@@ -826,13 +826,18 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
         fig.set_size_inches(6 * ylim/fig_width, 6 * ylim/fig_width)
     return ax, y_list, ty_list, fig_width, ylim, bottom_h
 
-def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], visible_types=[], bottom=None, fontsize=8, label_visible=True, axis_visible=True, title_visible=True, tick_space="auto", labelcolor="k", titlename=None):
+def visualize(brick, format=0, feature_list=None, unvisible_types=["source"], visible_types=[], bottom=None, fontsize=8, label_visible=True, axis_visible=True, title_visible=True, tick_space="auto", labelcolor="k", titlename=None, fig=None):
     if titlename is None:
         titlename = brick.project
     brick = copy.deepcopy(brick) 
-    figure = plt.figure(figsize=(6,6))
-    ax      = figure.add_axes([0,0,1,1], polar=True, label="hoge")
-    ax2     = figure.add_axes([0,0,1,1], label="fuga")
+    if fig is None:
+        figure  = plt.figure(figsize=(6,6))
+        basenum = 0
+    else:
+        figure  = fig 
+        basenum = len(fig.axes) + 1
+    ax      = figure.add_axes([0,0,1,1], polar=True, label="hoge"+str(basenum))
+    ax2     = figure.add_axes([0,0,1,1], label="fuga"+str(basenum))
     ax.set_theta_zero_location("N")
     ax.set_theta_direction(-1)
     ax.spines['polar'].set_visible(False)

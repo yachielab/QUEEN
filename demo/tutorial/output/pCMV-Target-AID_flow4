@@ -3,69 +3,69 @@ digraph cluster_operation {
 	fontname=arial
 	nodesep=0.1
 	ranksep=0.2
-	"pcDNA31-Target-AID–0" [label="pcDNA31-Target-AID" fontname=Arial margin=0.05 shape=note]
+	"pcDNA31-Target-AID–1" [label="pcDNA31-Target-AID" fontname=Arial margin=0.05 shape=note]
 	RS045 [label=RS045 fontname=Arial margin=0.05 shape=oval]
 	pcDNA31_Target_AID_0 [label=FW1 fontname=Arial margin=0.0 shape=box]
 	searchsequence_4 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = RS045.seq[-18:]</td></tr></table>> fontname=Arial shape=plaintext]
-	"pcDNA31-Target-AID–0" -> searchsequence_4:func [arrowhead=dot]
+	"pcDNA31-Target-AID–1" -> searchsequence_4:func [arrowhead=dot]
 	RS045_search [label=RS045 fontname=Arial margin=0.05 shape=oval]
 	RS045_search -> searchsequence_4:query [arrowhead=odot]
 	searchsequence_4:func -> pcDNA31_Target_AID_0
 	HM129 [label=HM129 fontname=Arial margin=0.05 shape=oval]
 	pcDNA31_Target_AID_1 [label=RV1 fontname=Arial margin=0.0 shape=box]
 	searchsequence_5 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = HM129.seq[-18:]</td></tr></table>> fontname=Arial shape=plaintext]
-	"pcDNA31-Target-AID–0" -> searchsequence_5:func [arrowhead=dot]
+	"pcDNA31-Target-AID–1" -> searchsequence_5:func [arrowhead=dot]
 	HM129_search [label=HM129 fontname=Arial margin=0.05 shape=oval]
 	HM129_search -> searchsequence_5:query [arrowhead=odot]
 	searchsequence_5:func -> pcDNA31_Target_AID_1
 	cropdna_6 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#FFFDC7"><font color="black" point-size="16">cropdna<b> </b></font></td></tr><tr><td port="start" border="1" align="left"><b> </b><i>start </i> = FW1[0].end</td></tr><tr><td port="end" border="1" align="left"><b> </b><i>end </i> = RV1[0].start</td></tr></table>> fontname=Arial shape=plaintext]
-	"pcDNA31-Target-AID–0" -> cropdna_6:func [arrowhead=dot]
+	"pcDNA31-Target-AID–1" -> cropdna_6:func [arrowhead=dot]
 	pcDNA31_Target_AID_0 -> cropdna_6:start [arrowhead=odot]
 	pcDNA31_Target_AID_1 -> cropdna_6:end [arrowhead=odot]
 	modifyends_7 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#FFFDC7"><font color="black" point-size="16">modifyends<b> </b></font></td></tr><tr><td border="1" align="left" port="left"><b> </b><i>left </i> = RS045.seq</td></tr><tr><td border="1" align="left" port="right"><b> </b><i>right </i> = HM129.rcseq</td></tr></table>> fontname=Arial shape=plaintext]
 	cropdna_6:func -> modifyends_7:func [arrowhead=dot]
 	RS045 -> modifyends_7:left [arrowhead=odot]
 	HM129 -> modifyends_7:right [arrowhead=odot]
-	"pcDNA31-Target-AID–1" [label="pcDNA31-Target-AID" fontname=Arial margin=0.05 shape=note]
+	"pcDNA31-Target-AID–2" [label="pcDNA31-Target-AID" fontname=Arial margin=0.05 shape=note]
 	HM128 [label=HM128 fontname=Arial margin=0.05 shape=oval]
 	pcDNA31_Target_AID_2 [label=FW2 fontname=Arial margin=0.0 shape=box]
 	searchsequence_10 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = HM128.seq[-18:]</td></tr></table>> fontname=Arial shape=plaintext]
-	"pcDNA31-Target-AID–1" -> searchsequence_10:func [arrowhead=dot]
+	"pcDNA31-Target-AID–2" -> searchsequence_10:func [arrowhead=dot]
 	HM128_search [label=HM128 fontname=Arial margin=0.05 shape=oval]
 	HM128_search -> searchsequence_10:query [arrowhead=odot]
 	searchsequence_10:func -> pcDNA31_Target_AID_2
 	RS046 [label=RS046 fontname=Arial margin=0.05 shape=oval]
 	pcDNA31_Target_AID_3 [label=RV2 fontname=Arial margin=0.0 shape=box]
 	searchsequence_11 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = RS046.seq[-18:]</td></tr></table>> fontname=Arial shape=plaintext]
-	"pcDNA31-Target-AID–1" -> searchsequence_11:func [arrowhead=dot]
+	"pcDNA31-Target-AID–2" -> searchsequence_11:func [arrowhead=dot]
 	RS046_search [label=RS046 fontname=Arial margin=0.05 shape=oval]
 	RS046_search -> searchsequence_11:query [arrowhead=odot]
 	searchsequence_11:func -> pcDNA31_Target_AID_3
 	cropdna_12 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#FFFDC7"><font color="black" point-size="16">cropdna<b> </b></font></td></tr><tr><td port="start" border="1" align="left"><b> </b><i>start </i> = FW2[0].end</td></tr><tr><td port="end" border="1" align="left"><b> </b><i>end </i> = RV2[0].start</td></tr></table>> fontname=Arial shape=plaintext]
-	"pcDNA31-Target-AID–1" -> cropdna_12:func [arrowhead=dot]
+	"pcDNA31-Target-AID–2" -> cropdna_12:func [arrowhead=dot]
 	pcDNA31_Target_AID_2 -> cropdna_12:start [arrowhead=odot]
 	pcDNA31_Target_AID_3 -> cropdna_12:end [arrowhead=odot]
 	modifyends_13 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#FFFDC7"><font color="black" point-size="16">modifyends<b> </b></font></td></tr><tr><td border="1" align="left" port="left"><b> </b><i>left </i> = HM128.seq</td></tr><tr><td border="1" align="left" port="right"><b> </b><i>right </i> = RS046.rcseq</td></tr></table>> fontname=Arial shape=plaintext]
 	cropdna_12:func -> modifyends_13:func [arrowhead=dot]
 	HM128 -> modifyends_13:left [arrowhead=odot]
 	RS046 -> modifyends_13:right [arrowhead=odot]
-	"pCMV-ABE–3" [label="pCMV-ABE" fontname=Arial margin=0.05 shape=note]
+	"pCMV-ABE–4" [label="pCMV-ABE" fontname=Arial margin=0.05 shape=note]
 	RS047 [label=RS047 fontname=Arial margin=0.05 shape=oval]
 	pCMV_ABE_4 [label=FW3 fontname=Arial margin=0.0 shape=box]
 	searchsequence_16 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = RS047.seq[-18:]</td></tr></table>> fontname=Arial shape=plaintext]
-	"pCMV-ABE–3" -> searchsequence_16:func [arrowhead=dot]
+	"pCMV-ABE–4" -> searchsequence_16:func [arrowhead=dot]
 	RS047_search [label=RS047 fontname=Arial margin=0.05 shape=oval]
 	RS047_search -> searchsequence_16:query [arrowhead=odot]
 	searchsequence_16:func -> pCMV_ABE_4
 	RS048 [label=RS048 fontname=Arial margin=0.05 shape=oval]
 	pCMV_ABE_5 [label=RV3 fontname=Arial margin=0.0 shape=box]
 	searchsequence_17 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = RS048.seq[-18:]</td></tr></table>> fontname=Arial shape=plaintext]
-	"pCMV-ABE–3" -> searchsequence_17:func [arrowhead=dot]
+	"pCMV-ABE–4" -> searchsequence_17:func [arrowhead=dot]
 	RS048_search [label=RS048 fontname=Arial margin=0.05 shape=oval]
 	RS048_search -> searchsequence_17:query [arrowhead=odot]
 	searchsequence_17:func -> pCMV_ABE_5
 	cropdna_18 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#FFFDC7"><font color="black" point-size="16">cropdna<b> </b></font></td></tr><tr><td port="start" border="1" align="left"><b> </b><i>start </i> = FW3[0].end</td></tr><tr><td port="end" border="1" align="left"><b> </b><i>end </i> = RV3[0].start</td></tr></table>> fontname=Arial shape=plaintext]
-	"pCMV-ABE–3" -> cropdna_18:func [arrowhead=dot]
+	"pCMV-ABE–4" -> cropdna_18:func [arrowhead=dot]
 	pCMV_ABE_4 -> cropdna_18:start [arrowhead=odot]
 	pCMV_ABE_5 -> cropdna_18:end [arrowhead=odot]
 	modifyends_19 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#FFFDC7"><font color="black" point-size="16">modifyends<b> </b></font></td></tr><tr><td border="1" align="left" port="left"><b> </b><i>left </i> = RS047.seq</td></tr><tr><td border="1" align="left" port="right"><b> </b><i>right </i> = RS048.rcseq</td></tr></table>> fontname=Arial shape=plaintext]
@@ -88,61 +88,61 @@ digraph cluster_operation {
 	modifyends_20:func -> joindna_23:f0 [arrowhead=dot]
 	modifyends_21:func -> joindna_23:f1 [arrowhead=dot]
 	modifyends_22:func -> joindna_23:f2 [arrowhead=dot]
-	subgraph cluster_0 {
-		style=solid
-		label=PCR
-		rankdir=LR
-		searchsequence_4
-		"pcDNA31-Target-AID–0"
-		pcDNA31_Target_AID_0
-		RS045_search
-		searchsequence_5
-		"pcDNA31-Target-AID–0"
-		pcDNA31_Target_AID_1
-		HM129_search
-		cropdna_6
-		"pcDNA31-Target-AID–0"
-		modifyends_7
-		RS045
-		HM129
-	}
 	subgraph cluster_1 {
 		style=solid
 		label=PCR
 		rankdir=LR
-		searchsequence_10
+		searchsequence_4
 		"pcDNA31-Target-AID–1"
+		pcDNA31_Target_AID_0
+		RS045_search
+		searchsequence_5
+		"pcDNA31-Target-AID–1"
+		pcDNA31_Target_AID_1
+		HM129_search
+		cropdna_6
+		"pcDNA31-Target-AID–1"
+		modifyends_7
+		RS045
+		HM129
+	}
+	subgraph cluster_2 {
+		style=solid
+		label=PCR
+		rankdir=LR
+		searchsequence_10
+		"pcDNA31-Target-AID–2"
 		pcDNA31_Target_AID_2
 		HM128_search
 		searchsequence_11
-		"pcDNA31-Target-AID–1"
+		"pcDNA31-Target-AID–2"
 		pcDNA31_Target_AID_3
 		RS046_search
 		cropdna_12
-		"pcDNA31-Target-AID–1"
+		"pcDNA31-Target-AID–2"
 		modifyends_13
 		HM128
 		RS046
 	}
-	subgraph cluster_3 {
+	subgraph cluster_4 {
 		style=solid
 		label=PCR
 		rankdir=LR
 		searchsequence_16
-		"pCMV-ABE–3"
+		"pCMV-ABE–4"
 		pCMV_ABE_4
 		RS047_search
 		searchsequence_17
-		"pCMV-ABE–3"
+		"pCMV-ABE–4"
 		pCMV_ABE_5
 		RS048_search
 		cropdna_18
-		"pCMV-ABE–3"
+		"pCMV-ABE–4"
 		modifyends_19
 		RS047
 		RS048
 	}
-	subgraph cluster_4 {
+	subgraph cluster_0 {
 		style=solid
 		label="Gibson Assembly"
 		rankdir=LR

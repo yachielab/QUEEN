@@ -116,10 +116,10 @@ def make_processid(dna, chars, process_id=None, original_ids=None):
     
     id1 = int(hashlib.md5(chars.encode('UTF-8')).hexdigest(), 16)
     id2 = int(hashlib.md5(new_chars.encode('UTF-8')).hexdigest(), 16)
-    id1 = str(np.base_repr(int(id1), base=36)) 
-    id2 = str(np.base_repr(int(id2), base=36)) 
-    newprocess_id = id1 + ':' + id2 + ':' + str(dna.__class__._num_history)
-    if process_id is not None and process_id not in dna.__class__._processes:
+    id1 = str(np.base_repr(int(id1), base=36))[:12] 
+    id2 = str(np.base_repr(int(id2), base=36))[:12]
+    newprocess_id = id1 + id2 #str(dna.__class__._num_history)
+    if process_id is not None: #and process_id not in dna.__class__._processes:
         if original_ids is None:
             original_ids = [] 
         
@@ -128,8 +128,8 @@ def make_processid(dna, chars, process_id=None, original_ids=None):
         else:
             original_id = process_id 
 
-        oid1, oid2, oid3 = original_id.split(":")
-        if id1 == oid1 and id2 == oid2:
+        #oid1, oid2, oid3 = original_id.split(":")
+        if newprocess_id == original_id:
             newprocess_id = process_id
         else: 
             original_ids.append(process_id)
@@ -231,8 +231,8 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_name
                 subdna2 = extract(dna, [0,0], [end,end])
                 subdna  = joindna(subdna1, subdna2, __direct=0)
         else:
-            if start > end and dna.topoloy == "linear":
-                raise ValueError("Start value should be larger than or equal to end value.")
+            if start > end and dna.topology == "linear":
+                raise ValueError("'end' position must be larger than 'start' position.")
             feats = []
             new_features = []
             
@@ -623,12 +623,12 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_name
             spos = spos - len(dna.seq) if spos > len(dna.seq) else spos 
             epos = epos + len(dna.seq) if epos < 0 else epos
             new_positions.append((spos,epos))  
-        
+       
         elif type(pos) is SeqFeature or ("__dict__" in dir(pos) and "_dnafeature" in pos.__dict__):
             strand = pos.location.strand
             if "cutsite" not in pos.qualifiers:
                 raise ValueError("DNAfeature object should hold 'qualifiers:cutsite' attribute.")
-
+            
             if pos._digestion_topl == "null":
                 _, _, pos._digestion_topl, pos._digestion_topr, pos._digestion_bottoml, pos._digestion_bottomr = compile_cutsite(pos.qualifiers["cutsite"][0])
             
@@ -661,6 +661,16 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_name
                     epos = epos + len(dna.seq) if epos < 0 else epos
                     new_positions.append((spos,epos))
     
+    tmp_positions    = new_positions[:]
+    tmp_positions.sort() 
+    top_positions    = list(list(zip(*tmp_positions))[0])
+    bottom_positions = list(list(zip(*tmp_positions))[1])
+    for b in range(len(bottom_positions)-1):
+        if bottom_positions[b] <= bottom_positions[b+1]:
+            pass
+        else:
+            raise ValueError("Invalid cut pattern.")
+
     new_positions_original = new_positions[:] 
     new_positions_original = ["{}/{}".format(*posset) for posset in new_positions_original]
     if crop == True:
@@ -671,13 +681,12 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_name
             new_positions = [(0,0)]  + new_positions 
         else:
             pass
-            #new_positions = new_positions 
-        
+            #new_positions = new_positions     
         if (len(dna.seq),len(dna.seq)) not in new_positions:
             new_positions = new_positions + [(len(dna.seq), len(dna.seq))] 
         new_positions = list(new_positions) 
         new_positions.sort() 
-
+    
     elif dna.topology == "circular":
         new_positions = list(new_positions) 
         tmp_positions = new_positions[:]
@@ -785,8 +794,8 @@ def cropdna(dna, start=0, end=None, project=None, product=None, process_descript
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
 
-    if start >= end and dna.topology == "linear":
-        start, end = end, start
+    #if start >= end and dna.topology == "linear":
+    #    start, end = end, start
 
     if end is None or end == 0:
         end = len(dna.seq) 
@@ -895,7 +904,7 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
                     pass
                     #print("The DNA objects were joined based on complementary sticky end of each fragment. The sticky end is '{}'".format(sticky_end)) 
                 else:
-                    raise ValueError("These QUEEN objects were not able to be joined. Please check end seqeunce structures of the QUEEN objects.")
+                    raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility.")
                     return False
 
             else:
@@ -903,7 +912,7 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
                     new_dna = dna
                     ovhg = ""
                 else:
-                    raise ValueError("These QUEEN objects were not able to be joined. Please check end seqeunce structures of the QUEEN objects.")
+                    raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility.")
                     return False
             
             feats  = _slide(feats, len(construct.seq) - len(ovhg))
@@ -1136,6 +1145,10 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, project=N
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
 
+    if dna.topology == "circular":
+        raise ValueError("End sequence structures cannot be modified. The topology of the given QUEEN_object is circular.") 
+    else:
+        pass
     #if process_description is None:
     #    process_description = dna.__class__.process_description
     #else:
@@ -1819,7 +1832,7 @@ def get_matchlist_regex(dna, query, value=None, subject=None, s=None, e=None, st
     else:
         return match_list
 
-def editsequence(dna, source_sequence, destination_sequence, start=0, end=None, strand=1, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, __direct=1):
+def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=None, strand=1, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, __direct=1):
     project             = project if product is None else product
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
@@ -1833,39 +1846,44 @@ def editsequence(dna, source_sequence, destination_sequence, start=0, end=None, 
     else:
         subject = dna.printsequence(start, end, strand)
 
+    _mode = "edit"
     feat_list = [] 
     if source_sequence is None:
-        segment = dna.__class__(seq=re.sub(subject, value, subject, _direct=0))  
-    
+        segment = dna.__class__(seq=re.sub(subject, value, subject, _direct=0))   
     else:
         source = source_sequence.upper() 
         query  = source 
         if strand == 1 or strand == -1:
-            segment = get_matchlist_regex(dna, query, value=destination_sequence, subject=subject, s=start, e=end, strand=strand) 
+            if destination_sequence is None:
+                _mode = "search"
+                feature_list = get_matchlist_regex(dna, query, value=None, subject=subject, s=start, e=end, strand=strand) 
+            else:
+                segment = get_matchlist_regex(dna, query, value=destination_sequence, subject=subject, s=start, e=end, strand=strand) 
         else:
             ValueError("When edit the sequence, the sequence strand to be edit should be '-1' or '+1.'")
     
-    segment._history_feature = dna._history_feature
-    if start == 0 and end == len(dna.seq):
-        new_dna = segment
-    elif start == 0:
-        new_dna = joindna(segment, cropdna(dna,e,len(dna.seq)))
-    elif end == len(dna.seq):
-        new_dna = joindna(cropdna(dna,0,s), segment)
-    else:
-        new_dna = joindna(cropdna(dna, 0, s), segment, cropdna(dna, e, len(dna.seq))) 
-    
-    if dna.topology == "circular":
-        new_dna._topology = "circular"
-    else:
-        pass 
+    if _mode == "edit":
+        segment._history_feature = dna._history_feature
+        if start == 0 and end == len(dna.seq):
+            new_dna = segment
+        elif start == 0:
+            new_dna = joindna(segment, cropdna(dna,e,len(dna.seq)))
+        elif end == len(dna.seq):
+            new_dna = joindna(cropdna(dna,0,s), segment)
+        else:
+            new_dna = joindna(cropdna(dna, 0, s), segment, cropdna(dna, e, len(dna.seq))) 
+        
+        if dna.topology == "circular":
+            new_dna._topology = "circular"
+        else:
+            pass 
 
-    original_id = dna._product_id
-    if project is None:
-        new_dna._unique_id = dna._unique_id
-    else:
-        new_dna._unique_id = project
-   
+        original_id = dna._product_id
+        if project is None:
+            new_dna._unique_id = dna._unique_id
+        else:
+            new_dna._unique_id = project
+       
     history_features = [new_dna._history_feature] 
     if type(source_sequence) == new_dna.seq.__class__:
         if source_sequence.parental_class == "DNAFeature":
@@ -1950,16 +1968,22 @@ def editsequence(dna, source_sequence, destination_sequence, start=0, end=None, 
     if product is None:
         pass  
     else:
-        product = product.replace(" ","")
-        match   = re.fullmatch("(.+)\[(.+)\]", product) 
-        if match:
-            if match.group(2).isdecimal() == True:
-                new_dna.__class__._namespace[match.group(1)][int(match.group(2))] = new_dna
-            else:
-                new_dna.__class__._namespace[match.group(1)][match.group(2)] = new_dna
-        else:    
-            new_dna.__class__._namespace[product] = new_dna
-    return new_dna
+        if _mode == "edit":
+            product = product.replace(" ","")
+            match   = re.fullmatch("(.+)\[(.+)\]", product) 
+            if match:
+                if match.group(2).isdecimal() == True:
+                    new_dna.__class__._namespace[match.group(1)][int(match.group(2))] = new_dna
+                else:
+                    new_dna.__class__._namespace[match.group(1)][match.group(2)] = new_dna
+            else:    
+                new_dna.__class__._namespace[product] = new_dna
+        else:
+            pass 
+    if _mode == "edit":
+        return new_dna
+    else:
+        return feature_list
 
 
 def _replaceattribute(dna=None, feat_list=None, target_attribute=None, query_re=None, value=None):    
@@ -2691,13 +2715,16 @@ def _circularizedna(dna):
     dna._features_dict = dict(list(map(lambda x:(x._id, x), dna.dnafeatures)))
     return dna
 
-def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None, width_scale="auto", height_scale=1.0, label_location=None, linebreak=None, seq=False, label_visible=2, fontsize=None, diamater_scale=1.0, title_visible=True, axis_visible=True, tick_space="auto", labelcolor="k", title=None):
+def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,label_location=None, display_label=2, display_title=True, display_axis=True, fontsize=None, tick_interval="auto", labelcolor="k", title=None, width_scale="auto", height_scale=1.0, linebreak=None, seq=False, diamater_scale=1.0, fig= None):
     if fontsize is None and map_view == "linear":
         fontsize = 12
     elif fontsize is None and map_view == "circular":
         fontsize = 10
     else:
         pass 
+
+    if title is None or title == "":
+        display_titlee = False
 
     if feature_list is None:
         feature_list = dna.dnafeatures
@@ -2707,25 +2734,12 @@ def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None, w
     standard_scale = 4000
     if map_view == "circular":
         fig, axes = vc.visualize(dna, format=0, feature_list=feature_list, unvisible_types=["source"], visible_types=[],
-                                 bottom=400 * diamater_scale, label_visible=label_visible, fontsize=fontsize, 
-                                 title_visible=title_visible, axis_visible=axis_visible, tick_space=tick_space, labelcolor=labelcolor, titlename=title)
+                                 bottom=400 * diamater_scale, label_visible=display_label, fontsize=fontsize, 
+                                 title_visible=display_title, axis_visible=display_axis, tick_space=tick_interval, labelcolor=labelcolor, titlename=title, fig=fig)
     
     else:
         fig, ax = vl.visualize(dna, start=start, end=end, feature_list=feature_list, wrap_width=linebreak, annotation_loc=label_location, unvisible_types=["source"], 
-                               visible_types=[], enlarge_w=width_scale, enlarge_h=height_scale, fontsize=fontsize, with_seq=seq, nucl_char=None, nucl_color_dict=None, label_visible=label_visible, 
-                               scale="fix", title_visible=title_visible, axis_visible=axis_visible, tick_space=tick_space, labelcolor=labelcolor, titlename=title)
+                               visible_types=[], enlarge_w=width_scale, enlarge_h=height_scale, fontsize=fontsize, with_seq=seq, nucl_char=None, nucl_color_dict=None, label_visible=display_label, 
+                               scale="fix", title_visible=display_title, axis_visible=display_axis, tick_space=tick_interval, labelcolor=labelcolor, titlename=title, fig=fig)
     return fig
 
-#def visualizeflow(*dnas, search_function=True, ip_node=True):
-#    histories = quine(*dnas, _return=True)
-#    graph     = qg.generateflow(histories, search_function, ip_node)
-#    return graph 
-
-#def diff(dna, source, source_dbtype="local"):
-#    source = QUEEN(record=source, dbtype=source_dbtype)
-#    o = tempfile.NamedTemporaryFile(dir=".")
-#    oname = o.name 
-#    o.close() 
-#    quine(source, output=oname + ".py")
-#    exec("import {} as source".format(oname))
-    

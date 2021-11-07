@@ -73,16 +73,18 @@ def make_newhistories(histories, search_function=True):
     return new_histories, process_notes, name_dict, unique_name_dict, unique_name_name_dict
 
 
-def visualizeflow(*dnas, search_function=None, intermediate_product=None, process_classification=None, process_description=None, split_input=None, sf=None, ip=None, pc=None, pd=None, si=None, alias_dict=None):
-    intermediate_product = ip if intermediate_product is None else intermediate_product
-    intermediate_product = False if intermediate_product is None else intermediate_product
+def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=None, process_description=None, split_input=None, sf=None, ip=None, pd=None, si=None, alias_dict=None):
+    inherited_process = ip if inherited_process is None else inherited_process
+    inherited_process = False if inherited_process is None else inherited_process
     
     search_function = sf if search_function is None else search_function
     search_function = True if search_function is None else search_function
     
-    process_classification = pc if process_classification is None else process_classification
-    process_classification = True if process_classification is None else process_classification
-    
+    if grouping == True:
+        process_classification = True 
+    else:
+        process_classification = False 
+
     process_description = pd if process_description is None else process_description
     process_description = False if process_description is None else process_description
     
@@ -236,7 +238,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                     pass
 
                 if productname not in nodes:
-                    if intermediate_product == True:
+                    if inherited_process == True:
                         if productname not in nodes and productname not in gbks:
                             dg.node(productname, label=productname, margin="0.05", shape="oval", fontname="Arial") 
                             nodes.add(productname) 
@@ -337,7 +339,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
             
                 dg.node(funcname, label.format(len(sourcenames), sourcelabel, info_dict["topology"]), shape="plaintext", fontname="Arial", margin="0.05")
                 for s, sourcename in enumerate(sourcenames):
-                    if intermediate_product == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
+                    if inherited_process == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
                         if sourcename in product_funcname_dict:
                             if sourcename not in nodes:
                                 dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
@@ -374,7 +376,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                     dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
                     
                     sourcename = sourcenames[0]
-                    if intermediate_product == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
+                    if inherited_process == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
                         if sourcename in product_funcname_dict:
                             if sourcename not in nodes:
                                 dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
@@ -417,7 +419,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                     dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
                    
                     sourcename = sourcenames[0]
-                    if intermediate_product == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
+                    if inherited_process == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
                         if sourcename in product_funcname_dict:
                             if sourcename not in nodes:
                                 dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
@@ -481,7 +483,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                     dg.node(funcname, label.format(len(productnames), productlabel, infotext), shape="plaintext", fontname="Arial")
 
                     sourcename = sourcenames[0] 
-                    if intermediate_product == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
+                    if inherited_process == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
                         if sourcename in product_funcname_dict:
                             if sourcename not in nodes:
                                 dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
@@ -528,7 +530,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                     #dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
                     
                     sourcename = sourcenames[0] 
-                    if intermediate_product == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
+                    if inherited_process == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
                         if sourcename in product_funcname_dict:
                             if sourcename not in nodes:
                                 dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
@@ -592,7 +594,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                     elif matchr is not None and sourcename in matchr.group(1):
                         dg.edge(sourcename, funcname+":right", arrowhead="odot")
                     else:
-                        if intermediate_product == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
+                        if inherited_process == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
                             if sourcename in product_funcname_dict:
                                 if sourcename not in nodes:
                                     dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
@@ -626,7 +628,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                 dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
                
                 sourcename = sourcenames[0] 
-                if intermediate_product == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
+                if inherited_process == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
                     if sourcename in product_funcname_dict:
                         if sourcename not in nodes:
                             dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
@@ -661,7 +663,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                 dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
                
                 sourcename = sourcenames[0] 
-                if intermediate_product == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
+                if inherited_process == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
                     if sourcename in product_funcname_dict:
                         if sourcename not in nodes:
                             dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
@@ -699,7 +701,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                 
 
                 sourcename = sourcenames[0] 
-                if intermediate_product == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
+                if inherited_process == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
                     if sourcename in product_funcname_dict:
                         if sourcename not in nodes:
                             dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
@@ -781,7 +783,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                                 subg.node(sourcename)
                         
                         elif sourcename in product_funcname_dict: 
-                            if product_funcname_dict[sourcename][1] == process_name and product_funcname_dict[sourcename][2] == process_description and intermediate_product == True:
+                            if product_funcname_dict[sourcename][1] == process_name and product_funcname_dict[sourcename][2] == process_description and inherited_process == True:
                                 subg.node(sourcename)
 
                     if funclabel == "modifyends" and len(sourcenames) > 1:
@@ -829,7 +831,7 @@ def visualizeflow(*dnas, search_function=None, intermediate_product=None, proces
                     sdg = dg
                 process_index = process_notes.index((process_name, process_description)) 
                 key = "cluster_{}".format(process_index)
-                if intermediate_product == True: 
+                if inherited_process == True: 
                     clusters[key] = sdg.subgraph(name=key)
                     with clusters[key] as subg:
                         subg.attr(style='dashed') 

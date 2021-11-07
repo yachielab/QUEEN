@@ -56,7 +56,7 @@ def hex_to_rgb(value):
     lv = len(value)
     return tuple(int(value[i:i+lv//3], 16) for i in range(0, lv, lv//3))
 
-def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, annotation_loc="both", label_visible=True, fontsize=12, project="", title_visible=True, axis_visible=True, tick_space="auto", labelcolor="k", titlename=None):
+def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, annotation_loc="either", label_visible=True, fontsize=12, project="", title_visible=True, axis_visible=True, tick_space="auto", labelcolor="k", titlename=None):
     y = 0
     y_list      = [] 
     ty_list     = [] 
@@ -279,7 +279,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                 t += 1       
             
             if label_visible == 2:
-                if annotation_loc == "both": 
+                if annotation_loc == "either": 
                     if t % 2 == 0:
                         ax.text(tx, t//2+1, label, ha="center",va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc, pad=0.3, lw=1.4), zorder=100, fontsize=fontsize, color=lc, fontweight=fw)
                         ax.plot([(gs+ge)/2, (gs+ge)/2], [t//2+1, ty], lw=0.5, color="k", zorder=0)
@@ -340,7 +340,7 @@ def colorbar(ax, color_dict, ref_seq, char=False, fontsize=10):
     ax.patch.set_alpha(0.0)
     return bars
 
-def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, label_visible=True, feature_list=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, scale="fix", fontsize=12, with_seq=False, nucl_char=None, nucl_color_dict=None, title_visible=True, axis_visible=True, tick_space="auto", labelcolor="k", titlename=None):
+def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, label_visible=True, feature_list=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, scale="fix", fontsize=12, with_seq=False, nucl_char=None, nucl_color_dict=None, title_visible=True, axis_visible=True, tick_space="auto", labelcolor="k", titlename=None, fig=None):
     if titlename is None:
         titlename = brick.project
     else:
@@ -354,7 +354,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
         if with_seq == True:
             annotation_loc = "top"
         else:
-            annotation_loc = "both" 
+            annotation_loc = "either" 
 
     if end == None:
         end = len(brick.seq) 
@@ -366,9 +366,15 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
         width = abs(end-start)  
 
     ceil = 0   
-    fig       = plt.figure(figsize=(3,0.30))
+    if fig is None:
+        fig = plt.figure(figsize=(3,0.30))
+        basenum = 0
+    else:
+        fig = fig
+        fig.set_size_inches(3,0.30) 
+        basenum = len(fig.axes)+1 
+
     axes_list = [] 
-    
     visible   = 1
     unvisible = 1 
     if len(unvisible_types) == 0:
@@ -510,7 +516,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
         if enlarge_h == "auto":
             enlarge_h = 1.0
         zero_position = sub_start + 1
-        ax  = fig.add_axes([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h], label=str(num)) 
+        ax  = fig.add_axes([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h], label=str(num+basenum)) 
         ax, y_list, ty_list = map_feat(fig, ax, sub_brick.dnafeatures, len(sub_brick.seq), head_length, unvisible_types=unvisible_types, visible_types=visible_types, enlarge_w=enlarge_w, enlarge_h=enlarge_h, annotation_loc=annotation_loc, label_visible=label_visible, fontsize=fontsize, project=sub_brick.project, title_visible=title_visible, axis_visible=axis_visible, labelcolor=labelcolor, titlename=titlename)
         
         ty_list.append(0)  
@@ -544,7 +550,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
             ax.set_xticklabels([])
             ax.set_xlim(0, len(sub_brick.seq))
             ax.spines["bottom"].set_visible(False)
-            ax_seq = fig.add_axes([0, -0.60*enlarge_h/(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h/(abs(ytop-ybottom))], label="{}_seq".format(num))
+            ax_seq = fig.add_axes([0, -0.60*enlarge_h/(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h/(abs(ytop-ybottom))], label="{}_seq".format(num+basenum))
             if nucl_char != True and nucl_char != False:
                 if enlarge_w < 30:
                     colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=False, fontsize=fontsize-2)

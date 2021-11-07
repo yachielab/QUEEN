@@ -419,13 +419,20 @@ class QUEEN():
             return self._dnafeatures
         
         elif name == "productdict":
-            return dict(zip(self._productids, [QUEEN._products[key] for key in self._products]))
-        
+            if self._load_history == 1 or self._load_history == -1:
+                pass 
+            elif self._load_history == 0:
+                try:
+                    quine(self, execution=True, _io=False)
+                except:
+                    pass
+            return dict(zip(self._productids, [QUEEN._products[key] for key in self._productids]))
+
         elif name == "processdict":
-            return dict(zip(self._processids, [QUEEN._processes[key] for key in self._processes]))
+            return dict(zip(self._processids, [QUEEN._processes[key] for key in self._processids]))
         
         else:
-            raise AttributeError("QUEENrobejct has no attribute '{}'".format(name))
+            raise AttributeError("QUEEN obejct has no attribute '{}'".format(name))
     
 
     def __init__(self, seq=None, record=None, dbtype="local", project=None, topology="linear", fileformat=None, import_history=True, product=None, process_name=None, process_description=None, pd=None, pn=None, process_id=None, original_ids=[], _sourcefile=None, _direct=1):
@@ -477,7 +484,7 @@ class QUEEN():
                     record  = SeqIO.parse(record,fmt)
                     record  = next(record) 
                 
-                elif dbtype in ("ncbi", "addgene", "benchling"):
+                elif dbtype in ("ncbi", "addgene", "benchling", "googledrive"):
                     fmt    = "genbank"
                     record = QUEEN._get_genbank(record, dbtype)
                     with tempfile.TemporaryFile(mode="w+") as o:
@@ -562,7 +569,8 @@ class QUEEN():
                         feat = pair[0]
                         new_history_num = pair[1] + QUEEN._num_history
                         history_feature.qualifiers["building_history_{}".format(new_history_num)] = pair[2]
-                        history_nums.append(new_history_num)      
+                        history_nums.append(new_history_num) 
+                     
                 else:
                     #QUEEN.process_description = process_description
                     archivehistory(self)    
@@ -722,11 +730,15 @@ class QUEEN():
                                 self._history_feature.qualifiers[key][1] = "_source: " + self.project + " construction" + "; _load: " + self.project
                             else:
                                 self._history_feature.qualifiers[key][1] += "; _source: " + self.project + " construction" + "; _load: " + self.project
-
-
+        
         if QUEEN._keep == 1 and _direct == 1: 
             QUEEN._products[self._product_id] = self
-
+        
+        if _direct == 1 and import_history == True:
+            self._load_history = 0
+        else:
+            self._load_history = -1 
+     
         self._positions       = tuple(range(len(self.seq))) 
         self.record.feartures = self.dnafeatures
         self.seq.parental_id  = self._unique_id
@@ -851,7 +863,7 @@ class QUEEN():
         
         if _direct == 1:
             if type(qorigin) == Qseq:
-                if qorigin.parental_class == "DNAFeature":
+                if qorigin.parental_class == "DNAfeature":
                     qkey = qorigin.qkey
                     for qindex, qfeat in enumerate(QUEEN.queried_features_dict[qkey]):
                         if qfeat._second_id == qorigin.parental_id:
@@ -969,7 +981,7 @@ class QUEEN():
         
         if _direct == 1:
             if type(query) == Qseq:
-                if query.parental_class == "DNAFeature":
+                if query.parental_class == "DNAfeature":
                     qkey = left_origin.qkey
                     for qindex, qfeat in enumerate(QUEEN.queried_features_dict[qkey]):
                         if qfeat._second_id == query.parental_id:
@@ -1396,12 +1408,16 @@ class QUEEN():
         if output is None:
             print() 
 
-    def outputgbk(self, handle=None, format="genbank", record_id=None, separate_history=False):
+    def outputgbk(self, handle=None, format="genbank", record_id=None, export_history=True, export_input=False, _return=False):
+        separate_history=False
+        annotations=None
+        
         stdIOflag = 0 
         if handle is None:
             stdIOflag = 1
             handle    = io.StringIO()
        
+        product_dict    = {}
         histories       = quine(self, _return=True) 
         history_nums    = [history[0] for history in histories]
         history_feature = copy.deepcopy(self._history_feature)
@@ -1423,7 +1439,9 @@ class QUEEN():
             del history_feature.qualifiers[key] 
 
         features = copy.deepcopy(self.dnafeatures)
-        features.append(history_feature) 
+        if export_history is True:
+            features.append(history_feature) 
+        
         for feat in features:
             if "broken_feature" in feat.qualifiers:
                 note   = feat.qualifiers["broken_feature"][0]
@@ -1438,7 +1456,7 @@ class QUEEN():
                 elif (pos_s == 1 and pos_e == length) or (pos_s == length and pos_e == 1):
                     del feat.qualifiers["broken_feature"]
                 
-            if separate_history is not False and type(separate_history) is str:
+            if separate_history is not False and type(separate_history) is str and export_history == True:
                 for feat in self.dnafeatures:
                     if feat.type == "source":
                         for key in feat.qualifiers:
@@ -1454,6 +1472,21 @@ class QUEEN():
                         del feat.qualifires["building_history" + "_" + str(pair[1])]
                         print(pair[1], pair[2], sep=",", file=o)
                 self.record.annotaions["source"] = os.getcwd() + "/" + separate_history
+            
+            if export_input == True:
+                for hisoty in histories:
+                    if "QUEEN(record=" in history[1] and ("dbtype='local'" in history or "dbtype" not in history[1]):
+                        match = re.search("QUEEN.dna_dict\['([^\[\]]+)'\]", history[1])
+                        if match is not None:
+                            key = match.group(1)
+                            if dans[0].productdict[key] is not None:
+                                product_dict[key] = dnas[0].prodcutdict[key]
+                                product_dict[key].record.annotations["keyword"]    = "QUEEN input"
+                                product_dict[key].record.annotations["accession"] = re.search("record='([^=]+)'[,\)]", history[1]).group(1) 
+                        else:
+                            pass 
+                    else:
+                        pass 
 
         if type(handle) is str:
             handle = open(handle, "w") 
@@ -1463,6 +1496,7 @@ class QUEEN():
             self.record.id = self.project
         else:
             self.record.id = record_id
+        
         if Alphabet:
             self.record.seq = Seq(str(self.seq),Alphabet.DNAAlphabet()) 
         else:
@@ -1472,4 +1506,20 @@ class QUEEN():
         SeqIO.write(self.record, handle, format)
         self.record.features = self.dnafeatures
         if stdIOflag == 1:
-            print(handle.getvalue(), end="") 
+            if _return == True:
+                return(handle.getvalue()) 
+            else:
+                print(handle.getvalue(), end="") 
+
+        if export_input == True and len(product_dict) > 0:
+            for key in product_dict:
+                value = outputgbk(product_dict[key], export_input=False, _return=True)
+                if stdIOflag == 1:
+                    #print("//") 
+                    print(value, end="") 
+                else:
+                    #handle.write("//\n") 
+                    handle.write(value) 
+
+        if stdIOflag == 0:
+            handle.close() 

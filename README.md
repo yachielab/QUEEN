@@ -53,7 +53,7 @@ dna = QUEEN(seq="CCGGTATGCGTCGA")
 
 The left and right values separated by `"/"` show the top and bottom strand sequences of the generating `QUEEN_object`, respectively. The top strand sequence is provided in the 5’-to-3’ direction from left to right, whereas the bottom strand sequence is provided in the 3′-to-5′ direction from left to right. Single-stranded regions can be provided by `"-"` for the corresponding nucleotide positions on the opposite strands. A:T and G:C base-pairing rule is required between the two strings except for the single-stranded positions.
 
-**Source code**
+<u>Source code</u>
 
 ```python
 from QUEEN.queen import *
@@ -65,7 +65,7 @@ dna = QUEEN(seq="CCGGTATGCG----/----ATACGCAGCT")
 
 The sequence topology of generating `QUEEN_object` can be specified by `"linear"` or` "circular"`.
 
-**Source code**
+<u>Source code</u>
 
 ```python
 from QUEEN.queen import *
@@ -77,7 +77,7 @@ dna = QUEEN(seq="CCGGTATGCGTCGA", topology="circular")
 
 GenBank file can be loaded by specifying its local file path.
 
-**Source code**
+<u>Source code</u>
 
 ```python
 from QUEEN.queen import *
@@ -89,7 +89,7 @@ pUC19 = QUEEN(record="./input/pUC19.gbk")
 
 QUEEN_object can be generated from a NCBI accession number with `dbtype="ncbi"`. 
 
-**Source code**
+<u>Source code</u>
 
 ```python
 from QUEEN.queen import *
@@ -102,7 +102,7 @@ pUC19 = QUEEN(record="M77789.2", dbtype="ncbi")
 
 `QUEEN_object` can be generated from an Addgene plasmid ID with `dbtype="addgene"`.
 
-**Source code**
+<u>Source code</u>
 
 ```python
 from QUEEN.queen import *
@@ -114,7 +114,7 @@ pUC19 = QUEEN(record="50005", dbtype="addgene")
 
 `QUEEN_object` can be generated from a Benchling shared link with `dbtype="benchling"`.
 
-**Source code**
+<u>Source code</u>
 
 ```python
 from QUEEN.queen import *

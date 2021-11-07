@@ -1153,13 +1153,13 @@ DNA construction process achieved by the search functions `searchsequence()` and
 
 In addition to the parameters and options described above for the quinable functions, all of them can commonly take the three parameters, `process_name`, `process_description`, and `product`, that enable annotation and structured visualization of the construction process (see below). These optional parameters do not affect the behavior of the quinable functions.
 
-* **process_name (or pn): **`str` (default: `""`)
+* **process_name (or pn)**:`str` (default: `""`)
 This option enables users to provide label names for process flow groups. An experimental flow composed of sequential operations by quinable functions can be grouped and labeled with a user-defined name by providing the same name to the quinable function operations belonging to the same target group. Such group labels can be, for example, `"PCR 1"`, `"EcoRI digestion"`, `"Gibson Assembly"`, etc. `visualizeflow()` described below takes into account the group information to generate experimental flow maps from `QUEEN_objects`.
 
-* **process_description (or pd): **`str` (default: `""`)
+* **process_description (or pd)**: `str` (default: `""`)
 Similar to `process_name`, this option enables users to provide narrative descriptions of operations conferred by quinable functions. This enables the generation of the whole "Materials and Methods" description for a DNA construction process along with its DNA construction flow from a `QUEEN_object` (or a QUEEN-generated GenBank file) using the `quine()` function described below. 
 
-* **product: **`str` (default: `""`)
+* **product**: `str` (default: `""`)
 This option enables users to provide label names for producing `QUEEN_objects`. The provided labels are stored in `QUEEN_objects.project`.
 
 
@@ -1308,7 +1308,7 @@ QUEEN provides the following visualization functions.
     * **tick_interval**: `int`(default: `None`)
       Tick interval of sequence map (base pairs).\
     * **display_axis**: `bool` (default: `True`)
-    * **title: **`str` (default: `QUEEN_object.project`)
+    * **title**: `str` (default: `QUEEN_object.project`)
   
     ##### Parameters available for only linear maps
   
@@ -1359,11 +1359,11 @@ Output figures
   ##### Parameters
 
   * **input**: `list` of `QUEEN_objects`
-  * **search_function (or sf): **`bool` (default: `True`)  
+  * **search_function (or sf)**: `bool` (default: `True`)  
     If `True`, the generating flow charts will display all quinable processes involved to produce the `QUEEN_objects`. Otherwise, operations by the search functions will be omitted in the visualization.
   * **grouping**: `bool` (default: `True`)   
     If `True`, the operations that has a same `process_name` will be grouped by a parental box.
-  * **inherited_process (or ip): **`bool` (default: `False`)    
+  * **inherited_process (or ip)** : `bool` (default: `False`)    
     If `True`, the construction process of previous `QUEEN_objects` inherited in the present `QUEEN_object` construction will also be displayed. 
   * **process_description (or pd)**: `bool` (default: `False`)    
     If `True`, both `process_names` and `process_descriptiosn` will be displayed on the top left of the operational object box nodes. If `False`, only `process_names` will be displayed on the top center of the operational object box nodes. However, If `grouping` is `False`, none of them will be displayed.

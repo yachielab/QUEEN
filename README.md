@@ -584,9 +584,9 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
 
   #### Example code 14: Crop a sequence fragment within a specified region
   If the second fragment of "Example code 11" is for further manipulation, `cropdna()` is convenient.  
-  
+    
+    
   **Source code (continued from the previous code)**
-
   ```python
   fragment = cropdna(plasmid ,2000, 4000)
   print(fragment)

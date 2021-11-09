@@ -36,7 +36,7 @@ Python 3.7.0 or later
 
 ## Installation
 1. Download the QUEEN package from the GitHub repository. 
-    `git clone [https://github.com/yachielab/QUEEN](https://github.com/yachielab/QUEEN)`
+    `git clone https://github.com/yachielab/QUEEN.git`
 
 2. Move to the QUEEN directory and install QUEEN using the following command.
     `python setup.py install` 

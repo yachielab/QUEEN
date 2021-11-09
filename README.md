@@ -287,7 +287,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
   Search for specific sequences from a user-defined region of a `QUEEN_object` and return a list of `DNAfeature_objects`. Start and end attributes of returned `DNAfeature_objects` represent the sequence regions of the `QUEEN_object` that matched the user's query. Note that the returned `DNAfeature_objects` will not be generated with `.feature_id` and reflected to the parental `QUEEN_object`**. **The returned `DNAfeature_objects` can be added to `QUEEN_object.dnafeatures` by `editfeature()` with the `createattribute` option as explained below.
   #### Parameters
   * **query**: `regex` or `str` (default: `".+"`)  
-    Search query sequence. If the value is not provided, the user-specified search region of the `QUEEN_object` sequence with `start` and `end` explained below will be returned. It allows fuzzy matching and regular expression. For details, see [https://pypi.org/project/regex/](https://pypi.org/project/regex/). All IUPAC nucleotide symbols can be used. Restriction enzyme cut motif representation can be used to define a query with `"^"` and `"_"` or `"(_int_/_int_)"`. For example, EcoRI cut motif can be provided by `"G^AATT_C"`, where `"^"` and `"_"` represent the cut positions on the top and bottom strands, respectively, or by `"GAATTC(-5/-1)"` or `"(-5/-1)GAATTC"`, where the left and right integers between the parentheses represent the cut positions on the top and bottom strands, respectively. Similarly, the cut motif of a Type-IIS restriction enzyme BsaI can be given by `"GGTCTCN^NNN_N"`,  `"N^NNN_NGAGACC"`, `"GGTCTC(1/5)"` or `"(5/1)GAGACC"`. The returned `DNAfeature_objects` obtained for a query restriction enzyme cut motif will hold the cutting rule in the `"qualifiers:cutsite"` attribute, which can be added to `QUEEN_object.dnafeatures` by `editfeature()` with the `createattribute` option as explained below. Regular expression is disabled for restriction enzyme cut motifs.  
+    Search query sequence. If the value is not provided, the user-specified search region of the `QUEEN_object` sequence with `start` and `end` explained below will be returned. It allows fuzzy matching and regular expression. For details, see [https://pypi.org/project/regex/](https://pypi.org/project/regex/). All IUPAC nucleotide symbols can be used. Restriction enzyme cut motif representation can be used to define a query with `"^"` and `"_"` or `"(int/int)"`. For example, EcoRI cut motif can be provided by `"G^AATT_C"`, where `"^"` and `"_"` represent the cut positions on the top and bottom strands, respectively, or by `"GAATTC(-5/-1)"` or `"(-5/-1)GAATTC"`, where the left and right integers between the parentheses represent the cut positions on the top and bottom strands, respectively. Similarly, the cut motif of a Type-IIS restriction enzyme BsaI can be given by `"GGTCTCN^NNN_N"`,  `"N^NNN_NGAGACC"`, `"GGTCTC(1/5)"` or `"(5/1)GAGACC"`. The returned `DNAfeature_objects` obtained for a query restriction enzyme cut motif will hold the cutting rule in the `"qualifiers:cutsite"` attribute, which can be added to `QUEEN_object.dnafeatures` by `editfeature()` with the `createattribute` option as explained below. Regular expression is disabled for restriction enzyme cut motifs.  
   * **start**: `int` (zero-based indexing; default: `0`)  
     Start position of the target range of the `QUEEN_object` sequence for the search. 
   * **end**: `int` (zero-based indexing; default: the last sequence position of `QUEEN_object`)  
@@ -339,7 +339,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
   
   **Source code (continued from the previous code)**
   ```python
-  match_list = plasmid.searchsequence(query="(?:AAAAAAAA){s&lt;=1}")
+  match_list = plasmid.searchsequence(query="(?:AAAAAAAA){s<=1}")
   plasmid.printfeature(match_list, seq=True) 
   ```
   
@@ -421,6 +421,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
   2100        primer_bind   pBRforEco        6612   6631  -       
   2400        primer_bind   Amp-R            7021   7041  -       
   2600        primer_bind   pBR322ori-F      8323   8343  +       
+  
   feature_id  feature_type  qualifiers:label  start  end   strand  
   1700        primer_bind   F1ori-R          6048   6068  -       
   2400        primer_bind   Amp-R            7021   7041  -   
@@ -794,7 +795,6 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   <queen.QUEEN object; project='EGFP_2', length='787 bp', topology='linear'>
   <queen.QUEEN object; project='pgRNA', length='8487 bp', topology='circular'>
   ```
-  
   
   #### Example code 19:  Flip ampicillin-resistant gene in pX330
   1. Search for the ampicillin-resistant gene in pX330,

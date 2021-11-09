@@ -35,13 +35,13 @@ Python 3.7.0 or later
 
 
 ## Installation
-1. Download the QUEEN package from the GitHub repository. 
+1. Download the QUEEN package from the GitHub repository.   
     `git clone https://github.com/yachielab/QUEEN.git`
 
-2. Move to the QUEEN directory and install QUEEN using the following command.
+2. Move to the QUEEN directory and install QUEEN using the following command.  
     `python setup.py install` 
 
-3. Install Graphviz (optional; required for visualizing flowcharts of DNA building processes using the `visualizeflow()` function described below). Graphviz package is available at the following link.
+3. Install Graphviz (optional; required for visualizing flowcharts of DNA building processes using the `visualizeflow()` function described below). Graphviz package is available at the following link.  
     - [Graphviz](https://graphviz.org/download/source/)
 
 

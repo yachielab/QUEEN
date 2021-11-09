@@ -598,6 +598,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   ```
 
   If a start position is larger than an end position, an error message will be returned. 
+  
   **Source code (continued from the previous code)**
   ```python
   fragment = cropdna(fragment, 1500, 1000)

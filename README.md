@@ -690,7 +690,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   
   
   #### Example code 16: Add adapter sequences  
-  `modifyends()` can also add adapter sequences to DNA ends.　　
+  `modifyends()` can also add adapter sequences to DNA ends.  
   (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
@@ -743,6 +743,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   2. Create EcoRI sites to both ends of the EGFP fragment,
   3. Digest the EGFP fragment and pX330 by EcoRI, and
   4. Assemble the EGFP fragment and linearized pX330.　　
+  
   (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
@@ -983,6 +984,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   #### Example code 23: Add single cutter annotations to pX330
   1. Search for all of the single restriction enzyme cutters in pX330 using the library of restriction enzymes listed on [the website of NEW England Biolabs](https://international.neb.com/tools-and-resources/selection-charts/alphabetized-list-of-recognition-specificities).
   2. Add the single cutter annotations to pX330.  
+  
   (Expected runtime: less than 1 sec.) 
 
   **Source code (continued from the previous code)**

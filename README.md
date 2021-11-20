@@ -56,7 +56,8 @@ The QUEEN class can define a dsDNA object with sequence annotations. It can be c
 
 
 #### Example code 1: Create a QUEEN class object (blunt-ends) 
-A `QUEEN_object` (blunt-end) is created by providing its top-stranded sequence (5’-to-3’). By default, the DNA topology will be linear.
+A `QUEEN_object` (blunt-end) is created by providing its top-stranded sequence (5’-to-3’). By default, the DNA topology will be linear.  
+(Expected runtime: less than 1 sec.)  
 
 **Source code**
 ```python
@@ -66,7 +67,8 @@ dna = QUEEN(seq="CCGGTATGCGTCGA")
 
 
 #### Example code 2: Create a QUEEN class object (sticky-end)
-The left and right values separated by `"/"` show the top and bottom strand sequences of the generating `QUEEN_object`, respectively. The top strand sequence is provided in the 5’-to-3’ direction from left to right, whereas the bottom strand sequence is provided in the 3′-to-5′ direction from left to right. Single-stranded regions can be provided by `"-"` for the corresponding nucleotide positions on the opposite strands. A:T and G:C base-pairing rule is required between the two strings except for the single-stranded positions.
+The left and right values separated by `"/"` show the top and bottom strand sequences of the generating `QUEEN_object`, respectively. The top strand sequence is provided in the 5’-to-3’ direction from left to right, whereas the bottom strand sequence is provided in the 3′-to-5′ direction from left to right. Single-stranded regions can be provided by `"-"` for the corresponding nucleotide positions on the opposite strands. A:T and G:C base-pairing rule is required between the two strings except for the single-stranded positions.　　
+(Expected runtime: less than 1 sec.)  
 
 **Source code**
 ```python
@@ -77,6 +79,7 @@ dna = QUEEN(seq="CCGGTATGCG----/----ATACGCAGCT")
 
 #### Example code 3: Create a circular QUEEN class object
 The sequence topology of generating `QUEEN_object` can be specified by `"linear"` or` "circular"`.  
+(Expected runtime: less than 1 sec.) 
 
 **Source code**
 ```python
@@ -87,6 +90,7 @@ dna = QUEEN(seq="CCGGTATGCGTCGA", topology="circular")
 
 #### Example code 4.1: Create a QUEEN class object from a GenBank file in a local directory
 GenBank file can be loaded by specifying its local file path.  
+(Expected runtime: less than 1 sec.)  
 
 **Source code**
 ```python
@@ -95,7 +99,8 @@ pUC19 = QUEEN(record="./input/pUC19.gbk")
 ```
 
 #### Example code 4.2: Create a QUEEN class object using a NCBI accession number
-QUEEN_object can be generated from a NCBI accession number with `dbtype="ncbi"`. 
+QUEEN_object can be generated from a NCBI accession number with `dbtype="ncbi"`. 　　
+(Expected runtime: less than 1 sec.)  
 
 **Source code**
 ```python
@@ -107,6 +112,7 @@ pUC19 = QUEEN(record="M77789.2", dbtype="ncbi")
 
 #### Example code 4.3: Create a QUEEN class object using an Addgene plasmid ID
 `QUEEN_object` can be generated from an Addgene plasmid ID with `dbtype="addgene"`.  
+(Expected runtime: less than 1 sec.)  
 
 **Source code**
 ```python
@@ -117,6 +123,7 @@ pUC19 = QUEEN(record="50005", dbtype="addgene")
 
 #### Example code 4.4: Create a QUEEN class object from a Benchling share link
 `QUEEN_object` can be generated from a Benchling shared link with `dbtype="benchling"`.  
+(Expected runtime: less than 1 sec.)  
 
 **Source code**
 ```python
@@ -193,6 +200,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
   
   
   #### Example code 5: Print a dsDNA object
+  (Expected runtime: less than 1 sec.)  
   
   **Source code**
   ```python
@@ -230,6 +238,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
     
     
     #### Example code 6: Print DNA features in a well-formatted table
+    (Expected runtime: less than 1 sec.)  
     
     **Source code**
     ```python
@@ -299,6 +308,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
   
   
   #### Example code 7: Search for a DNA sequence motif with regular expression
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -336,6 +346,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
   
   #### Example code 8: Search for a DNA sequence motif with fuzzy matching
   Search for `"AAAAAAAA"` sequence, permitting a single nucleotide mismatch.  
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -358,6 +369,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
   
   
   #### Example code 9: Search for a DNA sequence with the IUPAC nucleotide code  
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -399,6 +411,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
 
   #### Example code 10: Search for sequence features having specific attribute values  
   Search for `DNAfeature_objects` with a feature type `"primer_bind"`, and then further screen ones holding a specific string in `"qualifiers:label"`.  
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -448,6 +461,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   
   #### Example code 11: Cut pX330 plasmid at multiple positions 
   Cut a circular plasmid px330 at the three different positions, resulting in the generation of three fragments. Then, cut one of the three fragments again.  
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -484,6 +498,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   Digestion of pX330 plasmid with EcoRI can be simulated as follows. 
   1. Search for EcoRI recognition sites in pX330 with its cut motif and obtain the `DNAfeature_objects` representing its cut position(s) and motif.
   2. Use the `DNAfeature_objects` to cut pX330 by `cutdna()`.  
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -522,6 +537,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
  
   
   #### Example code 13: Digest pX330 plasmid by Type-IIS restriction enzyme BbsI   
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -583,9 +599,9 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   > `QUEEN_object`
 
 
-  #### Example code 14: Crop a sequence fragment within a specified region
+  #### Example code 14: Crop a sequence fragment within a specified region  
   If the second fragment of "Example code 11" is for further manipulation, `cropdna()` is convenient.  
-    
+  (Expected runtime: less than 1 sec.) 
     
   **Source code (continued from the previous code)**
   ```python
@@ -627,6 +643,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
  
   #### Example code 15: Trim nucleotides from a blunt-ended dsDNA to generate a sticky-ended dsDNA
   Sticky ends can be generated by trimming nucleotides where their end structures are given by top and bottom strand strings with `"*"` and `"-"` separated by `"/"`, respectively. The letters `"-"` indicate nucleotide letters to be trimmed, and the letters `"*"` indicate ones to remain.  
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -673,6 +690,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   
   #### Example code 16: Add adapter sequences  
   `modifyends()` can also add adapter sequences to DNA ends. 
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -723,7 +741,8 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   1. Generate a QUEEN class object for an EGFP fragment,
   2. Create EcoRI sites to both ends of the EGFP fragment,
   3. Digest the EGFP fragment and pX330 by EcoRI, and
-  4. Assemble the EGFP fragment and linearized pX330.
+  4. Assemble the EGFP fragment and linearized pX330.　　
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -775,7 +794,8 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   pX330 serves as a standard gRNA expression backbone plasmid. A gRNA spacer can simply be cloned into a BbsI-digested destination site of pX330 as follows:
   1. Generate QUEEN object for a sticky-ended gRNA spacer dsDNA,
   2. Digest pX330 by BbsI, and
-  3. Assemble the spacer with the BbsI-digested pX330.
+  3. Assemble the spacer with the BbsI-digested pX330.　　
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -800,7 +820,8 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   1. Search for the ampicillin-resistant gene in pX330,
   2. Cut pX330 with start and end positions of the ampicillin-resistant gene,
   3. Flip the ampicillin-resistant gene fragment, and 
-  4. Join it with the other fragment.
+  4. Join it with the other fragment.　　
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -844,6 +865,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   
   #### Example code 20: Insert an EGFP sequence into pX330
   An EGFP sequence insertion to the EcoRI site demonstrated in Example code17 can be described with a simpler code using `editsequence()`.  
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -892,6 +914,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
 
   
   #### Example code 21: Insert a DNA string "AAAAA" to the 5’ end of every CDS  
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -913,6 +936,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   
 
   #### Example code 22: Convert the feature type of every annotation from "CDS" to "gene"  
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
   ```python
@@ -955,7 +979,8 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
 
   #### Example code 23: Add single cutter annotations to pX330
   1. Search for all of the single restriction enzyme cutters in pX330 using the library of restriction enzymes listed on [the website of NEW England Biolabs](https://international.neb.com/tools-and-resources/selection-charts/alphabetized-list-of-recognition-specificities).
-  2. Add the single cutter annotations to pX330.
+  2. Add the single cutter annotations to pX330.　　
+  (Expected runtime: less than 1 sec.) 
 
   **Source code (continued from the previous code)**
   ```python
@@ -1034,7 +1059,8 @@ If `True`, this will reconstruct the `QUEEN_object` by generating and executing 
 
 
 #### Example code 24: Obtain the quine code reconstructed pCMV-Target-AID
-The Target-AID plasmid (pCMV-Target-AID) was constructed by assembling two fragments encoding the N- and C-terminus halves of Target-AID, which were both amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT) (Addgene 79620) using primer pairs RS045/HM129 and HM128/RS046, respectively, with a backbone fragment amplified from pCMV-ABE7.10 using RS047/RS048. The construction process was simulated by using quinable functions, and the GenBank file was generated. The quine code generated from the GenBank file by `quine()` successfully reconstructed the same GenBank file. The Python scripts for the following Example codes 24-27 can be found in `"./demo/tutorial_ex24-28.ipynb"`. 
+The Target-AID plasmid (pCMV-Target-AID) was constructed by assembling two fragments encoding the N- and C-terminus halves of Target-AID, which were both amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT) (Addgene 79620) using primer pairs RS045/HM129 and HM128/RS046, respectively, with a backbone fragment amplified from pCMV-ABE7.10 using RS047/RS048. The construction process was simulated by using quinable functions, and the GenBank file was generated. The quine code generated from the GenBank file by `quine()` successfully reconstructed the same GenBank file. The Python scripts for the following Example codes 24-27 can be found in `"./demo/tutorial_ex24-28.ipynb"`. 　　
+(Expected runtime: less than 1 sec.) 
 
 **Source code**
 ```python
@@ -1057,7 +1083,8 @@ Files ./output/clone_pCMV-Target-AID.gbk and ./output/pCMV-Target-AID.gbk are id
 
 
 #### Example code 25: Inheritance of operational histories
-If a `QUEEN_object` is loaded from a QUEEN-generated GenBank file for a new DNA construction, the quine code of the original `QUEEN_object` will be inherited into the newly producing `QUEEN_object`. The following example demonstrates that a `QUEEN_object` representing a DNA fragment cropped from the `QUEEN_object` of pCMV-Target-AID holds not only the process history of the cropping but also the whole previous construction process of pCMV-Target-AID.
+If a `QUEEN_object` is loaded from a QUEEN-generated GenBank file for a new DNA construction, the quine code of the original `QUEEN_object` will be inherited into the newly producing `QUEEN_object`. The following example demonstrates that a `QUEEN_object` representing a DNA fragment cropped from the `QUEEN_object` of pCMV-Target-AID holds not only the process history of the cropping but also the whole previous construction process of pCMV-Target-AID.　　
+(Expected runtime: less than 1 sec.) 
 
 **Source code (continued from the previous code)**
 ```python
@@ -1085,6 +1112,7 @@ By default, QUEEN cannot track and record user-defined variable names of `QUEEN_
 
 For example, Example code 19 can be written in this format as follows.
 #### Example code 26: Flip ampicillin-resistant gene in pX330 (variable embedding) 
+(Expected runtime: less than 1 sec.) 
 
 **Original code**
 ```python
@@ -1161,7 +1189,9 @@ QUEEN provides the following visualization functions.
   
   
   
-  #### Example code 27: Visualization of pCMV-Target-AID
+  #### Example code 27: Visualization of pCMV-Target-AID　　
+  (Expected runtime: less than a few min.) 
+  
   **Source code (continued from the example code 24)**
   ```python
   fig_a = visualizemap(fragment1, title="fragment-1")
@@ -1198,6 +1228,7 @@ QUEEN provides the following visualization functions.
   
   
   #### Example code 28: Visualization of the flow chart for pCMV-Target-AID construction  
+  (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the example code 24)**
   ```

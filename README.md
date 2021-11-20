@@ -67,7 +67,7 @@ dna = QUEEN(seq="CCGGTATGCGTCGA")
 
 
 #### Example code 2: Create a QUEEN class object (sticky-end)
-The left and right values separated by `"/"` show the top and bottom strand sequences of the generating `QUEEN_object`, respectively. The top strand sequence is provided in the 5’-to-3’ direction from left to right, whereas the bottom strand sequence is provided in the 3′-to-5′ direction from left to right. Single-stranded regions can be provided by `"-"` for the corresponding nucleotide positions on the opposite strands. A:T and G:C base-pairing rule is required between the two strings except for the single-stranded positions.　　
+The left and right values separated by `"/"` show the top and bottom strand sequences of the generating `QUEEN_object`, respectively. The top strand sequence is provided in the 5’-to-3’ direction from left to right, whereas the bottom strand sequence is provided in the 3′-to-5′ direction from left to right. Single-stranded regions can be provided by `"-"` for the corresponding nucleotide positions on the opposite strands. A:T and G:C base-pairing rule is required between the two strings except for the single-stranded positions.  
 (Expected runtime: less than 1 sec.)  
 
 **Source code**
@@ -99,7 +99,7 @@ pUC19 = QUEEN(record="./input/pUC19.gbk")
 ```
 
 #### Example code 4.2: Create a QUEEN class object using a NCBI accession number
-QUEEN_object can be generated from a NCBI accession number with `dbtype="ncbi"`. 　　
+QUEEN_object can be generated from a NCBI accession number with `dbtype="ncbi"`.  
 (Expected runtime: less than 1 sec.)  
 
 **Source code**
@@ -498,6 +498,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   Digestion of pX330 plasmid with EcoRI can be simulated as follows. 
   1. Search for EcoRI recognition sites in pX330 with its cut motif and obtain the `DNAfeature_objects` representing its cut position(s) and motif.
   2. Use the `DNAfeature_objects` to cut pX330 by `cutdna()`.  
+  
   (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
@@ -689,7 +690,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   
   
   #### Example code 16: Add adapter sequences  
-  `modifyends()` can also add adapter sequences to DNA ends. 
+  `modifyends()` can also add adapter sequences to DNA ends.　　
   (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
@@ -795,6 +796,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   1. Generate QUEEN object for a sticky-ended gRNA spacer dsDNA,
   2. Digest pX330 by BbsI, and
   3. Assemble the spacer with the BbsI-digested pX330.　　
+  
   (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
@@ -821,6 +823,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   2. Cut pX330 with start and end positions of the ampicillin-resistant gene,
   3. Flip the ampicillin-resistant gene fragment, and 
   4. Join it with the other fragment.　　
+  
   (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
@@ -979,7 +982,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
 
   #### Example code 23: Add single cutter annotations to pX330
   1. Search for all of the single restriction enzyme cutters in pX330 using the library of restriction enzymes listed on [the website of NEW England Biolabs](https://international.neb.com/tools-and-resources/selection-charts/alphabetized-list-of-recognition-specificities).
-  2. Add the single cutter annotations to pX330.　　
+  2. Add the single cutter annotations to pX330.  
   (Expected runtime: less than 1 sec.) 
 
   **Source code (continued from the previous code)**
@@ -1059,7 +1062,7 @@ If `True`, this will reconstruct the `QUEEN_object` by generating and executing 
 
 
 #### Example code 24: Obtain the quine code reconstructed pCMV-Target-AID
-The Target-AID plasmid (pCMV-Target-AID) was constructed by assembling two fragments encoding the N- and C-terminus halves of Target-AID, which were both amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT) (Addgene 79620) using primer pairs RS045/HM129 and HM128/RS046, respectively, with a backbone fragment amplified from pCMV-ABE7.10 using RS047/RS048. The construction process was simulated by using quinable functions, and the GenBank file was generated. The quine code generated from the GenBank file by `quine()` successfully reconstructed the same GenBank file. The Python scripts for the following Example codes 24-27 can be found in `"./demo/tutorial_ex24-28.ipynb"`. 　　
+The Target-AID plasmid (pCMV-Target-AID) was constructed by assembling two fragments encoding the N- and C-terminus halves of Target-AID, which were both amplified from pcDNA3.1_pCMV-nCas-PmCDA1-ugi pH1-gRNA(HPRT) (Addgene 79620) using primer pairs RS045/HM129 and HM128/RS046, respectively, with a backbone fragment amplified from pCMV-ABE7.10 using RS047/RS048. The construction process was simulated by using quinable functions, and the GenBank file was generated. The quine code generated from the GenBank file by `quine()` successfully reconstructed the same GenBank file. The Python scripts for the following Example codes 24-27 can be found in `"./demo/tutorial_ex24-28.ipynb"`.  
 (Expected runtime: less than 1 sec.) 
 
 **Source code**
@@ -1083,7 +1086,7 @@ Files ./output/clone_pCMV-Target-AID.gbk and ./output/pCMV-Target-AID.gbk are id
 
 
 #### Example code 25: Inheritance of operational histories
-If a `QUEEN_object` is loaded from a QUEEN-generated GenBank file for a new DNA construction, the quine code of the original `QUEEN_object` will be inherited into the newly producing `QUEEN_object`. The following example demonstrates that a `QUEEN_object` representing a DNA fragment cropped from the `QUEEN_object` of pCMV-Target-AID holds not only the process history of the cropping but also the whole previous construction process of pCMV-Target-AID.　　
+If a `QUEEN_object` is loaded from a QUEEN-generated GenBank file for a new DNA construction, the quine code of the original `QUEEN_object` will be inherited into the newly producing `QUEEN_object`. The following example demonstrates that a `QUEEN_object` representing a DNA fragment cropped from the `QUEEN_object` of pCMV-Target-AID holds not only the process history of the cropping but also the whole previous construction process of pCMV-Target-AID.  
 (Expected runtime: less than 1 sec.) 
 
 **Source code (continued from the previous code)**

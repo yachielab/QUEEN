@@ -19,7 +19,8 @@ PYTHON_REQUIRES = ">=3.7"
 INSTALL_REQUIRES = [
     'numpy>=1.2',
     'biopython>=1.78',
-    'matplotlib>=3.4',
+    'matplotlib==3.4.2',
+    'requests>=2.23'
     'regex>=2.5',
     'graphviz>=0.17', 
     'beautifulsoup4>=4.9'
@@ -42,9 +43,7 @@ CLASSIFIERS = [
 
 
 if __name__ == "__main__":
-
     from setuptools import setup
-
     import sys
     if sys.version_info[:2] < (3, 7):
         raise RuntimeError("QUEEN requires python >= 3.7.")

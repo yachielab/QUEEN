@@ -139,10 +139,10 @@ pX330 plasmid encoding a Cas9 gene and a gRNA expression unit is provided in the
 Project name of `QUEEN_object` construction. In QUEEN, this property is also used as a dictionary key to access the `.productdict` described below. If a `QUEEN_object` is created from a GenBank or FASTA file, its sequence ID will be inherited here. Otherwise, the project name is automatically generated to be unique amongst the existing `.productdict` keys.
 
 * **.seq**: `str`  
-Top strand sequence (5′→3′). Sticky end gaps, if any, can be represented by `"-"`. This property cannot be directly edited; only the built-in operational functions of QUEEN described below can edit this property.
+Top strand sequence (5′→3′). This property cannot be directly edited; only the built-in operational functions of QUEEN described below can edit this property.
 
 * **.rcseq**: `str`  
-Bottom strand sequence (5′→3′). Sticky end gaps, if any, are represented by `"-"`. This property cannot be directly edited; only the built-in operational functions of QUEEN described below can edit this property.
+Bottom strand sequence (5′→3′). This property cannot be directly edited; only the built-in operational functions of QUEEN described below can edit this property.
 
 * **.topology**: `str` (`"linear"` or `"circular"`)   
 Sequence topology. When a `QUEEN_object` is created by loading from a GenBank file, the topology is set according to the description in the GenBank file. Only the built-in operational functions of QUEEN described below can edit this property.

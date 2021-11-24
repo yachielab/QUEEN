@@ -337,10 +337,22 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                         dg.edge(queryname + "_search", funcname+":query", arrowhead="odot")
                     else:
                         if queryname in product_funcname_dict:
-                            if "cutdna" in product_funcname_dict[queryname][0]:
-                                dg.edge(product_funcname_dict[queryname][0], funcname+":query", arrowhead="dot")
+                            if inherited_process == True:
+                                if queryname in product_funcname_dict:
+                                    if queryname not in nodes:
+                                        dg.node(queryname, label=queryname, margin="0.05", shape="oval", fontname="Arial") 
+                                        nodes.add(queryname)
+                                    if "cutdna" in product_funcname_dict[queryname][0]:
+                                        dg.edge(product_funcname_dict[queryname][0], queryname) 
+                                    else:
+                                        dg.edge(product_funcname_dict[queryname][0] + ":func", queryname) 
+                                dg.edge(queryname, funcname+":query", arrowhead="dot")
+
                             else:
-                                dg.edge(product_funcname_dict[queryname][0] + ":func", funcname+":query", arrowhead="dot")
+                                if "cutdna" in product_funcname_dict[queryname][0]:
+                                    dg.edge(product_funcname_dict[queryname][0], funcname+":query", arrowhead="dot")
+                                else:
+                                    dg.edge(product_funcname_dict[queryname][0] + ":func", funcname+":query", arrowhead="dot")
                         else:
                             dg.edge(queryname, funcname+":query", arrowhead="odot")
 

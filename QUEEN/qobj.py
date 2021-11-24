@@ -1408,7 +1408,8 @@ class QUEEN():
         if output is None:
             print() 
 
-    def outputgbk(self, handle=None, format="genbank", record_id=None, export_history=True, export_input=False, _return=False):
+    def outputgbk(self, output=None, format="genbank", record_id=None, export_history=True, export_input=False, _return=False):
+        handle = output
         separate_history=False
         annotations=None
         

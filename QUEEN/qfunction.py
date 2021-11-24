@@ -1961,7 +1961,7 @@ def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=N
             building_history     = "QUEEN.dna_dict['{}'] = editsequence(QUEEN.dna_dict['{}'], source_sequence={}, destination_sequence={}, start={}, end={}, strand={}{}{}{}{})".format(new_dna._product_id, original_id, fsource, destination_sequence, start, end, strand, project, fproduct, process_name, process_description)
         if len(history_features) > 1:
             history_feature = _combine_history(new_dna, history_features) 
-            new_dna.history_feature = history_feature
+            new_dna._history_feature = history_feature
         process_id, original_ids = make_processid(new_dna, building_history, process_id, original_ids)
         add_history(new_dna, [building_history, "source: {}; destination: {}; start: {}; end: {}; strand: {}".format(source_sequence, destination_sequence, start, end, strand), ",".join([process_id] + original_ids)], _sourcefile=_sourcefile)  
 

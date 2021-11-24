@@ -70,12 +70,14 @@ class Qseq(str):
         else:
             value = Qseq(value)
         value.qkey           = self.qkey
-        value.parent         = None
+        value.parent         = self.parent
         value.parental_id    = self.parental_id
         value.parental_class = self.parental_class 
         value.name           = self.name
-        value.item           = item
-        
+        if value.item is None:
+            value.item = item
+        else:
+            value.item = slice(value.item.start + item.start, value.item.start + item.stop)
         return value
     
 

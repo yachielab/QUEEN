@@ -15,6 +15,15 @@ from quine import *
 from qint import Qint
 from qseq import Qseq
 
+def _combine_history(dna, history_features):
+    history_feature = SeqFeature(FeatureLocation(0, len(dna.seq), strand=0), type="source")
+    history_feature = history_features[0].__class__(history_feature, subject=dna.seq)
+    for feat in history_features:
+        for key in feat.qualifiers:
+            if "building_history" in key and feat.qualifiers[key] not in history_feature.qualifiers.values():
+                history_feature.qualifiers[key] = feat.qualifiers[key]  
+    return history_feature
+
 @total_ordering
 class DNAfeature(SeqFeature):
     def __deepcopy__(self, memo):
@@ -750,7 +759,8 @@ class QUEEN():
     def searchsequence(self, query, start=0, end=None, strand=2, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, _direct=1):
         process_name        = pn if process_name is None else process_name
         process_description = pd if process_description is None else process_description
-
+        
+        history_features = [self._history_feature] 
         if "__dict__" in dir(query) and "cutsite" in query.__dict__:
             query = query.cutsite
         qorigin = query
@@ -838,7 +848,7 @@ class QUEEN():
                     pass 
                     #print(match) 
                     
-        qkey = self._unique_id + "_" + str(QUEEN._qnum)
+        qkey = self._unique_id + "_f" + str(QUEEN._qnum)
         for i, feature in enumerate(feat_list):
             if "label" in feature.qualifiers:
                 label = "_" + feature.qualifiers["label"][0]
@@ -864,6 +874,7 @@ class QUEEN():
         if _direct == 1:
             if type(qorigin) == Qseq:
                 if qorigin.parental_class == "DNAfeature":
+                    history_features.append(qorigin.parent.subject._history_feature)
                     qkey = qorigin.qkey
                     for qindex, qfeat in enumerate(QUEEN.queried_features_dict[qkey]):
                         if qfeat._second_id == qorigin.parental_id:
@@ -882,8 +893,9 @@ class QUEEN():
                             qorigin = "QUEEN.queried_features_dict['{}'][{}].seq[{}:{}:{}]".format(qkey, qindex, sl_start, sl_stop, sl_step)
                     else:
                         qorigin = "QUEEN.queried_features_dict['{}'][{}].seq".format(qkey, qindex)
-
+                
                 elif qorigin.parental_class == "QUEEN": 
+                    history_features.append(qorigin.parent._history_feature)
                     parental_id = qorigin.parental_id 
                     if qorigin.name != None: 
                         if "printsequence" in qorigin.name:
@@ -909,7 +921,7 @@ class QUEEN():
                             qorigin = "{}[{}:{}:{}]".format(seqname, sl_start, sl_stop, sl_step)
                     else:
                         qorigin = "{}".format(seqname)
-                
+
                 elif qorigin.parental_class == "Cutsite":
                     if qorigin.parent.name not in cs.defaultkeys:
                         cs.new_cutsites.add((qorigin.parent.name, qorigin.parent.cutsite)) 
@@ -922,6 +934,10 @@ class QUEEN():
             else:
                 qorigin = "{}".format(repr(qorigin)) 
             
+            if len(history_features) > 1:
+                history_feature = _combine_history(self, history_features) 
+                self._history_feature = history_feature
+
             fproduct = "" if product is None else ", product='{}'".format(product)
             process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
             process_description = "" if process_description is None else ", process_description='{}'".format(process_description)
@@ -951,10 +967,11 @@ class QUEEN():
     def searchfeature(self, key_attribute="all", query=".+", source=None, start=0, end=None, strand=2, product=None, process_name=None,  process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, _direct=1):
         process_name        = pn if process_name is None else process_name
         process_description = pd if process_description is None else process_description
-
+        
+        history_features = [self._history_feature] 
         start   = 0 if start == len(self.seq) else start
         end     = len(self.seq) if end is None else end
-        qkey = self._unique_id + "_" + str(QUEEN._qnum)
+        qkey = self._unique_id + "_f" + str(QUEEN._qnum)
         features = editfeature(self, key_attribute=key_attribute, query=query, source=source, start=start, end=end, strand=strand, target_attribute=None, operation=None, __direct=0, process_description=process_description) 
         feature_names = [] 
         for i, feature in enumerate(features):
@@ -982,6 +999,7 @@ class QUEEN():
         if _direct == 1:
             if type(query) == Qseq:
                 if query.parental_class == "DNAfeature":
+                    history_features.append(query.parent.subject._history_feature)
                     qkey = left_origin.qkey
                     for qindex, qfeat in enumerate(QUEEN.queried_features_dict[qkey]):
                         if qfeat._second_id == query.parental_id:
@@ -1000,8 +1018,9 @@ class QUEEN():
                             query = "QUEEN.queried_features_dict['{}'][{}].seq[{}:{}:{}]".format(qkey, qindex, sl_start, sl_stop, sl_step)
                     else:
                         query = "QUEEN.queried_features_dict['{}'][{}].seq".format(qkey, qindex)
-
+                
                 elif query.parental_class == "QUEEN": 
+                    history_features.append(query.parent._history_feature)
                     parental_id = query.parental_id 
                     if query.name != None:
                         if "printsequence" in query.name:
@@ -1028,7 +1047,7 @@ class QUEEN():
                             query = "{}[{}:{}:{}]".format(seqname, sl_start, sl_stop, sl_step)
                     else:
                         query = "{}".format(seqname)
-                
+
                 elif query.parental_class == "Cutsite":
                     if query.parent.name not in cs.defaultkeys:
                         cs.new_cutsites.add((query.parent.name, query.parent.cutsite)) 
@@ -1051,6 +1070,10 @@ class QUEEN():
             fproduct            = "" if product is None else ", product='" + product + "'"
             process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
             process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
+
+            if len(history_features) > 1:
+                history_feature = _combine_history(self, history_features) 
+                self._history_feature = history_feature
 
             if start == 0 and end == len(self.seq):
                 if strand == 2 and source is None:
@@ -1408,10 +1431,11 @@ class QUEEN():
         if output is None:
             print() 
 
-    def outputgbk(self, output=None, format="genbank", record_id=None, export_history=True, export_input=False, _return=False):
+    def outputgbk(self, output=None, format="genbank", record_id=None, export_history=True, _return=False):
         handle = output
-        separate_history=False
-        annotations=None
+        export_input = False
+        separate_history = False
+        annotations = None
         
         stdIOflag = 0 
         if handle is None:
@@ -1503,7 +1527,11 @@ class QUEEN():
         else:
             self.record.seq = Seq(str(self.seq))
             self.record.annotations["molecule_type"] = "DNA"
-    
+        
+        #Add DATE
+        import datetime
+        dt = datetime.datetime.now() 
+        self.record.annotations["date"] = dt
         SeqIO.write(self.record, handle, format)
         self.record.features = self.dnafeatures
         if stdIOflag == 1:

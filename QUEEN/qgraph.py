@@ -9,10 +9,10 @@ from qprocess import *
 
 def make_newhistories(histories, search_function=True):
     new_histories = [] 
-    name_dict             = {} 
-    unique_name_dict      = {}
-    unique_name_name_dict = {}
-    process_notes         = set([])   
+    name_dict              = {} 
+    unique_name_dict       = {}
+    unique_name_name_dict  = {}
+    process_notes          = set([])   
     for history in histories:
         process_id = history[3].split(",")[0]
         info       = history[2] 
@@ -122,9 +122,32 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
     dg.attr(ranksep="0.2")
     sdgs["__main__"] = dg 
     
-    sourcenames_all       = [] 
-    removedproducts       = [] 
-    product_funcname_dict = {}
+    sourcenames_all        = []
+    productnames_all       = [] 
+    removedproducts        = [] 
+    product_funcname_dict  = {}
+    unique_name_count_dict = collections.defaultdict(int)  
+    for h, history in enumerate(new_histories):
+        process_description = history[3] 
+        process_name        = history[2]
+        info        = history[1] 
+        history     = history[0]
+       
+        matchi = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]) = QUEEN(\(record.*)", history) 
+        matcho = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]) = (.*)", history) 
+        matchs = re.search("(QUEEN.queried_features_dict\['[^\[\]]+'\]) = (.*)",history)
+        process_index = process_notes.index((process_name, process_description))
+
+        if matcho is not None:
+            source = matcho.group(2) 
+        else:
+            source = matchs.group(2)  
+            
+        for key in re.finditer("QUEEN.dna_dict\['([^\[\]]+)'\]", source):
+            key = key.group(0)
+            sourcename = unique_name_dict[key]
+            unique_name_count_dict[sourcename] += 1
+    
     for h, history in enumerate(new_histories):
         process_description = history[3] 
         process_name        = history[2]
@@ -173,7 +196,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
             key = key.group(0)
             sourcename = unique_name_dict[key]
             if sourcename in gbks:
-                if split_input == True:
+                if split_input == True and unique_name_count_dict[sourcename] > 1:
                     sourcename = sourcename + "–" + str(process_index)
                 if sourcename not in nodes and sourcename not in removedproducts:
                     dg.node(sourcename, label=name_dict[key], margin="0.05", shape="note", fontname="Arial") 
@@ -247,7 +270,9 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                             removedproducts.append(productname) 
                 else:
                     pass 
-        
+            
+            if funclabel is not None:
+                productnames_all.extend(productnames)  
         else:
             productnames = [] 
             product = matchs.group(1)
@@ -264,7 +289,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                     nodes.add(productname) 
                 else:
                     pass
-
+            productnames_all.extend(productnames)  
         if funcname is None:
             pass 
         
@@ -286,6 +311,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                 if queryname_match is not None:
                     queryname = queryname_match.group(1)
                     info_dict["query"] = query_match.group(1).replace(queryname_match.group(0), name_dict[queryname_match.group(0)])
+                    #queryname = sourcenames[1] 
                     query_flag = 1 
                     
                 if info_dict is not None:
@@ -302,13 +328,22 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                 dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
 
                 if query_flag == 1:
-                    if queryname + "_search" not in nodes:
-                        dg.node(queryname + "_search", label=queryname, margin="0.05", shape="oval", fontname="Arial") 
-                        nodes.add(queryname + "_search") 
+                    if queryname not in productnames_all and unique_name_count_dict[queryname] > 1:
+                        if queryname + "_search" not in nodes:
+                            dg.node(queryname + "_search", label=queryname, margin="0.05", shape="oval", fontname="Arial") 
+                            nodes.add(queryname + "_search") 
+                        else:
+                            pass
+                        dg.edge(queryname + "_search", funcname+":query", arrowhead="odot")
                     else:
-                        pass
-                    dg.edge(queryname + "_search", funcname+":query", arrowhead="odot")
-                
+                        if queryname in product_funcname_dict:
+                            if "cutdna" in product_funcname_dict[queryname][0]:
+                                dg.edge(product_funcname_dict[queryname][0], funcname+":query", arrowhead="dot")
+                            else:
+                                dg.edge(product_funcname_dict[queryname][0] + ":func", funcname+":query", arrowhead="dot")
+                        else:
+                            dg.edge(queryname, funcname+":query", arrowhead="odot")
+
                 for product in productnames:
                     dg.edge(funcname+":func", product)
 
@@ -354,7 +389,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                             dg.edge(product_funcname_dict[sourcename][0], funcname+":f"+str(s), arrowhead="dot")
                         else:
                             dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":f"+str(s), arrowhead="dot")
-             
+                 
                 product_funcname_dict[productname] = (funcname, process_name, process_description, info_dict["_source"] if "_source" in info_dict else None) 
 
 
@@ -419,6 +454,8 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                     dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
                    
                     sourcename = sourcenames[0]
+                    
+                    #print(sourcenames) 
                     if inherited_process == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
                         if sourcename in product_funcname_dict:
                             if sourcename not in nodes:
@@ -439,7 +476,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                         dg.edge(startunique, funcname+":start", arrowhead="odot")
                     if endunique is not None:
                         dg.edge(endunique, funcname+":end", arrowhead="odot")
-
+                 
                 product_funcname_dict[productname] = (funcname, process_name, process_description, info_dict["_source"] if "_source" in info_dict else None) 
 
             elif funclabel == "cutdna":
@@ -798,7 +835,8 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                         pass
                     
                     if funclabel in ["searchsequence", "searchfeature"] and query_flag == 1:
-                        subg.node(queryname + "_search") 
+                        if queryname + "_search" in nodes:
+                            subg.node(queryname + "_search") 
             
             #if sdgflag == 1:                
             #    sdg_obj.parent.subgraph(sdg_obj.graph)

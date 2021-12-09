@@ -2414,7 +2414,7 @@ def _search(dna, source, query, attribute=None, strand=None):
     feat_set  = set([])  
     new_feat_list = []
     for feat in feat_list:
-        element = (feat.location.start, feat.location.end, feat.sequence) 
+        element = (feat.location.start, feat.location.end, feat.sequence, feat.feature_id) 
         if element in feat_set:
             pass 
         else:

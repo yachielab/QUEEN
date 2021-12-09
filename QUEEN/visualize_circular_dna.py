@@ -25,6 +25,7 @@ matplotlib.rcParams['ytick.major.size']  = 6
 
 #colorblind (facecolor_set)
 colorblind=["#0173B2", "#DE8F05", "#029E73", "#D55E00", "#CC78BC", "#CA9161", "#FBAFE4", "#949494", "#ECE133", "#56B4E9"]
+
 #pastel (edgecolor_set) 
 pastel=["#A1C9F4", "#FFB482", "#8DE5A1", "#FF9F9B", "#D0BBFF", "#DEBB9B", "#FAB0E4", "#CFCFCF", "#FFFEA3", "#B9F2F0"]
 for i in range(len(pastel)):    
@@ -235,11 +236,6 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                 else:
                     edgecolor = "#CCCCCC"
                 
-            #if "note_QUEEN" in feat.qualifiers:
-            #    note   = feat.qualifiers["note_QUEEN"]
-            #    if type(note) == list:
-            #        note   = feat.qualifiers["note_QUEEN"][0]
-            #    label = note
 
             if gs < ge: 
                 width  = ge-gs
@@ -249,15 +245,9 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                 middle = (ge+gs+2*np.pi)/2  
             
             if format == 1 or format == 0:
-                #if y < 4:
-                #    margin = np.pi*(0.004-y*0.0005) 
-                #else:
                 margin = np.pi*(0.006)
 
             else:
-                #if y < 3:
-                #    margin = np.pi*(0.004-y*0.001) 
-                #else:
                 margin = np.pi*(0.005)
             
             if abs(ge-gs) < head_length * 1.2:
@@ -356,8 +346,6 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                                 shifted_pos_list.append(new_pos) 
                             new_pos_list = shifted_pos_list
 
-                #for char, (theta, height, y, pos, x, width) in zip(label,new_pos_list):
-                #    ax.text(theta, height, char, ha="center", va="center", rotation=rotation(theta), zorder=10) 
                 new_origins = [pos * length / (2*np.pi) for pos in [p[0] for p in new_pos_list]] 
                 new_gs = gs * length / (2*np.pi)  
                 new_ge = ge * length / (2*np.pi) 
@@ -490,15 +478,15 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                     if strand == 1:
                         ax.arrow(x=ge-width, y=y*lane_h+bottom_h, dx=width, dy=0, width=outer, head_width=outer, head_length=width, length_includes_head=True, fc=edgecolor, lw=0.0)
                         if width > 2.4 * mg:
-                            hw = outer * 1.2 * (width-2.4*mg)/width
+                            hw = outer * 1.0 * (width-2.4*mg)/width
                             if hw > outer:
                                 hw = outer * (width-2.4*mg)/width
                             ax.arrow(x=ge-width+mg, y=y*lane_h+bottom_h, dx=width-2.4*mg, dy=0, width=hw, head_width=hw, head_length=width-2.4*mg, length_includes_head=True, fc=facecolor, lw=0.0)
                     
                     elif strand == -1:
                         ax.arrow(x=gs+width, y=y*lane_h+bottom_h, dx=-1*width, dy=0, width=outer, head_width=outer, head_length=width, length_includes_head=True, fc=edgecolor, lw=0.0)
-                        if width > 2.4 * margin:
-                            hw = outer * 1.2 * (width-2.4*mg)/width
+                        if width > 2.4 * mg:
+                            hw = outer * 1.0 * (width-2.4*mg)/width
                             if hw > outer:
                                 hw = outer * (width-2.4*mg)/width
                             ax.arrow(x=gs+width-mg, y=y*lane_h+bottom_h, dx=-1*(width-2.4*mg), dy=0, width=hw, head_width=hw, head_length=width-2.4*mg, length_includes_head=True, fc=facecolor, lw=0.0)
@@ -521,20 +509,20 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
                         ax.arrow(x=gs+hl, y=y*lane_h+bottom_h, dx=-1*(hl-mg*1.4), dy=0, width=inner, head_width=inner, head_length=hl-mg*1.4, length_includes_head=True, fc=facecolor, lw=0.0, zorder=4)
                     else:
                         ax.bar([gs], [outer], bottom=y*lane_h+bottom_h-outer/2, width=width, align="edge", fc=edgecolor, lw=0.0)
-                        ax.bar([gs+margin], [inner], bottom=y*lane_h+bottom_h-inner/2, width=width-2*margin, align="edge", fc=facecolor, lw=0.0)
+                        ax.bar([gs+mg], [inner], bottom=y*lane_h+bottom_h-inner/2, width=width-2*mg, align="edge", fc=facecolor, lw=0.0)
                 else:
                     if strand == 1:
                         ax.arrow(x=ge-width, y=y*lane_h+bottom_h, dx=width, dy=0, width=outer, head_width=outer, head_length=width, length_includes_head=True, fc=edgecolor, lw=0.0)
                         if width > 2.4 * mg:
-                            hw = outer * 1.2 * (width-2.4*mg)/width
+                            hw = outer * 1.0 * (width-2.4*mg)/width
                             if hw > outer:
                                 hw = outer * (width-2.4*mg)/width
                             ax.arrow(x=ge-width+mg, y=y*lane_h+bottom_h, dx=width-2.4*mg, dy=0, width=hw, head_width=hw, head_length=width-2.4*mg, length_includes_head=True, fc=facecolor, lw=0.0)
                     
                     elif strand == -1:
                         ax.arrow(x=gs+width, y=y*lane_h+bottom_h, dx=-1*width, dy=0, width=outer, head_width=outer, head_length=width, length_includes_head=True, fc=edgecolor, lw=0.0)
-                        if width > 2.4 * margin:
-                            hw = outer * 1.2 * (width-2.4*mg)/width
+                        if width > 2.4 * mg:
+                            hw = outer * 1.0 * (width-2.4*mg)/width
                             if hw > outer:
                                 hw = outer * (width-2.4*mg)/width
                             ax.arrow(x=gs+width-mg, y=y*lane_h+bottom_h, dx=-1*(width-2.4*mg), dy=0, width=hw, head_width=hw, head_length=width-2.4*mg, length_includes_head=True, fc=facecolor, lw=0.0)
@@ -617,7 +605,6 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
             else:
                 flag = 0 
                 sign = 1
-                #print(new_pos_list[0][2])
                 if format == 1:
                     i = 0 
                 else:
@@ -776,8 +763,6 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
 
     y_set = list(set(y_list)) 
     y_set.sort() 
-    #for y in y_set:
-    #    ax.bar([gs], [16], bottom=y*lane_h+bottom_h-8, width=2*np.pi, align="edge", fc="#F3F3F3", ec=edgecolor, lw=0.0, zorder=0)
     
     if format == 0:
         ylim = max(y_list)*lane_h + bottom_h + 2.5 * lane_h

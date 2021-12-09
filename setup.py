@@ -19,11 +19,11 @@ PYTHON_REQUIRES = ">=3.7"
 INSTALL_REQUIRES = [
     'numpy>=1.2',
     'biopython>=1.78',
-    'matplotlib>=3.4',
-    'requests>=2.23'
+    'matplotlib>=3.2',
+    'requests~=2.23.0'
     'regex>=2.5',
     'graphviz==0.17', 
-    'beautifulsoup4>=4.9'
+    'beautifulsoup4>=4.4'
 ]
 
 

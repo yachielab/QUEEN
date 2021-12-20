@@ -2422,17 +2422,17 @@ def _search(dna, source, query, attribute=None, strand=None):
             feat_set.add(element)
     return new_feat_list
 
-def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=None, strand=2, target_attribute=None, operation=None, new_copy=True, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, __direct=1): 
+def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=None, strand=2, target_attribute=None, operation=None, quine=None, new_copy=True, project=None, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, __direct=1): 
     project = project if product is None else product
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
+    if quine is None:
+        if target_attribute == "sequence":
+            quine = True
+        else:
+            quine = False
 
-    #if process_description is None:
-    #    process_description = dna.__class__.process_description
-    #else:
-    #    dna.__class__.process_description = process_description
-
-    if new_copy == False:
+    if new_copy == False or quine == False:
         pass 
     else:
         original_id = dna._product_id
@@ -2547,7 +2547,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
         else:
             dna._unique_id = project
                             
-        if __direct == 1 and new_copy == True:
+        if __direct == 1 and new_copy == True and quine == True:
             project             = "" #if project is None else ", project='" + project + "'"
             fproduct            = "" if product is None else ", product='" + product + "'"
             process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
@@ -2582,20 +2582,19 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
                 else:    
                     dna.__class__._namespace[product] = dna
 
-        elif new_copy == False:
+        elif new_copy == False or quine == False:
             project             = "" if project is None else ", project='" + project + "'"
             fproduct            = "" if product is None else ", product='" + product + "'"
             process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
             process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
-
             args = [key_attribute, fquery, source, start, end, strand, target_attribute, command, new_copy]
             for i in range(len(args)):
                 if type(args[i]) is str and i != 7 and i != 1:
                     args[i] = "'" + args[i] + "'" 
             building_history = "editfeature(QUEEN.dna_dict['{}'], key_attribute={}, query={}, source={}, start={}, end={}, strand={}, target_attribute={}, operation={}, new_copy={}{}{}{}{})".format(dna._unique_id, *args, project, fproduct, process_name, process_description)
-            process_id, original_ids = make_processid(dna, building_history, process_id, original_ids)
+            #process_id, original_ids = make_processid(dna, building_history, process_id, original_ids)
             #add_history(dna, [building_history, "key_attribute:{}; query:{}; start:{}; end:{}; strand:{}; target_attribute:{}; operation:{}".format(key_attribute, fquery, start, end, strand, target_attribute, command), process_id])
-
+    
     else:
         raise ValueError("'operation' can take only one of 'createattribute,' 'removeattribute,' and 'replaceattribute.'")
 

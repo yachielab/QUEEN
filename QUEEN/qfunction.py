@@ -942,8 +942,9 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
                 construct._left_end_bottom = new_q._left_end_bottom
                 construct._topology  = "linear"
                 construct._positions = new_q._positions 
+                construct._ssdna = False
                 ovhg = new_q._right_end
-                positions_list.append(construct._positions) 
+                positions_list.append(construct._positions)
             else:
                 construct._seq = construct.seq + new_dna.seq 
                 construct._right_end        = dna._right_end
@@ -1040,8 +1041,7 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
         construct.record = new_record     
         
         if topology == "circular":
-            construct = _circularizedna(construct)    
-            
+            construct = _circularizedna(construct)
             #Adjust zero positions
             if __direct == 1: 
                 zero_positions = [] 

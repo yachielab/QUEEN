@@ -462,6 +462,7 @@ class QUEEN():
         self._right_end         = None 
         self._left_end          = None
         self._history_feature   = None
+        self._ssdna             = False 
         self._productids        = []
         self._processids        = []
         if seq is None and record is None:
@@ -528,6 +529,7 @@ class QUEEN():
                     project = project[0] if len(project) == 1 else ".".join(project[:-1])
                 else:
                     project = record.id 
+            
             #if "_" in project:
             #    project = project.replace("_","-")
             self._unique_id         = project
@@ -611,6 +613,13 @@ class QUEEN():
                             sticky = True
                         else:
                             raise TypeError("An innvalid nucleotide sequence pattern was found.")
+                        
+                        nucl_set_top    = list(set(list(top)))
+                        nucl_set_bottom = list(set(list(bottom)))
+                        if (len(nucl_set_top) == 1 and nucl_set_top[0] == "-") or (len(nucl_set_bottom) == 1 and nucl_set_bottom[0] == "-"):
+                            self._ssdna = True
+                        else:
+                            pass 
                     else: 
                         sticky = False
                 

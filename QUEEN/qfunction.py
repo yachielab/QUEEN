@@ -891,22 +891,36 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
     positions_list = [construct._positions] 
     if len(dnas) > 1:
         for dna in dnas[1:]:
-            feats   = dna.dnafeatures
+            anneal = False
+            feats  = dna.dnafeatures
             if (dna._left_end_top * construct._right_end_bottom == 1 or dna._left_end_bottom * construct._right_end_top == 1) and ((dna._left_end_top == -1 or dna._left_end_bottom == -1) or (construct._right_end_top == -1 or construct._right_end_bottom == -1)):
-                if dna._left_end_top == 1:
-                    sticky_end = dna._left_end 
+                if dna._ssdna == False:
+                    if dna._left_end_top == 1:
+                        sticky_end = dna._left_end 
+                    else:
+                        sticky_end = construct._right_end
+                    ovhg    = dna._left_end
+                    new_dna = cropdna(dna,len(ovhg),len(dna.seq),__direct=0) 
+                    if (dna._left_end == construct._right_end):
+                        pass
+                        #print("The DNA objects were joined based on complementary sticky end of each fragment. The sticky end is '{}'".format(sticky_end)) 
+                    else:
+                        raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility.")
+                        return False
                 else:
-                    sticky_end = construct._right_end
-                
-                ovhg    = dna._left_end
-                new_dna = cropdna(dna,len(ovhg),len(dna.seq),__direct=0) 
-                if (dna._left_end == construct._right_end):
-                    pass
-                    #print("The DNA objects were joined based on complementary sticky end of each fragment. The sticky end is '{}'".format(sticky_end)) 
-                else:
-                    raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility.")
-                    return False
-
+                    anneal=True
+                    ovelap_queen_dict = {} 
+                    ovhg = dna._left_end 
+                    for i in range(1, len(construct._right_end)):
+                        if construct._right_end[-1*i:] == ovhg[:i]:
+                            top = construct._right_end + (len(ovhg)-i) * "-"
+                            bottom = (len(construct._right_end)-i) * "-" + ovhg.translate(str.maketrans("ATGC","TACG"))
+                            ovelap_queen_dict[i] = construct.__class__(seq=top.upper() + "/" + bottom.upper(), _direct=0)
+                        else:
+                            pass 
+                    items = list(ovelap_queen_dict.items())
+                    items.sort() 
+                    new_q = items[-1][1] 
             else:
                 if (construct._right_end == "" and ((dna._left_end == "") or (dna._left_end == dna.seq))) or (construct._right_end_top == 1 and construct._right_end_bottom == 1 and dna._left_end_top == 1 and dna._left_end_bottom == 1):
                     new_dna = dna
@@ -918,10 +932,29 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
             feats  = _slide(feats, len(construct.seq) - len(ovhg))
             feats1 = [feat for feat in construct.dnafeatures if "broken_feature" in feat.qualifiers]
             feats2 = [feat for feat in feats if "broken_feature" in feat.qualifiers]
-            construct._seq  = construct.seq + new_dna.seq 
-            positions_list.append(new_dna._positions) 
+            if anneal == True:
+                construct._seq = new_q._seq
+                construct._right_end = new_q._right_end
+                construct._right_end_top = new_q._right_end_top
+                construct._right_end_bottom = new_q._right_end_bottom
+                construct._left_end = new_q._left_end
+                construct._left_end_top = new_q._left_end_top
+                construct._left_end_bottom = new_q._left_end_bottom
+                construct._topology  = "linear"
+                construct._positions = new_q._positions 
+                ovhg = new_q._right_end
+                positions_list.append(construct._positions) 
+            else:
+                construct._seq = construct.seq + new_dna.seq 
+                construct._dnafeatures = construct.dnafeatures + feats
+                construct._right_end        = dna._right_end
+                construct._right_end_top    = dna._right_end_top
+                construct._right_end_bottom = dna._right_end_bottom
+                construct._topology = "linear"
+                ovhg = dna._right_end
+                positions_list.append(new_dna._positions) 
+
             const_features = copy.copy(construct.dnafeatures) 
-            
             #Restore a original feature from fragmented features
             if len(feats1) > 0 and len(feats2) > 0:
                 for feat1 in feats1:
@@ -986,13 +1019,7 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
                                         if feat2 in feats:
                                             del feats[feats.index(feat2)] 
             
-            construct._dnafeatures = construct.dnafeatures + feats
-            construct._right_end        = dna._right_end
-            construct._right_end_top    = dna._right_end_top
-            construct._right_end_bottom = dna._right_end_bottom
-            construct._topology = "linear"
-            ovhg = dna._right_end
-
+            
         construct._dnafeatures.sort(key=lambda x:x.location.parts[0].start.position)
         for feat in construct.dnafeatures:
             if "broken_feature" in feat.qualifiers:

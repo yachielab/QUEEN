@@ -946,7 +946,6 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
                 positions_list.append(construct._positions) 
             else:
                 construct._seq = construct.seq + new_dna.seq 
-                construct._dnafeatures = construct.dnafeatures + feats
                 construct._right_end        = dna._right_end
                 construct._right_end_top    = dna._right_end_top
                 construct._right_end_bottom = dna._right_end_bottom
@@ -1019,7 +1018,8 @@ def joindna(*dnas, topology="linear", project=None, product=None, process_name=N
                                         if feat2 in feats:
                                             del feats[feats.index(feat2)] 
             
-            
+            construct._dnafeatures = construct.dnafeatures + feats
+
         construct._dnafeatures.sort(key=lambda x:x.location.parts[0].start.position)
         for feat in construct.dnafeatures:
             if "broken_feature" in feat.qualifiers:

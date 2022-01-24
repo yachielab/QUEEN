@@ -612,7 +612,7 @@ class QUEEN():
                         if top !=False and pattern2.search(top) is None and pattern2.search(bottom) is None:
                             sticky = True
                         else:
-                            raise TypeError("An innvalid nucleotide sequence pattern was found.")
+                            raise TypeError("An invalid nucleotide sequence pattern was found.")
                         
                         nucl_set_top    = list(set(list(top)))
                         nucl_set_bottom = list(set(list(bottom)))
@@ -699,7 +699,7 @@ class QUEEN():
                     self._right_end_bottom  = 1
 
             else:
-                raise TypeError("An innvalid nucleotide sequence pattern was found.")
+                raise TypeError("An invalid nucleotide sequence pattern was found.")
        
         self._setfeatureid()
         self._features_dict = dict(list(map(lambda x:(x._id, x), self.dnafeatures)))

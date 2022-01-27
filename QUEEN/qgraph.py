@@ -901,12 +901,13 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
 
     if process_classification == False:
         subdg = dg.subgraph() 
-        subdg.graph.attr(rankdir='LR')
-        subdg.graph.attr(rank='same')
-        if len(inputs) > 1:
-            for i in range(len(inputs)):
-                subdg.graph.node(inputs[i])
-            subdg.parent.subgraph(subdg.graph) 
+        with subdg as c:
+            c.attr(rankdir='LR')
+            c.attr(rank='same')
+            if len(inputs) > 1:
+                for i in range(len(inputs)):
+                    c.node(inputs[i])
+                #subdg.parent.subgraph(subdg.graph) 
     return dg
 
 def add_key(adict, parent=None, child=None):

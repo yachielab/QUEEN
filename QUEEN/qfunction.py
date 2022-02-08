@@ -422,7 +422,7 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_name
                                 if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
                                     del feat.qualifiers["translation"]
 
-                                label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), feat.original, s, e))
+                                label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), original_seq, s, e))
                                 if strand >= 0: 
                                     feat.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, 1, end-s)]
                                 else:
@@ -479,7 +479,7 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_name
                                 if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
                                     del feat.qualifiers["translation"]
 
-                                label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), feat.original, s, e))
+                                label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), original_seq, s, e))
                                 if strand >= 0:
                                     feat.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, abs(s-start)+1, e-s)]
                                 else:
@@ -514,7 +514,7 @@ def cutdna(dna, *positions, crop=False, project=None, product=None, process_name
                                 if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
                                     del feat.qualifiers["translation"]
 
-                                label = "[{}]".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), feat.original, s, e))
+                                label = "[{}]".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), original_seq, s, e))
                                 feat.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, 1, end-s)]
                             else:
                                 s      = int(locations[0][0])

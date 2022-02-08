@@ -101,7 +101,7 @@ def deletehistory(dna):
         if feat.type == "source":
             old_keys = [] 
             for key in feat.qualifiers:
-                if "building_history" in key:
+                if "building_history" in key or "broken_feature" in key:
                     flag = 1
                     old_keys.append(key)   
             for key in old_keys:

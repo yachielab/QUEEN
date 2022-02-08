@@ -95,15 +95,20 @@ def archivehistory(dna):
                 del feat.qualifiers[key] 
 
 def deletehistory(dna):
+    #new_features = [] 
     for feat in dna.dnafeatures:
+        flag = 0 
         if feat.type == "source":
             old_keys = [] 
             for key in feat.qualifiers:
                 if "building_history" in key:
+                    flag = 1
                     old_keys.append(key)   
             for key in old_keys:
                 del feat.qualifiers[key] 
-
+        #if flag == 1:
+        #    new_features.append(feat) 
+    
 def make_processid(dna, chars, process_id=None, original_ids=None):
     new_chars = chars
     for key in re.finditer("QUEEN.dna_dict\['([^\[\]]+)'\]", chars):

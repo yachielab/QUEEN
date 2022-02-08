@@ -584,7 +584,7 @@ class QUEEN():
                      
                 else:
                     #QUEEN.process_description = process_description
-                    archivehistory(self)    
+                    deletehistory(self)    
                 
                 QUEEN._num_history = max(history_nums)   
                 if history_feature is not None:

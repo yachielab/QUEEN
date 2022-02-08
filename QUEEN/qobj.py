@@ -744,6 +744,7 @@ class QUEEN():
                             else:
                                 self._history_feature.qualifiers[key][1] += "; _source: " + self.project + " construction"
                         else:
+                            #The last construction process of input file.
                             if self._history_feature.qualifiers[key][1] == "":
                                 self._history_feature.qualifiers[key][1] = "_source: " + self.project + " construction" + "; _load: " + self.project
                             else:
@@ -849,7 +850,7 @@ class QUEEN():
                         new_feat._digestion_bottoml     = bottoml
                         new_feat._digestion_bottomr     = bottomr
                         new_feat.qualifiers["cutsite"] = [Qseq(cutsite)]
-                    new_feat.qualifiers["note_searchseqeunce"] = ["query:{}".format(qorigin)]
+                    #new_feat.qualifiers["note_searchseqeunce"] = ["query:{}".format(qorigin)]
                     if type(qorigin) == Qseq and qorigin.parental_class == "Cutsite":
                         new_feat.qualifiers["label"] = [qorigin.parent.name]
                     feat_list.append(new_feat)  

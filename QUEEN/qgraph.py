@@ -90,9 +90,14 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
     
     split_input = si if split_input is None else split_input
     split_input = True if split_input is None else split_input
+    
+    if split_input is None:
+        if len(dnas) > 2:
+            split_input = False
+        else:
+            split_input = True
 
     pd_visible = process_description
-
     if alias_dict is None:
         alias_dict = {}
 

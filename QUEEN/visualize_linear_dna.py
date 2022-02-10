@@ -15,8 +15,8 @@ matplotlib.rcParams['ps.fonttype']  = 42
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['font.sans-serif']   = ["Arial","Lucida Sans","DejaVu Sans","Lucida Grande","Verdana"]
 matplotlib.rcParams['font.family']       = 'sans-serif'
-matplotlib.rcParams['font.sans-serif']   = ["Arial","DejaVu Sans","Lucida Grande","Verdana"]
 matplotlib.rcParams['font.size']         = 12.0
+matplotlib.rcParams['font.weight']       = 500
 matplotlib.rcParams["axes.labelcolor"]   = "#000000"
 matplotlib.rcParams["axes.linewidth"]    = 1.0
 matplotlib.rcParams["xtick.major.width"] = 1.0
@@ -25,12 +25,15 @@ matplotlib.rcParams['xtick.major.pad']   = 4
 matplotlib.rcParams['ytick.major.pad']   = 4
 matplotlib.rcParams['xtick.major.size']  = 4
 matplotlib.rcParams['ytick.major.size']  = 4
+
 color_dict = {"G":"#f2f059", "C":"#74b2d7", "A":"#79E5B7", "T":"#ff776c", "N":"#FFFFFF", "-":"#FFFFFF"}
 
 #colorblind (facecolor_set)
 colorblind=["#0173B2", "#DE8F05", "#029E73", "#D55E00", "#CC78BC", "#CA9161", "#FBAFE4", "#949494", "#ECE133", "#56B4E9"]
+
 #pastel (edgecolor_set) 
 pastel=["#A1C9F4", "#FFB482", "#8DE5A1", "#FF9F9B", "#D0BBFF", "#DEBB9B", "#FAB0E4", "#CFCFCF", "#FFFEA3", "#B9F2F0"]
+
 for i in range(len(pastel)):    
     fc = pastel[i]
     fc = matplotlib.colors.to_rgba(fc) 
@@ -253,7 +256,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
             pass
 
         if fw is None:
-            fw="bold" if lc=="w" else "normal"
+            fw="bold" if lc=="w" else None
         else:
             pass 
 

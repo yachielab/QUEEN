@@ -14,6 +14,7 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['font.sans-serif']   = ["Arial","Lucida Sans","DejaVu Sans","Lucida Grande","Verdana"]
 matplotlib.rcParams['font.family']       = 'sans-serif'
 matplotlib.rcParams['font.size']         = 8.0
+matplotlib.rcParams['font.weight']       = 500
 matplotlib.rcParams["axes.labelcolor"]   = "#000000"
 matplotlib.rcParams["axes.linewidth"]    = 1.0
 matplotlib.rcParams["xtick.major.width"] = 1.0
@@ -28,6 +29,7 @@ colorblind=["#0173B2", "#DE8F05", "#029E73", "#D55E00", "#CC78BC", "#CA9161", "#
 
 #pastel (edgecolor_set) 
 pastel=["#A1C9F4", "#FFB482", "#8DE5A1", "#FF9F9B", "#D0BBFF", "#DEBB9B", "#FAB0E4", "#CFCFCF", "#FFFEA3", "#B9F2F0"]
+
 for i in range(len(pastel)):    
     fc = pastel[i]
     fc = matplotlib.colors.to_rgba(fc) 
@@ -800,9 +802,9 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, unvisible_t
 
     if ylim < normal_w:
         ylim = normal_w
-        ax.set_ylim(0,normal_w)
+        ax.set_ylim(0, normal_w)
     else:
-        ax.set_ylim(0,ylim)
+        ax.set_ylim(0, ylim)
    
     ax.patch.set_alpha(0.0) 
     ax2.patch.set_alpha(0.0)

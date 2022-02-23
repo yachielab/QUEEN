@@ -26,7 +26,6 @@ INSTALL_REQUIRES = [
     'beautifulsoup4>=4.4'
 ]
 
-
 PACKAGES = [
     'QUEEN'
 ]

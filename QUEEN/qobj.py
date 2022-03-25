@@ -227,7 +227,7 @@ class QUEEN():
             url  = soup.find(id="{}-full".format(_id.split(":")[1])).find(class_="genbank-file-download").get("href")
 
         elif dbtype == "benchling": 
-            url = _id + ".gb?dl&nocol"
+            url = _id + ".gb"
         
         elif dbtype == "googledrive":
             match = re.search("https://drive\.google\.com/file/d/(.+)/view\?usp=sharing", url)

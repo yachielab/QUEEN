@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 from  Bio import SeqIO
 from matplotlib.transforms import Bbox
 
-#sys.path.append("/".join(__file__.split("/")[:-1]))
-#from queen import * 
 matplotlib.rcParams["figure.max_open_warning"] = 0
 matplotlib.rcParams['ps.fonttype']  = 42
 matplotlib.rcParams['pdf.fonttype'] = 42
@@ -45,14 +43,6 @@ feature_color_dict = collections.defaultdict(list)
 feature_color_dict["misc_feature"]  = list(zip(pastel, colorblind))
 feature_color_dict["CDS"]           = list(zip(pastel, colorblind))
 misc_colors                         = list(zip(pastel, colorblind))
-#feature_color_dict["CDS"]          = [('#ff9d9a', '#e15759'), ('#f1ce63', '#b6992d'), ('#86bcb6', '#499894'), ('#fabfd2', '#D37295'), ("#A0CBE8", "#4E79A7")]
-#feature_color_dict["CDS"]          = [('#ff9f9a', '#c44e52'), ('#92c6ff', '#4c72b0'), ('#97f0aa', '#55a868'), ('#d0bbff', '#8172b2'), ('#fffea3', '#ccb974')]
-#feature_color_dict["primer_bind"]  = [('#a6cee3', '#1f78b4'), ('#b2df8a', '#33a02c'), ('#fb9a99', '#e31a1c'), ('#fdbf6f', '#ff7f00'), ('#cab2d6', '#6a3d9a')] 
-#feature_color_dict["primer"]       = [('#a6cee3', '#1f78b4'), ('#b2df8a', '#33a02c'), ('#fb9a99', '#e31a1c'), ('#fdbf6f', '#ff7f00'), ('#cab2d6', '#6a3d9a')] 
-#feature_color_dict["promoter"]     = [('#b0e0e6', '#64b5cd'), ('#92c6ff', '#4c72b0'), ('#97f0aa', '#55a868')]  
-#feature_color_dict["rep_origin"]   = [('#fff2ae', '#ffd92f')]
-#feature_color_dict["misc_feature"] = [('#fbb4ae', '#e41a1c'), ('#b3cde3', '#377eb8'), ('#ccebc5', '#4daf4a'), ('#decbe4', '#984ea3'), ('#fed9a6', '#ff7f00')]  
-#misc_colors = [('#ffffcc', '#d9d927'), ('#e5d8bd', '#a65628'), ('#fddaec', '#f781bf'), ('#f2f2f2', '#999999'), ('#fbb4ae', '#e41a1c')]
 
 def hex_to_rgb(value):
     value = value.lstrip('#')
@@ -469,47 +459,11 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
         
         sub_brick  = brick[sub_start:sub_end]
         matplotlib.rcParams['font.size'] = fontsize if fontsize >=12 else 12
-        """
-        if scale == "fix":
-            std = 500
-            head_length = 24
-        else:
-            if scale == "auto":
-                scale = width
-            else:
-                pass 
-            if scale < 101:
-                std = 25
-                head_length = 1.5
-            elif scale < 251:
-                std = 50 
-                head_length = 3
-            elif scale < 501:
-                std = 100
-                head_length = 6
-            elif scale < 1001:
-                std = 200 
-                head_length = 12
-            elif scale < 2001:
-                std = 500
-                head_length = 24
-            elif scale < 4001:
-                std = 1000
-                head_length = 48
-            elif scale < 5001:
-                std = 1200
-                head_length = 56
-            elif scale < 6001:
-                std = 1600
-                head_length = 64
-            else:
-                std = 2000
-                head_length = 72
-        """
+        
         if scale == "fix":
             std = 1000
             head_length = 48
-        #0.003 inch per nucleotide 
+        
         if enlarge_w == "auto":
             if with_seq == True:
                 enlarge_w = 40
@@ -598,5 +552,4 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
                 ax.set_xticks([])
         
         axes_list.append((ax, ax_seq)) 
-    #fig.set_size_inches(3, 0.35*(abs(ytop-ybottom)))
     return fig, axes_list  

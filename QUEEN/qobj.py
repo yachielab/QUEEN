@@ -53,7 +53,7 @@ class DNAfeature(SeqFeature):
                 return self._original 
             else:
                 return self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
-        
+         
         elif name == "seq" or name == "sequence":
             seq           = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
             seq           = Qseq(seq)
@@ -94,7 +94,6 @@ class DNAfeature(SeqFeature):
     def __setattr__(self, key, value):
         if key in ["feature_id", "feature_type", "seq", "sequenece", "original", "strand", "start", "end", "span"]:
             raise AttributeError("'DNAfeature' object attribute '{}' is read-only".format(key))
-            #raise ValueError("Cannot assign to '{}' attribute. To set or change feature attribute value, plase use 'editfeature' function.".format(key))
         else:
             super.__setattr__(self, key, value)
 
@@ -121,8 +120,8 @@ class DNAfeature(SeqFeature):
         
         self._qkey      = None #ID for features_dict
         self._second_id = None #ID for a single feature 
-        self._start = Qint(self._start)
-        self._end   = Qint(self._end)
+        self._start     = Qint(self._start)
+        self._end       = Qint(self._end)
         self._start.parent = self
         self._end.parent   = self
         self._start.name   = "start"
@@ -378,7 +377,10 @@ class QUEEN():
             super.__setattr__(self, key, value) 
     
     def __getattribute__(self, name):
-        if name == "_seq":
+        if name == "features_dict":
+            return dict(list(map(lambda x:(x._id, x), self.dnafeatures)))
+
+        elif name == "_seq":
             qseq = Qseq(super().__getattribute__(name))
             if "_product_id" in self.__dict__:
                 qseq.parental_id = self._product_id 
@@ -444,7 +446,11 @@ class QUEEN():
             raise AttributeError("QUEEN obejct has no attribute '{}'".format(name))
     
 
-    def __init__(self, seq=None, record=None, dbtype="local", project=None, topology="linear", fileformat=None, import_history=True, product=None, process_name=None, process_description=None, pd=None, pn=None, process_id=None, original_ids=[], _sourcefile=None, _direct=1):
+    def __init__(self, seq=None, record=None, dbtype="local", project=None, topology="linear", ssdna=False, fileformat=None, import_history=True, setfeature=False, product=None, process_name=None, process_description=None, 
+        pd=None, pn=None, process_id=None, original_ids=[], _sourcefile=None, quine=True, _direct=1):
+        if ssdna == True and topology == "circular":
+            raise TypeError("The parameters of 'topology=circulr' and 'ssdna=True' cannot be specified simultaneously.")
+
         fseq      = seq 
         frecord   = record
         fdbtype   = dbtype  
@@ -462,7 +468,7 @@ class QUEEN():
         self._right_end         = None 
         self._left_end          = None
         self._history_feature   = None
-        self._ssdna             = False 
+        self._ssdna             = ssdna
         self._productids        = []
         self._processids        = []
         if seq is None and record is None:
@@ -516,27 +522,28 @@ class QUEEN():
             else:
                 self._topology = topology
             
-            if self._topology == "linear":
-                self._right_end = self.seq[0:10] 
-                self._left_end  = self.seq[-10:]
-            else:
+            if ssdna == False:
                 self._right_end = ""
                 self._left_end  = ""
-            
+                self._left_end_top      = 1
+                self._left_end_bottom   = 1
+                self._right_end_top     = 1 
+                self._right_end_bottom  = 1
+            else:
+                self._right_end = self._seq
+                self._left_end  = self._seq
+                self._left_end_top      =  1
+                self._left_end_bottom   = -1
+                self._right_end_top     =  1 
+                self._right_end_bottom  = -1
+
             if project is None:
                 if record.id == "" or record.id == ".":
                     project = frecord.split("/")[-1].split(".")
                     project = project[0] if len(project) == 1 else ".".join(project[:-1])
                 else:
                     project = record.id 
-            
-            #if "_" in project:
-            #    project = project.replace("_","-")
             self._unique_id         = project
-            self._left_end_top      = 1
-            self._left_end_bottom   = 1
-            self._right_end_top     = 1 
-            self._right_end_bottom  = 1
             
             #import features
             self._dnafeatures = [] 
@@ -600,6 +607,7 @@ class QUEEN():
             if project is None:
                 project = "dna"
 
+            seq = seq.upper()
             sticky   = False
             pattern1 = "[ATGCRYKMSWBDHVNatgcrykmsbdhvn*-]+/?[ATGCRYKMSWBDHVNatgcrykmsbdhvn*-]*"
             pattern2 = "[ATGCRYKMSWBDHVNatgcrykmsbdhvn]+-+[ATGCRYKMSWBDHVNatgcrykmbdhvn]+"
@@ -616,13 +624,26 @@ class QUEEN():
                         
                         nucl_set_top    = list(set(list(top)))
                         nucl_set_bottom = list(set(list(bottom)))
-                        if (len(nucl_set_top) == 1 and nucl_set_top[0] == "-") or (len(nucl_set_bottom) == 1 and nucl_set_bottom[0] == "-"):
+                        if (len(nucl_set_top) == 1 and nucl_set_top[0] == "-"): 
                             self._ssdna = True
+                            seq = bottom[::-1] 
+                            top = bottom[::-1] 
+                            bottom = "-" * len(bottom)  
+                        
+                        elif (len(nucl_set_bottom) == 1 and nucl_set_bottom[0] == "-"):
+                            self._ssdna = True 
                         else:
                             pass 
                     else: 
                         sticky = False
-                
+                else:
+                    if ssdna == True:
+                        top    = seq 
+                        bottom = "-" * len(seq) 
+                        sticky = True 
+                    else:
+                        pass 
+
                 self._seq       = str(seq).upper()
                 if "_" in project:
                     project = project.replace("_","-")
@@ -700,25 +721,31 @@ class QUEEN():
 
             else:
                 raise TypeError("An invalid nucleotide sequence pattern was found.")
-       
-        self._setfeatureid()
-        self._features_dict = dict(list(map(lambda x:(x._id, x), self.dnafeatures)))
+        self._setfeatureids()
         
-        if _direct == 1:
+        if type(setfeature) in (tuple, list) and type(setfeature[0]) == dict:
+            for feature_dict in setfeature: 
+                self.setfeature(feature_dict) 
+        elif type(setfeature) == dict:
+            self.setfeature(setfeature)
+        
+        if _direct == 1 and quine == True:
             self._product_id = self._unique_id if product is None else product
             if import_history == False:                
                 fseq         = "" if fseq is None else "seq='{}'".format(fseq)
                 frecord      = "" if frecord is None else "record='{}'".format(frecord) if fseq == "" else ", record='{}'".format(frecord)
                 fdbtype      = "" if fdbtype == "local" else ", dbtype='{}'".format(fdbtype)
                 fproject     = "" if fproject is None else ", project='{}'".format(fproject)
+                fssdna       = "" if ssdna == False else ", ssdna='{}'".format(ssdna)
                 ftopology    = "" if topology == "linear" else ", topology='{}'".format(topology)
                 fproduct     = "" if fproduct is None else ", product='{}'".format(fproduct)
                 fileformat   = "" if fileformat is None else ", fileformat='{}'".format(fileformat) 
+                fsetfeature  = "" if setfeature == False else ", setfeature={}".format(str(setfeature)) 
                 process_name = "" if process_name is None else ", process_name='" + process_name + "'"
                 process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
                 
-                args = [fseq, frecord, fdbtype, fproject, ftopology, fileformat, fproduct, process_name, process_description]
-                building_history = "QUEEN.dna_dict['{}'] = QUEEN({}{}{}{}{}{}{}{}{})".format(self._product_id, *args)  
+                args = [fseq, frecord, fdbtype, fproject, fssdna, ftopology, fileformat, fsetfeature, fproduct, process_name, process_description]
+                building_history = "QUEEN.dna_dict['{}'] = QUEEN({}{}{}{}{}{}{}{}{}{})".format(self._product_id, *args)  
                 process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
                 QUEEN._num_history += 1 
                 
@@ -744,16 +771,15 @@ class QUEEN():
                             else:
                                 self._history_feature.qualifiers[key][1] += "; _source: " + self.project + " construction"
                         else:
-                            #The last construction process of input file.
                             if self._history_feature.qualifiers[key][1] == "":
                                 self._history_feature.qualifiers[key][1] = "_source: " + self.project + " construction" + "; _load: " + self.project
                             else:
                                 self._history_feature.qualifiers[key][1] += "; _source: " + self.project + " construction" + "; _load: " + self.project
         
-        if QUEEN._keep == 1 and _direct == 1: 
+        if QUEEN._keep == 1 and _direct == 1 and quine == True: 
             QUEEN._products[self._product_id] = self
         
-        if _direct == 1 and import_history == True:
+        if _direct == 1 and quine == True and import_history == True:
             self._load_history = 0
         else:
             self._load_history = -1 
@@ -766,7 +792,7 @@ class QUEEN():
         else:
             QUEEN._namespace[product] = self
 
-    def searchsequence(self, query, start=0, end=None, strand=2, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, _direct=1):
+    def searchsequence(self, query, start=0, end=None, strand=2, unique=False, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, quine=True, _direct=1):
         process_name        = pn if process_name is None else process_name
         process_description = pd if process_description is None else process_description
         
@@ -784,6 +810,7 @@ class QUEEN():
                 subject = self.seq
         else:
             subject = self.printsequence(start, end, strand=1)
+            
 
         feat_list = [] 
         if query is None:
@@ -850,13 +877,13 @@ class QUEEN():
                         new_feat._digestion_bottoml     = bottoml
                         new_feat._digestion_bottomr     = bottomr
                         new_feat.qualifiers["cutsite"] = [Qseq(cutsite)]
-                    #new_feat.qualifiers["note_searchseqeunce"] = ["query:{}".format(qorigin)]
+                    
                     if type(qorigin) == Qseq and qorigin.parental_class == "Cutsite":
                         new_feat.qualifiers["label"] = [qorigin.parent.name]
                     feat_list.append(new_feat)  
+                
                 else:
                     pass 
-                    #print(match) 
                     
         qkey = self._unique_id + "_f" + str(QUEEN._qnum)
         for i, feature in enumerate(feat_list):
@@ -881,7 +908,7 @@ class QUEEN():
         QUEEN.queried_features_dict[qkey]      = feat_list
         QUEEN.queried_features_name_dict[qkey] = product
         
-        if _direct == 1:
+        if _direct == 1 and quine == True:
             if type(qorigin) == Qseq:
                 if qorigin.parental_class == "DNAfeature":
                     history_features.append(qorigin.parent.subject._history_feature)
@@ -947,22 +974,23 @@ class QUEEN():
             if len(history_features) > 1:
                 history_feature = _combine_history(self, history_features) 
                 self._history_feature = history_feature
-
+            
+            funique  = "" if unique == False else ", unique=True"
             fproduct = "" if product is None else ", product='{}'".format(product)
             process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
             process_description = "" if process_description is None else ", process_description='{}'".format(process_description)
             
             if start == 0 and end == len(self.seq):
                 if strand == 2:
-                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}{}{}{})".format(qkey, self._product_id, qorigin, fproduct, process_name, process_description)
+                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}{}{}{}{})".format(qkey, self._product_id, qorigin, funique, fproduct, process_name, process_description)
                     process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
                     add_history(self, [building_history, "query: {}".format(qorigin), ",".join([process_id] + original_ids)], _sourcefile=_sourcefile)
                 else:
-                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}, strand={}{}{}{})".format(qkey, self._product_id, qorigin, strand, fproduct, process_name, process_description)
+                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}, strand={}{}{}{}{})".format(qkey, self._product_id, qorigin, strand, funique, fproduct, process_name, process_description)
                     process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
                     add_history(self, [building_history, "query: {}; strand: {}".format(qorigin, strand), ",".join([process_id] + original_ids)], _sourcefile=_sourcefile)
             else:
-                building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}, start={}, end={}, strand={}{}{}{})".format(qkey, self._product_id, qorigin, start, end, strand, fproduct, process_name, process_description)   
+                building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}, start={}, end={}, strand={}{}{}{}{})".format(qkey, self._product_id, qorigin, start, end, strand, funique, fproduct, process_name, process_description)   
                 process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
                 add_history(self, [building_history, "query: {}; start: {}; end: {}; strand: {}".format(qorigin, start, end, strand), ",".join([process_id] + original_ids)], _sourcefile=_sourcefile)
             QUEEN._qnum += 1 
@@ -971,10 +999,14 @@ class QUEEN():
             pass 
         else:
             QUEEN._namespace[product] = feat_list
-  
+        
+        if unique == True and len(feat_list) > 1:
+            raise ValueError("Mutiple sequence regions were detected. If `unique` is True, the search results should be unique.") 
+
         return feat_list
 
-    def searchfeature(self, key_attribute="all", query=".+", source=None, start=0, end=None, strand=2, product=None, process_name=None,  process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, _direct=1):
+    def searchfeature(self, key_attribute="all", query=".+", source=None, start=0, end=None, strand=2, product=None, process_name=None, process_description=None, 
+                      pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, quine=True, _direct=1):
         process_name        = pn if process_name is None else process_name
         process_description = pd if process_description is None else process_description
         
@@ -1144,7 +1176,7 @@ class QUEEN():
                     start = len(self.seq) - abs(start) 
                 if end < 0: 
                     end = len(self.seq) - abs(end) 
-                subdna = cropdna(self,start,end,__direct=0)
+                subdna = cropdna(self, start, end, __direct=0)
                              
             else:
                 raise TypeError("slice indices must be integers or None or have an __index__ method")
@@ -1188,6 +1220,11 @@ class QUEEN():
             return joindna(other, self, __direct==0) 
     
     def printsequence(self, start=None, end=None, strand=2, hide_middle=None, linebreak=None, display=False):
+        if self._ssdna == True: 
+            if display == True:
+                print("5' {} 3'".format(self.seq)) 
+            return self.seq
+
         whole = False
         if linebreak is None:
             width = len(self.seq) + 1
@@ -1197,6 +1234,14 @@ class QUEEN():
         if hide_middle is None or hide_middle > 0.5 * len(self.seq):
             hide_middle = int(0.5 * len(self.seq)) 
             whole = True
+        
+        tl = len(self._left_end)  if self._left_end_top  == -1 else 0
+        tr = len(self._right_end) if self._right_end_top == -1 else 0
+        truetop = "-" * tl + self.seq[tl:(-1*tr if tr != 0 else None)] + "-" * tr
+        
+        bl = len(self._left_end)  if self._left_end_bottom  == -1 else 0
+        br = len(self._right_end) if self._right_end_bottom == -1 else 0
+        truebottom = "-" * bl + self.rcseq[::-1][bl:(-1*br if br != 0 else None)] + "-" * br
 
         if start is None and end is None and strand == 2:
             rcseq  = self.seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
@@ -1232,7 +1277,6 @@ class QUEEN():
             
             top = left_end_top + self.seq[hide_middle:len(self.seq)-hide_middle] + right_end_top
             bottom = left_end_bottom + self.seq[hide_middle:len(self.seq)-hide_middle].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")) + right_end_bottom 
-
         else: 
             if type(start) is DNAfeature:
                 feature = start
@@ -1285,12 +1329,21 @@ class QUEEN():
                         out += "\n"
                     out = out.rstrip()
         
-        if strand == 1 or strand == 0:
-            return_seq = top 
-        elif strand == -1:
-            return_seq = bottom[::-1] 
-        elif strand == 2:
-            return_seq = top + "/" + bottom
+        if start is None and end is None: 
+            if strand == 1 or strand == 0:
+                return_seq = truetop
+            elif strand == -1:
+                return_seq = truebottom[::-1] 
+            elif strand == 2:
+                return_seq = truetop + "/" + truebottom
+        
+        else:
+            if strand == 1 or strand == 0:
+                return_seq = top
+            elif strand == -1:
+                return_seq = bottom[::-1]
+            elif strand == 2:
+                return_seq = top + "/" + bottom
         
         return_seq = Qseq(return_seq) 
         return_seq.__dict__ = self.seq.__dict__ 
@@ -1300,15 +1353,130 @@ class QUEEN():
             return_seq.name = "printsequence_{}_{}_{}".format(start, end, strand)
         return return_seq
 
-    def _setfeatureid(self):
+    def _setfeatureids(self):
+        keys = [feat._id for feat in self.dnafeatures if "_id" in feat.__dict__] 
+        keys = tuple(keys) 
+        
         for i in range(0, len(self.dnafeatures)):
-            if i == 0:
-                self._dnafeatures[i]._id = str(1)
+            if "_id" in self._dnafeatures[i].__dict__ and (self._dnafeatures[i]._id.isdecimal()==False and keys.count(self._dnafeatures[i]._id)>0):
+                pass 
             else:
                 self._dnafeatures[i]._id = str(i*100)
+
+    def _check_uniqueness(self):
+        keys_list = [feat._id for feat in self.dnafeatures if "_id" in feat.__dict__] 
+        keys_list = tuple(keys_list) 
+        keys_set  = set(keys_list) 
+        if len(keys_list) == len(keys_set):
+            pass 
+        else:
+            for i in range(0, len(self.dnafeatures)):
+                if "_id" in self._dnafeatures[i].__dict__ and keys_list.count(self._dnafeatures[i]._id)==1:
+                    pass 
+                else:
+                    j = 0
+                    while str(i*100 + j) in keys_set:
+                        j += 1
+                    self._dnafeatures[i]._id = str(i*100 + j)
     
     def getdnafeatures(self,feature_id):
-        return self._features_dict[str(feature_id)] 
+        return self.features_dict[str(feature_id)] 
+    
+    def setfeature(self, attribute_dict=None):
+        """Create a new feature in the QUEEN object.
+        
+        Parameters  
+        ----------
+        attribute_dict: dict 
+            Dictionaly with key-value pairs of the attributes of DNAfeature objects: "feature_id", "feature_type", "start", "end", "strand", and  "qualifiers:*"  
+            The following attributes have default value, so if they are not specified in the dictionary, the value would be set with the default values. 
+
+                - `feature_id`: `str`, (default: Random unique ID which is not used in `.dnafeatures` of the QUEEN object) 
+	        - `feature_type`: `str` (default: `"misc_feature"`) 
+	        - `start`: `int` (default: 0) 
+	        - `end`: `int` (default: length of the `QUEEN_object` sequence)
+	        - `strand`: `int` (-1, 0 or 1, default: 1) 
+
+        Returns 
+        -------
+        self.dnafeatures: list of DNAfeature object
+    
+        """
+        if attribute_dict is None:
+            attribute_dict = {}
+        elif type(attribute_dict) == dict:
+            attribute_dict = copy.copy(attribute_dict) 
+
+        attribute_dict.setdefault("feature_type", "misc_feature")
+        attribute_dict.setdefault("start", 0)  
+        attribute_dict.setdefault("end", len(self.seq))  
+        attribute_dict.setdefault("strand", 1)
+         
+        if type(attribute_dict["start"]) == int:
+            if attribute_dict["start"] > attribute_dict["end"] and self.topology == "circular":
+                locations = [[attribute_dict["start"], len(self.seq), attribute_dict["strand"]], [0, attribute_dict["end"], attribute_dict["strand"]]]
+                if attribute_dict["strand"] == -1:
+                    locations.reverse()
+                    new_feat = SeqFeature(CompoundLocation(list(map(lambda x:FeatureLocation(*x), locations))), type=attribute_dict["feature_type"]) 
+                else:
+                    new_feat = SeqFeature(CompoundLocation(list(map(lambda x:FeatureLocation(*x), locations))), type=attribute_dict["feature_type"])
+            else:
+                new_feat = SeqFeature(FeatureLocation(attribute_dict["start"], attribute_dict["end"], strand=attribute_dict["strand"]), type=attribute_dict["feature_type"])
+        
+        elif type(attribute_dict["start"]) in (tuple, list):
+            locations = [] 
+            for s, e in zip(attribute_dict["start"], attribute_dict["end"]):
+                if s > e:
+                    if self.topology == "circular":
+                        locations.append((s, len(self.seq), attribute_dict["strand"])) 
+                        locations.append((0, e, attribute_dict["strand"]))  
+                    else:
+                        raise ValueError("'end' position must be larger than 'start' position.") 
+                else:
+                    locations.append((s, e, attribute_dict["strand"])) 
+            
+            if attribute_dict["strand"] == -1:
+                locations.reverse()
+                new_feat = SeqFeature(CompoundLocation(list(map(lambda x:FeatureLocation(*x), locations))), type=attribute_dict["feature_type"]) 
+            else:
+                new_feat = SeqFeature(CompoundLocation(list(map(lambda x:FeatureLocation(*x), locations))), type=attribute_dict["feature_type"])
+        
+        for key in attribute_dict:
+            if key[:len("qualifier:")] == "qualifier:":
+                subkey = key[len("qualifier:"):]
+                if subkey not in new_feat.qualifiers:
+                    new_feat.qualifiers[subkey] = [attribute_dict[key]]
+                else:
+                    new_feat.qualifiers[subkey].append(attribute_dict[key])
+            else:
+                pass 
+
+        features_dict = self.features_dict 
+        new_feat = DNAfeature(feature=new_feat, subject=self) 
+        
+        if "feature_id" not in attribute_dict:
+            feature_ids = [feat.feature_id for feat in self.dnafeatures if feat.feature_id.isdecimal()] 
+            
+            if len(feature_ids) == 0:
+                new_id = str(1)  
+            
+            for _id in feature_ids:
+                start  = features_dict[_id].start
+                new_id = str(int(_id) + 1)
+                if attribute_dict["start"] > start:
+                    while new_id in features_dict: 
+                        new_id = str(int(_id) + 1)
+                    break
+        
+            new_feat._id = new_id
+        
+        else:
+            if attribute_dict["feature_id"] in set(features_dict.keys()):
+                raise ValueError("feature_id value should be uniqule in .dnafeatures.") 
+            else:
+                new_feat._id = attribute_dict["feature_id"]
+
+        self._dnafeatures.append(new_feat)
 
     def printfeature(self, feature_list=None, attribute=None, separation=None, detail=False, seq=False, output=None, x_based_index=0):
         #“feature ID,” “qualifier:label,” “feature type,” “start position,” “end position,” and “strand"] 

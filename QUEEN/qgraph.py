@@ -74,6 +74,42 @@ def make_newhistories(histories, search_function=True):
 
 
 def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=None, process_description=None, split_input=None, sf=None, ip=None, pd=None, si=None, alias_dict=None):
+    """Visualize the flow map of the constrction processes of a QUEEN object.
+    
+    Generate flow charts representing construction processes of `QUEEN_objects` with four different types of nodes: 
+    file shape, round, uncolored rectangle, and colored box nodes, representing input gbk files, `QUEEN_objects`, 
+    `DNAfeature_objects`, and quinable functions, respectively.
+    
+    Parameters
+    ----------
+    dnas: list of QUEEN.qobj.QUEEN object
+        `QUEEN_objects`
+
+    search_function (or sf): bool, default: True
+        If `True`, the generating flow charts will display all quinable processes involved to produce the `QUEEN_objects`. 
+        Otherwise, operations by the search functions will be omitted in the visualization.
+    
+    grouping: `bool`, default: True
+        If `True`, the operations that has a same `process_name` will be grouped by a parental box.
+    
+    inherited_process (or ip): bool, default: False 
+        If `True`, the construction process of previous `QUEEN_objects` inherited in the present `QUEEN_object` construction 
+        will also be displayed. 
+    
+    process_description (or pd): bool, default: False
+        If `True`, both `process_names` and `process_descriptiosn` will be displayed on the top left of the operational object 
+        box nodes. If `False`, only `process_names` will be displayed on the top center of the operational object box nodes. 
+        However, If `grouping` is `False`, none of them will be displayed.
+    
+    alias_dict: dict, default: None    
+        Alias name dictionary for `QUEEN_objects.project` names. This will display the alias names instead of `QUEEN_objects.project`.
+
+    Returns
+    -------
+    graphviz.dot.Digraph object 
+
+    """
+    
     inherited_process = ip if inherited_process is None else inherited_process
     inherited_process = False if inherited_process is None else inherited_process
     
@@ -94,8 +130,6 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
             split_input = None
         else:
             split_input = True
-    #split_input = True if split_input is None else split_input
-    
     
     pd_visible = process_description
     if alias_dict is None:
@@ -1029,7 +1063,6 @@ def generate_processflow(*dnas):
                     process_dict[process_id][subsource_dict[sourcename][0]] = (product_funcname_dict[sourcename][0], subsource_dict[sourcename][1])
             else:
                 add_key(process_tree, product_funcname_dict[sourcename][0], process_id)
-                process_dict[process_id].input.append(product_funcname_dict[sourcename]) 
         
         if product is None:
             process_dict[process_id]["product"] = productnames[0]

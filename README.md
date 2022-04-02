@@ -919,8 +919,6 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
       * **`removeattribute()`**: This removes `target_attribute` from the target `DNAfeature_objects` but only for `feature_id` or `"qualifiers:*"`. If `target_attribute` is `feature_id`, the entire `DNAfeature_objects`  will be erased from the `QUEEN_object`.
       * **`createattribute(value="str")`**: This creates or overwrites target_attributes of the target`DNAfeature_objects` with `"str"`. If `target_attribute` is `feature_id` and there is no existing  `DNAfeature_object` with the same `feature_id` of `"str"`, it will create the new `DNAfeature_object` in the `QUEEN_object.dnafeatures`. If the search by `DNAfeature_objects` determines multiple `DNAfeature_objects` to be created, each `feature_id` of the new `DNAfeature_objects` is generated as `"str-number"`, where `numbers` follow the order they were searched. If the same `feature_id` of `"str"` already exists in the operating `QUEEN_object.dnafeatures`, the `DNAfeature_object` will be generated with the `feature_id="str-number"`. If `target_attribute` is `"qualifiers:*"`, the qualifier whose value is `"str"` will be added into the `.qualifiers` of the target `DNAfeature_object` as long as it does not overlap with the existing `.qualifiers`.
       * **`replaceattribute(source_value=regex or str, destination_value=str or int)`**: This will search for substrings in values of the target_attributes of the target `DNAfeature_object` that match to the `source_value` and replace them with the `destination_value`. Similar to `editsequence()`, substrings of the `regex` value can be isolated by enclosing them in parentheses. Each pair of parentheses is indexed sequentially by numbers from left to right. Isolated substrings can be replaced at once by providing a `destination_sequence` where each substring replacement is designated, referring to the index numbers. For details, see [https://docs.python.org/3/library/re.html#re.sub](https://docs.python.org/3/library/re.html#re.sub)<span style="text-decoration:underline;">.</span> If the `target_attribute` is `sequence`, the sequences corresponding to the target `DNAfeature_object` can be modified like `editsequence()`. When the `source_value` is not provided, the entire data value will be replaced with the `destination value`. If the `target_attribute` is `feature_id`, the replacement will be operated only when no conflict with the existing `DNAfeature_object`. If `target_attribute` is `start`, `end`, or `strand`, no `source_value` is required, and the `destination_value` must be `int`.
-    * **quine**:`bool` (`True` or `False`; default: `True` if `target_attribute` is `"sequence"`. Otherwise, `False`)  
-      If `False`, the operation process will not be recorded into the building history.
     * **new_copy**:`bool` (default: `True`)
       If `True`, it will first generate a copy of the `QUEEN_object` and edit it. Otherwise, the original `QUEEN_object` will be edited directly (Note that this mode does not record the operation process into the building history).
 
@@ -1043,7 +1041,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
 ## Common parameters of the quinable functions
 DNA construction process achieved by `QUEEN()` for genearating QUEEN object, the search functions `searchsequence()` and `searchfeature()`, operational functions `cutdna()`, `cropdna()`, `modifyends()`, `flipdna()`, and `joindna()` and super functions `editsequence()` and `editfeature()` described up to here can progressively be recorded into the manipulating QUEEN object, which enables to generate a quine code that replicates the same QUEEN object by the `quine()` function described below. From here, we call these functions "quinable" functions.
 
-In addition to the parameters and options described above for the quinable functions, all of them can commonly take the three parameters, `process_name`, `process_description`, and `product`, that enable annotation and structured visualization of the construction process (see below). These optional parameters do not affect the behavior of the quinable functions.
+In addition to the parameters and options described above for the quinable functions, all of them can commonly take the five parameters.The  `process_name`, `process_description`, and `product`, that enable annotation and structured visualization of the construction process (see below). These optional parameters do not affect the behavior of the quinable functions.
 
 * **process_name (or pn)**:`str` (default: `""`)
 This option enables users to provide label names for process flow groups. An experimental flow composed of sequential operations by quinable functions can be grouped and labeled with a user-defined name by providing the same name to the quinable function operations belonging to the same target group. Such group labels can be, for example, `"PCR 1"`, `"EcoRI digestion"`, `"Gibson Assembly"`, etc. `visualizeflow()` described below takes into account the group information to generate experimental flow maps from `QUEEN_objects`.
@@ -1063,6 +1061,9 @@ The prameter can be acceptable by only `QUEEN()` and basic operational fuctions 
 	- `strand`: `int` (-1, 0 or 1, default: 1) 
 
 If `False`, any operation would not happen. 
+
+* **quinable**:`bool` (`True` or `False`; default: `True`) 
+If `False`, the operation process will not be recorded into the building history.
 
 ## Quine
 ##### **`quine (input=QUEEN_object, output=str, process_description=bool, execution=bool)`**  

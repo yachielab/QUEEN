@@ -1053,14 +1053,12 @@ Similar to `process_name`, this option enables users to provide narrative descri
 This option enables users to provide label names for producing `QUEEN_objects`. The provided labels are stored in `QUEEN_objects.project`.
 
 * **setfeature**: `False`, `dict`, `list` of `dict`
-The prameter can be acceptable by only `QUEEN()` and basic operational fuctions `cutdna()`, `cropdna()`, `modifyends()`, `flipdna()` and `joindna()`. This option can be acceptable by only `QUEEN()` and basic operational fuctions `cutdna()`, `cropdna()`, `modifyends()`, `flipdna()` and `joindna()`. A `dict` object is composed of key-value pairs of DNAfeature attributes. If the parameter is specfied, the DNAfeature objects generated based on the dictionary values would be added in the `.dnafeatures` of newly generated QUEEN objects. The following attributes have default values, so if they are not specified in a `dict` object, the values would be set with the default values. 	
+The prameter can be acceptable by only `QUEEN()` and basic operational fuctions `cutdna()`, `cropdna()`, `modifyends()`, `flipdna()` and `joindna()`. This option can be acceptable by only `QUEEN()` and basic operational fuctions `cutdna()`, `cropdna()`, `modifyends()`, `flipdna()` and `joindna()`. A `dict` object is composed of key-value pairs of DNAfeature attributes. If the parameter is specfied, the DNAfeature objects generated based on the dictionary values would be added in the `.dnafeatures` of newly generated QUEEN objects. The following attributes have default values, so if they are not specified in a `dict` object, the values would be set with the default values.  	
 	- `feature_id`: `str`, (default: Random unique ID which is not used in `.dnafeatures` of the QUEEN object) 
 	- `feature_type`: `str` (default: `"misc_feature"`) 
 	- `start`: `int` (default: 0) 
 	- `end`: `int` (default: length of the `QUEEN_object` sequence)
 	- `strand`: `int` (-1, 0 or 1, default: 1) 
-
-If `False`, any operation would not happen. 
 
 * **quinable**:`bool` (`True` or `False`; default: `True`) 
 If `False`, the operation process will not be recorded into the building history.

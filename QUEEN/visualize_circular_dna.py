@@ -740,8 +740,6 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
 
     y_set = list(set(y_list)) 
     y_set.sort() 
-    #for y in y_set:
-    #    ax.bar([gs], [16], bottom=y*lane_h+bottom_h-8, width=2*np.pi, align="edge", fc="#F3F3F3", ec=edgecolor, lw=0.0, zorder=0)
     
     if format == 0:
         ylim = max(y_list)*lane_h + bottom_h + 2.5 * lane_h
@@ -817,8 +815,9 @@ def visualize(brick, format=0, feature_list=None, bottom=None, fontsize=8, label
             if feat.type == "source":
                 pass
             else:
-                feature_list.append(feat) 
+                feature_list.append(feat)
     
+    feature_list.sort(key=lambda x:len(brick.printsequence(x.start, x.end)))
     ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, feature_list, len(brick.seq), format=format, bottom=bottom, enlarge=1.0, display_label=label_visible, fontsize=fontsize, display_axis=axis_visible, tick_space=tick_space, labelcolor=labelcolor)  
     if title_visible == True:
         renderer    = figure.canvas.get_renderer()

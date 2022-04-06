@@ -13,7 +13,7 @@ MAINTAINER_EMAIL = 'morityunåsfc.keio.ac.jp/hidto7592ågmail.com'
 URL = 'https://github.com/yachielab/QUEEN'
 LICENSE = 'GNU General Public License v3.0'
 DOWNLOAD_URL = 'https://github.com/yachielab/QUEEN'
-VERSION = '1.0.0'
+VERSION = '1.1.0'
 PYTHON_REQUIRES = ">=3.7"
 
 INSTALL_REQUIRES = [

@@ -3257,10 +3257,8 @@ def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,la
     if title is None or title == "":
         display_titlee = False
 
-    if feature_list is None:
-        feature_list = dna.dnafeatures
-        if map_view == "circular":
-            feature_list.sort(key=lambda x:len(dna.printsequence(x.start, x.end)))
+    #if map_view == "circular":
+    #feature_list.sort(key=lambda x:len(dna.printsequence(x.start, x.end)))
     
     standard_scale = 4000
     if map_view == "circular":
@@ -3268,6 +3266,8 @@ def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,la
                                  title_visible=display_title, axis_visible=display_axis, tick_space=tick_interval, labelcolor=labelcolor, titlename=title, fig=fig)
     
     else:
+        if feature_list is None:
+            feature_list = dna.dnafeatures
         fig, ax = vl.visualize(dna, start=start, end=end, feature_list=feature_list, wrap_width=linebreak, annotation_loc=label_location, unvisible_types=["source"], 
                                visible_types=[], enlarge_w=width_scale, enlarge_h=height_scale, fontsize=fontsize, with_seq=seq, nucl_char=None, nucl_color_dict=None, label_visible=display_label, 
                                scale="fix", title_visible=display_title, axis_visible=display_axis, tick_space=tick_interval, labelcolor=labelcolor, titlename=title, fig=fig)

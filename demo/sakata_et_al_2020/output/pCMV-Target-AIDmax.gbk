@@ -1,0 +1,516 @@
+LOCUS       pCMV_Target_AIDmax      8725 bp    DNA     circular UNK 05-APR-2022
+DEFINITION  .
+ACCESSION   pCMV_Target_AIDmax
+VERSION     pCMV_Target_AIDmax
+KEYWORDS    .
+SOURCE      .
+  ORGANISM  .
+            .
+FEATURES             Location/Qualifiers
+     source          1..4053
+                     /label="source"
+                     /ApEinfo_revcolor="#75c6a9"
+                     /ApEinfo_fwdcolor="#75c6a9"
+                     /broken_feature="pCMV_BE4max:1:8961:-:0..8961:1269..5321"
+     misc_feature    4079..4108
+                     /label="GS_2x GS linker"
+                     /ApEinfo_revcolor="#85dae9"
+                     /ApEinfo_fwdcolor="#85dae9"
+     misc_feature    4079..5266
+                     /label="GenScript J9270EH080-1"
+                     /ApEinfo_revcolor="#d59687"
+                     /ApEinfo_fwdcolor="#d59687"
+     source          4102..5242
+                     /label="source"
+                     /ApEinfo_revcolor="#b4abac"
+                     /ApEinfo_fwdcolor="#b4abac"
+                     /broken_feature="opt_CDA1_ugi:1:3874:-:0..3874:526..1666"
+     misc_feature    4109..4279
+                     /label="GS_Mutated SH3 domain"
+                     /ApEinfo_revcolor="#f8d3a9"
+                     /ApEinfo_fwdcolor="#f8d3a9"
+     misc_feature    4280..4357
+                     /label="SG_3x FLAG"
+                     /ApEinfo_revcolor="#faac61"
+                     /ApEinfo_fwdcolor="#faac61"
+     CDS             4358..4984
+                     /label="GS_PmCDA1"
+                     /ApEinfo_revcolor="#ff9ccd"
+                     /ApEinfo_fwdcolor="#ff9ccd"
+     CDS             4985..5005
+                     /label="SV40 NLS"
+                     /ApEinfo_revcolor="#c6c9d1"
+                     /ApEinfo_fwdcolor="#c6c9d1"
+     CDS             5012..5263
+                     /label="GS_UGI"
+                     /ApEinfo_revcolor="#faac61"
+                     /ApEinfo_fwdcolor="#faac61"
+     source          5288..8237
+                     /label="source"
+                     /ApEinfo_revcolor="#c7b0e3"
+                     /ApEinfo_fwdcolor="#c7b0e3"
+                     /broken_feature="pCMV_ABEmax:1:8811:-:0..8811:5862..8811"
+     primer_bind     complement(5292..5309)
+                     /label="BGH-rev"
+                     /ApEinfo_revcolor="#b4abac"
+                     /ApEinfo_fwdcolor="#b4abac"
+     polyA_signal    5298..5522
+                     /label="bGH poly(A) signal"
+                     /ApEinfo_revcolor="#b4abac"
+                     /ApEinfo_fwdcolor="#b4abac"
+     primer_bind     complement(5593..5609)
+                     /label="M13 Reverse"
+                     /ApEinfo_revcolor="#75c6a9"
+                     /ApEinfo_fwdcolor="#75c6a9"
+     primer_bind     complement(5606..5628)
+                     /label="M13/pUC Reverse"
+                     /ApEinfo_revcolor="#c6c9d1"
+                     /ApEinfo_fwdcolor="#c6c9d1"
+     protein_bind    5617..5633
+                     /label="lac operator"
+                     /ApEinfo_revcolor="#75c6a9"
+                     /ApEinfo_fwdcolor="#75c6a9"
+     promoter        complement(5641..5671)
+                     /label="lac promoter"
+                     /ApEinfo_revcolor="#9eafd2"
+                     /ApEinfo_fwdcolor="#9eafd2"
+     protein_bind    5686..5707
+                     /label="CAP binding site"
+                     /ApEinfo_revcolor="#d59687"
+                     /ApEinfo_fwdcolor="#d59687"
+     primer_bind     complement(5824..5841)
+                     /label="L4440"
+                     /ApEinfo_revcolor="#9eafd2"
+                     /ApEinfo_fwdcolor="#9eafd2"
+     rep_origin      complement(5995..6583)
+                     /label="ori"
+                     /ApEinfo_revcolor="#c7b0e3"
+                     /ApEinfo_fwdcolor="#c7b0e3"
+     primer_bind     complement(6075..6094)
+                     /label="pBR322ori-F"
+                     /ApEinfo_revcolor="#ffef86"
+                     /ApEinfo_fwdcolor="#ffef86"
+     CDS             complement(6754..7614)
+                     /label="AmpR"
+                     /ApEinfo_revcolor="#84b0dc"
+                     /ApEinfo_fwdcolor="#84b0dc"
+     primer_bind     7377..7396
+                     /label="Amp-R"
+                     /ApEinfo_revcolor="#75c6a9"
+                     /ApEinfo_fwdcolor="#75c6a9"
+     promoter        complement(7615..7719)
+                     /label="AmpR promoter"
+                     /ApEinfo_revcolor="#d6b295"
+                     /ApEinfo_fwdcolor="#d6b295"
+     primer_bind     complement(7798..7817)
+                     /label="pRS-marker"
+                     /ApEinfo_revcolor="#d6b295"
+                     /ApEinfo_fwdcolor="#d6b295"
+     enhancer        7989..8368
+                     /label="CMV enhancer"
+                     /ApEinfo_revcolor="#b4abac"
+                     /ApEinfo_fwdcolor="#b4abac"
+     source          8238..8674
+                     /label="source"
+                     /ApEinfo_revcolor="#c7b0e3"
+                     /ApEinfo_fwdcolor="#c7b0e3"
+                     /broken_feature="pCMV_ABEmax:1:8811:-:0..8811:1..437"
+     promoter        8369..8572
+                     /label="CMV promoter"
+                     /ApEinfo_revcolor="#b4abac"
+                     /ApEinfo_fwdcolor="#b4abac"
+     primer_bind     8523..8543
+                     /label="CMV-F"
+                     /ApEinfo_revcolor="#85dae9"
+                     /ApEinfo_fwdcolor="#85dae9"
+     promoter        8614..8632
+                     /label="T7 promoter"
+                     /ApEinfo_revcolor="#ffef86"
+                     /ApEinfo_fwdcolor="#ffef86"
+     CDS             join(8703..8725,1..4078)
+                     /label="Cas9(D10A)"
+                     /ApEinfo_revcolor="#f8d3a9"
+                     /ApEinfo_fwdcolor="#f8d3a9"
+     misc_feature    join(8681..8725,1..4078)
+                     /label="fragment-6"
+                     /edgecolor_queen="#D81B60"
+                     /facecolor_queen="#f8bbd0"
+     misc_feature    4057..5287
+                     /label="fragment-7"
+                     /edgecolor_queen="#5E35B1"
+                     /facecolor_queen="#d1c4e9"
+     misc_feature    5264..8702
+                     /label="fragment-8"
+                     /edgecolor_queen="#43A047"
+                     /facecolor_queen="#c8e6c9"
+     source          1..8725
+                     /building_history_2="QUEEN.dna_dict['pCMV_BE4max']–=–QUEEN(
+                     record='https://benchling.com/s/seq-TWeI3GfYr2zJr5z87Rjq',–
+                     dbtype='benchling',–product='pCMV_BE4max')"
+                     /building_history_2=""
+                     /building_history_2="pCMV_Target_AIDmax-6YVYMAWOWEDU1SNHXYT
+                     TZOAX"
+                     /building_history_5="QUEEN.dna_dict['SI1308']–=–QUEEN(seq='
+                     ACCAAAGAAGAAGCGGAAAGTCGACAAGAAGTACAGCATCGGCCT',–product='SI
+                     1308')"
+                     /building_history_5=""
+                     /building_history_5="pCMV_Target_AIDmax-24OSLPIY9XGP7A7Q156
+                     481YO"
+                     /building_history_7="QUEEN.queried_features_dict['pCMV_BE4m
+                     ax_f0']–=–QUEEN.dna_dict['pCMV_BE4max'].searchsequence(quer
+                     y=QUEEN.dna_dict['SI1308'].seq[-18:],–product='FW6',–proces
+                     s_name='PCR',–process_description='1.–A–nCas9-encoding–frag
+                     ment–was–amplified–from–pCMV-BE4max–using–the–primer–pair–S
+                     I1308/SI1305.')"
+                     /building_history_7="query:
+                     QUEEN.dna_dict['SI1308'].seq[-18:]"
+                     /building_history_7="pCMV_Target_AIDmax-TK4O07K1HB5Z6S3LTJH
+                     J1FIC"
+                     /building_history_6="QUEEN.dna_dict['SI1305']–=–QUEEN(seq='
+                     GTCACCTCCCAGCTGAGACAGGTCG',–product='SI1305')"
+                     /building_history_6=""
+                     /building_history_6="pCMV_Target_AIDmax-BNG799CQ3983A9N8ZJ6
+                     Y5N7L"
+                     /building_history_8="QUEEN.queried_features_dict['pCMV_BE4m
+                     ax_f1']–=–QUEEN.dna_dict['pCMV_BE4max'].searchsequence(quer
+                     y=QUEEN.dna_dict['SI1305'].seq[-18:],–product='RV6',–proces
+                     s_name='PCR',–process_description='1.–A–nCas9-encoding–frag
+                     ment–was–amplified–from–pCMV-BE4max–using–the–primer–pair–S
+                     I1308/SI1305.')"
+                     /building_history_8="query:
+                     QUEEN.dna_dict['SI1305'].seq[-18:]"
+                     /building_history_8="pCMV_Target_AIDmax-ENO965WSCB554O11TLU
+                     CJHRK"
+                     /building_history_9="QUEEN.dna_dict['extract6']–=–cropdna(Q
+                     UEEN.dna_dict['pCMV_BE4max'],–start=QUEEN.queried_features_
+                     dict['pCMV_BE4max_f0'][0].end,–end=QUEEN.queried_features_d
+                     ict['pCMV_BE4max_f1'][0].start,–product='extract6',–process
+                     _name='PCR',–process_description='1.–A–nCas9-encoding–fragm
+                     ent–was–amplified–from–pCMV-BE4max–using–the–primer–pair–SI
+                     1308/SI1305.')"
+                     /building_history_9="start: 1268; end: 5321"
+                     /building_history_9="pCMV_Target_AIDmax-8GDZ087WYVNVBWAM2XM
+                     3XMIF"
+                     /building_history_10="QUEEN.dna_dict['fragment6']–=–modifye
+                     nds(QUEEN.dna_dict['extract6'],–left=QUEEN.dna_dict['SI1308
+                     '].seq,–right=QUEEN.dna_dict['SI1305'].rcseq,–product='frag
+                     ment6',–process_name='PCR',–process_description='1.–A–nCas9
+                     -encoding–fragment–was–amplified–from–pCMV-BE4max–using–the
+                     –primer–pair–SI1308/SI1305.')"
+                     /building_history_10="left:
+                     ACCAAAGAAGAAGCGGAAAGTCGACAAGAAGTACAGCATCGGCCT; right:
+                     CGACCTGTCTCAGCTGGGAGGTGAC; leftobj:
+                     QUEEN.dna_dict['SI1308'].seq; rightobj:
+                     QUEEN.dna_dict['SI1305'].rcseq"
+                     /building_history_10="pCMV_Target_AIDmax-6FZ4PQNRTM5FBDGYRE
+                     CJNT9X"
+                     /building_history_23="QUEEN.dna_dict['fragment6_mod']–=–mod
+                     ifyends(QUEEN.dna_dict['fragment6'],–left='*{22}/-{22}',–ri
+                     ght='-{22}/*{22}',–product='fragment6_mod',–process_name='G
+                     ibson–Assembly',–process_description='4.–The–three–fragment
+                     s–were–assembled–by–Gibson–Assembly.')"
+                     /building_history_23="left: *{22}/-{22}; right:
+                     -{22}/*{22}; leftobj: '*{22}/-{22}'; rightobj:
+                     '-{22}/*{22}'"
+                     /building_history_23="pCMV_Target_AIDmax-J9M9R94CEPNOAQOZMR
+                     7TJY7K"
+                     /building_history_4="QUEEN.dna_dict['opt_CDA1_ugi']–=–QUEEN
+                     (record='https://benchling.com/s/seq-APwTvCrCHnd38ugWloNK',
+                     –dbtype='benchling',–product='opt_CDA1_ugi')"
+                     /building_history_4=""
+                     /building_history_4="pCMV_Target_AIDmax-6YJN07DOTJNIDR018CR
+                     0H7AB"
+                     /building_history_11="QUEEN.dna_dict['SI1304']–=–QUEEN(seq=
+                     'CCTGTCTCAGCTGGGAGGTGACGGCGGAGGAGGAACTGGAGGAGG',–product='S
+                     I1304')"
+                     /building_history_11=""
+                     /building_history_11="pCMV_Target_AIDmax-BWTSS2G2TN3B1854LZ
+                     9CRHCP"
+                     /building_history_13="QUEEN.queried_features_dict['opt_CDA1
+                     _ugi_f2']–=–QUEEN.dna_dict['opt_CDA1_ugi'].searchsequence(q
+                     uery=QUEEN.dna_dict['SI1304'].seq[-18:],–product='FW7',–pro
+                     cess_name='PCR',–process_description='2.–A–fragment–encodin
+                     g–the–human–codon-optimized–PmCDA1-UGI–was–amplified–from–t
+                     he–pUC-optimized-PmCDA1-ugi–plasmid–using–the–primer–pair–S
+                     I1304/SI1307.')"
+                     /building_history_13="query:
+                     QUEEN.dna_dict['SI1304'].seq[-18:]"
+                     /building_history_13="pCMV_Target_AIDmax-3CLXKMOCCFGN7PK3IC
+                     FUC9P2"
+                     /building_history_12="QUEEN.dna_dict['SI1307']–=–QUEEN(seq=
+                     'TCAGCGGGTTTAAACTCATTATCACAGCATTTTGATTTTGTTCTC',–product='S
+                     I1307')"
+                     /building_history_12=""
+                     /building_history_12="pCMV_Target_AIDmax-4JQQHMKR3P1S4H7IHG
+                     NX696H"
+                     /building_history_14="QUEEN.queried_features_dict['opt_CDA1
+                     _ugi_f3']–=–QUEEN.dna_dict['opt_CDA1_ugi'].searchsequence(q
+                     uery=QUEEN.dna_dict['SI1307'].seq[-18:],–product='RV7',–pro
+                     cess_name='PCR',–process_description='2.–A–fragment–encodin
+                     g–the–human–codon-optimized–PmCDA1-UGI–was–amplified–from–t
+                     he–pUC-optimized-PmCDA1-ugi–plasmid–using–the–primer–pair–S
+                     I1304/SI1307.')"
+                     /building_history_14="query:
+                     QUEEN.dna_dict['SI1307'].seq[-18:]"
+                     /building_history_14="pCMV_Target_AIDmax-2QLXLDDW2I2B9DE97I
+                     JIGRRE"
+                     /building_history_15="QUEEN.dna_dict['extract7']–=–cropdna(
+                     QUEEN.dna_dict['opt_CDA1_ugi'],–start=QUEEN.queried_feature
+                     s_dict['opt_CDA1_ugi_f2'][0].end,–end=QUEEN.queried_feature
+                     s_dict['opt_CDA1_ugi_f3'][0].start,–product='extract7',–pro
+                     cess_name='PCR',–process_description='2.–A–fragment–encodin
+                     g–the–human–codon-optimized–PmCDA1-UGI–was–amplified–from–t
+                     he–pUC-optimized-PmCDA1-ugi–plasmid–using–the–primer–pair–S
+                     I1304/SI1307.')"
+                     /building_history_15="start: 525; end: 1666"
+                     /building_history_15="pCMV_Target_AIDmax-3YH8OXPSR3689B0L0J
+                     7PMULW"
+                     /building_history_16="QUEEN.dna_dict['fragment7']–=–modifye
+                     nds(QUEEN.dna_dict['extract7'],–left=QUEEN.dna_dict['SI1304
+                     '].seq,–right=QUEEN.dna_dict['SI1307'].rcseq,–product='frag
+                     ment7',–process_name='PCR',–process_description='2.–A–fragm
+                     ent–encoding–the–human–codon-optimized–PmCDA1-UGI–was–ampli
+                     fied–from–the–pUC-optimized-PmCDA1-ugi–plasmid–using–the–pr
+                     imer–pair–SI1304/SI1307.')"
+                     /building_history_16="left:
+                     CCTGTCTCAGCTGGGAGGTGACGGCGGAGGAGGAACTGGAGGAGG; right:
+                     GAGAACAAAATCAAAATGCTGTGATAATGAGTTTAAACCCGCTGA; leftobj:
+                     QUEEN.dna_dict['SI1304'].seq; rightobj:
+                     QUEEN.dna_dict['SI1307'].rcseq"
+                     /building_history_16="pCMV_Target_AIDmax-2L2C1JKBPQM7CCAVD4
+                     UBKHIA"
+                     /building_history_24="QUEEN.dna_dict['fragment7_mod']–=–mod
+                     ifyends(QUEEN.dna_dict['fragment7'],–left='*{22}/-{22}',–ri
+                     ght='-{24}/*{24}',–product='fragment7_mod',–process_name='G
+                     ibson–Assembly',–process_description='4.–The–three–fragment
+                     s–were–assembled–by–Gibson–Assembly.')"
+                     /building_history_24="left: *{22}/-{22}; right:
+                     -{24}/*{24}; leftobj: '*{22}/-{22}'; rightobj:
+                     '-{24}/*{24}'"
+                     /building_history_24="pCMV_Target_AIDmax-C2V8AVRPS191BV6SSS
+                     2I0PJT"
+                     /building_history_3="QUEEN.dna_dict['pCMV_ABEmax']–=–QUEEN(
+                     record='https://benchling.com/s/seq-OCkN5m6U6st0I9ToyOn1',–
+                     dbtype='benchling',–product='pCMV_ABEmax')"
+                     /building_history_3=""
+                     /building_history_3="pCMV_Target_AIDmax-AIZUSOYZL0RT63IR4B6
+                     WXUZP"
+                     /building_history_17="QUEEN.dna_dict['SI1310']–=–QUEEN(seq=
+                     'TGATAATGAGTTTAAACCCGCTGA',–product='SI1310')"
+                     /building_history_17=""
+                     /building_history_17="pCMV_Target_AIDmax-ESC04QA1WT9H5OSE0O
+                     I7030Q"
+                     /building_history_19="QUEEN.queried_features_dict['pCMV_ABE
+                     max_f4']–=–QUEEN.dna_dict['pCMV_ABEmax'].searchsequence(que
+                     ry=QUEEN.dna_dict['SI1310'].seq[-18:],–product='FW8',–proce
+                     ss_name='PCR',–process_description='3.–A–backbone–fragment–
+                     was–amplified–from–pCMV-ABEmax–using–the–primer–pair–SI1310
+                     /SI1309.')"
+                     /building_history_19="query:
+                     QUEEN.dna_dict['SI1310'].seq[-18:]"
+                     /building_history_19="pCMV_Target_AIDmax-ETMTLQTFRNWJEOULL3
+                     W9DBI3"
+                     /building_history_18="QUEEN.dna_dict['SI1309']–=–QUEEN(seq=
+                     'GACTTTCCGCTTCTTCTTTGGTGACTCG',–product='SI1309')"
+                     /building_history_18=""
+                     /building_history_18="pCMV_Target_AIDmax-755VCHGTW064BOU1F9
+                     8DSE9Y"
+                     /building_history_20="QUEEN.queried_features_dict['pCMV_ABE
+                     max_f5']–=–QUEEN.dna_dict['pCMV_ABEmax'].searchsequence(que
+                     ry=QUEEN.dna_dict['SI1309'].seq[-18:],–product='RV8',–proce
+                     ss_name='PCR',–process_description='3.–A–backbone–fragment–
+                     was–amplified–from–pCMV-ABEmax–using–the–primer–pair–SI1310
+                     /SI1309.')"
+                     /building_history_20="query:
+                     QUEEN.dna_dict['SI1309'].seq[-18:]"
+                     /building_history_20="pCMV_Target_AIDmax-9V44Q5AJWS2OD710PR
+                     G09SVW"
+                     /building_history_21="QUEEN.dna_dict['extract8']–=–cropdna(
+                     QUEEN.dna_dict['pCMV_ABEmax'],–start=QUEEN.queried_features
+                     _dict['pCMV_ABEmax_f4'][0].end,–end=QUEEN.queried_features_
+                     dict['pCMV_ABEmax_f5'][0].start,–product='extract8',–proces
+                     s_name='PCR',–process_description='3.–A–backbone–fragment–w
+                     as–amplified–from–pCMV-ABEmax–using–the–primer–pair–SI1310/
+                     SI1309.')"
+                     /building_history_21="start: 5861; end: 437"
+                     /building_history_21="pCMV_Target_AIDmax-3412LL0427UUB9GREJ
+                     PEP8EU"
+                     /building_history_22="QUEEN.dna_dict['fragment8']–=–modifye
+                     nds(QUEEN.dna_dict['extract8'],–left=QUEEN.dna_dict['SI1310
+                     '].seq,–right=QUEEN.dna_dict['SI1309'].rcseq,–product='frag
+                     ment8',–process_name='PCR',–process_description='3.–A–backb
+                     one–fragment–was–amplified–from–pCMV-ABEmax–using–the–prime
+                     r–pair–SI1310/SI1309.')"
+                     /building_history_22="left: TGATAATGAGTTTAAACCCGCTGA;
+                     right: CGAGTCACCAAAGAAGAAGCGGAAAGTC; leftobj:
+                     QUEEN.dna_dict['SI1310'].seq; rightobj:
+                     QUEEN.dna_dict['SI1309'].rcseq"
+                     /building_history_22="pCMV_Target_AIDmax-81PT4IKD04VF49F0QA
+                     1EXS57"
+                     /building_history_25="QUEEN.dna_dict['fragment8_mod']–=–mod
+                     ifyends(QUEEN.dna_dict['fragment8'],–left='*{24}/-{24}',–ri
+                     ght='-{22}/*{22}',–product='fragment8_mod',–process_name='G
+                     ibson–Assembly',–process_description='4.–The–three–fragment
+                     s–were–assembled–by–Gibson–Assembly.')"
+                     /building_history_25="left: *{24}/-{24}; right:
+                     -{22}/*{22}; leftobj: '*{24}/-{24}'; rightobj:
+                     '-{22}/*{22}'"
+                     /building_history_25="pCMV_Target_AIDmax-21JIOBP0DD7U2ZW8VL
+                     1WUR1X"
+                     /building_history_26="QUEEN.dna_dict['pCMV_Target_AIDmax']–
+                     =–joindna(*[QUEEN.dna_dict['fragment6_mod'],–QUEEN.dna_dict
+                     ['fragment7_mod'],–QUEEN.dna_dict['fragment8_mod']],–topolo
+                     gy='circular',–product='pCMV_Target_AIDmax',–process_name='
+                     Gibson–Assembly',–process_description='4.–The–three–fragmen
+                     ts–were–assembled–by–Gibson–Assembly.')"
+                     /building_history_26="topology: circular"
+                     /building_history_26="pCMV_Target_AIDmax-4KG0XZPHXS1K7C48FN
+                     W578CK"
+ORIGIN
+        1 ggccatcggc accaactctg tgggctgggc cgtgatcacc gacgagtaca aggtgcccag
+       61 caagaaattc aaggtgctgg gcaacaccga ccggcacagc atcaagaaga acctgatcgg
+      121 agccctgctg ttcgacagcg gcgaaacagc cgaggccacc cggctgaaga gaaccgccag
+      181 aagaagatac accagacgga agaaccggat ctgctatctg caagagatct tcagcaacga
+      241 gatggccaag gtggacgaca gcttcttcca cagactggaa gagtccttcc tggtggaaga
+      301 ggataagaag cacgagcggc accccatctt cggcaacatc gtggacgagg tggcctacca
+      361 cgagaagtac cccaccatct accacctgag aaagaaactg gtggacagca ccgacaaggc
+      421 cgacctgcgg ctgatctatc tggccctggc ccacatgatc aagttccggg gccacttcct
+      481 gatcgagggc gacctgaacc ccgacaacag cgacgtggac aagctgttca tccagctggt
+      541 gcagacctac aaccagctgt tcgaggaaaa ccccatcaac gccagcggcg tggacgccaa
+      601 ggccatcctg tctgccagac tgagcaagag cagacggctg gaaaatctga tcgcccagct
+      661 gcccggcgag aagaagaatg gcctgttcgg aaacctgatt gccctgagcc tgggcctgac
+      721 ccccaacttc aagagcaact tcgacctggc cgaggatgcc aaactgcagc tgagcaagga
+      781 cacctacgac gacgacctgg acaacctgct ggcccagatc ggcgaccagt acgccgacct
+      841 gtttctggcc gccaagaacc tgtccgacgc catcctgctg agcgacatcc tgagagtgaa
+      901 caccgagatc accaaggccc ccctgagcgc ctctatgatc aagagatacg acgagcacca
+      961 ccaggacctg accctgctga aagctctcgt gcggcagcag ctgcctgaga agtacaaaga
+     1021 gattttcttc gaccagagca agaacggcta cgccggctac attgacggcg gagccagcca
+     1081 ggaagagttc tacaagttca tcaagcccat cctggaaaag atggacggca ccgaggaact
+     1141 gctcgtgaag ctgaacagag aggacctgct gcggaagcag cggaccttcg acaacggcag
+     1201 catcccccac cagatccacc tgggagagct gcacgccatt ctgcggcggc aggaagattt
+     1261 ttacccattc ctgaaggaca accgggaaaa gatcgagaag atcctgacct tccgcatccc
+     1321 ctactacgtg ggccctctgg ccaggggaaa cagcagattc gcctggatga ccagaaagag
+     1381 cgaggaaacc atcaccccct ggaacttcga ggaagtggtg gacaagggcg cttccgccca
+     1441 gagcttcatc gagcggatga ccaacttcga taagaacctg cccaacgaga aggtgctgcc
+     1501 caagcacagc ctgctgtacg agtacttcac cgtgtataac gagctgacca aagtgaaata
+     1561 cgtgaccgag ggaatgagaa agcccgcctt cctgagcggc gagcagaaaa aggccatcgt
+     1621 ggacctgctg ttcaagacca accggaaagt gaccgtgaag cagctgaaag aggactactt
+     1681 caagaaaatc gagtgcttcg actccgtgga aatctccggc gtggaagatc ggttcaacgc
+     1741 ctccctgggc acataccacg atctgctgaa aattatcaag gacaaggact tcctggacaa
+     1801 tgaggaaaac gaggacattc tggaagatat cgtgctgacc ctgacactgt ttgaggacag
+     1861 agagatgatc gaggaacggc tgaaaaccta tgcccacctg ttcgacgaca aagtgatgaa
+     1921 gcagctgaag cggcggagat acaccggctg gggcaggctg agccggaagc tgatcaacgg
+     1981 catccgggac aagcagtccg gcaagacaat cctggatttc ctgaagtccg acggcttcgc
+     2041 caacagaaac ttcatgcagc tgatccacga cgacagcctg acctttaaag aggacatcca
+     2101 gaaagcccag gtgtccggcc agggcgatag cctgcacgag cacattgcca atctggccgg
+     2161 cagccccgcc attaagaagg gcatcctgca gacagtgaag gtggtggacg agctcgtgaa
+     2221 agtgatgggc cggcacaagc ccgagaacat cgtgatcgaa atggccagag agaaccagac
+     2281 cacccagaag ggacagaaga acagccgcga gagaatgaag cggatcgaag agggcatcaa
+     2341 agagctgggc agccagatcc tgaaagaaca ccccgtggaa aacacccagc tgcagaacga
+     2401 gaagctgtac ctgtactacc tgcagaatgg gcgggatatg tacgtggacc aggaactgga
+     2461 catcaaccgg ctgtccgact acgatgtgga ccatatcgtg cctcagagct ttctgaagga
+     2521 cgactccatc gacaacaagg tgctgaccag aagcgacaag aaccggggca agagcgacaa
+     2581 cgtgccctcc gaagaggtcg tgaagaagat gaagaactac tggcggcagc tgctgaacgc
+     2641 caagctgatt acccagagaa agttcgacaa tctgaccaag gccgagagag gcggcctgag
+     2701 cgaactggat aaggccggct tcatcaagag acagctggtg gaaacccggc agatcacaaa
+     2761 gcacgtggca cagatcctgg actcccggat gaacactaag tacgacgaga atgacaagct
+     2821 gatccgggaa gtgaaagtga tcaccctgaa gtccaagctg gtgtccgatt tccggaagga
+     2881 tttccagttt tacaaagtgc gcgagatcaa caactaccac cacgcccacg acgcctacct
+     2941 gaacgccgtc gtgggaaccg ccctgatcaa aaagtaccct aagctggaaa gcgagttcgt
+     3001 gtacggcgac tacaaggtgt acgacgtgcg gaagatgatc gccaagagcg agcaggaaat
+     3061 cggcaaggct accgccaagt acttcttcta cagcaacatc atgaactttt tcaagaccga
+     3121 gattaccctg gccaacggcg agatccggaa gcggcctctg atcgagacaa acggcgaaac
+     3181 cggggagatc gtgtgggata agggccggga ttttgccacc gtgcggaaag tgctgagcat
+     3241 gccccaagtg aatatcgtga aaaagaccga ggtgcagaca ggcggcttca gcaaagagtc
+     3301 tatcctgccc aagaggaaca gcgataagct gatcgccaga aagaaggact gggaccctaa
+     3361 gaagtacggc ggcttcgaca gccccaccgt ggcctattct gtgctggtgg tggccaaagt
+     3421 ggaaaagggc aagtccaaga aactgaagag tgtgaaagag ctgctgggga tcaccatcat
+     3481 ggaaagaagc agcttcgaga agaatcccat cgactttctg gaagccaagg gctacaaaga
+     3541 agtgaaaaag gacctgatca tcaagctgcc taagtactcc ctgttcgagc tggaaaacgg
+     3601 ccggaagaga atgctggcct ctgccggcga actgcagaag ggaaacgaac tggccctgcc
+     3661 ctccaaatat gtgaacttcc tgtacctggc cagccactat gagaagctga agggctcccc
+     3721 cgaggataat gagcagaaac agctgtttgt ggaacagcac aagcactacc tggacgagat
+     3781 catcgagcag atcagcgagt tctccaagag agtgatcctg gccgacgcta atctggacaa
+     3841 agtgctgtcc gcctacaaca agcaccggga taagcccatc agagagcagg ccgagaatat
+     3901 catccacctg tttaccctga ccaatctggg agcccctgcc gccttcaagt actttgacac
+     3961 caccatcgac cggaagaggt acaccagcac caaagaggtg ctggacgcca ccctgatcca
+     4021 ccagagcatc accggcctgt acgagacacg gatcgacctg tctcagctgg gaggtgacgg
+     4081 cggaggagga actggaggag gaggatcagc agaatatgtg agagcactgt ttgactttaa
+     4141 tgggaatgac gaagaagacc tgcccttcaa gaagggcgac atcctgcgga tcagagataa
+     4201 gcctgaggag cagtggtgga acgccgagga ctctgagggc aagagaggca tgatcctggt
+     4261 gccctacgtg gagaagtaca gcggcgatta taaggaccac gatggcgact acaaggacca
+     4321 cgacatcgac tacaaggatg acgatgacaa gtctggcatg acagatgccg agtatgtgag
+     4381 aatccacgag aagctggaca tctacacctt caagaagcag tttttcaaca ataagaagag
+     4441 cgtgtcccac agatgctacg tgctgtttga gctgaagaga aggggcgagc ggagagcctg
+     4501 tttttggggc tacgccgtga acaagcccca gtctggcaca gagcggggca tccacgccga
+     4561 gatcttctcc atccggaagg tggaggagta cctgcgggac aacccaggcc agttcaccat
+     4621 caactggtac agctcctggt ccccatgtgc cgactgtgcc gagaagatcc tggagtggta
+     4681 caaccaggag ctgcggggca acggccacac cctgaagatc tgggcctgca agctgtacta
+     4741 tgagaagaat gccagaaacc agatcggcct gtggaacctg agagacaatg gcgtgggcct
+     4801 gaacgtgatg gtgtctgagc actaccagtg ctgtaggaag atcttcatcc agtcttccca
+     4861 caaccagctg aatgagaaca gatggctgga gaagacactg aagcgggccg agaagtggag
+     4921 aagcgagctg tccatcatga tccaggtgaa gatcctgcac accaccaagt ctccagccgt
+     4981 gggcccaaag aagaagcgca aggtgggcac catgaccaac ctgtctgaca tcatcgagaa
+     5041 ggagacaggc aagcagctgg taatccagga gagcatcctg atgctgcctg aggaggtgga
+     5101 ggaggtaatc ggcaacaagc ctgagagcga tatcctggtg cacaccgcct atgatgagag
+     5161 cacagacgag aacgtgatgc tgctgaccag cgacgcccct gagtacaaac cttgggcact
+     5221 ggtcattcag gatagtaacg gggagaacaa aatcaaaatg ctgtgataat gagtttaaac
+     5281 ccgctgatca gcctcgactg tgccttctag ttgccagcca tctgttgttt gcccctcccc
+     5341 cgtgccttcc ttgaccctgg aaggtgccac tcccactgtc ctttcctaat aaaatgagga
+     5401 aattgcatcg cattgtctga gtaggtgtca ttctattctg gggggtgggg tggggcagga
+     5461 cagcaagggg gaggattggg aagacaatag caggcatgct ggggatgcgg tgggctctat
+     5521 ggcttctgag gcggaaagaa ccagctgggg ctcgataccg tcgacctcta gctagagctt
+     5581 ggcgtaatca tggtcatagc tgtttcctgt gtgaaattgt tatccgctca caattccaca
+     5641 caacatacga gccggaagca taaagtgtaa agcctagggt gcctaatgag tgagctaact
+     5701 cacattaatt gcgttgcgct cactgcccgc tttccagtcg ggaaacctgt cgtgccagct
+     5761 gcattaatga atcggccaac gcgcggggag aggcggtttg cgtattgggc gctcttccgc
+     5821 ttcctcgctc actgactcgc tgcgctcggt cgttcggctg cggcgagcgg tatcagctca
+     5881 ctcaaaggcg gtaatacggt tatccacaga atcaggggat aacgcaggaa agaacatgtg
+     5941 agcaaaaggc cagcaaaagg ccaggaaccg taaaaaggcc gcgttgctgg cgtttttcca
+     6001 taggctccgc ccccctgacg agcatcacaa aaatcgacgc tcaagtcaga ggtggcgaaa
+     6061 cccgacagga ctataaagat accaggcgtt tccccctgga agctccctcg tgcgctctcc
+     6121 tgttccgacc ctgccgctta ccggatacct gtccgccttt ctcccttcgg gaagcgtggc
+     6181 gctttctcat agctcacgct gtaggtatct cagttcggtg taggtcgttc gctccaagct
+     6241 gggctgtgtg cacgaacccc ccgttcagcc cgaccgctgc gccttatccg gtaactatcg
+     6301 tcttgagtcc aacccggtaa gacacgactt atcgccactg gcagcagcca ctggtaacag
+     6361 gattagcaga gcgaggtatg taggcggtgc tacagagttc ttgaagtggt ggcctaacta
+     6421 cggctacact agaagaacag tatttggtat ctgcgctctg ctgaagccag ttaccttcgg
+     6481 aaaaagagtt ggtagctctt gatccggcaa acaaaccacc gctggtagcg gtggtttttt
+     6541 tgtttgcaag cagcagatta cgcgcagaaa aaaaggatct caagaagatc ctttgatctt
+     6601 ttctacgggg tctgacactc agtggaacga aaactcacgt taagggattt tggtcatgag
+     6661 attatcaaaa aggatcttca cctagatcct tttaaattaa aaatgaagtt ttaaatcaat
+     6721 ctaaagtata tatgagtaaa cttggtctga cagttaccaa tgcttaatca gtgaggcacc
+     6781 tatctcagcg atctgtctat ttcgttcatc catagttgcc tgactccccg tcgtgtagat
+     6841 aactacgata cgggagggct taccatctgg ccccagtgct gcaatgatac cgcgagaccc
+     6901 acgctcaccg gctccagatt tatcagcaat aaaccagcca gccggaaggg ccgagcgcag
+     6961 aagtggtcct gcaactttat ccgcctccat ccagtctatt aattgttgcc gggaagctag
+     7021 agtaagtagt tcgccagtta atagtttgcg caacgttgtt gccattgcta caggcatcgt
+     7081 ggtgtcacgc tcgtcgtttg gtatggcttc attcagctcc ggttcccaac gatcaaggcg
+     7141 agttacatga tcccccatgt tgtgcaaaaa agcggttagc tccttcggtc ctccgatcgt
+     7201 tgtcagaagt aagttggccg cagtgttatc actcatggtt atggcagcac tgcataattc
+     7261 tcttactgtc atgccatccg taagatgctt ttctgtgact ggtgagtact caaccaagtc
+     7321 attctgagaa tagtgtatgc ggcgaccgag ttgctcttgc ccggcgtcaa tacgggataa
+     7381 taccgcgcca catagcagaa ctttaaaagt gctcatcatt ggaaaacgtt cttcggggcg
+     7441 aaaactctca aggatcttac cgctgttgag atccagttcg atgtaaccca ctcgtgcacc
+     7501 caactgatct tcagcatctt ttactttcac cagcgtttct gggtgagcaa aaacaggaag
+     7561 gcaaaatgcc gcaaaaaagg gaataagggc gacacggaaa tgttgaatac tcatactctt
+     7621 cctttttcaa tattattgaa gcatttatca gggttattgt ctcatgagcg gatacatatt
+     7681 tgaatgtatt tagaaaaata aacaaatagg ggttccgcgc acatttcccc gaaaagtgcc
+     7741 acctgacgtc gacggatcgg gagatcgatc tcccgatccc ctagggtcga ctctcagtac
+     7801 aatctgctct gatgccgcat agttaagcca gtatctgctc cctgcttgtg tgttggaggt
+     7861 cgctgagtag tgcgcgagca aaatttaagc tacaacaagg caaggcttga ccgacaattg
+     7921 catgaagaat ctgcttaggg ttaggcgttt tgcgctgctt cgcgatgtac gggccagata
+     7981 tacgcgttga cattgattat tgactagtta ttaatagtaa tcaattacgg ggtcattagt
+     8041 tcatagccca tatatggagt tccgcgttac ataacttacg gtaaatggcc cgcctggctg
+     8101 accgcccaac gacccccgcc cattgacgtc aataatgacg tatgttccca tagtaacgcc
+     8161 aatagggact ttccattgac gtcaatgggt ggagtattta cggtaaactg cccacttggc
+     8221 agtacatcaa gtgtatcata tgccaagtac gccccctatt gacgtcaatg acggtaaatg
+     8281 gcccgcctgg cattatgccc agtacatgac cttatgggac tttcctactt ggcagtacat
+     8341 ctacgtatta gtcatcgcta ttaccatggt gatgcggttt tggcagtaca tcaatgggcg
+     8401 tggatagcgg tttgactcac ggggatttcc aagtctccac cccattgacg tcaatgggag
+     8461 tttgttttgg caccaaaatc aacgggactt tccaaaatgt cgtaacaact ccgccccatt
+     8521 gacgcaaatg ggcggtaggc gtgtacggtg ggaggtctat ataagcagag ctggtttagt
+     8581 gaaccgtcag atccgctaga gatccgcggc cgctaatacg actcactata gggagagccg
+     8641 ccaccatgaa acggacagcc gacggaagcg agttcgagtc accaaagaag aagcggaaag
+     8701 tcgacaagaa gtacagcatc ggcct
+//

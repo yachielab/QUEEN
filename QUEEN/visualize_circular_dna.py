@@ -57,7 +57,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
         if head_length is None:
             head_length = 0.035 * np.pi * (350**0.3/(bottom_h**0.3))
 
-        lane_h   = 60 * 1.2
+        lane_h   = 64 * 1.2
         normal_w = 1000
         if fontsize is None:
             matplotlib.rcParams['font.size'] = 8.0
@@ -816,8 +816,8 @@ def visualize(brick, format=0, feature_list=None, bottom=None, fontsize=8, label
                 pass
             else:
                 feature_list.append(feat)
+        feature_list.sort(key=lambda x:len(brick.printsequence(x.start, x.end)))
     
-    feature_list.sort(key=lambda x:len(brick.printsequence(x.start, x.end)))
     ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, feature_list, len(brick.seq), format=format, bottom=bottom, enlarge=1.0, display_label=label_visible, fontsize=fontsize, display_axis=axis_visible, tick_space=tick_space, labelcolor=labelcolor)  
     if title_visible == True:
         renderer    = figure.canvas.get_renderer()

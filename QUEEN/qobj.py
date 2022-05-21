@@ -26,6 +26,13 @@ def _combine_history(dna, history_features):
 
 @total_ordering
 class DNAfeature(SeqFeature):
+    """DNA feature object
+
+    Each DNAfeature object with the following attributes provides an annotation for a 
+    given range of DNA sequence in a QUEEN object.
+
+    """
+    
     def __deepcopy__(self, memo):
         obj = DNAfeature(self, subject=self.subject)
         return obj 
@@ -185,11 +192,14 @@ class DNAfeature(SeqFeature):
         self._end.name   = "end"
 
 class QUEEN():    
-    """
-    The QUEEN class can define a dsDNA object with sequence annotations. It can be created by specifying 
-    a DNA sequence or importing a sequence data file in GenBank or FASTA file format (single sequence entry). 
-    When a GenBank format file is imported, its NCBI accession number, Addgene plasmid ID, or Benchling share 
+    """QUEEN object
+    
+    The QUEEN class can define a dsDNA object with sequence annotations. It can be 
+    created by specifying a DNA sequence or importing a sequence data file in 
+    GenBank or FASTA file format (single sequence entry). When a GenBank format file 
+    is imported, its NCBI accession number, Addgene plasmid ID, or Benchling share 
     link can be provided instead of downloading the file to your local environment.
+    
     """
     
     #Class variables that manage the execution histories of operational and search function
@@ -213,10 +223,16 @@ class QUEEN():
                      
     def _get_genbank(_id, dbtype="ncbi"):
         """
-        Dbtype can be selected from "ncbi", "addgene", "benchling". 
-        for ncbi, set NCBI accession number 
-        for Addgene, set plasmid ID and depositor (Ex. 50005:addgene or 50005:depositor)  in addgene
-        for benchling, set shaared link
+        
+        Dbtype can be selected from "ncbi", "addgene", "benchling".   
+        For "ncbi", set NCBI accession number.  
+        For "addgene", set plasmid ID. Sometimes different full sequence maps are 
+        provided by the depositor and adgene, respectively, for a single plasmid.  
+        In this case, please specify the plasmid ID followed by "addgene" or 
+        "depositor" (Ex. 50005:addgene or 50005:depositor). If you set only plasmid ID, 
+        the value will be specified as "plsmidID:addgene".  
+        For "benchling", set a benchling shaared link
+        
         """ 
         outb = io.BytesIO()
         outs = io.StringIO() 
@@ -457,97 +473,94 @@ class QUEEN():
         pd=None, pn=None, process_id=None, original_ids=[], _sourcefile=None, quinable=True, _direct=1):
         
         """
+
         Parameters
         ----------
-        seq: str
+        seq : str
             DNA seqeunce of `QUEEN_ object` to be generated. 
-
-        record: str
-            Source GenBank or FASTA file path of `QUEEN_object` to be generated.
-            When a GenBank format file is imported, its NCBI accession number, Addgene plasmid ID, or Benchling share link 
-            can be provided instead of downloading the file to your local environment.
-            
-        fileformat: str ("fasta" or "genbank"), default: None
-            If the value is specified the file specified on `record` interpereted as `fileformat`. Otherwise, the file format 
-            automatically detected based on its file name.
-    
-        dptype: str ("local", "NCBI", "addgene", or "benchling") 
-            Online database location of the GenBank file to be imported.          
-            
-        topology: str ("linear" or "circular") 
-            Sequence topology. When a `QUEEN_object` is created by loading from a GenBank file, the topology is set according 
-            to the description in the GenBank file.
-        
-        ssdna: bool, default: False
-            If True, QUEEN object will handled as ssDNA. ssDNA QUEEN object cannot be processed with modify ends and, be joined 
-            with dsDNA QUEEN object. By annealing ssDNA QUEEN object trough `joindna` function, dsDNA QUEEN object can be generated.
-        
-        import_history: bool, default: True
-            If False, it disable the inheritance of operational process histories of previously generated `QUEEN_objects` to a 
-            newly producing `QUEEN_object`.
-            
-        product: str 
-            This parameter enables users to provide label names for producing `QUEEN_objects`. The provided labels are stored in 
-            `QUEEN_objects.project`. If tha value is not specified, and a `QUEEN_object` is created from a GenBank or FASTA file, 
-            its sequence ID will be inherited here. 
+        record : str
+            Source GenBank or FASTA file path of `QUEEN_object` to be generated.  
+            When a GenBank format file is imported, its NCBI accession number, Addgene 
+            plasmid ID, or Benchling share link can be provided instead of downloading 
+            the file to your local environment.
+        fileformat : str ("fasta" or "genbank"), default: None
+            If the value is specified the file specified on `record` interpereted as 
+            `fileformat`. Otherwise, the file format automatically detected based on 
+            its file name.  
+        dptype : str ("local", "NCBI", "addgene", or "benchling") 
+            Online database location of the GenBank file to be imported.  
+        topology : str ("linear" or "circular") 
+            Sequence topology. When a `QUEEN_object` is created by loading from a GenBank 
+            file, the topology is set according to the description in the GenBank file. 
+        ssdna : bool, default: False
+            If True, QUEEN object will handled as ssDNA. ssDNA QUEEN object cannot be 
+            processed with modify ends and, be joined with dsDNA QUEEN object. By annealing 
+            ssDNA QUEEN object trough `joindna` function, dsDNA QUEEN object can be generated.
+        import_history : bool, default: True
+            If False, it disable the inheritance of operational process histories of previously 
+            generated `QUEEN_objects` to a newly producing `QUEEN_object`.   
+        product : str 
+            This parameter enables users to provide label names for producing `QUEEN_objects`.  
+            The provided labels are stored in `QUEEN_objects.project`.  
+            If tha value is not specified, and a `QUEEN_object` is created from a GenBank or 
+            FASTA file, its sequence ID will be inherited here.  
 
         Attribuites
         -----------
-        project: str
-            Project name of `QUEEN_object` construction. In QUEEN, this property is also used as a dictionary key 
-            to access the `.productdict` described below. If a `QUEEN_object` is created from a GenBank or FASTA file, 
-            its sequence ID will be inherited here. Otherwise, the project name is automatically generated or defined 
-            based on the `product` value  to be unique amongst the existing `.productdict` keys.
-
-        seq: str  
-            Top strand sequence (5′→3′). This property cannot be directly edited; only the built-in operational functions 
-            of QUEEN described below can edit this property.
-        
-        rcseq: str  
-            Bottom strand sequence (5′→3′). This property cannot be directly edited; only the built-in operational functions 
-            of QUEEN described below can edit this property.
-
-        topology: str ("linear" or "circular")   
-            Sequence topology. When a `QUEEN_object` is created by loading from a GenBank file, the topology is set according 
-            to the description in the GenBank file. 
-            Only the built-in operational functions of QUEEN described below can edit this property.
-        
-        dnafeatures: list of `DNAfeature_objects`  
-            When a `QUEEN_object` is loaded from a GenBank file, `.dnafeatures` will automatically be generated from the GenBank 
-            file's sequence features. Otherwise,`.dnafeatures` will be an empty list. Each `DNAfeature_object` with the following 
-            attributes provides an annotation for a given range of DNA sequence in a `QUEEN_object`.
-
-            - feature_id: str    
-            Unique identifier. It is automatically determined to each feature when a `QUEEN_object` is loaded from a GenBank file.
-        
-            - feature_type: str    
-            Biological nature. Any value is acceptable. The GenBank format requires registering a biological nature for 
-            each feature.
-        
-            - start: int  
-            Start position of `DNAfeature_object` in `QUEEN_object`.
-        
-            - end: int
-            Start position of `DNAfeature_object` in `QUEEN_object`.
-        
-            - strand: int (1 or -1) 
-            Direction of `DNAfeature_object` in `QUEEN_object`. Top strand (`1`) or bottom strand (`-1`).  
-        
-            -sequence: str  
-            Sequence of the `DNAfeature_object` for its encoded direction.
-        
-            - qualifiers: dict 
-            Qualifiers. When a GenBank file is imported, qualifiers of each feature will be registered here. 
-            Qualifier names and values will serve as dictionary keys and values, respectively. 
-
-            `DNAfeature_object` can be edited only by the `editfeature()` function described below. DNAfeature class is implemented 
-            as a subclass of the Biopython SeqFeature class. Therefore, apart from the above attributes, DNAfeature class inherits 
-            all the attributes and methods of SeqFeature class. 
-            For details about SeqFeature class, see (https://biopython.org/docs/dev/api/Bio.SeqFeature.html) 
-
-        productdict: dict  
-            Dictionary for all of the inherited `QUEEN_objects` used to construct the present `QUEEN_object`. 
-            The `.project` of each `QUEEN_object` serves as a key of this dictionary.
+        project : str
+            Project name of `QUEEN_object` construction. In QUEEN, this property is also used 
+            as a dictionary key to access the `.productdict` described below.   
+            If a `QUEEN_object` is created from a GenBank or FASTA file, its sequence ID will 
+            be inherited here. Otherwise, the project name is automatically generated or 
+            defined based on the `product` value  to be unique amongst the existing 
+            `.productdict` keys.
+        seq : str  
+            Top strand sequence (5′→3′). This property cannot be directly edited; only the 
+            built-in operational functions of QUEEN described below can edit this property.
+        rcseq : str  
+            Bottom strand sequence (5′→3′). This property cannot be directly edited; only the 
+            built-in operational functions of QUEEN described below can edit this property.
+        topology : str ("linear" or "circular")   
+            Sequence topology. When a `QUEEN_object` is created by loading from a GenBank file, 
+            the topology is set according to the description in the GenBank file. 
+            Only the built-in operational functions of QUEEN described below can edit this 
+            property.
+        dnafeatures : list of `DNAfeature_objects`  
+            When a `QUEEN_object` is loaded from a GenBank file, `.dnafeatures` will 
+            automatically be generated from the GenBank file's sequence features.  
+            Otherwise,`.dnafeatures` will be an empty list. Each `DNAfeature_object` with the 
+            following attributes provides an annotation for a given range of DNA sequence in 
+            a `QUEEN_object`.
+            
+            - feature_id : str    
+              Unique identifier. It is automatically determined to each feature when a `QUEEN_object` 
+              is loaded from a GenBank file. 
+            - feature_type : str    
+              Biological nature. Any value is acceptable. The GenBank format requires registering a 
+              biological nature for each feature.
+            - start : int  
+              Start position of `DNAfeature_object` in `QUEEN_object`. 
+            - end : int
+              Start position of `DNAfeature_object` in `QUEEN_object`.
+            - strand : int (1 or -1) 
+              Direction of `DNAfeature_object` in `QUEEN_object`. 
+              Top strand (`1`) or bottom strand (`-1`).  
+            - sequence : str  
+              Sequence of the `DNAfeature_object` for its encoded direction.
+            - qualifiers : dict 
+              Qualifiers. When a GenBank file is imported, qualifiers of each feature will be 
+              registered here. Qualifier names and values will serve as dictionary keys and 
+              values, respectively. 
+            
+            `DNAfeature_object` can be edited only by the `editfeature()` function described 
+            below. DNAfeature class is implemented as a subclass of the Biopython SeqFeature 
+            class. Therefore, apart from the above attributes, DNAfeature class inherits all 
+            the attributes and methods of SeqFeature class. For details about SeqFeature class,  
+            see (https://biopython.org/docs/dev/api/Bio.SeqFeature.html) 
+        productdict : dict  
+            Dictionary for all of the inherited `QUEEN_objects` used to construct the present 
+            `QUEEN_object`. The `.project` of each `QUEEN_object` serves as a key of this 
+            dictionary.
 
         """
         
@@ -898,44 +911,49 @@ class QUEEN():
     def searchsequence(self, query, start=0, end=None, strand=2, unique=False, product=None, process_name=None, process_description=None, pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, quinable=True, _direct=1):
         """Search for specific sequences from a QUEEN object.
         
-        Search for specific sequences from a user-defined region of a `QUEEN_object` and return a list of `DNAfeature_objects`. 
-        Start and end attributes of returned `DNAfeature_objects` represent the sequence regions of the `QUEEN_object` that 
-        matched the user's query. Note that the returned `DNAfeature_objects` will not be generated with `.feature_id` and 
-        reflected to the parental `QUEEN_object`**. **The returned `DNAfeature_objects` can be added to `QUEEN_object.dnafeatures` 
-        by `editfeature()` with the `createattribute` option as explained below.
+        Search for specific sequences from a user-defined region of a `QUEEN_object` and 
+        return a list of `DNAfeature_objects`. Start and end attributes of returned 
+        `DNAfeature_objects` represent the sequence regions of the `QUEEN_object` that 
+        matched the user's query. Note that the returned `DNAfeature_objects` will not be 
+        generated with `.feature_id` and reflected to the parental `QUEEN_object`.   
+        The returned `DNAfeature_objects` can be added to `QUEEN_object.dnafeatures` by 
+        `editfeature()` with the `createattribute` option as explained below.
 
         Parameters
         ----------
-        query: regex or str, default: ".+" 
-            Search query sequence. If the value is not provided, the user-specified search region of the `QUEEN_object` sequence 
-            with `start` and `end` explained below will be returned. It allows fuzzy matching and regular expression. 
-            For details, see https://pypi.org/project/regex/. 
-            All IUPAC nucleotide symbols can be used. Restriction enzyme cut motif representation can be used to define a query 
-            with `"^"` and `"_"` or `"(int/int)"`. For example, EcoRI cut motif can be provided by `"G^AATT_C"`, where `"^"` and `"_"` 
-            represent the cut positions on the top and bottom strands, respectively, or by `"GAATTC(-5/-1)"` or `"(-5/-1)GAATTC"`, 
-            where the left and right integers between the parentheses represent the cut positions on the top and bottom strands, 
-            respectively. Similarly, the cut motif of a Type-IIS restriction enzyme BsaI can be given by  `"GGTCTCN^NNN_N"`,  
-            `"N^NNN_NGAGACC"`, `"GGTCTC(1/5)"` or `"(5/1)GAGACC"`. The returned `DNAfeature_objects` obtained for a query 
-            restriction enzyme cut motif will hold the cutting rule in the `"qualifiers:cutsite"` attribute, which can be added to 
-            `QUEEN_object.dnafeatures` by `editfeature()` with the `createattribute` option as explained below. 
+        query : regex or str, default: ".+"  
+            Search query sequence. If the value is not provided, the user-specified search 
+            region of the `QUEEN_object` sequence with `start` and `end` explained below will 
+            be returned. It allows fuzzy matching and regular expression. For details,   
+            see https://pypi.org/project/regex/.  
+            All IUPAC nucleotide symbols can be used. Restriction enzyme cut motif 
+            representation can be used to define a query with `"^"` and `"_"` or 
+            `"(int/int)"`.   For example, EcoRI cut motif can be provided by `"G^AATT_C"`, 
+            where `"^"` and `"_"` represent the cut positions on the top and bottom strands, 
+            respectively, or by `"GAATTC(-5/-1)"` or `"(-5/-1)GAATTC"`, where the left and 
+            right integers between the parentheses represent the cut positions on the top and 
+            bottom strands, respectively. Similarly, the cut motif of a Type-IIS restriction 
+            enzyme BsaI can be given by `"GGTCTCN^NNN_N"`, `"N^NNN_NGAGACC"`, `"GGTCTC(1/5)"` 
+            or `"(5/1)GAGACC"`. The returned `DNAfeature_objects` obtained for a query 
+            restriction enzyme cut motif will hold the cutting rule in the 
+            `"qualifiers:cutsite"` attribute, which can be added to `QUEEN_object.dnafeatures` 
+            by `editfeature()` with the `createattribute` option as explained below.  
             Regular expression is disabled for restriction enzyme cut motifs.  
-        
-        start: int (zero-based indexing), default: 0  
+        start : int (zero-based indexing), default: 0  
             Start position of the target range of the `QUEEN_object` sequence for the search. 
-        
-        end: int (zero-based indexing; default: the last sequence position of `QUEEN_object`)  
+        end : int (zero-based indexing; default: the last sequence position of `QUEEN_object`)  
             End position of the target range of the `QUEEN_object` sequence for the search. 
-        
-        strand: int: 1 (top strand only), -1 (bottom strand only), or 2 (both strands), default: 2  
+        strand : int: 1 (top strand only), -1 (bottom strand only), or 2 (both strands), default: 2  
             Sequence strand to be searched.
+        unique : bool (True or False), default: False
+            If the value is `True` and multiple (more than a single) sequence region are detected 
+            in the search, it would raise error. If False, multiple seaquence detections could be 
+            acceptable.  
         
-        unique: bool (True or False), default: False
-            If the value is `True` and multiple (more than a single) sequence region are detected in the search, 
-            it would raise error. If False, multiple seaquence detections could be acceptable.  
-
         Returns
         -------
         list of QUEEN.qobj.DNAfeature object
+        
         """
 
         process_name        = pn if process_name is None else process_name
@@ -1153,33 +1171,41 @@ class QUEEN():
     def searchfeature(self, key_attribute="all", query=".+", source=None, start=0, end=None, strand=2, product=None, process_name=None, process_description=None, 
                       pn=None, pd=None, process_id=None, original_ids=[], _sourcefile=None, quinable=True, _direct=1):
         
-        """Search for `DNAfeature_objects` holding a queried value in a designated `key_attribute` in `QUEEN_object`.
+        """Search for `DNAfeature_objects` holding a queried value in a designated `key_attribute`.
         
         Parameters
         ----------
-        key_attribute: str, default: "all" 
-            Attribute type to be searched (`feature_id`, `feature_type`, `"qualifiers:*"`, or `sequence`). If the value is not provided, 
-            it will be applied to all of the attributes in the `QUEEN_object`, excluding `sequence`. However, if the `query` value is 
-            provided with only the four nucleotide letters (A, T, G, and C), this value will be automatically set to `sequence`.
-        
-        query: regex or str, default: ".+"
-            Query term. `DNAfeature_objects` that have a value matches to this query for `key_attribute` designated above will be returned. 
-            It allows fuzzy matching and regular expression. For details, see https://pypi.org/project/regex/. 
-            If the `key_attribute` is `sequence`, all IUPAC nucleotide symbols can be used.
-        
-        source: list of `DNAfeature_objects`, default: `QUEEN_object.dnafeatures`
-            Source `DNAfeature_objects` to be searched. `DNAfeature_objects` outside the search range defined by `start`, `end`, and `strand` 
-            will be removed from the source. Any `DNAfeature_objects` can be provided here. For example, a list of `DNAfeature_objects` _returned 
-            from another `searchsequence()` or `searchfeature()` operation can be used as the source to achieve an AND search with multiple queries.
-        
-        start: int (zero-based indexing), default: 0 
+        key_attribute : str, default: "all" 
+            Attribute type to be searched (`feature_id`, `feature_type`, `"qualifiers:*"`, 
+            or `sequence`). If the value is not provided, it will be applied to all of the 
+            attributes in the `QUEEN_object`, excluding `sequence`. However, if the `query` 
+            value is provided with only the four nucleotide letters (A, T, G, and C), this 
+            value will be automatically set to `sequence`.
+        query : regex or str, default: ".+"
+            Query term. `DNAfeature_objects` that have a value matches to this query for 
+            `key_attribute` designated above will be returned. It allows fuzzy matching and 
+            regular expression. For details, see https://pypi.org/project/regex/. If the 
+            `key_attribute` is `sequence`, all IUPAC nucleotide symbols can be used.
+        source : list of `DNAfeature_objects`, default: `QUEEN_object.dnafeatures`
+            Source `DNAfeature_objects` to be searched. `DNAfeature_objects` outside the 
+            search range defined by `start`, `end`, and `strand` will be removed from the 
+            source. Any `DNAfeature_objects` can be provided here. For example, a list of 
+            `DNAfeature_objects` _returned from another `searchsequence()` or `searchfeature()` 
+            operation can be used as the source to achieve an AND search with multiple queries.
+        start : int (zero-based indexing), default: 0 
             Start position of the target range of the `QUEEN_object` sequence for the search. 
-        
-        end: int (zero-based indexing), default: the last sequence position of `QUEEN_object`
+        end : int (zero-based indexing), default: the last sequence position of `QUEEN_object`
             End position of the target range of the `QUEEN_object` sequence for the search. 
-        
-        strand: int: 1 (top strand only), -1 (bottom strand only), or 2 (both strands), default: 2  
-            Sequence strand to be searched.
+        strand : int 1 (top strand), -1 (bottom strand), or 2 (both strands), default: 2  
+            Sequence strand to be searched.  
+        process_name : str
+            For detailes, see `QUEEN.queen.qobj.__doc__`. 
+        process_description : str
+            For detailes, see `QUEEN.queen.qobj.__doc__`.
+        process_id : str 
+            For detailes, see `QUEEN.queen.qobj.__doc__`.
+        quinable : bool
+            For detailes, see `QUEEN.queen.qobj.__doc__`.
 
         Returns
         ------- 
@@ -1401,32 +1427,29 @@ class QUEEN():
             return joindna(other, self, __direct==0) 
     
     def printsequence(self, start=None, end=None, strand=2, hide_middle=None, linebreak=None, display=False):
-        """Returns and displays partial or the entire dsDNA sequence and sequence end structures of `QUEEN_object`.
-
+        """Returns and displays partial or the entire dsDNA sequence and sequence end structures.
+        
         Parameters
         ----------
-        start: int (zero-based indexing), default: 0  
-            Start position of the sequence. 
-        
-        end: int (zero-based indexing),  default: the last sequence position of `QUEEN_object`
-            End position of the sequence.
-        
-        strand: int: 1 (top strand only), -1 (bottom strand only), or 2 (both strands), default: 2  
+        start : int (zero-based indexing), default: 0  
+            Start position of the sequence.   
+        end : int (zero-based indexing),  default: the last sequence position of `QUEEN_object`
+            End position of the sequence.  
+        strand : int: 1 (top strand only), -1 (bottom strand only), or 2 (both strands), default: 2  
             Sequence strand(s) to be returned.
-        
-        display: bool (True or False), default: True   
-            If `True`, the output will be displayed in `STDOUT`.
-        
+        display : bool (True or False), default: True   
+            If `True`, the output will be displayed in `STDOUT`.  
         hide_middle: int or None, default: None  
-            Length of both end sequences to be displayed.
-        
+            Length of both end sequences to be displayed.  
         linebreak: int (default: length of the `QUEEN_object` sequence)  
             Length of sequence for linebreak.
 
         Returns
         -------
-        If `strand` == `1` or `-1`, sequence of the defined strand (5’→3’)  
-        If `strand` == `2`, "str/str" (top strand sequence (5’→3’)/bottom strand sequence (3’→5’))
+        If `strand` == `1` or `-1`,  
+        sequence of the defined strand (5’→3’)    
+        If `strand` == `2`,  
+        "str/str" (top strand sequence (5’→3’)/bottom strand sequence (3’→5’))  
 
         """
 
@@ -1597,15 +1620,18 @@ class QUEEN():
         
         Parameters  
         ----------
-        attribute_dict: dict 
-            Dictionaly with key-value pairs of the attributes of DNAfeature objects: "feature_id", "feature_type", "start", "end", "strand", and  "qualifiers:*"  
-            The following attributes have default value, so if they are not specified in the dictionary, the value would be set with the default values. 
-
-                - `feature_id`: `str`, (default: Random unique ID which is not used in `.dnafeatures` of the QUEEN object) 
-	        - `feature_type`: `str` (default: `"misc_feature"`) 
-	        - `start`: `int` (default: 0) 
-	        - `end`: `int` (default: length of the `QUEEN_object` sequence)
-	        - `strand`: `int` (-1, 0 or 1, default: 1) 
+        attribute_dict : dict 
+            Dictionaly with key-value pairs of the attributes of DNAfeature objects: 
+            "feature_id", "feature_type", "start", "end", "strand", and  "qualifiers:*".  
+            The following attributes have default value, so if they are not specified in the 
+            dictionary, the value would be set with the default values. 
+            - `feature_id` : `str`, 
+              The default value is a random unique ID which is not used in `.dnafeatures` of 
+              the QUEEN object.  
+	    - `feature_type` : `str` (default: `"misc_feature"`) 
+	    - `start` : `int` (default: 0) 
+	    - `end` : `int` (default: length of the `QUEEN_object` sequence)
+	    - `strand` : `int` (-1, 0 or 1, default: 1) 
 
         Returns 
         -------
@@ -1690,29 +1716,31 @@ class QUEEN():
 
     def printfeature(self, feature_list=None, attribute=None, separation=None, detail=False, seq=False, output=None, x_based_index=0):
         """ Print a tidy data table of annotation features/attributes of `QUEEN_object`. 
-        Default output attributes are `"feature_id"`, `"feature_type"`, `"qualifiers:label"`, `"start"`, `"end"`, and `"strand"`.
+        
+        Default output attributes are `"feature_id"`, `"feature_type"`, 
+        `"qualifiers:label"`, `"start"`, `"end"`, and `"strand"`.
     
         Parameters    
         ----------
-        feature_list: list of QUEEN.qobj.DNAfeature objects (default: self.dnafeatures)  
-            List of features to be displayed in the output table. If not given, all features held by the QUEEN_object will be the subject.
-        
-        attribute: list of feature attributes, default: ["feature_id", "feature_type", "qualifiers:label", "start", "end", "strand"]   
-            List of feature attributes to be displayed in the output table. If the value is `"all"`, it will generate a table for all 
-            the attributes held by the `QUEEN_object` except for `"sequence"`.
-        
-        seq: bool (True or False), default: `False`  
-            If `True`, the sequence of each feature for its encoded direction will be displayed in the output table.   
-        
-        separation: str, default: space(s) to generate a well-formatted table  
+        feature_list : list of QUEEN.qobj.DNAfeature objects (default: self.dnafeatures)  
+            List of features to be displayed in the output table. If not given, all features 
+            held by the QUEEN_object will be the subject.
+        attribute : list of feature attributes  
+            The default value is `["feature_id", "feature_type", "qualifiers:label", "start", 
+            "end", "strand"]`.   List of feature attributes to be displayed in the output 
+            table. If the value is `"all"`, it will generate a table for all the attributes 
+            held by the `QUEEN_object` except for `"sequence"`.
+        seq : bool (True or False), default: `False`  
+            If `True`, the sequence of each feature for its encoded direction will be 
+            displayed in the output table.   
+        separation : str, default: space(s) to generate a well-formatted table   
             String to separate values of each line.
-        
-        output: str, default: STDOUT 
+        output : str, default: STDOUT   
             Output file name. 
-        
-        x_based_index: 0 or 1, default: 0 
-            As a default, positions of all features are given in the zero-based indexing in QUEEN (same as Python). 
-            If this parameter is set to `1`, they will be shown in the 1-based indexing (as seen in the GenBank format).
+        x_based_index : 0 or 1, default: 0 
+            As a default, positions of all features are given in the zero-based indexing in 
+            QUEEN (same as Python). If this parameter is set to `1`, they will be shown in 
+            the 1-based indexing (as seen in the GenBank format).
         
         Returns
         -------
@@ -1852,22 +1880,20 @@ class QUEEN():
     def outputgbk(self, output=None, format="genbank", record_id=None, export_history=True, _return=False):
         """Output `QUEEN_object` to a GenBank file. 
 
-        In addition to all of the `DNAfeature_objects` in the input `QUEEN_object`, a `DNAfeature_object` encoding 
-        the entire construction processes that generated the `QUEEN_object` in `qualifiers:building_history` will 
-        also be output to the GenBank file.  
+        In addition to all of the `DNAfeature_objects` in the input `QUEEN_object`, 
+        a `DNAfeature_object` encoding the entire construction processes that generated 
+        the `QUEEN_object` in `qualifiers:building_history` will also be output to the 
+        GenBank file.  
         
         Parameters
         ----------
-        output: str, default: STDOUT
-            Output file name.
-        
-        format: str, default: "genbank"
+        output : str, default: STDOUT
+            Output file name. 
+        format : str, default: "genbank"
             Output file format
-
-        record_id: str, default: None
+        record_id : str, default: None
             Record ID of a output file, If the value is `None`, self.project value is used as `record_id`.
-       
-        export_history: bool, default: True
+        export_history : bool, default: True
             If False, construnction history of the `QUEEN_object` will not be output.
 
         Returns

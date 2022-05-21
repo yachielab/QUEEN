@@ -1111,7 +1111,7 @@ The following attributes have default values, so if they are not specified in a 
 	- `feature_type`: `str` (default: `"misc_feature"`) 
 	- `start`: `int` (default: 0) 
 	- `end`: `int` (default: length of the `QUEEN_object` sequence)
-	- `strand`: `int` (-1, 0 or 1, default: 1) 
+	- `strand`: `int` (-1, 0 or 1, default: 1)   
 In "Example code 18", the use of `setfeature` parameter is demonstrated. 
 
 * **quinable**:`bool` (`True` or `False`; default: `True`) 

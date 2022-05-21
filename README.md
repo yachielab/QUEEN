@@ -33,17 +33,15 @@ QUEEN (a framework to generate quinable and efficiently editable nucleotide sequ
 Python 3.7.0 or later
 
 ## Installation
-1. Install QUEEN using the following command.
-
-  **For the official release (v1.0.0) on the Python Package Index**
-  ```
-  pip install python-queen 
-  ```
-  
-  **For the developmental version on GitHub**
-  ```
-  pip install git+https://github.com/yachielab/QUEEN.git
-  ```
+1. Install QUEEN using the following command.  
+    **For the official release (v1.0.0) on the Python Package Index**
+    ```
+    pip install python-queen 
+    ```
+    **For the developmental version on GitHub**
+    ```
+    pip install git+https://github.com/yachielab/QUEEN.git
+    ```
 
 2. Install Graphviz (optional; required for visualizing flowcharts of DNA building processes using the `visualizeflow()` function described below). Graphviz package is available at the following link.  
     - [Graphviz](https://graphviz.org/download/source/)

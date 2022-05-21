@@ -1,4 +1,4 @@
-LOCUS       pCMV_Target_AID         8752 bp    DNA     circular UNK 05-APR-2022
+LOCUS       pCMV_Target_AID         8752 bp    DNA     circular UNK 11-APR-2022
 DEFINITION  .
 ACCESSION   pCMV_Target_AID
 VERSION     pCMV_Target_AID
@@ -11,7 +11,7 @@ FEATURES             Location/Qualifiers
                      /label="source"
                      /ApEinfo_revcolor="#84b0dc"
                      /ApEinfo_fwdcolor="#84b0dc"
-                     /broken_feature="pCMV_ABE:1:8727:-:0..8727:5306..8613"
+                     /broken_feature="pCMV_ABE:0:8727:-:0..8727:5306..8613"
      primer_bind     complement(276..292)
                      /label="M13 Reverse"
                      /ApEinfo_revcolor="#d6b295"
@@ -76,6 +76,10 @@ FEATURES             Location/Qualifiers
                      /label="T7 promoter"
                      /ApEinfo_revcolor="#75c6a9"
                      /ApEinfo_fwdcolor="#75c6a9"
+     misc_feature    3316..5911
+                     /label="fragment-1"
+                     /edgecolor_queen="#E53935"
+                     /facecolor_queen="#ffcdd2"
      CDS             3335..3355
                      /label="SV40 NLS"
                      /ApEinfo_revcolor="#ff9ccd"
@@ -84,12 +88,16 @@ FEATURES             Location/Qualifiers
                      /label="source"
                      /ApEinfo_revcolor="#9eafd2"
                      /ApEinfo_fwdcolor="#9eafd2"
-                     /broken_feature="pcDNA31_Target_AID:1:10419:-:0..10419:3915
+                     /broken_feature="pcDNA31_Target_AID:0:10419:-:0..10419:3915
                      ..9244"
      CDS             3380..7483
                      /label="Cas9(D10A)"
                      /ApEinfo_revcolor="#f8d3a9"
                      /ApEinfo_fwdcolor="#f8d3a9"
+     misc_feature    5884..8714
+                     /label="fragment-2"
+                     /edgecolor_queen="#8E24AA"
+                     /facecolor_queen="#e1bee7"
      CDS             7496..7516
                      /label="SV40 NLS"
                      /ApEinfo_revcolor="#ff9ccd"
@@ -110,11 +118,15 @@ FEATURES             Location/Qualifiers
                      /label="UGI"
                      /ApEinfo_revcolor="#85dae9"
                      /ApEinfo_fwdcolor="#85dae9"
+     misc_feature    join(8690..8752,1..3340)
+                     /label="fragment-3"
+                     /edgecolor_queen="#3949AB"
+                     /facecolor_queen="#c5cae9"
      source          8725..8752
                      /label="source"
                      /ApEinfo_revcolor="#84b0dc"
                      /ApEinfo_fwdcolor="#84b0dc"
-                     /broken_feature="pCMV_ABE:1:8727:-:0..8727:5278..5305"
+                     /broken_feature="pCMV_ABE:0:8727:-:0..8727:5278..5305"
      primer_bind     complement(8727..8744)
                      /label="BGH-rev"
                      /ApEinfo_revcolor="#f58a5e"
@@ -123,18 +135,6 @@ FEATURES             Location/Qualifiers
                      /label="bGH poly(A) signal"
                      /ApEinfo_revcolor="#b4abac"
                      /ApEinfo_fwdcolor="#b4abac"
-     misc_feature    3316..5911
-                     /label="fragment-1"
-                     /edgecolor_queen="#E53935"
-                     /facecolor_queen="#ffcdd2"
-     misc_feature    5884..8714
-                     /label="fragment-2"
-                     /edgecolor_queen="#8E24AA"
-                     /facecolor_queen="#e1bee7"
-     misc_feature    join(8690..8752,1..3340)
-                     /label="fragment-3"
-                     /edgecolor_queen="#3949AB"
-                     /facecolor_queen="#c5cae9"
      source          1..8752
                      /building_history_3="QUEEN.dna_dict['pcDNA31_Target_AID']–=
                      –QUEEN(record='https://benchling.com/s/seq-cfnGDU0Mq8cUwn18
@@ -185,63 +185,64 @@ FEATURES             Location/Qualifiers
                      /building_history_8="start: 3914; end: 6442"
                      /building_history_8="pCMV_Target_AID-A8UBN1SA1NGJ6MRDO04MJN
                      5D"
-                     /building_history_9="QUEEN.dna_dict['fragment1']–=–modifyen
-                     ds(QUEEN.dna_dict['extract1'],–left=QUEEN.dna_dict['RS045']
-                     .seq,–right=QUEEN.dna_dict['HM129'].rcseq,–product='fragmen
-                     t1',–process_name='PCR',–process_description='1.–The–N-term
-                     inus–half–of–Target-AID–was–amplified–from–pcDNA3.1_pCMV-nC
-                     as-PmCDA1-ugi–pH1-gRNA(HPRT)–using–the–primer–pair–RS045/HM
-                     129.')"
-                     /building_history_9="left:
+                     /building_history_10="QUEEN.dna_dict['fragment1']–=–modifye
+                     nds(QUEEN.dna_dict['extract1'],–left=QUEEN.dna_dict['RS045'
+                     ].seq,–right=QUEEN.dna_dict['HM129'].rcseq,–setfeature={'fe
+                     ature_id':–'fragnment-1',–'qualifier:label':–'fragment-1'},
+                     –product='fragment1',–process_name='PCR',–process_descripti
+                     on='1.–The–N-terminus–half–of–Target-AID–was–amplified–from
+                     –pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–using–the–pri
+                     mer–pair–RS045/HM129.')"
+                     /building_history_10="left:
                      GAGAGCCGCCACCATGGCACCGAAGAAGAAGCG; right:
                      TCTCCGACTACGACGTGGATCATATCGTGCCCCAG; leftobj:
                      QUEEN.dna_dict['RS045'].seq; rightobj:
                      QUEEN.dna_dict['HM129'].rcseq"
-                     /building_history_9="pCMV_Target_AID-E6R3VS0JFWX919ZQ6SFJEY
-                     CT"
-                     /building_history_22="QUEEN.dna_dict['fragment1_mod']–=–mod
-                     ifyends(QUEEN.dna_dict['fragment1'],–left='*{25}/-{25}',–ri
-                     ght='-{28}/*{28}',–product='fragment1_mod',–process_name='G
+                     /building_history_10="pCMV_Target_AID-5KR2TQ7B7DAT7BSE4BF5Y
+                     5KX"
+                     /building_history_25="QUEEN.dna_dict['fragment1_mod']–=–mod
+                     ifyends(QUEEN.dna_dict['fragment1'],–left='*{30}/-{30}',–ri
+                     ght='-{30}/*{30}',–product='fragment1_mod',–process_name='G
                      ibson–Assembly',–process_description='4.–The–three–fragment
                      s–were–assembled–by–Gibson–Assembly.')"
-                     /building_history_22="left: *{25}/-{25}; right:
-                     -{28}/*{28}; leftobj: '*{25}/-{25}'; rightobj:
-                     '-{28}/*{28}'"
-                     /building_history_22="pCMV_Target_AID-1GNEIO7LG6GNCGTRMES7H
-                     IIK"
-                     /building_history_10="QUEEN.dna_dict['HM128']–=–QUEEN(seq='
+                     /building_history_25="left: *{30}/-{30}; right:
+                     -{30}/*{30}; leftobj: '*{30}/-{30}'; rightobj:
+                     '-{30}/*{30}'"
+                     /building_history_25="pCMV_Target_AID-6JNVDR69HUIVEYX7Z85NO
+                     11A"
+                     /building_history_11="QUEEN.dna_dict['HM128']–=–QUEEN(seq='
                      CTACGACGTGGATCATATCGTGCCCCAGTCTTTTC',–product='HM128')"
-                     /building_history_10=""
-                     /building_history_10="pCMV_Target_AID-D17S3ZCH066ODNM8284G2
+                     /building_history_11=""
+                     /building_history_11="pCMV_Target_AID-D17S3ZCH066ODNM8284G2
                      WP5"
-                     /building_history_12="QUEEN.queried_features_dict['pcDNA31_
+                     /building_history_13="QUEEN.queried_features_dict['pcDNA31_
                      Target_AID_f2']–=–QUEEN.dna_dict['pcDNA31_Target_AID'].sear
                      chsequence(query=QUEEN.dna_dict['HM128'].seq[-18:],–product
                      ='FW2',–process_name='PCR',–process_description='2.–The–C-t
                      erminus–half–of–Target-AID–was–amplified–from–pcDNA3.1_pCMV
                      -nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–using–the–primer–pair–HM128
                      /RS046.')"
-                     /building_history_12="query:
+                     /building_history_13="query:
                      QUEEN.dna_dict['HM128'].seq[-18:]"
-                     /building_history_12="pCMV_Target_AID-7HC669JZUKZW7W9DQYU0E
+                     /building_history_13="pCMV_Target_AID-7HC669JZUKZW7W9DQYU0E
                      N74"
-                     /building_history_11="QUEEN.dna_dict['RS046']–=–QUEEN(seq='
+                     /building_history_12="QUEEN.dna_dict['RS046']–=–QUEEN(seq='
                      TTTAAACTCATTATAGCATCTTGATCTTGTTCTCTC',–product='RS046')"
-                     /building_history_11=""
-                     /building_history_11="pCMV_Target_AID-1S3LEXX6EV9MAV2MDAB7A
+                     /building_history_12=""
+                     /building_history_12="pCMV_Target_AID-1S3LEXX6EV9MAV2MDAB7A
                      SCE"
-                     /building_history_13="QUEEN.queried_features_dict['pcDNA31_
+                     /building_history_14="QUEEN.queried_features_dict['pcDNA31_
                      Target_AID_f3']–=–QUEEN.dna_dict['pcDNA31_Target_AID'].sear
                      chsequence(query=QUEEN.dna_dict['RS046'].seq[-18:],–product
                      ='RV2',–process_name='PCR',–process_description='2.–The–C-t
                      erminus–half–of–Target-AID–was–amplified–from–pcDNA3.1_pCMV
                      -nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–using–the–primer–pair–HM128
                      /RS046.')"
-                     /building_history_13="query:
+                     /building_history_14="query:
                      QUEEN.dna_dict['RS046'].seq[-18:]"
-                     /building_history_13="pCMV_Target_AID-AD3ESLVWRLTZB4HX3GY33
+                     /building_history_14="pCMV_Target_AID-AD3ESLVWRLTZB4HX3GY33
                      8EA"
-                     /building_history_14="QUEEN.dna_dict['extract2']–=–cropdna(
+                     /building_history_15="QUEEN.dna_dict['extract2']–=–cropdna(
                      QUEEN.dna_dict['pcDNA31_Target_AID'],–start=QUEEN.queried_f
                      eatures_dict['pcDNA31_Target_AID_f2'][0].end,–end=QUEEN.que
                      ried_features_dict['pcDNA31_Target_AID_f3'][0].start,–produ
@@ -249,109 +250,111 @@ FEATURES             Location/Qualifiers
                      The–C-terminus–half–of–Target-AID–was–amplified–from–pcDNA3
                      .1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–using–the–primer–pai
                      r–HM128/RS046.')"
-                     /building_history_14="start: 6484; end: 9244"
-                     /building_history_14="pCMV_Target_AID-6K9AZGU8RT9QA2VDROZRK
+                     /building_history_15="start: 6484; end: 9244"
+                     /building_history_15="pCMV_Target_AID-6K9AZGU8RT9QA2VDROZRK
                      94F"
-                     /building_history_15="QUEEN.dna_dict['fragment2']–=–modifye
+                     /building_history_17="QUEEN.dna_dict['fragment2']–=–modifye
                      nds(QUEEN.dna_dict['extract2'],–left=QUEEN.dna_dict['HM128'
-                     ].seq,–right=QUEEN.dna_dict['RS046'].rcseq,–product='fragme
-                     nt2',–process_name='PCR',–process_description='2.–The–C-ter
-                     minus–half–of–Target-AID–was–amplified–from–pcDNA3.1_pCMV-n
-                     Cas-PmCDA1-ugi–pH1-gRNA(HPRT)–using–the–primer–pair–HM128/R
-                     S046.')"
-                     /building_history_15="left:
+                     ].seq,–right=QUEEN.dna_dict['RS046'].rcseq,–setfeature={'fe
+                     ature_id':–'fragment-2',–'qualifier:label':–'fragment-2'},–
+                     product='fragment2',–process_name='PCR',–process_descriptio
+                     n='2.–The–C-terminus–half–of–Target-AID–was–amplified–from–
+                     pcDNA3.1_pCMV-nCas-PmCDA1-ugi–pH1-gRNA(HPRT)–using–the–prim
+                     er–pair–HM128/RS046.')"
+                     /building_history_17="left:
                      CTACGACGTGGATCATATCGTGCCCCAGTCTTTTC; right:
                      GAGAGAACAAGATCAAGATGCTATAATGAGTTTAAA; leftobj:
                      QUEEN.dna_dict['HM128'].seq; rightobj:
                      QUEEN.dna_dict['RS046'].rcseq"
-                     /building_history_15="pCMV_Target_AID-D4LHRLTQYVWS7DDHHNZIE
-                     BT6"
-                     /building_history_23="QUEEN.dna_dict['fragment2_mod']–=–mod
-                     ifyends(QUEEN.dna_dict['fragment2'],–left='*{28}/-{28}',–ri
-                     ght='-{25}/*{25}',–product='fragment2_mod',–process_name='G
+                     /building_history_17="pCMV_Target_AID-CLFOOKWLVZGEDUEYJYW7M
+                     HLD"
+                     /building_history_26="QUEEN.dna_dict['fragment2_mod']–=–mod
+                     ifyends(QUEEN.dna_dict['fragment2'],–left='*{30}/-{30}',–ri
+                     ght='-{30}/*{30}',–product='fragment2_mod',–process_name='G
                      ibson–Assembly',–process_description='4.–The–three–fragment
                      s–were–assembled–by–Gibson–Assembly.')"
-                     /building_history_23="left: *{28}/-{28}; right:
-                     -{25}/*{25}; leftobj: '*{28}/-{28}'; rightobj:
-                     '-{25}/*{25}'"
-                     /building_history_23="pCMV_Target_AID-EGCOHDIF7TTO1FOTMSGJO
-                     P0E"
+                     /building_history_26="left: *{30}/-{30}; right:
+                     -{30}/*{30}; leftobj: '*{30}/-{30}'; rightobj:
+                     '-{30}/*{30}'"
+                     /building_history_26="pCMV_Target_AID-AFMFFB673FWQBW3GA20LX
+                     BFH"
                      /building_history_2="QUEEN.dna_dict['pCMV_ABE']–=–QUEEN(rec
                      ord='https://benchling.com/s/seq-K4HkSd2E8WiTAulJUeBf',–dbt
                      ype='benchling',–product='pCMV_ABE')"
                      /building_history_2=""
                      /building_history_2="pCMV_Target_AID-8VZ56URU5AVQ9VYZDJJUEM
                      GH"
-                     /building_history_16="QUEEN.dna_dict['RS047']–=–QUEEN(seq='
+                     /building_history_18="QUEEN.dna_dict['RS047']–=–QUEEN(seq='
                      ATCAAGATGCTATAATGAGTTTAAACCCGCTGATC',–product='RS047')"
-                     /building_history_16=""
-                     /building_history_16="pCMV_Target_AID-5EE95K2TXRV3AWL24E8JA
+                     /building_history_18=""
+                     /building_history_18="pCMV_Target_AID-5EE95K2TXRV3AWL24E8JA
                      USU"
-                     /building_history_18="QUEEN.queried_features_dict['pCMV_ABE
+                     /building_history_20="QUEEN.queried_features_dict['pCMV_ABE
                      _f4']–=–QUEEN.dna_dict['pCMV_ABE'].searchsequence(query=QUE
                      EN.dna_dict['RS047'].seq[-18:],–product='FW3',–process_name
                      ='PCR',–process_description='3.–A–backbone–fragment–was–amp
                      lified–from–pCMV-ABE7.10–using–the–primer–pair–RS047/RS048.
                      ')"
-                     /building_history_18="query:
+                     /building_history_20="query:
                      QUEEN.dna_dict['RS047'].seq[-18:]"
-                     /building_history_18="pCMV_Target_AID-6Z7TJ8ZUETN4R8SGLIXCN
+                     /building_history_20="pCMV_Target_AID-6Z7TJ8ZUETN4R8SGLIXCN
                      HF4"
-                     /building_history_17="QUEEN.dna_dict['RS048']–=–QUEEN(seq='
+                     /building_history_19="QUEEN.dna_dict['RS048']–=–QUEEN(seq='
                      CTTCGGTGCCATGGTGGCGGCTCTCCCTATAG',–product='RS048')"
-                     /building_history_17=""
-                     /building_history_17="pCMV_Target_AID-9568WJMB57R89TX74YCOV
+                     /building_history_19=""
+                     /building_history_19="pCMV_Target_AID-9568WJMB57R89TX74YCOV
                      HCJ"
-                     /building_history_19="QUEEN.queried_features_dict['pCMV_ABE
+                     /building_history_21="QUEEN.queried_features_dict['pCMV_ABE
                      _f5']–=–QUEEN.dna_dict['pCMV_ABE'].searchsequence(query=QUE
                      EN.dna_dict['RS048'].seq[-18:],–product='RV3',–process_name
                      ='PCR',–process_description='3.–A–backbone–fragment–was–amp
                      lified–from–pCMV-ABE7.10–using–the–primer–pair–RS047/RS048.
                      ')"
-                     /building_history_19="query:
+                     /building_history_21="query:
                      QUEEN.dna_dict['RS048'].seq[-18:]"
-                     /building_history_19="pCMV_Target_AID-WI28INSGUMCZ2NUOUFKKW
+                     /building_history_21="pCMV_Target_AID-WI28INSGUMCZ2NUOUFKKW
                      IKE"
-                     /building_history_20="QUEEN.dna_dict['extract3']–=–cropdna(
+                     /building_history_22="QUEEN.dna_dict['extract3']–=–cropdna(
                      QUEEN.dna_dict['pCMV_ABE'],–start=QUEEN.queried_features_di
                      ct['pCMV_ABE_f4'][0].end,–end=QUEEN.queried_features_dict['
                      pCMV_ABE_f5'][0].start,–product='extract3',–process_name='P
                      CR',–process_description='3.–A–backbone–fragment–was–amplif
                      ied–from–pCMV-ABE7.10–using–the–primer–pair–RS047/RS048.')"
-                     /building_history_20="start: 5277; end: 8613"
-                     /building_history_20="pCMV_Target_AID-36NO0BR31UOD3CM08BGT6
+                     /building_history_22="start: 5277; end: 8613"
+                     /building_history_22="pCMV_Target_AID-36NO0BR31UOD3CM08BGT6
                      WC7"
-                     /building_history_21="QUEEN.dna_dict['fragment3']–=–modifye
+                     /building_history_24="QUEEN.dna_dict['fragment3']–=–modifye
                      nds(QUEEN.dna_dict['extract3'],–left=QUEEN.dna_dict['RS047'
-                     ].seq,–right=QUEEN.dna_dict['RS048'].rcseq,–product='fragme
-                     nt3',–process_name='PCR',–process_description='3.–A–backbon
-                     e–fragment–was–amplified–from–pCMV-ABE7.10–using–the–primer
-                     –pair–RS047/RS048.')"
-                     /building_history_21="left:
+                     ].seq,–right=QUEEN.dna_dict['RS048'].rcseq,–setfeature={'fe
+                     ature_id':–'fragment-3',–'qualifier:label':–'fragment-3'},–
+                     product='fragment3',–process_name='PCR',–process_descriptio
+                     n='3.–A–backbone–fragment–was–amplified–from–pCMV-ABE7.10–u
+                     sing–the–primer–pair–RS047/RS048.')"
+                     /building_history_24="left:
                      ATCAAGATGCTATAATGAGTTTAAACCCGCTGATC; right:
                      CTATAGGGAGAGCCGCCACCATGGCACCGAAG; leftobj:
                      QUEEN.dna_dict['RS047'].seq; rightobj:
                      QUEEN.dna_dict['RS048'].rcseq"
-                     /building_history_21="pCMV_Target_AID-6EBK7PW1I1LB3U0IV1WAH
-                     X4Z"
-                     /building_history_24="QUEEN.dna_dict['fragment3_mod']–=–mod
-                     ifyends(QUEEN.dna_dict['fragment3'],–left='*{25}/-{25}',–ri
-                     ght='-{25}/*{25}',–product='fragment3_mod',–process_name='G
+                     /building_history_24="pCMV_Target_AID-6MAOKB5CBNVPERE1TCBGQ
+                     3U2"
+                     /building_history_27="QUEEN.dna_dict['fragment3_mod']–=–mod
+                     ifyends(QUEEN.dna_dict['fragment3'],–left='*{30}/-{30}',–ri
+                     ght='-{30}/*{30}',–product='fragment3_mod',–process_name='G
                      ibson–Assembly',–process_description='4.–The–three–fragment
                      s–were–assembled–by–Gibson–Assembly.')"
-                     /building_history_24="left: *{25}/-{25}; right:
-                     -{25}/*{25}; leftobj: '*{25}/-{25}'; rightobj:
-                     '-{25}/*{25}'"
-                     /building_history_24="pCMV_Target_AID-5U5C5B6FKDQ4BA20NSQMG
-                     S2I"
-                     /building_history_25="QUEEN.dna_dict['pCMV_Target_AID']–=–j
+                     /building_history_27="left: *{30}/-{30}; right:
+                     -{30}/*{30}; leftobj: '*{30}/-{30}'; rightobj:
+                     '-{30}/*{30}'"
+                     /building_history_27="pCMV_Target_AID-6867T0Q4KU2M9WCPFDME0
+                     HA1"
+                     /building_history_28="QUEEN.dna_dict['pCMV_Target_AID']–=–j
                      oindna(*[QUEEN.dna_dict['fragment1_mod'],–QUEEN.dna_dict['f
                      ragment2_mod'],–QUEEN.dna_dict['fragment3_mod']],–topology=
                      'circular',–product='pCMV_Target_AID',–process_name='Gibson
                      –Assembly',–process_description='4.–The–three–fragments–wer
                      e–assembled–by–Gibson–Assembly.')"
-                     /building_history_25="topology: circular"
-                     /building_history_25="pCMV_Target_AID-8IXV92W0BW934FILCZ1TO
+                     /building_history_28="topology: circular"
+                     /building_history_28="pCMV_Target_AID-8IXV92W0BW934FILCZ1TO
                      H7R"
 ORIGIN
         1 ccatctgttg tttgcccctc ccccgtgcct tccttgaccc tggaaggtgc cactcccact

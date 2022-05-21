@@ -3,7 +3,7 @@
 # Copyright (C) Hideto Mori
 
 DESCRIPTION      = "QUEEN (a Python module to universally program, QUinE, and Edit Nucleotide sequences)"
-DISTNAME         = 'QUEEN'
+DISTNAME         = 'python-queen'
 MAINTAINER       = 'Hideto Mori'
 MAINTAINER_EMAIL = 'hidto7592@gmail.com'
 URL              = 'https://github.com/yachielab/QUEEN'

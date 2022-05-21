@@ -1207,7 +1207,7 @@ QUEEN provides the following visualization functions.
   
   **Output figures**
   
-  <img src="img/usermanual_fig01.jpg" width="800x800">
+  <img src="https://github.com/yachielab/QUEEN/blob/master/img/usermanual_fig01.jpg" width="800x800">
   
  
 * ##### **`visualizeflow(input=list of QUEEN_objects, search_function=bool, grouping=bool, process_classification=bool, intermediate_product=bool)`**
@@ -1248,4 +1248,4 @@ QUEEN provides the following visualization functions.
   
   **Output figures**
   
-  <img src="img/usermanual_fig02.jpg" width="800x800">
+  <img src="https://github.com/yachielab/QUEEN/blob/master/img/usermanual_fig02.jpg" width="800x800">

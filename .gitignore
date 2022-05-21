@@ -16,7 +16,11 @@
 /demo/Weinberg_et_aL_2017/2input_4output_decoder.ipynb
 /demo/sakata_et_al_2020/pCMV_Target_ACEmax_construction_v2.1.ipynb
 /demo/sakata_et_al_2020/pCMV_ACBEmax_construction_v2.1.ipynb
+/demo/sakata_et_al_2020/output/
+/demo/tutorial/output/
 /demo/Weinberg_et_aL_2017/output/
 /QUEEN.egg-info/
 /build/
 /dist/
+/tmp/
+/output/

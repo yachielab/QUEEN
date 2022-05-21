@@ -3,7 +3,6 @@ QUEEN (a framework to generate quinable and efficiently editable nucleotide sequ
 
 <img src="img/ga.jpg" width="600x600">
 
-
   - [Software dependency](#Software-dependency)
   - [Installation](#Installation)
   - [Usage](#Usage)
@@ -29,18 +28,25 @@ QUEEN (a framework to generate quinable and efficiently editable nucleotide sequ
   - [Visualization](#Visualization)
     - [visualizemap()](https://github.com/yachielab/QUEEN#visualizemapinputqueen_object-map_viewstr-feature_listlist-startint-endint-width_scalefloat-height_scalefloat-label_locationstr-linebreakint-seqbool-diameterfloat)
     - [visualizeflow()](https://github.com/yachielab/QUEEN#visualizeflowinputlist-of-queen_objects-search_functionbool-groupingbool-process_classificationbool-intermediate_productbool)
-   
+
 ## Software dependency
 Python 3.7.0 or later
 
-
 ## Installation
-1. Install QUEEN using the following command.  
-   `pip3 install git+https://github.com/yachielab/QUEEN.git@develop/ver1.1`
+1. Install QUEEN using the following command.
+
+  **For the official release (v1.0.0) on the Python Package Index**
+  ```
+  pip install patchworklib 
+  ```
+  
+  **For the developmental version on GitHub**
+  ```
+  pip install git+https://github.com/ponnhide/patchworklib.git
+  ```
 
 2. Install Graphviz (optional; required for visualizing flowcharts of DNA building processes using the `visualizeflow()` function described below). Graphviz package is available at the following link.  
     - [Graphviz](https://graphviz.org/download/source/)
-
 
 ## Usage
 QUEEN provides the QUEEN class to define a double-stranded (ds)DNA object with sequence annotations. The QUEEN class and its operational functions are described below. Jupyter Notebook files for all of the example codes are provided in `./demo/tutorial` of QUEEN ([https://github.com/yachielab/QUEEN](https://github.com/yachielab/QUEEN)) and also made executable in Google Colaboratory:
@@ -61,7 +67,6 @@ A `QUEEN_object` (blunt-end) is created by providing its top-stranded sequence (
 from QUEEN.queen import *
 dna = QUEEN(seq="CCGGTATGCGTCGA") 
 ```
-
 
 #### Example code 2: Create a QUEEN class object (sticky-end)
 The left and right values separated by `"/"` show the top and bottom strand sequences of the generating `QUEEN_object`, respectively. The top strand sequence is provided in the 5’-to-3’ direction from left to right, whereas the bottom strand sequence is provided in the 3′-to-5′ direction from left to right. Single-stranded regions can be provided by `"-"` for the corresponding nucleotide positions on the opposite strands. A:T and G:C base-pairing rule is required between the two strings except for the single-stranded positions.  
@@ -733,17 +738,19 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   #### Return
   > `QUEEN_object`
 
-
-
 * ##### **`joindna(*inputs=*list of QUEEN objects, topology=str, stickyend_length=int, product=str, process_name=str, process_description="str")`** 
-  Assemble `QUEEN_object`. The connecting DNA end structures must include compatible region (i.e., only blunt ends and compatible sticky ends can be assembled). If the assembly restores unfragmented sequences of `DNAfeature_objects` that are fragmented before the assembly and hold `"qualifiers:broken_feature"` attributes, the original `DNAfeature_objects` will be restored in the output `QUEEN_object` (the fragmented `DNAfeature_objects` will not be inherited). A single linear `QUEEN_object` processed by this function will be circularized.
+  Assemble `QUEEN_objects`. Therefore, the connecting DNA end structures must include compatible region (i.e., only blunt ends and sequence ends including compatible sticky ends can be assembled). 
+
+  From QUEEN v1.1.0, `joindna` can also accept ssDNA objects as inputs. When ssdna objects are specified, it can take only two ssDNA objects.  
+  The first one is set as the top strand and the second one is set as the bottom strand.
+  Then, they are annealed according to the longest complementary sequence between them and return the new dsDNA object.
+  If the assembly restores unfragmented sequences of `DNAfeature_objects` that are fragmented before the assembly and hold `"qualifiers:broken_feature"` attributes, the original `DNAfeature_objects` will be restored in the output `QUEEN_object` (the fragmented `DNAfeature_objects` will not be inherited). A single linear `QUEEN_object` processed by this function will be circularized.
   
   #### Parameters
   * **inputs**: `list` of `QUEEN_object`
   * **topology**: `str` (`"linear"` or `"circular"`; default: `"linear"`)  
     Topology of the output `QUEEN_object`. 
-  * **stickyend_length**: `int` (default: `0`) 
-    Minimum compatible sticky end legnth to be required in the assembly. If the compatible end length is shorter than this value, 'joindna' operation would be interrupted and raise the error message. 
+  
   #### Return
   > `QUEEN_object`
   
@@ -801,7 +808,6 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   ValueError: The QUEEN_objects cannot be joined due to the end structure incompatibility.
   ```
   
-  
   #### Example code 18: Create a gRNA expression plasmid
   pX330 serves as a standard gRNA expression backbone plasmid. A gRNA spacer can simply be cloned into a BbsI-digested destination site of pX330 as follows:
   1. Generate QUEEN object for a sticky-ended gRNA spacer dsDNA,
@@ -811,12 +817,20 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   (Expected runtime: less than 1 sec.) 
   
   **Source code (continued from the previous code)**
+  
   ```python
-  gRNA      = QUEEN(seq="CACCGACCATTGTTCAATATCGTCC----/----CTGGTAACAAGTTATAGCAGGCAAA") 
-  sites     = plasmid.searchsequence(cutsite.lib["BbsI"])
-  fragments = cutdna(plasmid, *sites)
-  backbone  = fragments[0] if len(fragments[0].seq) > len(fragments[1].seq) else fragment[1]
-  pgRNA     = joindna(gRNA, backbone, topology="circular")
+  gRNA_top    = QUEEN(seq="CACCGACCATTGTTCAATATCGTCC", ssdna=True)
+  gRNA_bottom = QUEEN(seq="AAACGGACGATATTGAACAATGGTC", ssdna=True)
+  gRNA        = joindna(gRNA_top, gRNA_bottom, 
+                      setfeature={"feature_id":"gRNA-1", "feature_type":"gRNA", "qualifier:label":"gRNA"})
+  gRNA.printsequence(display=True)
+
+  sites       = plasmid.searchsequence(cutsite.lib["BbsI"])
+  fragments   = cutdna(plasmid, *sites)
+  backbone    = fragments[0] if len(fragments[0].seq) > len(fragments[1].seq) else fragment[1]
+  pgRNA       = joindna(gRNA, backbone, topology="circular", product="pgRNA")
+
+  pgRNA.printfeature()
   print(backbone)
   print(insert)
   print(pgRNA) 
@@ -824,6 +838,40 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   
   **Output** 
   ```
+  5' CACCGACCATTGTTCAATATCGTCC---- 3'
+  3' ----CTGGTAACAAGTTATAGCAGGCAAA 5'
+
+  feature_id  feature_type   qualifier:label     start  end   strand  
+  0           primer_bind    hU6-F               0      21    +       
+  100         promoter       U6 promoter         0      241   +       
+  200         source         source              0      249   +       
+  300         primer_bind    LKO.1 5'            171    191   +       
+  gRNA-1      gRNA           gRNA                245    274   +       
+  500         misc_RNA       gRNA scaffold       270    346   +       
+  600         source         source              270    8487  +       
+  700         enhancer       CMV enhancer        442    728   +       
+  800         intron         hybrid intron       986    1214  +       
+  900         regulatory     Kozak sequence      1225   1235  +       
+  1000        CDS            3xFLAG              1234   1300  +       
+  1100        CDS            SV40 NLS            1306   1327  +       
+  1200        CDS            Cas9                1351   5452  +       
+  1300        CDS            nucleoplasmin NLS   5452   5500  +       
+  1400        primer_bind    BGH-rev             5527   5545  -       
+  1500        polyA_signal   bGH poly(A) signal  5533   5741  +       
+  1600        repeat_region  AAV2 ITR            5749   5879  +       
+  1700        repeat_region  AAV2 ITR            5749   5890  +       
+  1800        rep_origin     f1 ori              5964   6420  +       
+  1900        primer_bind    F1ori-R             6051   6071  -       
+  2000        primer_bind    F1ori-F             6261   6283  +       
+  2100        primer_bind    pRS-marker          6436   6456  -       
+  2200        primer_bind    pGEX 3'             6555   6578  +       
+  2300        primer_bind    pBRforEco           6615   6634  -       
+  2400        promoter       AmpR promoter       6701   6806  +       
+  2500        CDS            AmpR                6806   7667  +       
+  2600        primer_bind    Amp-R               7024   7044  -       
+  2700        rep_origin     ori                 7837   8426  +       
+  2800        primer_bind    pBR322ori-F         8326   8346  +       
+
   <queen.QUEEN object; project='pX330_26', length='8466 bp', topology='linear'>
   <queen.QUEEN object; project='EGFP_2', length='787 bp', topology='linear'>
   <queen.QUEEN object; project='pgRNA', length='8487 bp', topology='circular'>
@@ -1041,7 +1089,10 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
 ## Common parameters of the quinable functions
 DNA construction process achieved by `QUEEN()` for genearating QUEEN object, the search functions `searchsequence()` and `searchfeature()`, operational functions `cutdna()`, `cropdna()`, `modifyends()`, `flipdna()`, and `joindna()` and super functions `editsequence()` and `editfeature()` described up to here can progressively be recorded into the manipulating QUEEN object, which enables to generate a quine code that replicates the same QUEEN object by the `quine()` function described below. From here, we call these functions "quinable" functions.
 
-In addition to the parameters and options described above for the quinable functions, all of them can commonly take the five parameters.The  `process_name`, `process_description`, and `product`, that enable annotation and structured visualization of the construction process (see below). These optional parameters do not affect the behavior of the quinable functions.
+In addition to the parameters and options described above for the quinable functions, all of them can commonly take the five parameters.  
+The `process_name`, `process_description`, and `product`, that enable annotation and structured visualization of the construction process (see below). The three optional parameters do not affect the behavior of the quinable functions.
+Then, from ver 1.1, the additional two common parameters `quianable` and `setfeature` are added (see below)  
+
 
 * **process_name (or pn)**:`str` (default: `""`)
 This option enables users to provide label names for process flow groups. An experimental flow composed of sequential operations by quinable functions can be grouped and labeled with a user-defined name by providing the same name to the quinable function operations belonging to the same target group. Such group labels can be, for example, `"PCR 1"`, `"EcoRI digestion"`, `"Gibson Assembly"`, etc. `visualizeflow()` described below takes into account the group information to generate experimental flow maps from `QUEEN_objects`.
@@ -1053,12 +1104,15 @@ Similar to `process_name`, this option enables users to provide narrative descri
 This option enables users to provide label names for producing `QUEEN_objects`. The provided labels are stored in `QUEEN_objects.project`.
 
 * **setfeature**: `False`, `dict`, `list` of `dict`
-This parameter can be acceptable by only `QUEEN()` and basic operational fuctions `cutdna()`, `cropdna()`, `modifyends()`, `flipdna()` and `joindna()`. A `dict` object is composed of key-value pairs of DNAfeature attributes. If the parameter is specfied, the DNAfeature objects generated based on the dictionary values would be added in the `.dnafeatures` of newly generated QUEEN objects. The following attributes have default values, so if they are not specified in a `dict` object, the values would be set with the default values.  	
+This parameter can be acceptable by only `QUEEN()` and basic operational fuctions `cutdna()`, `cropdna()`, `modifyends()`, `flipdna()` and `joindna()`. A `dict` object is composed of key-value pairs of DNAfeature attributes.   
+If the parameter is specfied, the DNAfeature objects generated based on the dictionary values would be added in the `.dnafeatures` of newly generated QUEEN objects.   
+The following attributes have default values, so if they are not specified in a `dict` object, the values would be set with the default values.  	
 	- `feature_id`: `str`, (default: Random unique ID which is not used in `.dnafeatures` of the QUEEN object) 
 	- `feature_type`: `str` (default: `"misc_feature"`) 
 	- `start`: `int` (default: 0) 
 	- `end`: `int` (default: length of the `QUEEN_object` sequence)
 	- `strand`: `int` (-1, 0 or 1, default: 1) 
+In "Example code 18", the use of `setfeature` parameter is demonstrated. 
 
 * **quinable**:`bool` (`True` or `False`; default: `True`) 
 If `False`, the operation process will not be recorded into the building history.

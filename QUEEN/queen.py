@@ -1,7 +1,7 @@
 import os 
 import functools
 import sys
-sys.path.append("/".join(__file__.split("/")[:-1]))
+sys.path.append(os.path.dirname(__file__))
 
 from qobj import QUEEN
 import qfunction

@@ -9,7 +9,7 @@ MAINTAINER_EMAIL = 'hidto7592@gmail.com'
 URL              = 'https://github.com/yachielab/QUEEN'
 LICENSE          = 'MIT'
 DOWNLOAD_URL     = 'https://github.com/yachielab/QUEEN'
-VERSION          = '1.0.0'
+VERSION          = '1.0.1'
 PYTHON_REQUIRES  = ">=3.7"
 
 INSTALL_REQUIRES = [

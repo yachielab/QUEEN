@@ -218,7 +218,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
   **Source code**
   ```python
   from queen import *
-  fragment **=** QUEEN(seq**=**"CCGGTATGCG----/----ATACGCAGCT") 
+  fragment = QUEEN(seq="CCGGTATGCG----/----ATACGCAGCT") 
   fragment.printsequence(display=True)
   ```
   

@@ -3,6 +3,10 @@ QUEEN (a framework to generate quinable and efficiently editable nucleotide sequ
 
 <img src="img/ga.jpg" width="600x600">
 
+If you've found QUEEN is useful for your research, please consider citing our paper published in Nature Communications.  
+
+Mori, H., Yachie, N. A framework to efficiently describe and share reproducible DNA materials and construction protocols. Nat Commun 13, 2894 (2022). https://doi.org/10.1038/s41467-022-30588-x
+
   - [Software dependency](#Software-dependency)
   - [Installation](#Installation)
   - [Usage](#Usage)

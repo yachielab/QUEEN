@@ -19,7 +19,7 @@ QUEEN (a framework to generate quinable and efficiently editable nucleotide sequ
       - [cropdna()](https://github.com/yachielab/QUEEN#cropdnainputqueen_object-startint-intint-or--dnafeature_object-endint-intint-or--dnafeature_object-productstr-process_namestr-process_descriptionstr)
     - [modifyends()](https://github.com/yachielab/QUEEN#modifyendsinputqueen_object-leftstrstr-rightstrstr-productstr-process_namestr-process_descriptionstr)
     - [flipdna()](https://github.com/yachielab/QUEEN#flipdnainputqueen_object-productstr-process_namestr-process_descriptionstr)
-    - [joindna()](https://github.com/yachielab/QUEEN#joindnainputslist-of-queen-objects-topologystr-productstr-process_namestr-process_descriptionstr)
+    - [joindna()](https://github.com/yachielab/QUEEN#joindnainputslist-of-queen-objects-topologystr-stickyend_lengthint-productstr-process_namestr-process_descriptionstr)
     - [editsequence()](https://github.com/yachielab/QUEEN#editsequenceinputqueen-object-source_sequenceregex-or-str-destination_sequencestr-startint-endint-strandint-productstr-process_namestr-process_descriptionstr)
     - [editfeature()](https://github.com/yachielab/QUEEN#editfeatureinputqueen_object-key_attributestr-queryregex-or-str-sourcelist-of-dnafeature_objects-startint-endint-strandint-target_attributestr-operationfunction-new_copybool-productstr-process_namestr-process_descriptionstr)
   - [Common parameters of the quinable functions](#Common-parameters-of-the-quinable-functions)

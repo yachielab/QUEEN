@@ -7,6 +7,11 @@ import matplotlib
 import matplotlib.pyplot as plt
 from  Bio import SeqIO
 from matplotlib.transforms import Bbox
+try:
+    import patchworklib as pw
+    _patchworklib = True
+except:
+    _patchworklib = False
 
 matplotlib.rcParams["figure.max_open_warning"] = 0
 matplotlib.rcParams['ps.fonttype']  = 42
@@ -58,7 +63,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
     head_length = head_length * 1.0/enlarge_w 
     gene_position_matrix = [[0] * length]
     text_position_matrix = [[0] * length] 
-    label_position_list = [] 
+    label_position_list  = [] 
     if len(unvisible_types) == 0:
         visible   = 1
         unvisible = 1
@@ -249,15 +254,33 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
             fw="bold" if lc=="w" else None
         else:
             pass 
-
+        
+        hapos = "center"
         text = ax.text(tx, ty-0.05, label, ha="center", va="center", fontsize=fontsize, color=lc, fontweight=fw)
         bbox_text = text.get_window_extent(renderer=renderer)
         bbox_text = Bbox(coordinate.transform(bbox_text))
         width = bbox_text.width*length
         ts    = int(tx-int(width/2)*1.2) 
-        ts    = 0 if ts < 0 else ts 
         te    = int(tx+int(width/2)*1.2)
-        te    = length if te > length else te
+        
+        if ts < 0:
+            hapos = "left"
+            text.set_visible(False)
+            text = ax.text(tx, ty-0.05, label, ha="left", va="center", fontsize=fontsize, color=lc, fontweight=fw)
+            bbox_text = text.get_window_extent(renderer=renderer)
+            bbox_text = Bbox(coordinate.transform(bbox_text))
+            ts    = 0
+            te    = int(tx+width*1.2)
+
+        elif te > length:
+            hapos = "right"
+            text.set_visible(False)
+            text = ax.text(tx, ty-0.05, label, ha="right", va="center", fontsize=fontsize, color=lc, fontweight=fw)
+            bbox_text = text.get_window_extent(renderer=renderer)
+            bbox_text = Bbox(coordinate.transform(bbox_text))
+            ts    = int(tx-width*1.2) 
+            te    = length
+
         if width > abs(ge-gs) * 0.90:
             text.set_visible(False)
             for t, trow in enumerate(text_position_matrix):
@@ -274,7 +297,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
             if label_visible == 2:
                 if annotation_loc == "either": 
                     if t % 2 == 0:
-                        ax.text(tx, t//2+1, label, ha="center",va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc, pad=0.3, lw=1.4), zorder=100, fontsize=fontsize, color=lc, fontweight=fw)
+                        ax.text(tx, t//2+1, label, ha=hapos, va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc, pad=0.3, lw=1.4), zorder=100, fontsize=fontsize, color=lc, fontweight=fw)
                         ax.plot([(gs+ge)/2, (gs+ge)/2], [t//2+1, ty], lw=0.5, color="k", zorder=0)
                         ty_list.append(t//2+1)
                     
@@ -283,7 +306,8 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                             bufspace = 0.8 * fontsize/12
                         else:
                             bufspace = 0 
-                        ax.text(tx, -1*max(y_list)-1-bufspace-t//2, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc, pad=0.3, lw=1.4), zorder=100, fontsize=fontsize, color=lc, fontweight=fw)
+                        
+                        ax.text(tx, -1*max(y_list)-1-bufspace-t//2, label, ha=hapos, va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc, pad=0.3, lw=1.4), zorder=100, fontsize=fontsize, color=lc, fontweight=fw)
                         ax.plot([(gs+ge)/2, (gs+ge)/2], [-1*max(y_list)-1-bufspace-t//2, ty], lw=0.5, color="k", zorder=0)
                         ty_list.append(-1*max(y_list)-1-bufspace-t//2)
                 
@@ -291,13 +315,14 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                     if axis_visible == True:
                         bufspace = 0.8 * fontsize/12
                     else:
-                        bufspace = 0 
-                    ax.text(tx, -1*max(y_list)-1-bufspace-t, label, ha="center",va="center",  bbox=dict(boxstyle="round", ec=ec, fc=fc, pad=0.3, lw=1.4), zorder=100, fontsize=fontsize, color=lc, fontweight=fw)
+                        bufspace = 0
+                    
+                    ax.text(tx, -1*max(y_list)-1-bufspace-t, label, ha=hapos, va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc, pad=0.3, lw=1.4), zorder=100, fontsize=fontsize, color=lc, fontweight=fw)
                     ax.plot([(gs+ge)/2, (gs+ge)/2], [-1*max(y_list)-1-bufspace-t, ty], lw=0.5, color="k", zorder=0)
                     ty_list.append(-1*max(y_list)-1-bufspace-t)
                     
                 else:
-                    ax.text(tx, t+1, label, ha="center",va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc, pad=0.3, lw=1.4), zorder=100, fontsize=fontsize, color=lc, fontweight=fw)
+                    ax.text(tx, t+1, label, ha=hapos, va="center", bbox=dict(boxstyle="round", ec=ec, fc=fc, pad=0.3, lw=1.4), zorder=100, fontsize=fontsize, color=lc, fontweight=fw)
                     ax.plot([(gs+ge)/2, (gs+ge)/2], [t+1, ty], lw=0.5, color="k", zorder=0)
                     ty_list.append(t+1)
 
@@ -307,6 +332,7 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
             if label_visible == 0:
                 text.set_visible(False)
             ty_list.append(ty) 
+    
     return ax, y_list, ty_list
 
 def colorbar(ax, color_dict, ref_seq, char=False, fontsize=10):
@@ -330,10 +356,10 @@ def colorbar(ax, color_dict, ref_seq, char=False, fontsize=10):
     ax.spines["bottom"].set_visible(False)
     ax.spines["left"].set_visible(False)
     ax.spines["top"].set_visible(False)
-    ax.patch.set_alpha(0.0)
+    ax.patch.set_alpha(1.0)
     return bars
 
-def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, label_visible=True, feature_list=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, scale="fix", fontsize=12, with_seq=False, nucl_char=None, nucl_color_dict=None, title_visible=True, axis_visible=True, tick_space="auto", labelcolor="k", titlename=None, fig=None):
+def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, label_visible=True, feature_list=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, scale="fix", fontsize=12, with_seq=False, with_seqr=False, nucl_char=None, nucl_color_dict=None, title_visible=True, axis_visible=True, tick_space="auto", labelcolor="k", titlename=None, fig=None):
     if titlename is None:
         titlename = brick.project
     else:
@@ -359,12 +385,22 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
         width = abs(end-start)  
 
     ceil = 0   
+    pww  = 1
+    pwh  = 1
     if fig is None:
-        fig = plt.figure(figsize=(3,0.30))
+        if _patchworklib == True:
+            fig = pw.Brick._figure
+            pww = 3
+            pwh = 0.3333333
+        else:
+            fig = plt.figure(figsize=(3,0.30))
         basenum = 0
     else:
-        fig = fig
-        fig.set_size_inches(3,0.30) 
+        if fig == pw.Brick._figure:
+            pww = 3
+            pwh = 0.3333333
+        else:
+            fig.set_size_inches(3,0.30) 
         basenum = len(fig.axes)+1 
 
     axes_list = [] 
@@ -443,7 +479,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
             if "broken_feature" in feat.qualifiers:
                 posinfo     = feat.qualifiers["broken_feature"][0].split(":")[-1]
                 feat_length = feat.qualifiers["broken_feature"][0].split(":")[-4] 
-                label = label + ":" + posinfo + ":" +  feat_length
+                label       = label + ":" + posinfo + ":" +  feat_length
                 feat.qualifiers["label"] = [label] 
 
     for num, sub_start in enumerate(list(range(start, end, width))):
@@ -461,17 +497,24 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
         matplotlib.rcParams['font.size'] = fontsize if fontsize >=12 else 12
         
         if scale == "fix":
-            std = 1000
-            head_length = 48
+            std = 1000 
+            head_length = 48 * pww
         
         if enlarge_w == "auto":
             if with_seq == True:
-                enlarge_w = 40
+                enlarge_w = 40 * pww
             else:  
-                enlarge_w = 1.0
+                enlarge_w = 1.0 * pww
+        else:
+            if num == 0:
+                enlarge_w = enlarge_w * pww
 
         if enlarge_h == "auto":
-            enlarge_h = 1.0
+            enlarge_h = 1.0 * pwh
+        else:
+            if num == 0:
+                enlarge_h = enlarge_h * pwh
+
         zero_position = sub_start + 1
         ax  = fig.add_axes([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h], label=str(num+basenum)) 
         ax, y_list, ty_list = map_feat(fig, ax, sub_brick.dnafeatures, len(sub_brick.seq), head_length, unvisible_types=unvisible_types, visible_types=visible_types, enlarge_w=enlarge_w, enlarge_h=enlarge_h, annotation_loc=annotation_loc, label_visible=label_visible, fontsize=fontsize, project=sub_brick.project, title_visible=title_visible, axis_visible=axis_visible, labelcolor=labelcolor, titlename=titlename)
@@ -484,7 +527,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
         ax.spines["left"].set_visible(False) 
         ax.spines["bottom"].set_position(("data",-1.0 * max(y_list)-0.5))
        
-        y_list = list(-1 * np.array(y_list)) 
+        y_list  = list(-1 * np.array(y_list)) 
         ytop    = max(ty_list+y_list)+0.5
         ybottom = min(ty_list+y_list)-0.5
 
@@ -507,7 +550,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
             ax.set_xticklabels([])
             ax.set_xlim(0, len(sub_brick.seq))
             ax.spines["bottom"].set_visible(False)
-            ax_seq = fig.add_axes([0, -0.60*enlarge_h/(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h/(abs(ytop-ybottom))], label="{}_seq".format(num+basenum))
+            ax_seq  = fig.add_axes([0, -0.60*enlarge_h/(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h/(abs(ytop-ybottom))], label="{}_seq".format(num+basenum))
             if nucl_char != True and nucl_char != False:
                 if enlarge_w < 30:
                     colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=False, fontsize=fontsize-2)
@@ -515,29 +558,68 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
                     colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=True, fontsize=fontsize-2)
             else:
                 colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=nucl_char)
+           
+            if with_seqr == False:
+                ax_seqr = None
+                ticks   = np.array(ticks) + 0.5
+                ax_seq.set_xticks(ticks) 
+                ax_seq.set_xticklabels(tick_labels)
+                ax_seq.set_xlim(0, len(sub_brick.seq)) 
+                
+                if num == 0:
+                    if title_visible == True:
+                        ax.set_title(titlename, fontsize=fontsize * 1.125, pad=15)
+                    ax.set_position([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
+                    ax_seq.set_position([0, -0.65*enlarge_h, enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h]) 
+                    ceil = -0.65*enlarge_h
+                else:
+                    ax.set_position([0, ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
+                    ax_seq.set_position([0, ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom))-0.65*enlarge_h, enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h]) 
+                    ceil = ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom))-0.65*enlarge_h
+                
+                if axis_visible == False:
+                    ax_seq.spines["bottom"].set_visible(False) 
+                    ax_seq.set_xticks([]) 
 
-            ticks = np.array(ticks) + 0.5
-            ax_seq.set_xticks(ticks) 
-            ax_seq.set_xticklabels(tick_labels)
-            ax_seq.set_xlim(0, len(sub_brick.seq)) 
-            if num == 0:
-                if title_visible == True:
-                    ax.set_title(titlename, fontsize=fontsize * 1.125, pad=15)
-                ax.set_position([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
-                ax_seq.set_position([0, -0.65*enlarge_h, enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h]) 
-                ceil = -0.65*enlarge_h
             else:
-                ax.set_position([0, ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
-                ax_seq.set_position([0, ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom))-0.65*enlarge_h, enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h]) 
-                ceil = ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom))-0.65*enlarge_h
-            if axis_visible == False:
-                ax_seq.spines["bottom"].set_visible(False) 
-                ax_seq.set_xticks([]) 
+                ax_seqr = fig.add_axes([0, -0.60*2*enlarge_h/(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h/(abs(ytop-ybottom))], label="{}_seq".format(num+basenum))
+                if nucl_char != True and nucl_char != False:
+                    if enlarge_w < 30:
+                        colorbar(ax_seqr, nucl_color_dict, sub_brick.seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")), char=False, fontsize=fontsize-2)
+                    else:
+                        colorbar(ax_seqr, nucl_color_dict, sub_brick.seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")), char=True, fontsize=fontsize-2)
+                else:
+                    colorbar(ax_seqr, nucl_color_dict, sub_brick.seq, char=nucl_char)
+                
+                ticks = np.array(ticks) + 0.5
+                ax_seqr.set_xticks(ticks) 
+                ax_seqr.set_xticklabels(tick_labels)
+                ax_seqr.set_xlim(0, len(sub_brick.seq)) 
+            
+                if num == 0:
+                    if title_visible == True:
+                        ax.set_title(titlename, fontsize=fontsize * 1.125, pad=15)
+                    ax.set_position([0, 0, enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
+                    ax_seq.set_position([0, -0.65*enlarge_h, enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h]) 
+                    ax_seqr.set_position([0, -0.65*enlarge_h-0.6*enlarge_h, enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h]) 
+                    ceil = -0.65*enlarge_h-0.6*enlarge_h
+                else:
+                    ax.set_position([0, ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 1.0*enlarge_h*(abs(ytop-ybottom))]) 
+                    ax_seq.set_position([0, ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom))-0.65*enlarge_h, enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h]) 
+                    ax_seqr.set_position([0, ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom))-0.65*enlarge_h-0.6*enlarge_h, enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h]) 
+                    ceil = ceil-1.2*enlarge_h-1.0*enlarge_h*(abs(ytop-ybottom))-0.65*enlarge_h-0.6*enlarge_h
+                
+                if axis_visible == False:
+                    ax_seq.spines["bottom"].set_visible(False) 
+                    ax_seq.set_xticks([]) 
+                    ax_seqr.spines["bottom"].set_visible(False) 
+                    ax_seqr.set_xticks([]) 
         else:
             ax.set_xticks(ticks) 
             ax.set_xticklabels(tick_labels)
             ax.set_xlim(0, len(sub_brick.seq))
-            ax_seq = None
+            ax_seq  = None
+            ax_seqr = None
             if num == 0:
                 if title_visible == True:
                     ax.set_title(titlename, fontsize=fontsize * 1.125)
@@ -551,5 +633,26 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
                 ax.spines["bottom"].set_visible(False) 
                 ax.set_xticks([])
         
-        axes_list.append((ax, ax_seq)) 
-    return fig, axes_list  
+        axes_list.append((ax, ax_seq, ax_seqr)) 
+
+    if _patchworklib == True:
+        patch_dict = {}
+        patch_list = [] 
+        for axes_set in axes_list:
+            for i, ax in enumerate(axes_set):
+                if ax is None:
+                    pass 
+                else:
+                    patch = pw.Brick(ax=ax)
+                    patch_dict[patch.get_label()] = patch 
+                    patch_list.append(patch)  
+        
+        #if len(patch_list) == 1:
+        #    patch = patch_list[0]  
+        #    patch.change_aspectratio()
+        #else:
+        patch = pw.Bricks(patch_dict)
+        #patch = pw.expand(patch, 3, 0.3333333)
+        return fig, patch  
+    else:
+        return fig, axes_list  

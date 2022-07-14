@@ -5,8 +5,14 @@ import collections
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-from  Bio import SeqIO
+from Bio import SeqIO
 from matplotlib.transforms import Bbox
+try:
+    import patchworklib as pw
+    _patchworklib = True 
+except:
+    _patchworklib = False
+
 
 matplotlib.rcParams["figure.max_open_warning"] = 0
 matplotlib.rcParams['ps.fonttype'] = 42
@@ -254,7 +260,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
             new_pos_list = [] 
             for pos, btw in zip(pos_list, width_list):
                 new_pos_list.append((np.arccos(pos/(y*lane_h+bottom_h))-0.5*np.pi+x, y*lane_h+bottom_h, y, pos, x, btw))
-           
+            
             tflag = 0 
             t_width = (new_pos_list[-1][0] - new_pos_list[0][0]) 
             if t_width < w-2*head_length:
@@ -277,7 +283,6 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
                         new_pos[0] = pos[0] - new_pos_list[-1][0] - new_pos_list[-1][-1] + gs
                         shifted_pos_list.append(new_pos) 
                     new_pos_list = shifted_pos_list
-
             if new_pos_list[len(new_pos_list) // 2][0] < 0.5 * np.pi or new_pos_list[len(new_pos_list) // 2][0] > 1.5 * np.pi:
                 rotation = lambda x:(-1.0*x)*180/np.pi 
             else:
@@ -321,7 +326,6 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
                             new_pos[0] = pos[0] - new_pos_list[-1][0] - new_pos_list[-1][-1] + gs
                             shifted_pos_list.append(new_pos) 
                         new_pos_list = shifted_pos_list
-
             new_origins = [pos * length / (2*np.pi) for pos in [p[0] for p in new_pos_list]] 
             new_gs = gs * length / (2*np.pi)  
             new_ge = ge * length / (2*np.pi) 
@@ -775,31 +779,47 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
                     else:
                         ax.text(2*np.pi*(pos/length), ylim-lane_h*0.80-0.06*(normal_w-lane_h), str(pos), ha="center", va="center",  rotation=(-1*180/np.pi*(2*np.pi*(pos/length)))+180, fontsize=fontsize)
 
-    if ylim < normal_w:
-        ylim = normal_w
-        ax.set_ylim(0,normal_w)
-    else:
-        ax.set_ylim(0,ylim)
+    #if ylim < normal_w:
+    #    ylim = normal_w
+    #    ax.set_ylim(0,normal_w)
+    #else:
+    ax.set_ylim(0,ylim)
    
     ax.patch.set_alpha(0.0) 
     ax2.patch.set_alpha(0.0)
     
-    if ylim > normal_w:
+    if _patchworklib == False:
         fig.set_size_inches(6 * ylim/fig_width, 6 * ylim/fig_width)
+    else:
+        ax.set_position([0, 0,  6 * ylim/fig_width, 6 * ylim/fig_width])
+        ax2.set_position([0, 0, 6 * ylim/fig_width, 6 * ylim/fig_width])
     return ax, y_list, ty_list, fig_width, ylim, bottom_h
 
 def visualize(brick, format=0, feature_list=None, bottom=None, fontsize=8, label_visible=True, axis_visible=True, title_visible=True, tick_space="auto", labelcolor="k", titlename=None, fig=None):
     if titlename is None:
         titlename = brick.project
     brick = copy.deepcopy(brick) 
+    
     if fig is None:
-        figure  = plt.figure(figsize=(6,6))
+        if _patchworklib == True:
+            fig = pw.Brick._figure
+        else:
+            fig = plt.figure(figsize=(6,6))
         basenum = 0
     else:
-        figure  = fig 
-        basenum = len(fig.axes) + 1
-    ax      = figure.add_axes([0,0,1,1], polar=True, label="hoge"+str(basenum))
-    ax2     = figure.add_axes([0,0,1,1], label="fuga"+str(basenum))
+        if fig == pw.Brick._figure:
+            pass 
+        else:
+            fig.set_size_inches(6,6) 
+        basenum = len(fig.axes)+1 
+
+    if _patchworklib == True: 
+        ax      = fig.add_axes([0,0,6,6], polar=True, label="hoge"+str(basenum))
+        ax2     = fig.add_axes([0,0,6,6], label="fuga"+str(basenum))
+    else:
+        ax      = fig.add_axes([0,0,1,1], polar=True, label="hoge"+str(basenum))
+        ax2     = fig.add_axes([0,0,1,1], label="fuga"+str(basenum))
+
     ax.set_theta_zero_location("N")
     ax.set_theta_direction(-1)
     ax.spines['polar'].set_visible(False)
@@ -817,10 +837,9 @@ def visualize(brick, format=0, feature_list=None, bottom=None, fontsize=8, label
             else:
                 feature_list.append(feat)
         feature_list.sort(key=lambda x:len(brick.printsequence(x.start, x.end)))
-    
-    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(figure, ax, ax2, feature_list, len(brick.seq), format=format, bottom=bottom, enlarge=1.0, display_label=label_visible, fontsize=fontsize, display_axis=axis_visible, tick_space=tick_space, labelcolor=labelcolor)  
+    ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(fig, ax, ax2, feature_list, len(brick.seq), format=format, bottom=bottom, enlarge=1.0, display_label=label_visible, fontsize=fontsize, display_axis=axis_visible, tick_space=tick_space, labelcolor=labelcolor)  
     if title_visible == True:
-        renderer    = figure.canvas.get_renderer()
+        renderer    = fig.canvas.get_renderer()
         coordinate  = ax2.transData.inverted() 
         text        = ax2.text(0.5, 0.5, titlename, ha="center", va="center", fontsize=fontsize*1.125 if fontsize >= 8 else 10)
         bbox_text   = text.get_window_extent(renderer=renderer)
@@ -830,8 +849,8 @@ def visualize(brick, format=0, feature_list=None, bottom=None, fontsize=8, label
             text.set_visible(False)
             bp_text.set_visible(False) 
 
-    figure.patch.set_alpha(0.0)  
-    return figure, ax
+    fig.patch.set_alpha(1.0)  
+    return fig, ax, ax2
 
 if __name__ == "__main__":
     from dna import *

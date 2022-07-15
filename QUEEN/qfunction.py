@@ -57,7 +57,7 @@ supfeature : dict, list of dict, or list of list of dict (for cutdna),  default:
     of `dict`. However, for `cutdna()`, the value should be specified as `list` of
     `list` of `dict`.  
     The following attributes have default values, so if they are not specified in a 
-    `dict` object, the values would be set with the default values.  
+    `dict` object, the default values will be used. 
     - `feature_id` : `str`   
       The default value is a random unique ID which is not used in `.dnafeatures` of the
       QUEEN object.  
@@ -527,7 +527,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
     in the original `QUEEN_object` will be inherited to the generating `QUEEN_object`. 
     Suppose any `DNAfeature_objects` are at the cut boundaries being split into 
     fragments. In that case, each `DNAfeature_object` will also be carried over to 
-    the new `QUEEN_object` with the `"qualifiers:broken_feature"` attribute to be 
+    the new `QUEEN_object` with the `"qualifier:broken_feature"` attribute to be 
     
     ```
     "[.project of the original QUEEN_object]:
@@ -548,7 +548,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
         List of cut positions. For blunt-end cut, a cut position can be provided by `int`. 
         For sticky-end cut, a cut position can be specified by `"int/int"`, where the 
         left and right integers represent cut positions on the top and bottom strands, 
-        respectively. `DNAfeature_objects` holding `"qualifiers:cut_site"` attributes can 
+        respectively. `DNAfeature_objects` holding `"qualifier:cut_site"` attributes can 
         also be provided to cut a query DNA. This operation cannot proceed with multiple 
         cut sites where a nicking or blunt-end cut of a cutting event happens between two 
         nick positions of another sticky-end cut.
@@ -1319,7 +1319,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
     Assemble `QUEEN_object`. The connecting DNA end structures must include 
     compatible region whose length is larger than `homology_length`.  
     If the assembly restores unfragmented sequences of `DNAfeature_objects` 
-    that are fragmented before the assembly and hold `"qualifiers:broken_feature"` 
+    that are fragmented before the assembly and hold `"qualifier:broken_feature"` 
     attributes, the original `DNAfeature_objects` will be restored in the output 
     `QUEEN_object` (the fragmented `DNAfeature_objects` will not be inherited).   
     A single linear `QUEEN_object` processed by this function will be circularized.
@@ -2576,7 +2576,7 @@ def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=N
     Edit sequence of `QUEEN_object` by searching target sequence fragments matched to 
     a `source_sequence` and replacing each of them with a `destination_sequence`.   
     All `DNAfeature_objects` located on the edited sequence regions will be given the 
-    `"qualifiers:broken-feature"` attribute. In any sequence edit that confers change 
+    `"qualifier:broken-feature"` attribute. In any sequence edit that confers change 
     in the sequence length of the `QUEEN object`, the coordinates of all affected 
     `DNAfeature_objects` will be adjusted.   
     This is the parental function of `searchsequence()`. If `destination_sequence` is 
@@ -3134,7 +3134,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
     dna : QUEEN.qobj.QUEEN object  
         `QUEEN_object`
     key_attribute : str, default: "all"  
-        Attribute type to be searched (`feature_id`, `feature_type`, `"qualifiers:*"`,
+        Attribute type to be searched (`feature_id`, `feature_type`, `"qualifier:*"`,
         or `sequence`). If the value is not provided, it will be applied to all of the 
         attributes in the `QUEEN_object`, excluding `sequence`. However, if the `query` 
         value is provided with only the four nucleotide letters (A, T, G, and C), this 
@@ -3159,13 +3159,13 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
         Sequence strand to be searched.  
     target_attribute : str, default: None  
         Attribute type of the target `DNAfeature_objects` to be edited (`feature_id`, 
-        `feature_type`, `"qualifiers:*"`, `strand`, `start`, `end` or `sequence`).   
+        `feature_type`, `"qualifier:*"`, `strand`, `start`, `end` or `sequence`).   
         If the value is not provided, this will work just as `searchfeature()`.  
     operation : `removeattribute`, `createattribute` or `replaceattribute`, default: None
         If the operation is not specified, this will work just as `searchfeature()`. 
         - `removeattribute()`
           This removes `target_attribute` from the target `DNAfeature_objects` but only for 
-          `feature_id` or `"qualifiers:*"`. If `target_attribute` is `feature_id`, the 
+          `feature_id` or `"qualifier:*"`. If `target_attribute` is `feature_id`, the 
           entire `DNAfeature_objects` will be erased from the `QUEEN_object`.
         - `createattribute(value="str")`
           This creates or overwrites target_attributes of the target`DNAfeature_objects` 
@@ -3177,7 +3177,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
           `numbers` follow the order they were searched. If the same `feature_id` of `"str"` 
           already exists in the operating `QUEEN_object.dnafeatures`, the `DNAfeature_object` 
           will be generated with the `feature_id="str-number"`. If `target_attribute` is 
-          `"qualifiers:*"`, the qualifier whose value is `"str"` will be added into the 
+          `"qualifier:*"`, the qualifier whose value is `"str"` will be added into the 
           `.qualifiers` of the target `DNAfeature_object` as long as it does not overlap with 
           the existing `.qualifiers`.
         - `replaceattribute(source_value=regex or str, destination_value=str or int)`
@@ -3401,7 +3401,7 @@ def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,la
     of feature annotation labels are automatically adjusted to prevent overlaps on 
     the sequence map. The face color and edge color of each feature annotation are 
     also automatically assigned from the default colormap. However, they can be 
-    determined by `"qualifiers:edgecolor_queen"` and `"qualifiers:facecolor_queen"` 
+    determined by `"qualifier:edgecolor_queen"` and `"qualifier:facecolor_queen"` 
     attributes of  `DNAfeature_objects`.
 
     Parameters
@@ -3416,12 +3416,12 @@ def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,la
         feature type `"source"`. 
     fontsize : int, default: 12 for "circular" map and 10 for "linear" map
         Common font size. Separate font sizes can also be defined for different 
-        `DNAfeaure_objects` by editing the `"qualifiers:fontsize_queen"` attribute, 
+        `DNAfeaure_objects` by editing the `"qualifier:fontsize_queen"` attribute, 
         which overrides the common font size. 
     labelcolor : str, default: "black"
         Common font color for all feature labels. Separate font colors can also be 
         defined for different `DNAfeaure_objects` by editing the 
-        `"qualifiers:labelcolor_queen"` attribute, which overrides the common font color.
+        `"qualifier:labelcolor_queen"` attribute, which overrides the common font color.
     display_label : 0, 1, or 2, default: 2
         If `2`, all of the labels will be displayed. If `1`, only the feature labels that 
         can fit inside the object boxes will be displayed. If `0`, feature labels won't 

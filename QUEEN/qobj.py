@@ -940,7 +940,7 @@ class QUEEN():
             enzyme BsaI can be given by `"GGTCTCN^NNN_N"`, `"N^NNN_NGAGACC"`, `"GGTCTC(1/5)"` 
             or `"(5/1)GAGACC"`. The returned `DNAfeature_objects` obtained for a query 
             restriction enzyme cut motif will hold the cutting rule in the 
-            `"qualifiers:cutsite"` attribute, which can be added to `QUEEN_object.dnafeatures` 
+            `"qualifier:cutsite"` attribute, which can be added to `QUEEN_object.dnafeatures` 
             by `editfeature()` with the `createattribute` option as explained below.  
             Regular expression is disabled for restriction enzyme cut motifs.  
         start : int (zero-based indexing), default: 0  
@@ -951,7 +951,7 @@ class QUEEN():
             Sequence strand to be searched.
         unique : bool (True or False), default: False
             If the value is `True` and multiple (more than a single) sequence region are detected 
-            in the search, it would raise error. If False, multiple seaquence detections could be 
+            in the search, it will raise error. If False, multiple seaquence detections could be 
             acceptable.  
         
         Returns
@@ -1185,7 +1185,7 @@ class QUEEN():
         Parameters
         ----------
         key_attribute : str, default: "all" 
-            Attribute type to be searched (`feature_id`, `feature_type`, `"qualifiers:*"`, 
+            Attribute type to be searched (`feature_id`, `feature_type`, `"qualifier:*"`, 
             or `sequence`). If the value is not provided, it will be applied to all of the 
             attributes in the `QUEEN_object`, excluding `sequence`. However, if the `query` 
             value is provided with only the four nucleotide letters (A, T, G, and C), this 
@@ -1636,7 +1636,7 @@ class QUEEN():
         ----------
         attribute_dict : dict 
             Dictionaly with key-value pairs of the attributes of DNAfeature objects: 
-            "feature_id", "feature_type", "start", "end", "strand", and  "qualifiers:*".  
+            "feature_id", "feature_type", "start", "end", "strand", and  "qualifier:*".  
             The following attributes have default value, so if they are not specified in the 
             dictionary, the value would be set with the default values. 
             - `feature_id` : `str`, 
@@ -1734,7 +1734,7 @@ class QUEEN():
         """ Print a tidy data table of annotation features/attributes of `QUEEN_object`. 
         
         Default output attributes are `"feature_id"`, `"feature_type"`, 
-        `"qualifiers:label"`, `"start"`, `"end"`, and `"strand"`.
+        `"qualifier:label"`, `"start"`, `"end"`, and `"strand"`.
     
         Parameters    
         ----------
@@ -1742,7 +1742,7 @@ class QUEEN():
             List of features to be displayed in the output table. If not given, all features 
             held by the QUEEN_object will be the subject.
         attribute : list of feature attributes  
-            The default value is `["feature_id", "feature_type", "qualifiers:label", "start", 
+            The default value is `["feature_id", "feature_type", "qualifier:label", "start", 
             "end", "strand"]`.   List of feature attributes to be displayed in the output 
             table. If the value is `"all"`, it will generate a table for all the attributes 
             held by the `QUEEN_object` except for `"sequence"`.
@@ -1893,12 +1893,12 @@ class QUEEN():
         if output is None:
             print() 
 
-    def outputgbk(self, output=None, format="genbank", record_id=None, export_history=True, _return=False):
+    def outputgbk(self, output=None, format="genbank", record_id=None, annotation=None, export_history=True, _return=False):
         """Output `QUEEN_object` to a GenBank file. 
 
         In addition to all of the `DNAfeature_objects` in the input `QUEEN_object`, 
         a `DNAfeature_object` encoding the entire construction processes that generated 
-        the `QUEEN_object` in `qualifiers:building_history` will also be output to the 
+        the `QUEEN_object` in `qualifier:building_history` will also be output to the 
         GenBank file.  
         
         Parameters
@@ -1909,6 +1909,9 @@ class QUEEN():
             Output file format
         record_id : str, default: None
             Record ID of a output file, If the value is `None`, self.project value is used as `record_id`.
+        annotation : dict, default: None
+            Dictionary of annotations for the genbank.   
+            For details, please see https://biopython.org/docs/latest/api/Bio.SeqRecord.html.
         export_history : bool, default: True
             If False, construnction history of the `QUEEN_object` will not be output.
 
@@ -1921,7 +1924,6 @@ class QUEEN():
         handle = output
         export_input = False
         separate_history = False
-        annotations = None
         
         stdIOflag = 0 
         if handle is None:
@@ -1982,7 +1984,7 @@ class QUEEN():
                     for pair in pairs:
                         del feat.qualifires["building_history" + "_" + str(pair[1])]
                         print(pair[1], pair[2], sep=",", file=o)
-                self.record.annotaions["source"] = os.getcwd() + "/" + separate_history
+                self.record.annotations["source"] = os.getcwd() + "/" + separate_history
             
             if export_input == True:
                 for hisoty in histories:
@@ -2014,6 +2016,11 @@ class QUEEN():
             self.record.seq = Seq(str(self.seq))
             self.record.annotations["molecule_type"] = "DNA"
         
+        if annotation is None:
+            pass 
+        else:
+            self.record.annotations = annotation
+
         #Add DATE
         import datetime
         dt = datetime.datetime.now() 

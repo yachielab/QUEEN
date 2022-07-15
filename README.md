@@ -28,6 +28,8 @@ QUEEN (a framework to generate quinable and efficiently editable nucleotide sequ
   - [Visualization](#Visualization)
     - [visualizemap()](https://github.com/yachielab/QUEEN#visualizemapinputqueen_object-map_viewstr-feature_listlist-startint-endint-width_scalefloat-height_scalefloat-label_locationstr-linebreakint-seqbool-diameterfloat)
     - [visualizeflow()](https://github.com/yachielab/QUEEN#visualizeflowinputlist-of-queen_objects-search_functionbool-groupingbool-process_classificationbool-intermediate_productbool)
+## Change log
+Please see [changelog.md](https://github.com/yachielab/QUEEN/blob/develop/ver1.1/changelog.md).
 
 ## Software dependency
 Python 3.7.0 or later

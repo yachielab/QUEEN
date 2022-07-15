@@ -111,5 +111,5 @@ If the value is `True` and multiple (more than a single) sequence region are det
 - **`visualizemap` supported patchworklib.**
 If you installed [patchworklib](https://github.com/ponnhide/patchworklib), output figures by `visualizemap` function can be aligned with `/` and `|` operators.   
 
-**The example QUEEN script using new features in ver1.1 is available from "demo/ver1.1/new\_features.md"** 
+**The example QUEEN script using new features in ver1.1 is available from "demo/ver1.1/new\_features.md" or [Google colab](https://colab.research.google.com/drive/1Y4uPZj0pmdznkoO0iv5Av0Z15pG4fN7z?usp=sharing)** 
 

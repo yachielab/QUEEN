@@ -64,8 +64,8 @@ Returns
 QUEEN.qobj.QUEEN objecct
 ```
 
-- **QUEEN object formally supported ssDNA.** 
-QUEEN class object supported ssDNA object. By specifying `ssdna=True` when creating a QUEEN object, ssdna object can be generated.
+- **QUEEN object formally supported ssDNA.**  
+QUEEN class object now supported a ssDNA structure. By specifying `ssdna=True` when creating a QUEEN object, ssdna object can be generated.
 Two ssdna QUEEN objects can be annealed by `joindna` function, producing a dsDNA QUEEN object. For details, see the following example.
 
 ```python 
@@ -99,8 +99,9 @@ gRNA-1      gRNA          gRNA             0      29   +
 
 - **`quinable=bool` parameter was added for the quinable functions.**  
 If the parameter value is `False`, the operational process by the quinable function will not be recorded into the building history of the QUEEN object.
-- **`comatibility=str ("partial" or "complete")` and `homology_length=int` parameters were added for `joindna` function** 
-Until version 1, QUEEN objects could not be joined by 'joindna' unless the entire connecting sticky end sequences were complementary, but since version 1.1, QUEEN objects can be joined together as long as the subsequences in sticky ends are complementary (see the following figure). With this change, the parameters `compatibility` and `homology_length` have been added. If you reproduce the operation in version 1.0, the `compatibility` value should be specified as `complete`. For details, please see `QUEEN.qfunction.joindna.__docstring__` or the discription of `joindna` in `README.md`.  
+
+- **`comatibility=str ("partial" or "complete")` and `homology_length=int` parameters were added for `joindna` function.**  
+Until version 1, QUEEN objects could not be joined by 'joindna' unless the entire connecting sticky end sequences were complementary, but since version 1.1, QUEEN objects can be joined together as long as the subsequences in sticky ends are complementary (see the following figure). With this change, the parameters `compatibility` and `homology_length` have been added. If you reproduce the operation in version 1.0, the `compatibility` value should be specified as `complete`. For details, please see `QUEEN.qfunction.joindna.__docstring__` or the description of `joindna` in `README.md`.  
 Additionally, as mentioned above, ssdna QUEEN objects can now be joined using `joindna`. However dsDNA QUEEN objects and ssDNA QUEEN objects cannot be joined. 
 
 <img src="img/change_log.jpg" width="600x600">
@@ -109,7 +110,7 @@ Additionally, as mentioned above, ssdna QUEEN objects can now be joined using `j
 If the value is `True` and multiple (more than a single) sequence region are detected in the search, `searchsequence` will raise error. 
 
 - **`visualizemap` supported patchworklib.**
-If you installed [patchworklib](https://github.com/ponnhide/patchworklib), output figures by `visualizemap` function can be aligned with `/` and `|` operators.   
+If you have installed [patchworklib](https://github.com/ponnhide/patchworklib), output figures by `visualizemap` function can be aligned with `/` and `|` operators.   
 
-**The example QUEEN script using new features in ver1.1 is available from "demo/ver1.1/new\_features.md" or [Google colab](https://colab.research.google.com/drive/1Y4uPZj0pmdznkoO0iv5Av0Z15pG4fN7z?usp=sharing)** 
+**The example QUEEN script using new features in ver1.1 is available from "demo/ver1.1/new\_features.md" and [Google colab](https://colab.research.google.com/drive/1Y4uPZj0pmdznkoO0iv5Av0Z15pG4fN7z?usp=sharing)** 
 

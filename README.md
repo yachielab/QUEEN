@@ -1299,7 +1299,7 @@ QUEEN provides the following visualization functions.
     When `True`, a color map representing the revese complement sequence of `QUEEN_object` will be displayed below the sequence map.
     
     #### Parameters available for only circular maps
-    * **diameter_scale **
+    * **diameter_scale**
     Scaling factor for the diameter of the sequence map.
   
     #### Return

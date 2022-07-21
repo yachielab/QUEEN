@@ -2088,7 +2088,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
             parental_id = left_origin.parental_id
             tmp_left = None
             if left_origin.name is not None: 
-                if lefet_origin.name == "rcseq":
+                if left_origin.name == "rcseq":
                     tmp_left = flipdna(left_origin.parent, quinable==0) 
                 else:
                     tmp_left = None

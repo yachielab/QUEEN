@@ -3391,7 +3391,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
     if new_copy == True:
         return dna 
 
-def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,label_location=None, display_label=2, display_title=True, display_axis=True, fontsize=None, 
+def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,label_location=None, display_label=2, display_title=True, display_axis=True, fontsize=None, fontsize_nucl=None, 
                  tick_interval="auto", labelcolor="k", title=None, width_scale="auto", height_scale=1.0, linebreak=None, seq=False, rcseq=False, diamater_scale=1.0, fig= None):
     """Visualize the annotated sequence map of a `QUEEN_object`.
     
@@ -3500,7 +3500,7 @@ def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,la
         if feature_list is None:
             feature_list = dna.dnafeatures
         figo, ax = vl.visualize(dna, start=start, end=end, feature_list=feature_list, wrap_width=linebreak, annotation_loc=label_location, unvisible_types=["source"], 
-                               visible_types=[], enlarge_w=width_scale, enlarge_h=height_scale, fontsize=fontsize, with_seq=seq, with_seqr=rcseq, nucl_char=None, nucl_color_dict=None, 
+                               visible_types=[], enlarge_w=width_scale, enlarge_h=height_scale, fontsize=fontsize, fontsize_nucl=fontsize_nucl, with_seq=seq, with_seqr=rcseq, nucl_char=None, nucl_color_dict=None, 
                                label_visible=display_label, scale="fix", title_visible=display_title, axis_visible=display_axis, tick_space=tick_interval, 
                                labelcolor=labelcolor, titlename=title, fig=fig)
         try:

@@ -359,7 +359,12 @@ def colorbar(ax, color_dict, ref_seq, char=False, fontsize=10):
     ax.patch.set_alpha(1.0)
     return bars
 
-def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, label_visible=True, feature_list=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, scale="fix", fontsize=12, with_seq=False, with_seqr=False, nucl_char=None, nucl_color_dict=None, title_visible=True, axis_visible=True, tick_space="auto", labelcolor="k", titlename=None, fig=None):
+def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, label_visible=True, feature_list=None, unvisible_types=["source"], visible_types=[], enlarge_w=1.0, enlarge_h=1.0, scale="fix", fontsize=12, fontsize_nucl=None, with_seq=False, with_seqr=False, nucl_char=None, nucl_color_dict=None, title_visible=True, axis_visible=True, tick_space="auto", labelcolor="k", titlename=None, fig=None):
+    if fontsize_nucl is None:
+        fontsize_nucl = fontsize-2
+    else:
+        pass
+
     if titlename is None:
         titlename = brick.project
     else:
@@ -553,9 +558,9 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
             ax_seq  = fig.add_axes([0, -0.60*enlarge_h/(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h/(abs(ytop-ybottom))], label="{}_seq".format(num+basenum))
             if nucl_char != True and nucl_char != False:
                 if enlarge_w < 30:
-                    colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=False, fontsize=fontsize-2)
+                    colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=False, fontsize=fontsize_nucl)
                 else:
-                    colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=True, fontsize=fontsize-2)
+                    colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=True, fontsize=fontsize_nucl)
             else:
                 colorbar(ax_seq, nucl_color_dict, sub_brick.seq, char=nucl_char)
            

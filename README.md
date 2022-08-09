@@ -53,10 +53,12 @@ Python 3.7.0 or later
     - [Graphviz](https://graphviz.org/download/source/)
 
 ## Usage
-QUEEN provides the QUEEN class to define a double-stranded (ds)DNA object with sequence annotations. The QUEEN class and its operational functions are described below. Jupyter Notebook files for all of the example codes are provided in `./demo/tutorial` of QUEEN ([https://github.com/yachielab/QUEEN](https://github.com/yachielab/QUEEN)) and also made executable in Google Colaboratory:
+QUEEN provides the QUEEN class to define a double-stranded (ds)DNA object with sequence annotations. The QUEEN class and its operational functions are described below. Jupyter Notebook files for all of the example codes are provided in `./demo/tutorial` of QUEEN ([https://github.com/yachielab/QUEEN](https://github.com/yachielab/QUEEN)) and made executable in Google Colaboratory. Also, simple molecular cloning simulators for both homology-based and digestion/ligation-based assembly are provided on Google colab. By using the simulators, you can exeperience the benefits of QUEEN without describing python codes. 
 
-- https://colab.research.google.com/drive/1ubN0O8SKXUr2t0pecu3I6Co8ctjTp0PS?usp=sharing
-- https://colab.research.google.com/drive/1dPcNhsOl2sne_wq7ZULXXFUxizR6JQrR?usp=sharing
+- [tutorial_ex01-23](https://colab.research.google.com/drive/1ubN0O8SKXUr2t0pecu3I6Co8ctjTp0PS?usp=sharing)
+- [tutorial_ex24-28](https://colab.research.google.com/drive/1dPcNhsOl2sne_wq7ZULXXFUxizR6JQrR?usp=sharing)
+- [Digestion/ligation-based assembly simulator](https://colab.research.google.com/drive/1N8PGOqGobO8Wg5b78oy1E8BKMBJJl6cx?usp=sharing)
+- [Homology-based assembly simulator](https://colab.research.google.com/drive/1zpwN0lDEHhHTjiibrM4UtB2XTCuw4nZ0?usp=sharing)
 
 ## QUEEN class 
 The QUEEN class can define a dsDNA object with sequence annotations. It can be created by specifying a DNA sequence or importing a sequence data file in GenBank or FASTA file format (single sequence entry). When a GenBank format file is imported, its NCBI accession number, Addgene plasmid ID, or Benchling share link can be provided instead of downloading the file to your local environment.

@@ -91,7 +91,7 @@ class DNAfeature(SeqFeature):
         if not isinstance(other, DNAfeature):
             return NotImplemented
         else:
-            if self.qualifiers == other.qualifiers and (self.subject is not None and other.subject is not None and self.seq == other.seq) and self.start == other.start and self.end == other.end:
+            if self.type == other.type and self.qualifiers == other.qualifiers and (self.subject is not None and other.subject is not None and self.seq == other.seq) and self.start == other.start and self.end == other.end:
                 return True
             else: 
                 return False

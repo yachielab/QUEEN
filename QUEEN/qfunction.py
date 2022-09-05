@@ -1731,7 +1731,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
         fproject            = ""    
         fcompatibility      = "" if fcompatibility is None else ", compatibility={}".format(str(compatibility))
         fhomology_length    = "" if fhomology_length is None else ", homology_length={}".format(homology_length)
-        funique             = "" if unique == False else ", unique={}".format(unique) 
+        funique             = "" if unique == True else ", unique={}".format(unique) 
         fsupfeature         = "" if supfeature == False else ", supfeature={}".format(str(supfeature))
         fproduct            = "" if product is None else ", product='" + product + "'"
         process_name        = "" if process_name is None else ", process_name='" + process_name + "'"

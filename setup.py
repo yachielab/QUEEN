@@ -9,14 +9,14 @@ MAINTAINER_EMAIL = 'hidto7592@gmail.com'
 URL              = 'https://github.com/yachielab/QUEEN'
 LICENSE          = 'MIT'
 DOWNLOAD_URL     = 'https://github.com/yachielab/QUEEN'
-VERSION          = '1.1.0'
+VERSION          = '1.1.1'
 PYTHON_REQUIRES  = ">=3.7"
 
 INSTALL_REQUIRES = [
     'numpy>=1.2',
     'biopython>=1.78',
     'matplotlib>=3.2',
-    'requests~=2.23.0',
+    'requests>=2.23.0',
     'regex>=2.5',
     'graphviz==0.17', 
     'beautifulsoup4>=4.4'

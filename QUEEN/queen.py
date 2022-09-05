@@ -8,7 +8,7 @@ import qfunction
 import quine
 import qgraph 
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 def set_namespace(_globals=None):
     if _globals is None:

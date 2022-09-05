@@ -62,13 +62,14 @@ class DNAfeature(SeqFeature):
                 return self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
          
         elif name == "seq" or name == "sequence":
-            seq           = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
-            seq           = Qseq(seq)
-            seq.qkey      = self._start.qkey
+            seq             = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
+            seq             = Qseq(seq)
+            seq.qkey        = self._start.qkey
             seq.parental_id = self._start.parental_id 
-            seq.parent    = self 
+            seq.parent      = self 
             seq.parental_class = "DNAfeature"
             seq = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
+            self._seq = seq
             return seq
         
         elif name == "strand":
@@ -90,7 +91,7 @@ class DNAfeature(SeqFeature):
         if not isinstance(other, DNAfeature):
             return NotImplemented
         else:
-            if self.qualifiers == other.qualifiers and (self.subject is not None and other.subject is not None and self.seq == other.seq):
+            if self.qualifiers == other.qualifiers and (self.subject is not None and other.subject is not None and self.seq == other.seq) and self.start == other.start and self.end == other.end:
                 return True
             else: 
                 return False
@@ -109,7 +110,7 @@ class DNAfeature(SeqFeature):
             SeqFeature.__init__(self, location, type)
         else:
             for key in feature.__dict__:
-                if key in ["_start", "_end", "__digestion_topl", "_digestion_topr", "_digestion_bottomr", "_digestion_bottoml", "subject", "query"]: 
+                if key in ["_start", "_end", "__digestion_topl", "_digestion_topr", "_digestion_bottomr", "_digestion_bottoml", "_seq", "subject", "query"]: 
                     pass
                 else:
                     if key == "_original":
@@ -125,6 +126,7 @@ class DNAfeature(SeqFeature):
             self._start = self.location.parts[0].start.position
             self._end   = self.location.parts[-1].end.position
         
+        self._seq       = None
         self._qkey      = None #ID for features_dict
         self._second_id = None #ID for a single feature 
         self._start     = Qint(self._start)
@@ -1481,16 +1483,16 @@ class QUEEN():
         if hide_middle is None or hide_middle > 0.5 * len(self.seq):
             hide_middle = int(0.5 * len(self.seq)) 
             whole = True
-        
-        tl = len(self._left_end)  if self._left_end_top  == -1 else 0
-        tr = len(self._right_end) if self._right_end_top == -1 else 0
-        truetop = "-" * tl + self.seq[tl:(-1*tr if tr != 0 else None)] + "-" * tr
-        
-        bl = len(self._left_end)  if self._left_end_bottom  == -1 else 0
-        br = len(self._right_end) if self._right_end_bottom == -1 else 0
-        truebottom = "-" * bl + self.rcseq[::-1][bl:(-1*br if br != 0 else None)] + "-" * br
 
         if start is None and end is None and strand == 2:
+            tl = len(self._left_end)  if self._left_end_top  == -1 else 0
+            tr = len(self._right_end) if self._right_end_top == -1 else 0
+            truetop = "-" * tl + self.seq[tl:(-1*tr if tr != 0 else None)] + "-" * tr
+            
+            bl = len(self._left_end)  if self._left_end_bottom  == -1 else 0
+            br = len(self._right_end) if self._right_end_bottom == -1 else 0
+            truebottom = "-" * bl + self.rcseq[::-1][bl:(-1*br if br != 0 else None)] + "-" * br
+
             rcseq  = self.seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
             if len(self._left_end) > hide_middle:
                 left_length = hide_middle

@@ -1410,7 +1410,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
         if compatibility == "complete":
             homology_length = 0 
         else:
-            homology_length = 4
+            homology_length = 2
     else:
         fhomology_length = homology_length
 
@@ -1682,16 +1682,16 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
             length     = int(note.split(":")[-4])  
             if feat.location.strand != -1:
                 sfeat = feat.start-(poss-1) 
-                sfeat = sfeat if sfeat > 0 else len(construct.seq) + sfeat
+                sfeat = sfeat if sfeat >= 0 else len(construct.seq) + sfeat
                 efeat = feat.end+(length-pose)
             else:
                 sfeat = feat.start-(length-pose) 
-                sfeat = sfeat if sfeat > 0 else len(construct.seq) + sfeat
+                sfeat = sfeat if sfeat >= 0 else len(construct.seq) + sfeat
                 efeat = feat.end+(poss-1)    
             
             if feat.subject is None:
                 feat.subject = construct
-        
+            
             if note.split(":")[-3] == construct.printsequence(sfeat, efeat, strand=feat.location.strand):
                 if sfeat < efeat:
                     location = FeatureLocation(sfeat, efeat, feat.location.strand) 

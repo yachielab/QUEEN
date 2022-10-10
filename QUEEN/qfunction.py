@@ -2426,7 +2426,7 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
                 feat.location.strand = strand
             feats.append(feat.__class__(feature=feat,subject=seq))
     
-    comp = dna.__class__(seq=seq, quinable=0) 
+    comp = dna.__class__(seq=seq, topology = dna.topology, quinable=0) 
     feats.sort(key=lambda x:x.location.parts[0].start.position) 
     comp._dnafeatures = feats
     comp._history_feature = dna._history_feature

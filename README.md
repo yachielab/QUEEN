@@ -19,7 +19,7 @@ Mori, H., Yachie, N. A framework to efficiently describe and share reproducible 
     - [.searchsequence()](https://github.com/yachielab/QUEEN#searchsequence-queryregex-or-str-startint-endint-strandint-productstr-process_namestr-process_descriptionstr)
     - [.searchfeature()](https://github.com/yachielab/QUEEN#searchfeaturekey_attributestr-queryregex-or-str-sourcelist-of-dnafeature_objects-startint-endint-strandint-productstr-process_namestr-process_descriptionstr)
   - [Operational functions](#Operational-functions)
-    - [cutdna()](https://github.com/yachielab/QUEEN#cutdnainputqueen_object-cutsiteslist-of-int-intint-or--dnafeature_object-productstr-process_namestr-process_discriptionstr)
+    - [cutdna()](https://github.com/yachielab/QUEEN#cutdnainputqueen_object-cutsiteslist-of-int-intint-or--dnafeature_object-productstr-process_namestr-process_descriptionstr)
       - [cropdna()](https://github.com/yachielab/QUEEN#cropdnainputqueen_object-startint-intint-or--dnafeature_object-endint-intint-or--dnafeature_object-productstr-process_namestr-process_descriptionstr)
     - [modifyends()](https://github.com/yachielab/QUEEN#modifyendsinputqueen_object-leftstrstr-rightstrstr-productstr-process_namestr-process_descriptionstr)
     - [flipdna()](https://github.com/yachielab/QUEEN#flipdnainputqueen_object-productstr-process_namestr-process_descriptionstr)
@@ -472,7 +472,7 @@ Dictionary for all of the inherited `QUEEN_objects` used to construct the presen
 ## Operational functions
 QUEEN objects can be manipulated by four simple operational functions, `cutdna()`, `modifyends()`, `flipdna()`, and `joindna()`, that can collectively represent any of the standard molecular DNA cloning processes, and two super functions, `editsequence()` and `editfeature()`.
 
-* ##### **`cutdna(input=QUEEN_object, *cutsites=*list of (int, "int/int", or  DNAfeature_object), product=str, process_name=str, process_discription="str")`**
+* ##### **`cutdna(input=QUEEN_object, *cutsites=*list of (int, "int/int", or  DNAfeature_object), product=str, process_name=str, process_description="str")`**
   Cut `QUEEN_object` at queried positions or by queried `DNAfeature_object` and return a list of fragmented `QUEEN_object`. Each existing `DNAfeature_object` in the original `QUEEN_object` will be inherited to the generating `QUEEN_object`. Suppose any `DNAfeature_objects` are at the cut boundaries being split into fragments. In that case, each `DNAfeature_object` will also be carried over to the new `QUEEN_object` with the `"qualifier:broken_feature"` attribute to be `"[.project of the original QUEEN_object]:[.feature_id of the original DNAfeature_object]:[sequence length of the original DNAfeature_object]:[sequence of the original DNAfeature_object]:[start..end positions of the original DNAfeature_object in the sequence of the original QUEEN_object]:[5'..3' end positions of the broken DNAfeature_object in the original DNAfeature_object]"`. This function also linearizes a circular `QUEEN_object`. 
   
   #### Parameters

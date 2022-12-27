@@ -1168,7 +1168,7 @@ Generate "quine code" of `QUEEN_object` that produces the same `QUEEN_object`. A
 Output file name.
 
 * **process_description**: `bool` (default: `False`)   
-If `True`, this will output the process_descriptions registered to quinable operations along with the process flows. The output can be used for the "Material and methods" of the `QUEEN_object` construction process.
+If `True`, this will output the process_descriptions registered to quinable operations along the process flows instead of generating the quine code. The output can be used for the "Material and methods" of the `QUEEN_object` construction process.
 * **execution**: `bool` (default: `False`)  
 If `True`, this will reconstruct the `QUEEN_object` by generating and executing its quine code and confirm if the reconstructed `QUEEN_object` is identical to the original one. If `execution` is `True` and `output` is `None`, the quine code will be output into a temporary file instead of `STDOUT`; the temporary file will be removed after the operation. The execution won't happen if `process_description` is `True`.
 #### Return

@@ -1360,7 +1360,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
         GGGGATGCATGGGG
         CCCCTACGTACCCC
         ```
-    homology_length : int, default: 4 if `compatibility_check` ==  "partial" else 0
+    homology_length : int, default: 2 if `compatibility_check` ==  "partial" else 0
         The minimum compatible homology legnth to be required in the assembly. 
         If the compatible end length is shorter than this value, 'joindna' operation will 
         be interrupted and raise the error message. However, the connecting DNA end 

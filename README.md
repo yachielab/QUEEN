@@ -1327,7 +1327,7 @@ QUEEN provides the following visualization functions.
   <img src="https://github.com/yachielab/QUEEN/blob/master/img/usermanual_fig01.jpg" width="800x800">
   
  
-* ##### **`visualizeflow(*input=*list of QUEEN_objects, search_function=bool, grouping=bool, process_classification=bool, intermediate_product=bool)`**
+* ##### **`visualizeflow(*input=*list of QUEEN_objects, search_function=bool, grouping=bool, inherited_process=bool, process_description=bool, alias_dict=dict)`**
   Generate flow charts representing construction processes of `QUEEN_objects` with four different types of nodes: file shape, round, uncolored rectangle, and colored box nodes, representing input gbk files, `QUEEN_objects`, `DNAfeature_objects`, and quinable functions, respectively.
   
   #### Parameters

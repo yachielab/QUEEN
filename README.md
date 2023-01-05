@@ -787,7 +787,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
     GGGGATGCATGGGG
     CCCCTACGTACCCC
     ```
-  * **homology_length**: `int`, (default: 4 if `compatibility` ==  `"partial"` else 0)   
+  * **homology_length**: `int`, (default: 2 if `compatibility` ==  `"partial"` else 0)   
     The minimum compatible homology length to be required in the assembly.  
     If the compatible end length is shorter than this value, 'joindna' operation will be interrupted and raise the error message.  
     However, if the connecting DNA end structures are blunt ends, this threshold value will be ignored and the QUEEN objects wil be joined.
@@ -1273,11 +1273,11 @@ QUEEN provides the following visualization functions.
       `DNAfeature_objects` to be displayed on the sequence map. 
     * **fontsize**: `int` (default: `12` for `"circular"` map and `10` for `"linear"` map)  
       Common font size. Separate font sizes can also be defined for different `DNAfeaure_objects` by editing the `"qualifier:fontsize_queen"` attribute, which overrides the common font size. 
-    * **labelcolor**: `str`(default: `"black"`) 
+    * **labelcolor**: `str` (default: `"black"`) 
       Common font color for all feature labels. Separate font colors can also be defined for different `DNAfeaure_objects` by editing the `"qualifier:labelcolor_queen"` attribute, which overrides the common font color.
     * **display_label**: `0`, `1` or `2` (default: `2`)  
       If `2`, all of the labels will be displayed. If `1`, only the feature labels that can fit inside the object boxes will be displayed. If `0`, feature labels won't be displayed.
-    * **tick_interval**: `int`(default: `None`)
+    * **tick_interval**: `int` (default: `None`)
       Tick interval of sequence map (base pairs).\
     * **display_axis**: `bool` (default: `True`)
     * **title**: `str` (default: `QUEEN_object.project`)
@@ -1287,11 +1287,12 @@ QUEEN provides the following visualization functions.
     Start position of the `QUEEN_object` sequence to be displayed. 
     * **end**: `int` (zero-based indexing; default: the last sequence position of `QUEEN_object`)  
     End position of the `QUEEN_object` sequence to be displayed. 
-    * **width_scale**: `float`(default: `None`)  
+    * **width_scale**: `float` (default: Please see the following description.)  
     Scaling factor for the width of the sequence map.
-    * **height_scale**: `float`(default: `None`)  
+    Default value is 1.0 if the dna length > 4000,  4.0 if the dna length > 1000, 10 if the dna length > 500 else 20. However, if `seq` is True, the value is 40. 
+    * **height_scale**: `float` (default: 1.0)  
     Scaling factor for the height of the sequence map.
-    * **label_location**: `str`(default: `"either"` when `seq` is `False`, otherwise `"top"`)  
+    * **label_location**: `str` (default: `"either"` when `seq` is `False`, otherwise `"top"`)  
     Feature label locations. Each feature label is generally placed inside the object box. However, if a feature label is larger than the object box, the label will be put outside. If this value is `"either"`, labels will be put below or above the object boxes, whichever is available. If this value is `"top"`, labels will be put above the object boxes. If `seq` is `True`, the value must be set to `"top"`.
     * **linebreak**: `int` or `None` (default: Length of the `QUEEN_object` sequence)  
     Sequence length for line break.
@@ -1327,7 +1328,7 @@ QUEEN provides the following visualization functions.
   <img src="https://github.com/yachielab/QUEEN/blob/master/img/usermanual_fig01.jpg" width="800x800">
   
  
-* ##### **`visualizeflow(*input=*list of QUEEN_objects, search_function=bool, grouping=bool, process_classification=bool, intermediate_product=bool)`**
+* ##### **`visualizeflow(*input=*list of QUEEN_objects, search_function=bool, grouping=bool, inherited_process=bool, process_description=bool, alias_dict=dict)`** 
   Generate flow charts representing construction processes of `QUEEN_objects` with four different types of nodes: file shape, round, uncolored rectangle, and colored box nodes, representing input gbk files, `QUEEN_objects`, `DNAfeature_objects`, and quinable functions, respectively.
   
   #### Parameters

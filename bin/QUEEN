@@ -1,16 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os 
 import io
 import functools
 import sys
-sys.path.append(os.path.dirname(__file__))
-from qobj import QUEEN
-import qfunction
-import quine
-import qgraph 
+
+#sys.path = ["../QUEEN"] + sys.path
+from QUEEN import qobj
+from QUEEN import qfunction
+from QUEEN import quine
+from QUEEN import qgraph 
 import argparse
 from Bio import SeqIO
 
+QUEEN = qobj.QUEEN
 __version__ = "1.2.0"
 
 _namespace       = None

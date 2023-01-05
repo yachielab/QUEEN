@@ -1732,7 +1732,7 @@ class QUEEN():
 
         self._dnafeatures.append(new_feat)
 
-    def printfeature(self, feature_list=None, attribute=None, separation=None, detail=False, seq=False, output=None, x_based_index=0):
+    def printfeature(self, feature_list=None, attribute=None, separation=None, seq=False, output=None, x_based_index=0):
         """ Print a tidy data table of annotation features/attributes of `QUEEN_object`. 
         
         Default output attributes are `"feature_id"`, `"feature_type"`, 
@@ -1775,19 +1775,25 @@ class QUEEN():
         sequences   = ["sequence"]
         sep         = separation
         seqflag     = seq
+        detail      = False
         others_dict = {}
         
+
         if attribute is None:
             attribute = ["feature_id", "feature_type", "qualifier:label", "start", "end", "strand"]
-
-        new_attribute = [] 
-        for att in attribute:
-            if att == "$DEFAULT":
-                new_attribute += ["feature_id", "feature_type", "qualifier:label", "start", "end", "strand"]
-            else:
-                new_attribute.append(att)
         
-        attribute = new_attribute
+        elif attribute == "all" or attribute == ["all"]:
+            attribute = ["feature_id", "feature_type", "qualifier:label", "start", "end", "strand"]
+            detail    = True
+
+        else:
+            new_attribute = [] 
+            for att in attribute:
+                if att == "$DEFAULT":
+                    new_attribute += ["feature_id", "feature_type", "qualifier:label", "start", "end", "strand"]
+                else:
+                    new_attribute.append(att)
+            attribute = new_attribute
         if feature_list is None:
             features = list(self.dnafeatures)
             features.sort(key=lambda x:x.location.parts[0].start.position)

@@ -187,6 +187,14 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
             sourcename = unique_name_dict[key]
             unique_name_count_dict[sourcename] += 1
     
+    source_set = set([]) 
+    for h, history in enumerate(new_histories):
+        info = history[1] 
+        if len(info) > 1:
+            info      = info.split("; ")
+            info_dict = dict([item.split(": ") for item in info])
+            source_set.add(info_dict["_source"])  
+
     for h, history in enumerate(new_histories):
         process_description = history[3] 
         process_name        = history[2]
@@ -806,8 +814,8 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                         dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
                 
                 product_funcname_dict[productname] = (funcname, process_name, process_description, info_dict["_source"] if "_source" in info_dict else None) 
-
-            if info_dict is not None and "_source" in info_dict:
+            
+            if info_dict is not None and "_source" in info_dict and len(source_set) > 1:
                 name = info_dict["_source"]  
                 if name not in sdgs:
                     sdgs[name] = dg.subgraph(name="cluster_source{}".format(len(list(sdgs.keys()))))

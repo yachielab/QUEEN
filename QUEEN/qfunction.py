@@ -598,7 +598,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
         end_bottom = end[1] 
         end = max(end)
 
-        if start == 0 and end == len(dna.seq):
+        if start == 0 and end == len(dna.seq) and dna._topology == "linear":
             new_dna = copy.copy(dna)
             new_dna._topology = "linear"
             return new_dna
@@ -1249,7 +1249,12 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
     if end is None or end == 0:
         end = len(dna.seq) 
     
-    subdna, crop_positions = cutdna(dna, start, end, product=project, crop=True, quinable=0)  
+    if start == 0 and end == len(dna.seq):
+        subdna = cutdna(dna, start, product=project, quinable=0)[0]  
+        crop_positions = ((0, 0), (len(dna.seq), len(dna.seq)))
+    else:
+        subdna, crop_positions = cutdna(dna, start, end, product=project, crop=True, quinable=0)  
+    
     if quinable == 1 and quinable == True:   
         args = []
         new_positions = [] 
@@ -3448,9 +3453,13 @@ def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,la
     end : int (zero-based indexing),  default: the last sequence position of `QUEEN_object`. 
         The parameter is available for only linear maps.  
         End position of the `QUEEN_object` sequence to be displayed. 
-    width_scale : flaot, default: 1.0, The parameter is available for only linear maps.
+    width_scale : flaot, default: Please see the following description. 
+        The parameter is available for only linear maps.
         Scaling factor for the width of the sequence map.
-    height_scale : flaot, default: 1.0, The parameter is available for only linear maps.
+        Default value is 1.0 if the dna length > 4000,  4.0 if the dna length > 1000, 
+        10 if the dna length > 500 else 20. However, if `seq` is True, the value is 40. 
+    height_scale : flaot, default: 1.0
+        The parameter is available for only linear maps.
         Scaling factor for the height of the sequence map.
     label_location : float, default: "either"` when `seq` is `False`, otherwise "top"), 
         The parameter is available for only linear maps. Feature label locations. Each 

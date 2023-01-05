@@ -487,6 +487,38 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
                 label       = label + ":" + posinfo + ":" +  feat_length
                 feat.qualifiers["label"] = [label] 
 
+    if enlarge_w == "auto":
+        if with_seq == True:
+            width_scale = 40
+            if tick_space == "auto":
+                tick_space = 10 
+        else:
+            if width > 4000:
+                width_scale = 1.0
+                if tick_space == "auto":
+                    tick_space = 250
+            
+            elif width > 1000:
+                width_scale = 4.0 
+                if tick_space == "auto":
+                    tick_space = 100
+
+            elif width > 500:
+                width_scale = 10.0
+                if tick_space == "auto":
+                    tick_space = 50
+
+            else:
+                width_scale = 20.0
+                if tick_space == "auto":
+                    if width > 100:
+                        tick_space = 20
+                    else:
+                        tick_space = 10
+
+    else:
+        width_scale = enlarge_w 
+
     for num, sub_start in enumerate(list(range(start, end, width))):
         sub_end = sub_start + width
         if sub_end >= end:
@@ -505,15 +537,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
             std = 1000 
             head_length = 48 * pww
         
-        if enlarge_w == "auto":
-            if with_seq == True:
-                enlarge_w = 40 * pww
-            else:  
-                enlarge_w = 1.0 * pww
-        else:
-            if num == 0:
-                enlarge_w = enlarge_w * pww
-
+        enlarge_w = width_scale * pww
         if enlarge_h == "auto":
             enlarge_h = 1.0 * pwh
         else:
@@ -652,12 +676,7 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
                     patch_dict[patch.get_label()] = patch 
                     patch_list.append(patch)  
         
-        #if len(patch_list) == 1:
-        #    patch = patch_list[0]  
-        #    patch.change_aspectratio()
-        #else:
         patch = pw.Bricks(patch_dict)
-        #patch = pw.expand(patch, 3, 0.3333333)
         return fig, patch  
     else:
         return fig, axes_list  

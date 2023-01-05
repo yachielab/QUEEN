@@ -26,6 +26,8 @@ PACKAGES = [
     'QUEEN'
 ]
 
+SCRIPTS = ["bin/QUEEN"] 
+
 CLASSIFIERS = [
     'Intended Audience :: Science/Research',
     'Programming Language :: Python :: 3.7',
@@ -61,5 +63,6 @@ if __name__ == "__main__":
         python_requires=PYTHON_REQUIRES,
         install_requires=INSTALL_REQUIRES,
         packages=PACKAGES,
+        scripts=SCRIPTS,
         classifiers=CLASSIFIERS
     )

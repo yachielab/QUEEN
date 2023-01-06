@@ -1670,6 +1670,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
         
         construct._supfeatureids() #Update feature ID
     else:
+        topology = "circular"
         construct = _circularizedna(dnas[0])
         construct._positions = construct._positions[0:len(construct.seq)]
     

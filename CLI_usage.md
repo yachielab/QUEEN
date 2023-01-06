@@ -73,9 +73,9 @@ OPTIONS:
 ```
 
 ### Example commands
-Please move to the demo/CLI directory and execute the following commands.
+Please move to the demo/CLI directory and execute the following commands.  
 1. Download a GenBank file with a queried sequence ID or URL of a specified database.   
-   By executing the following command, the GenBank file of pUC19 can be downloaded.
+   By executing the following command, the GenBank file of pUC19 can be downloaded.  
    `QUEEN --get_gbk --database addgene --seqid 50005`
 
 2. Describe the 'Materials and Methods' of the DNA construct in a QUEEN-generated GenBank input.  
@@ -92,7 +92,7 @@ Please move to the demo/CLI directory and execute the following commands.
    4. The three fragments were assembled by Gibson Assembly.
    ```
 
-3. Describe the python script to simulate the DNA construction process of a QUEEN-generated GenBank input.
+3. Describe the python script to simulate the DNA construction process of a QUEEN-generated GenBank input.  
    `QUEEN --script_description --input input/pCMV-Target-AID.gbk`  
    
    **Output** 
@@ -113,8 +113,8 @@ Please move to the demo/CLI directory and execute the following commands.
    FW1 = pcDNA31_Target_AID.searchsequence(query=RS045.seq[-18:], product='FW1', process_name=process1['name'], process_description=process1['description'], process_id='pCMV_Target_AID-4NFVHEFMWRN16QPABJLD7ISH', original_ids=[], _sourcefile='pCMV_Target_AID_construction')
    RV1 = pcDNA31_Target_AID.searchsequence(query=HM129.seq[-18:], product='RV1', process_name=process1['name'], process_description=process1['description'], process_id='pCMV_Target_AID-5WVF01KPHJRH13M9YT8JSG3P', original_ids=[], _sourcefile='pCMV_Target_AID_construction')
    extract1 = cropdna(pcDNA31_Target_AID, start=FW1[0].end, end=RV1[0].start, product='extract1', process_name=process1['name'], process_description=process1['description'], process_id='pCMV_Target_AID-A8UBN1SA1NGJ6MRDO04MJN5D', original_ids=[], _sourcefile='pCMV_Target_AID_construction')
-  fragment1 = modifyends(extract1, left=RS045.seq, right=HM129.rcseq, supfeature={'feature_id': 'f1', 'qualifier:label': 'fragment-1'}, product='fragment1', process_name=process1['name'], process_description=process1['description'], process_id='pCMV_Target_AID-1XSH4HNL9P3W5XDJJ26N8V6B', original_ids=[], _sourcefile='pCMV_Target_AID_construction')
-
+   fragment1 = modifyends(extract1, left=RS045.seq, right=HM129.rcseq, supfeature={'feature_id': 'f1', 'qualifier:label': 'fragment-1'}, product='fragment1', process_name=process1['name'], process_description=process1['description'], process_id='pCMV_Target_AID-1XSH4HNL9P3W5XDJJ26N8V6B', original_ids=[], _sourcefile='pCMV_Target_AID_construction')
+  
    HM128 = QUEEN(seq='CTACGACGTGGATCATATCGTGCCCCAGTCTTTTC', supfeature={'feature_type': 'primer_bind', 'qualifier:label': 'HM128'}, product='HM128', process_id='pCMV_Target_AID-15MOJYKN6VG5B9AE07WDO4E9', original_ids=[], _sourcefile='pCMV_Target_AID_construction')
    RS046 = QUEEN(seq='TTTAAACTCATTATAGCATCTTGATCTTGTTCTCTC', supfeature={'feature_type': 'primer_bind', 'qualifier:label': 'RS046'}, product='RS046', process_id='pCMV_Target_AID-7ATW8VGEDIDK3TV6OLPAPNAO', original_ids=[], _sourcefile='pCMV_Target_AID_construction')
 
@@ -131,7 +131,7 @@ Please move to the demo/CLI directory and execute the following commands.
    FW3 = pCMV_ABE.searchsequence(query=RS047.seq[-18:], product='FW3', process_name=process3['name'], process_description=process3['description'], process_id='pCMV_Target_AID-6Z7TJ8ZUETN4R8SGLIXCNHF4', original_ids=[], _sourcefile='pCMV_Target_AID_construction')
    RV3 = pCMV_ABE.searchsequence(query=RS048.seq[-18:], product='RV3', process_name=process3['name'], process_description=process3['description'], process_id='pCMV_Target_AID-WI28INSGUMCZ2NUOUFKKWIKE', original_ids=[], _sourcefile='pCMV_Target_AID_construction')
    extract3 = cropdna(pCMV_ABE, start=FW3[0].end, end=RV3[0].start, product='extract3', process_name=process3['name'], process_description=process3['description'], process_id='pCMV_Target_AID-36NO0BR31UOD3CM08BGT6WC7', original_ids=[], _sourcefile='pCMV_Target_AID_construction')
-fragment3 = modifyends(extract3, left=RS047.seq, right=RS048.rcseq, supfeature={'feature_id': 'f3', 'qualifier:label': 'fragment-3'}, product='fragment3', process_name=process3['name'], process_description=process3['description'], process_id='pCMV_Target_AID-98SJNGJWWQ3J8B8RAOU4YQF0', original_ids=[], _sourcefile='pCMV_Target_AID_construction')
+   fragment3 = modifyends(extract3, left=RS047.seq, right=RS048.rcseq, supfeature={'feature_id': 'f3', 'qualifier:label': 'fragment-3'}, product='fragment3', process_name=process3['name'], process_description=process3['description'], process_id='pCMV_Target_AID-98SJNGJWWQ3J8B8RAOU4YQF0', original_ids=[], _sourcefile='pCMV_Target_AID_construction')
 
    process4={'name':'Gibson Assembly', 'description':'4. The three fragments were assembled by Gibson Assembly.'}
    fragment1_mod = modifyends(fragment1, left='*{30}/-{30}', right='-{30}/*{30}', product='fragment1_mod', process_name=process4['name'], process_description=process4['description'], process_id='pCMV_Target_AID-6JNVDR69HUIVEYX7Z85NO11A', original_ids=[], _sourcefile='pCMV_Target_AID_construction')
@@ -142,7 +142,7 @@ fragment3 = modifyends(extract3, left=RS047.seq, right=RS048.rcseq, supfeature={
        pCMV_Target_AID.outputgbk()
    ```
 
-4. Describe the sequence features of the DNA construct in a QUEEN-generated GenBank input.
+4. Describe the sequence features of the DNA construct in a QUEEN-generated GenBank input.  
    `QUEEN --feature_description --input input/pCMV-Target-AID.gbk`  
    
    **Output**
@@ -200,21 +200,21 @@ fragment3 = modifyends(extract3, left=RS047.seq, right=RS048.rcseq, supfeature={
    2900,CDS,SV40 NLS,8422,8443,+,CCCAAGAAGAAAAGAAAAGTC
    ```
 
-5. Change the origin of a circular dna. 
+5. Change the origin of a circular dna.  
    `QUEEN --cutdna --input input/pCMV-Target-AID.gbk --positions 3379 | QUEEN --joindna > output/pCMV-Target-AID_slided.gbk`  
    The output file is `demo/CLI/output/pCMV-Target-AID_slided.gbk`.
 
-6. Extract the Cas9 fragment and generate its reverse complement.
+6. Extract the Cas9 fragment and generate its reverse complement.  
    `QUEEN --cropdna --input input/pCMV-Target-AID.gbk --start 3379 --end 7483 | QUEEN --flipdna > output/Cas9_rc.gbk`  
    The output file is `demo/CLI/output/Cas9_rc.gbk`.
 
-7. Generate the annotated dna sequence map of the GenBank input.
+7. Generate the annotated dna sequence map of the GenBank input.  
    `QUEEN --dnamap_visualization --input input/pCMV-Target-AID.gbk --map_view circular --output output/pCMV-Target-AID_map.pdf`  
    `QUEEN --dnamap_visualization --input output/pCMV-Target-AID_slided.gbk --map_view circular --output output/pCMV-Target-AID_slided_map.pdf`  
-   `QUEEN --dnamap_visualization --input output/Cas9_rc.gbk --linebreak 200 --sequence --rcseq --output output/Cas9_rc_map.pdf`
+   `QUEEN --dnamap_visualization --input output/Cas9_rc.gbk --linebreak 200 --sequence --rcseq --output output/Cas9_rc_map.pdf`  
    The output files are `demo/CLI/output/pCMV-Target-AID_map.pdf`, `demo/CLI/output/pCMV-Target-AID_map_slided.pdf`, and `demo/output/Cas9_rc_map.pdf`  
 
-8. Generate the plotocol flow to construct a QUEEN-generated GenBank input.
+8. Generate the plotocol flow to construct a QUEEN-generated GenBank input.  
    `QUEEN --protocolflow_visualization --input input/pCMV-Target-AID.gbk --output output/pCMV-Target-AID_flow.pdf"`  
    The output file is `demo/CLI/output/pCMV-Target-AID_flow.pdf`.  
 

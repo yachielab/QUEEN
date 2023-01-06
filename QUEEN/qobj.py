@@ -1886,6 +1886,13 @@ class QUEEN():
             if sep == ",":
                 import csv
                 output = csv.writer(output) 
+        
+        else:
+            if sep == ",":
+                output = csv.writer(sys.stdout) 
+            else:
+                pass 
+
         for n, row in enumerate(zip(*rows)): 
             if sep is None:
                 text = ""

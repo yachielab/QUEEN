@@ -1,4 +1,10 @@
 # Changelog
+## version 1.2 
+- Bug fix
+    - Fixed bug in `joindna` where `compatibility="complete"` did not work. 
+    - Fixed bug in `visualizemap` where broken features were not displayed properly.
+- CLI was added. 
+    - A part of QUEEN functions can now be used from command line. Please see [CLI_usage.md](https://github.com/yachielab/QUEEN/blob/develop/ver1.2/CLI_usage.md) 
 
 ## version 1.1 
 Several new features were added.

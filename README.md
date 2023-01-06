@@ -31,7 +31,7 @@ Mori, H., Yachie, N. A framework to efficiently describe and share reproducible 
     - [quine()](https://github.com/yachielab/QUEEN#quine-inputqueen_object-outputstr-process_descriptionbool-executionbool)
   - [Visualization](#Visualization)
     - [visualizemap()](https://github.com/yachielab/QUEEN#visualizemapinputqueen_object-map_viewstr-feature_listlist-startint-endint-width_scalefloat-height_scalefloat-label_locationstr-linebreakint-seqbool-diameterfloat)
-    - [visualizeflow()](https://github.com/yachielab/QUEEN#visualizeflowinputlist-of-queen_objects-search_functionbool-groupingbool-process_classificationbool-intermediate_productbool)
+    - [visualizeflow()](https://github.com/yachielab/QUEEN#visualizeflowinputlist-of-queen_objects-search_functionbool-groupingbool-inherited_processbool-process_descriptionbool-alias_dictdict)
 
 ## Change log
 Please see [changelog.md](https://github.com/yachielab/QUEEN/blob/master/changelog.md).

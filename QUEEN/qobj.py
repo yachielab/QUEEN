@@ -858,7 +858,7 @@ class QUEEN():
             self._product_id = self._unique_id if product is None else product
             if import_history == False:                
                 fseq         = "" if fseq is None else "seq='{}'".format(fseq)
-                if type(frecord) == str:
+                if type(frecord) == str or frecord is None:
                     frecord  = "" if frecord is None else "record='{}'".format(frecord) if fseq == "" else ", record='{}'".format(frecord)
                 else:
                     frecord  = "record=SeqRecord" if fseq == "" else ", record=SeqRecord"

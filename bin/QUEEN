@@ -218,15 +218,15 @@ if __name__ == "__main__":
     g = p.add_mutually_exclusive_group(required=True)
     g.add_argument("--get_gbk", "-gg", action="store_true", 
                     help="Download a GenBank file with a queried sequence ID or URL of a specified database. " +  
-                    "When --get_gbk (-gg) is specified, --database (-db), --seqid (-si) and --output (-o) are valid.") 
+                    "When --get_gbk (-gg) is specified, --database (-db), --seqid (-si), and --output (-o) options are valid.") 
                     
     g.add_argument("--protocol_description", "-pd", action="store_true",
                     help="Describe the 'Materials and Methods' of the DNA construct in a QUEEN-generated GenBank input.\n" + 
-                    "When --protocol_description (-pd) is specified, --input (-i) and --output (-o) options are valid.")
+                    "When --protocol_description (-pd) is specified, --input (-i), and --output (-o) options are valid.")
     
     g.add_argument("--script_description", "-sd", action="store_true",
                     help="Describe the python script to simulate the DNA construction process of a QUEEN-generated GenBank input.\n" +  
-                    "When --script_description (-sd) is specified, --input (-i) and --output (-o) options are valid.")
+                    "When --script_description (-sd) is specified, --input (-i), and --output (-o) options are valid.")
     
     g.add_argument("--feature_description", "-fd", action="store_true",
                     help="Print a table of the sequence features in a GenBank input.\n" + 
@@ -234,7 +234,7 @@ if __name__ == "__main__":
                     "--sequence (-seq), and --output (-o) options are valid.")
                     
     g.add_argument("--dnamap_visualization",  "-dv", action="store_true",
-                    help="Generate the annotated DNA sequene map in a GenBank input.\n" +
+                    help="Generate the annotated DNA sequence map in a GenBank input.\n" +
                     "When --dnamap_visualization (-dv) is specified, --input (-i), --map_view (-m), --attribute (-a), --query(-q), " + 
                     "--sequence(-seq), --rcseq(-rs), --linebreak (-lb), and --output (-o) options are valid.") 
 
@@ -243,7 +243,7 @@ if __name__ == "__main__":
                     "When --protocolflow_visualization (-pv) is specified, --input (-i) and --output (-o).")
     
     g.add_argument("--cutdna", "-cu", action="store_true",
-                    help="Cut the DNA construct given of a GenBank/Fasta input.\n" +
+                    help="Cut the DNA construct of a given GenBank/Fasta input.\n" +
                     "When --cropdna (-c) is specified, --input (-i), --positions (-pos), and --output (-o) options are valid.")
 
     g.add_argument("--cropdna", "-cr", action="store_true",
@@ -259,8 +259,8 @@ if __name__ == "__main__":
                     "When --joindna (-j) is specified, --input (-i) and --output (-o) options are valid.")
     
     p.add_argument("--database", "-db", type=str, default="ncbi", choices=("ncbi", "addgene", "benchling"), 
-                   help="For '--db ncbi', set NCBI accession number. " + 
-                    "For '--db addgene', set plasmid ID. Sometimes different full sequence maps are provided " + 
+                   help="For '--db ncbi', set a NCBI accession number. " + 
+                    "For '--db addgene', set a plasmid ID. Sometimes different full sequence maps are provided " + 
                     "by the depositor and adgene, respectively, for a single plasmid. In this case, " + 
                     "please specify the plasmid ID followed by 'addgene' or 'depositor' (Ex. 50005:addgene or 50005:depositor) " +
                     "If you set only plasmid ID, the value will be specified as 'plsmidID:addgene'. " +
@@ -294,7 +294,7 @@ if __name__ == "__main__":
                    "If the value is not provided, all sequence features will be to subjected to the operation by the specified command.")
     
     p.add_argument("--query", "-q", type=str, default=".+",
-                   help="Sequence features with the the attribute values that match to the query will be searched.")
+                   help="Sequence features with the attribute values that match to the query will be searched.")
 
     p.add_argument("--columns", "-c", nargs = "+", default=["feature_id", "feature_type", "qualifier:label", "start", "end", "strand"], 
                    help="List of feature attributes to be displayed in the output table.\nIf the value is 'all', it will generate " + 

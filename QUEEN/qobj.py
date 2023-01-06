@@ -661,8 +661,11 @@ class QUEEN():
 
             if project is None:
                 if record.id == "" or record.id == ".":
-                    project = frecord.split("/")[-1].split(".")
-                    project = project[0] if len(project) == 1 else ".".join(project[:-1])
+                    if type(frecord) == str:
+                        project = frecord.split("/")[-1].split(".")
+                        project = project[0] if len(project) == 1 else ".".join(project[:-1])
+                    else:
+                        project = "tmp"
                 else:
                     project = record.id 
             self._unique_id         = project
@@ -855,7 +858,10 @@ class QUEEN():
             self._product_id = self._unique_id if product is None else product
             if import_history == False:                
                 fseq         = "" if fseq is None else "seq='{}'".format(fseq)
-                frecord      = "" if frecord is None else "record='{}'".format(frecord) if fseq == "" else ", record='{}'".format(frecord)
+                if type(frecord) == str:
+                    frecord  = "" if frecord is None else "record='{}'".format(frecord) if fseq == "" else ", record='{}'".format(frecord)
+                else:
+                    frecord  = "record=SeqRecord" if fseq == "" else ", record=SeqRecord"
                 fdbtype      = "" if fdbtype == "local" else ", dbtype='{}'".format(fdbtype)
                 fproject     = "" if fproject is None else ", project='{}'".format(fproject)
                 fssdna       = "" if ssdna == False else ", ssdna='{}'".format(ssdna)

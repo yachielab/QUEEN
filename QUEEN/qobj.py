@@ -1889,6 +1889,7 @@ class QUEEN():
         
         else:
             if sep == ",":
+                import csv
                 output = csv.writer(sys.stdout) 
             else:
                 pass 

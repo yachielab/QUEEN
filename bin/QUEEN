@@ -131,7 +131,7 @@ def main(args):
         if args.output is None:
             fig.savefig(qinput.project + "_map.pdf") 
         else:
-            fig.savefig(output) 
+            fig.savefig(args.output) 
 
     elif args.protocolflow_visualization:
         graph     = visualizeflow(qinput)
@@ -139,7 +139,7 @@ def main(args):
             output    = qinput.project + "_flow"
             extension = "pdf"
         elif "." in args.output:
-            extension = output.split(".")[-1]
+            extension = args.output.split(".")[-1]
             output = ".".join(args.output.split(".")[:-1])
         else:
             output = args.output

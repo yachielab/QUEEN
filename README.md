@@ -41,7 +41,7 @@ Python 3.7.0 or later
 
 ## Installation
 1. Install QUEEN using the following command.  
-    For the official release (v1.0.1) on the Python Package Index  
+    For the official release (v1.1.0) on the Python Package Index  
     ```
     pip install python-queen 
     ```

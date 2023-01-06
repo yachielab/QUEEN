@@ -92,15 +92,22 @@ def main(args):
         output = args.output
         seq    = args.sequence   
         if output is None:
-            separation = None 
+            separation = args.separation 
         else:
             extension = output.split(".")[-1] 
             if extension == "csv":
-                separation = ","
+                if args.separation is None:
+                    separation = ","
+                else:
+                    separation = args.separation
+            
             elif extension == "tsv": 
-                separation = "\t"
+                if args.separation is None:
+                    separation = "\t"
+                else:
+                    separation = args.separation
             else:
-                separation = None
+                separation = args.separation
 
         if args.attribute == "all" and args.query == ".+":
             features = qinput.dnafeatures
@@ -235,6 +242,9 @@ if __name__ == "__main__":
 
     p.add_argument("--output", "-o", type=str, default=None, 
                    help="Output file. The file type is estimated based on the file extension.")
+    
+    p.add_argument("--separation", "-sep", type=str, default=None, 
+                    help="String to separate values of each line. If the value is not given, space(s) to generate a well-formatted table is used as separators.")
     
     p.add_argument("--positions", "-pos", nargs = "+", 
                     help="List of cut positions. A cut position should be provided by `int`." +  

@@ -193,7 +193,8 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
         if len(info) > 1:
             info      = info.split("; ")
             info_dict = dict([item.split(": ") for item in info])
-            source_set.add(info_dict["_source"])  
+            if "_source" in info_dict:
+                source_set.add(info_dict["_source"])  
 
     for h, history in enumerate(new_histories):
         process_description = history[3] 

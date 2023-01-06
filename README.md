@@ -46,7 +46,7 @@ Python 3.7.0 or later
     ```
     For the developmental version on GitHub  
     ```
-    pip install git+https://github.com/yachielab/QUEEN.git
+    pip install git+https://github.com/yachielab/QUEEN.git@(branch name) 
     ```
 
 2. Install Graphviz (optional; required for visualizing flowcharts of DNA building processes using the `visualizeflow()` function described below). Graphviz package is available at the following link.  

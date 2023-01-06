@@ -1464,15 +1464,16 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                             return False
                         else:
                             pass 
+                        ovhg_length = ovresult[1][0]  
                     
                     else:
                         if construct._right_end == dna._left_end:
+                            ovhg_length = len(construct._right_end)
                             pass 
                         else:
                             raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility.")
                             return False
 
-                    ovhg_length = ovresult[1][0]  
                     new_dna = cropdna(dna, ovhg_length, len(dna.seq), quinable=0) 
                 else:
                     if (construct._right_end == "" and ((dna._left_end == "") or (dna._left_end == dna.seq))) or (construct._right_end_top >= 0 and construct._right_end_bottom >= 0 and dna._left_end_top >= 0 and dna._left_end_bottom >= 0):
@@ -1734,7 +1735,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
     construct.record.feartures = construct.dnafeatures
     if quinable == True:
         fproject            = ""    
-        fcompatibility      = "" if fcompatibility is None else ", compatibility={}".format(str(compatibility))
+        fcompatibility      = "" if fcompatibility is None else ", compatibility='{}'".format(str(compatibility))
         fhomology_length    = "" if fhomology_length is None else ", homology_length={}".format(homology_length)
         funique             = "" if unique == True else ", unique={}".format(unique) 
         fsupfeature         = "" if supfeature == False else ", supfeature={}".format(str(supfeature))
@@ -1776,7 +1777,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
     """Modify sequence end structures of `QUEEN_object`.
 
     Modify sequence end structures of `QUEEN_object` according to the specified end 
-    sequence structure.If the topology is `"circular"` or `"ssdna"`, it won't work.
+    sequence structure. If the topology is `"circular"` or `"ssdna"`, it won't work.
    
     Notes
     -----

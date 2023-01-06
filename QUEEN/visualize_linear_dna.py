@@ -179,10 +179,10 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
             if strand == 1:
                 if "broken_feature" in feat.qualifiers:
                     if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
-                        if gs == 0 and ge >= length:
+                        if gs == 0 and ge >= length and (pos_s != 1 and pos_e != feat_length):
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd1, head_width=wd1, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd2, head_width=wd2, head_length=0, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
-                        elif gs == 0:
+                        elif gs == 0 and pos_s != 1:
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs, dy=0, width=wd1, head_width=wd1, head_length=hl, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                             ax.arrow(x=gs, y=-1*y, dx=ge-gs-margin2, dy=0, width=wd2, head_width=wd2, head_length=hl2, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                         else:
@@ -197,11 +197,11 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
             
             elif strand == -1:
                 if "broken_feature" in feat.qualifiers:
-                    if (gs == 0 or ge >= length) and (pos_s != 1 or pos_e != feat_length):
-                        if gs == 0 and ge >= length:
+                    if (gs == 0 or ge >= length) and (pos_s != feat_length or pos_e != 1):
+                        if gs == 0 and ge >= length and (pos_s != feat_length and pos_e != 1):
                             ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=wd1, head_width=wd1, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                             ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=wd2, head_width=wd2, head_length=0, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
-                        elif gs == 0:
+                        elif gs == 0 and pos_s != feat_length:
                             ax.arrow(x=ge, y=-1*y, dx=gs-ge, dy=0, width=wd1, head_width=wd1, head_length=0, length_includes_head=True, color='k', fc=edgecolor, lw=0.0)
                             ax.arrow(x=ge-margin1, y=-1*y, dx=gs-ge+margin1, dy=0, width=wd2, head_width=wd2, head_length=0, length_includes_head=True, color='k', fc=facecolor, lw=0.0)
                         else:

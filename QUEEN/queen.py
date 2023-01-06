@@ -179,7 +179,7 @@ def main(args):
                 qoutputs[0].outputgbk(output, format=format)
             
         elif args.cropdna:
-            qoutput = cropdna(qinput, start=args.start, end=args.end, product="hoge") 
+            qoutput = cropdna(qinput, start=args.start, end=args.end) 
             qoutput.outputgbk(output, format=format)
 
         elif args.flipdna:

@@ -84,9 +84,9 @@ def main(args):
         else:
             content = args.input[0].read()
             if content[0] == ">":
-                qinput = QUEEN(record=SeqIO.read(io.StringIO(content), format="fasta"))
+                qinput = QUEEN(record=SeqIO.read(io.StringIO(content), format="fasta"), quinable=False)
             else:
-                qinput = QUEEN(record=SeqIO.read(io.StringIO(content), format="genbank"))
+                qinput = QUEEN(record=SeqIO.read(io.StringIO(content), format="genbank"), quinable=False)
 
     if args.get_gbk:
         if args.seqid is None: 

@@ -31,7 +31,7 @@ Mori, H., Yachie, N. A framework to efficiently describe and share reproducible 
     - [quine()](https://github.com/yachielab/QUEEN#quine-inputqueen_object-outputstr-process_descriptionbool-executionbool)
   - [Visualization](#Visualization)
     - [visualizemap()](https://github.com/yachielab/QUEEN#visualizemapinputqueen_object-map_viewstr-feature_listlist-startint-endint-width_scalefloat-height_scalefloat-label_locationstr-linebreakint-seqbool-diameterfloat)
-    - [visualizeflow()](https://github.com/yachielab/QUEEN#visualizeflowinputlist-of-queen_objects-search_functionbool-groupingbool-inherited_processbool-process_descriptionbool-alias_dictdict)
+    - [visualizeflow()](https://github.com/yachielab/QUEEN#visualizeflowinputlist-of-queen_objects-search_functionbool-groupingbool-process_classificationbool-intermediate_productbool)
 
 ## Change log
 Please see [changelog.md](https://github.com/yachielab/QUEEN/blob/master/changelog.md).
@@ -54,10 +54,15 @@ Python 3.7.0 or later
     - [Graphviz](https://graphviz.org/download/source/)
 
 ## Usage
-QUEEN provides the QUEEN class to define a double-stranded (ds)DNA object with sequence annotations. The QUEEN class and its operational functions are described below. Jupyter Notebook files for all of the example codes are provided in `./demo/tutorial` of QUEEN ([https://github.com/yachielab/QUEEN](https://github.com/yachielab/QUEEN)) and made executable in Google Colaboratory. Also, simple molecular cloning simulators for both homology-based and digestion/ligation-based assembly are provided on Google colab. By using the simulators, you can exeperience the benefits of QUEEN without describing python codes. 
-
+QUEEN provides the QUEEN class to define a double-stranded (ds)DNA object with sequence annotations. The QUEEN class and its operational functions are described below. Jupyter Notebook files for all of the example codes are provided in `./demo/tutorial` of QUEEN ([https://github.com/yachielab/QUEEN](https://github.com/yachielab/QUEEN)) and made executable in Google Colaboratory. 
 - [tutorial_ex01-23](https://colab.research.google.com/drive/1ubN0O8SKXUr2t0pecu3I6Co8ctjTp0PS?usp=sharing)
 - [tutorial_ex24-28](https://colab.research.google.com/drive/1dPcNhsOl2sne_wq7ZULXXFUxizR6JQrR?usp=sharing)
+
+**Command line interface**  
+A part of QUEEN functions can also be used from the command line interface (CLI) instead of describing python codes. For details, please see [CLI_usage.md](https://github.com/yachielab/QUEEN/blob/master/CLI_usage.md) 
+
+**Simulators for general molecular cloning methods**  
+simple molecular cloning simulators for both homology-based and digestion/ligation-based assembly are provided on Google colab. By using these simulators, you can exeperience the benefits of QUEEN without describing python codes. 
 - [Digestion/ligation-based assembly simulator](https://colab.research.google.com/drive/1N8PGOqGobO8Wg5b78oy1E8BKMBJJl6cx?usp=sharing)
 - [Homology-based assembly simulator](https://colab.research.google.com/drive/1zpwN0lDEHhHTjiibrM4UtB2XTCuw4nZ0?usp=sharing)
 

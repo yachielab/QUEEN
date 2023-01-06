@@ -59,7 +59,8 @@ QUEEN provides the QUEEN class to define a double-stranded (ds)DNA object with s
 - [tutorial_ex24-28](https://colab.research.google.com/drive/1dPcNhsOl2sne_wq7ZULXXFUxizR6JQrR?usp=sharing)
 
 **Command line interface**  
-A part of QUEEN functions can also be used from the command line interface (CLI) instead of describing python codes. For details, please see [CLI_usage.md](https://github.com/yachielab/QUEEN/blob/master/CLI_usage.md) 
+A part of QUEEN functions can also be used from the command line interface (CLI) instead of describing python codes.  
+For details, please see [CLI_usage.md](https://github.com/yachielab/QUEEN/blob/master/CLI_usage.md) 
 
 **Simulators for general molecular cloning methods**  
 simple molecular cloning simulators for both homology-based and digestion/ligation-based assembly are provided on Google colab. By using these simulators, you can exeperience the benefits of QUEEN without describing python codes. 

@@ -11,7 +11,8 @@ OPTIONS:
 
   QUEEN function options: Please choose only one option from the following ones. 
   --get_gbk, -gg        
-  			Download a GenBank file with a queried sequence ID or URL of a specified database. When --get_gbk (-gg) is specified, --database (-db), --seqid (-si), and --output (-o) options are valid.
+  			Download a GenBank file with a queried sequence ID or URL of a specified database. 
+			When --get_gbk (-gg) is specified, --database (-db), --seqid (-si), and --output (-o) options are valid.
   --protocol_description, -pd
                         Describe the 'Materials and Methods' of the DNA construct in a QUEEN-generated GenBank input. 
 			When --protocol_description (-pd) is specified, --input (-i), and --output (-o) options are valid.
@@ -20,18 +21,21 @@ OPTIONS:
 			When --script_description (-sd) is specified, --input (-i), and --output (-o) options are valid.
   --feature_description, -fd
                         Print a table of the sequence features in a GenBank input. 
-			When --feauture_description (-fd) is specified, --input (-i), --attribute (-a), --query(-q), --columns (-c) --sequence (-seq), and --output (-o) options are valid.
+			When --feauture_description (-fd) is specified, --input (-i), --attribute (-a), --query(-q), 
+			--columns (-c) --sequence (-seq), and --output (-o) options are valid.
   --dnamap_visualization, -dv
                         Generate the annotated DNA sequence map in a GenBank input. 
-			When --dnamap_visualization (-dv) is specified, --input (-i), --map_view (-m), --attribute (-a), --query(-q), --sequence(-seq), --rcseq(-rs), --linebreak (-lb), and --output (-o) options are valid.
+			When --dnamap_visualization (-dv) is specified, --input (-i), --map_view (-m), --attribute (-a),
+			--query(-q), --sequence(-seq), --rcseq(-rs), --linebreak (-lb), and --output (-o) options are valid.
   --protocolflow_visualization, -pv
-                        Generate the flow chart representing the DNA construction processes of a QUEEN-generated GenBank input. When --protocolflow_visualization (-pv) is specified, --input (-i) and --output (-o).
+                        Generate the flow chart representing the DNA construction processes of a QUEEN-generated GenBank input. 
+			When --protocolflow_visualization (-pv) is specified, --input (-i) and --output (-o).
   --cutdna,  -cu        
   			Cut the DNA construct of a given GenBank/Fasta input. 
-  			When --cropdna (-c) is specified, --input (-i), --positions (-pos), and --output (-o) options are valid.
+  			When --cutdna (-c) is specified, --input (-i), --positions (-pos), and --output (-o) options are valid.
   --cropdna, -cr        
   			Extract a partial DNA fragment from a GenBank/Fasta input. 
-			When --cropdna (-c) is specified, --input (-i), --start (-s), --end (-e), and --output (-o) options are valid.
+			When --cropdna (-cr) is specified, --input (-i), --start (-s), --end (-e), and --output (-o) options are valid.
   --flipdna, -fl        
   			Generate the revese complement of a GenBank/Fasta input. 
   			When --flipdna (-f) is specified, --input (-i) and --output (-o) options are valid.
@@ -39,32 +43,43 @@ OPTIONS:
   			Join multiple GenBank inputs and generate the single assembled GenBank/Fasta output. 
 			When --joindna (-j) is specified, --input (-i) and --output (-o) options are valid.
   
-  Argument options for QUEEN functions:
+  Argument options for QUEEN functions: Please use the appropriate argument options corresponding to the QUEEN function.
   --database {ncbi,addgene,benchling}, -db {ncbi,addgene,benchling}
-                        For '--db ncbi', set the NCBI accession number. For '--db addgene', set plasmid ID. Sometimes different full sequence maps are provided by the depositor and adgene, respectively, for a single plasmid. In this case, please specify the plasmid ID followed by 'addgene' or 'depositor' (Ex. 50005:addgene or 50005:depositor) If you set only
-                        plasmid ID, the value will be specified as 'plsmidID:addgene'. For 'benchling', set a benchling shaared link.
+                        For '--db ncbi', set the NCBI accession number. 
+			For '--db addgene', set plasmid ID. Sometimes different full sequence maps are provided by the depositor 
+			and adgene, respectively, for a single plasmid. In this case, please specify the plasmid ID followed by 
+			'addgene' or 'depositor' (Ex. 50005:addgene or 50005:depositor) If you set only plasmid ID, the value will 
+			be specified as 'plsmidID:addgene'. For 'benchling', set a benchling shaared link.
   --seqid SEQID, -si SEQID
                         Sequence ID for the corresponding database specified by '--database'.
   --input INPUT [INPUT ...], -i INPUT [INPUT ...] 
-                        Input file with FASTA or GenBank format. The file type is estimated based on the file extension. The value on stdin can also be used as a input.
+                        Input file with FASTA or GenBank format. The file type is estimated based on the file extension. 
+			The value on stdin can also be used as a input.
   --output OUTPUT, -o OUTPUT
                         Output file. The file type is estimated based on the file extension.
   --positions POSITIONS [POSITIONS ...], -pos POSITIONS [POSITIONS ...]
-                        List of cut positions. A cut position should be provided by `int`.For generating sticy-ends, please use the QUEEN functions as python commands instead of this CLI.
+                        List of cut positions. A cut position should be provided by `int`. 
+			For generating sticy-ends, please use the QUEEN functions as python commands instead of this CLI.
   --start START, -s START 
                         Start position of the target range in the GenBank/Fasta input. 
   --end END, -e END     
   			End position of the target range in the GenBank/Fasta input.
   --attribute ATTRIBUTE, -a ATTRIBUTE
-                        Attribute type to be searched (feature_id, feature_type, 'qualifier:*', or sequence). If the value is not provided, all sequence features will be to subjected to the operation by the specified command.
+                        Attribute type to be searched (feature_id, feature_type, 'qualifier:*', or sequence). 
+			If the value is not provided, all sequence features will be to subjected to the operation by the specified command.
   --query QUERY, -q QUERY
                         Sequence features with the attribute values that match to the query will be searched.
   --columns COLUMNS [COLUMNS ...], -c COLUMNS [COLUMNS ...]
-                        List of feature attributes to be displayed in the output table. If the value is 'all', it will generate a table for all the attributes held by the sequence features in the GenBank input except for `sequence`.
+                        List of feature attributes to be displayed in the output table. 
+			If the value is 'all', it will generate a table for all the attributes held by the sequence features 
+			in the GenBank input except for `sequence`.
   --sequence, -seq      
-  			If True when --feature_description is specified, the sequence of each feature for its encoded direction will be displayed in the output table. If True when --dnamap_visualization is specified, a color map representing the QUEEN_object sequence will be displayed below the sequence map.
+  			If True when --feature_description is specified, the sequence of each feature for its encoded direction will be 
+			displayed in the output table. If True when --dnamap_visualization is specified, a color map representing 
+			the QUEEN_object sequence will be displayed below the sequence map.
   --rcseq, -rs          
-  			If True when --feature_description, the sequence of each feature for its encoded direction will be displayed in the output table.
+  			If True when --feature_description, the sequence of each feature for its encoded direction will be displayed in 
+			the output table.
   --linebreak LINEBREAK, -lb LINEBREAK
                         Sequence length for line break.
   --map_view MAP_VIEW, -m MAP_VIEW

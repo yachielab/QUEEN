@@ -54,7 +54,6 @@ command_abbr_dict = {
                      }
 
 abbr_command_dict = dict(zip(*[list(command_abbr_dict.values()), list(command_abbr_dict.keys())]))
-
 def set_namespace(_globals=None):
     if _globals is None:
         _namespace = None
@@ -126,18 +125,51 @@ def main(args):
             else:
                 separation = args.separation
 
-        if args.attribute == "all" and args.query == ".+":
-            features = qinput.dnafeatures
+        if len(args.attribute) == 1 and len(args.query) == 1: 
+            if args.attribute[0] == "all" and args.query[0] == ".+":
+                features = qinput.dnafeatures
+            else:
+                features = qinput.searchfeature(key_attribute=args.attribute[0], query=args.query[0])
         else:
-            features = qinput.searchfeature(key_attribute=args.attribute, query=args.query)
-        qinput.printfeature(features, attribute=args.columns, seq=seq, separation=separation, output=args.output)   
+            if len(args.attribute) != len(args.query): 
+                raise ValueError("The number of elements in the query and attributes must be the same.")
+            
+            features = qinput.dnafeatures
+            for attribute, query in zip(args.attribute, args.query):
+                features = qinput.searchfeature(key_attribute=attribute, query=query, source=features)
+       
+        if separation == "gbk" or separation == "genbank":
+            for i, feat in enumerate(features):
+                fragment = cropdna(qinput, feat.start, feat.end, quinable=False)
+                if feat.strand == -1:
+                    fragment = flipdna(fragment, quinable=False) 
+                if args.output is None:
+                    fragment.outputgbk(export_history=False, describe_brokenfeature=False) 
+                else:
+                    if "." in args.output:
+                        extension = args.ouput.split(".")[-1]
+                        output    = ".".join(args.ouput.split(".")[:-1]) + "_" + str(i) + ".gbk"
+                    else:
+                        output = args.output + "_" + str(i) + ".gbk" 
+                    fragment.outputgbk(output, export_history=False, describe_brokenfeature=False) 
+            
+        else:
+            qinput.printfeature(features, attribute=args.columns, seq=seq, separation=separation, output=args.output)   
     
     elif args.dnamap_visualization:
-        if args.attribute == "all" and args.query == ".+":
-            features = None
+        if len(args.attribute) == 1 and len(args.query) == 1: 
+            if args.attribute[0] == "all" and args.query[0] == ".+":
+                features = qinput.dnafeatures
+            else:
+                features = qinput.searchfeature(key_attribute=args.attribute[0], query=args.query[0])
         else:
-            features = qinput.searchfeature(key_attribute=args.attribute, query=args.query)
-        
+            if len(args.attribute) != len(args.query): 
+                raise ValueError("The number of elements in the query and attributes must be the same.")
+            
+            features = qinput.dnafeatures
+            for attribute, query in zip(args.attribute, args.query):
+                features = qinput.searchfeature(key_attribute=attribute, query=query, source=features)
+
         if args.map_view == "linear":
             fig = visualizemap(qinput, map_view=args.map_view, feature_list=features, linebreak=args.linebreak, seq=args.sequence, rcseq=args.rcseq)  
         else:
@@ -216,15 +248,15 @@ if __name__ == "__main__":
     g = p.add_mutually_exclusive_group(required=True)
     g.add_argument("--get_gbk", "-gg", action="store_true", 
                     help="Download a GenBank file with a queried sequence ID or URL of a specified database. " +  
-                    "When --get_gbk (-gg) is specified, --database (-db), --seqid (-si) and --output (-o) are valid.") 
+                    "When --get_gbk (-gg) is specified, --database (-db), --seqid (-si), and --output (-o) options are valid.") 
                     
     g.add_argument("--protocol_description", "-pd", action="store_true",
                     help="Describe the 'Materials and Methods' of the DNA construct in a QUEEN-generated GenBank input.\n" + 
-                    "When --protocol_description (-pd) is specified, --input (-i) and --output (-o) options are valid.")
+                    "When --protocol_description (-pd) is specified, --input (-i), and --output (-o) options are valid.")
     
     g.add_argument("--script_description", "-sd", action="store_true",
                     help="Describe the python script to simulate the DNA construction process of a QUEEN-generated GenBank input.\n" +  
-                    "When --script_description (-sd) is specified, --input (-i) and --output (-o) options are valid.")
+                    "When --script_description (-sd) is specified, --input (-i), and --output (-o) options are valid.")
     
     g.add_argument("--feature_description", "-fd", action="store_true",
                     help="Print a table of the sequence features in a GenBank input.\n" + 
@@ -232,7 +264,7 @@ if __name__ == "__main__":
                     "--sequence (-seq), and --output (-o) options are valid.")
                     
     g.add_argument("--dnamap_visualization",  "-dv", action="store_true",
-                    help="Generate the annotated DNA sequene map in a GenBank input.\n" +
+                    help="Generate the annotated DNA sequence map in a GenBank input.\n" +
                     "When --dnamap_visualization (-dv) is specified, --input (-i), --map_view (-m), --attribute (-a), --query(-q), " + 
                     "--sequence(-seq), --rcseq(-rs), --linebreak (-lb), and --output (-o) options are valid.") 
 
@@ -241,12 +273,12 @@ if __name__ == "__main__":
                     "When --protocolflow_visualization (-pv) is specified, --input (-i) and --output (-o).")
     
     g.add_argument("--cutdna", "-cu", action="store_true",
-                    help="Cut the DNA construct given of a GenBank/Fasta input.\n" +
-                    "When --cropdna (-c) is specified, --input (-i), --positions (-pos), and --output (-o) options are valid.")
+                    help="Cut the DNA construct of a given GenBank/Fasta input.\n" +
+                    "When --cutdna (-cu) is specified, --input (-i), --positions (-pos), and --output (-o) options are valid.")
 
     g.add_argument("--cropdna", "-cr", action="store_true",
                     help="Extract a partial DNA fragment from a GenBank/Fasta input.\n" +
-                    "When --cropdna (-c) is specified, --input (-i), --start (-s), --end (-e), and --output (-o) options are valid.")
+                    "When --cropdna (-cr) is specified, --input (-i), --start (-s), --end (-e), and --output (-o) options are valid.")
     
     g.add_argument("--flipdna", "-fl", action="store_true",
                     help="Generate the revese complement of a GenBank/Fasta input.\n" + 
@@ -257,8 +289,8 @@ if __name__ == "__main__":
                     "When --joindna (-j) is specified, --input (-i) and --output (-o) options are valid.")
     
     p.add_argument("--database", "-db", type=str, default="ncbi", choices=("ncbi", "addgene", "benchling"), 
-                   help="For '--db ncbi', set NCBI accession number. " + 
-                    "For '--db addgene', set plasmid ID. Sometimes different full sequence maps are provided " + 
+                   help="For '--db ncbi', set a NCBI accession number. " + 
+                    "For '--db addgene', set a plasmid ID. Sometimes different full sequence maps are provided " + 
                     "by the depositor and adgene, respectively, for a single plasmid. In this case, " + 
                     "please specify the plasmid ID followed by 'addgene' or 'depositor' (Ex. 50005:addgene or 50005:depositor) " +
                     "If you set only plasmid ID, the value will be specified as 'plsmidID:addgene'. " +
@@ -275,7 +307,8 @@ if __name__ == "__main__":
                    help="Output file. The file type is estimated based on the file extension.")
     
     p.add_argument("--separation", "-sep", type=str, default=None, 
-                    help="String to separate values of each line. If the value is not given, space(s) to generate a well-formatted table is used as separators.")
+                    help="String to separate values of each line. If the value is not given, space(s) to generate a well-formatted table is used as separators.\n" + 
+                    "If you specified 'gbk' or 'genbank' as this value. The genbank files holding the sequence regions of each querid feature will be returned.")
     
     p.add_argument("--positions", "-pos", nargs = "+", 
                     help="List of cut positions. A cut position should be provided by `int`." +  
@@ -287,14 +320,14 @@ if __name__ == "__main__":
     p.add_argument("--end", "-e", type=int, default=None, 
                    help="End position of the target range in the GenBank/Fasta input.")
 
-    p.add_argument("--attribute", "-a", type=str, default="all",
+    p.add_argument("--attribute", "-a", type=str, nargs="+", default=["all", ],
                    help="Attribute type to be searched (feature_id, feature_type, 'qualifier:*', or sequence).\n" +  
                    "If the value is not provided, all sequence features will be to subjected to the operation by the specified command.")
     
-    p.add_argument("--query", "-q", type=str, default=".+",
-                   help="Sequence features with the the attribute values that match to the query will be searched.")
+    p.add_argument("--query", "-q", type=str, nargs="+", default=[".+", ],
+                   help="Sequence features with the attribute values that match to the query will be searched.")
 
-    p.add_argument("--columns", "-c", nargs = "+", default=["feature_id", "feature_type", "qualifier:label", "start", "end", "strand"], 
+    p.add_argument("--columns", "-c", nargs="+", default=["feature_id", "feature_type", "qualifier:label", "start", "end", "strand"], 
                    help="List of feature attributes to be displayed in the output table.\nIf the value is 'all', it will generate " + 
                    "a table for all the attributes held by the sequence features in the GenBank input except for `sequence`.")
     

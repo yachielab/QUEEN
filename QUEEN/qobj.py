@@ -1915,7 +1915,7 @@ class QUEEN():
         if output is None:
             print() 
 
-    def outputgbk(self, output=None, format="genbank", record_id=None, annotation=None, export_history=True, _return=False):
+    def outputgbk(self, output=None, format="genbank", record_id=None, annotation=None, export_history=True, describe_brokenfeature=True, _return=False):
         """Output `QUEEN_object` to a GenBank file. 
 
         In addition to all of the `DNAfeature_objects` in the input `QUEEN_object`, 
@@ -1988,7 +1988,7 @@ class QUEEN():
                     note = label + ":" + str(pos_s) + ".." + str(pos_e-length)
                     feat.qualifiers["broken_feature"] = [note]
 
-                elif (pos_s == 1 and pos_e == length) or (pos_s == length and pos_e == 1):
+                elif (pos_s == 1 and pos_e == length) or (pos_s == length and pos_e == 1) or describe_brokenfeature == False:
                     del feat.qualifiers["broken_feature"]
                 
             if separate_history is not False and type(separate_history) is str and export_history == True:

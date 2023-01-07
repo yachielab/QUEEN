@@ -32,7 +32,7 @@ OPTIONS:
 			When --protocolflow_visualization (-pv) is specified, --input (-i) and --output (-o).
   --cutdna,  -cu        
   			Cut the DNA construct of a given GenBank/Fasta input. 
-  			When --cutdna (-c) is specified, --input (-i), --positions (-pos), and --output (-o) options are valid.
+  			When --cutdna (-cu) is specified, --input (-i), --positions (-pos), and --output (-o) options are valid.
   --cropdna, -cr        
   			Extract a partial DNA fragment from a GenBank/Fasta input. 
 			When --cropdna (-cr) is specified, --input (-i), --start (-s), --end (-e), and --output (-o) options are valid.

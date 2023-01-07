@@ -181,7 +181,7 @@ When a `QUEEN_object` is loaded from a GenBank file, `.dnafeatures` will automat
     * **.start**: `int`  
       Start position of `DNAfeature_object` in `QUEEN_object`.
     * **.end**: `int`  
-      Start position of `DNAfeature_object` in `QUEEN_object`.
+      End position of `DNAfeature_object` in `QUEEN_object`.
     * **.strand**: `int (1 or -1)`  
       Direction of `DNAfeature_object` in `QUEEN_object`. Top strand (`1`) or bottom strand (`-1`).  
     * **.sequence**: `str`  

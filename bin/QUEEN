@@ -244,11 +244,11 @@ if __name__ == "__main__":
     
     g.add_argument("--cutdna", "-cu", action="store_true",
                     help="Cut the DNA construct of a given GenBank/Fasta input.\n" +
-                    "When --cropdna (-c) is specified, --input (-i), --positions (-pos), and --output (-o) options are valid.")
+                    "When --cutdna (-cu) is specified, --input (-i), --positions (-pos), and --output (-o) options are valid.")
 
     g.add_argument("--cropdna", "-cr", action="store_true",
                     help="Extract a partial DNA fragment from a GenBank/Fasta input.\n" +
-                    "When --cropdna (-c) is specified, --input (-i), --start (-s), --end (-e), and --output (-o) options are valid.")
+                    "When --cropdna (-cr) is specified, --input (-i), --start (-s), --end (-e), and --output (-o) options are valid.")
     
     g.add_argument("--flipdna", "-fl", action="store_true",
                     help="Generate the revese complement of a GenBank/Fasta input.\n" + 

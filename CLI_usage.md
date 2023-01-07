@@ -23,7 +23,7 @@ OPTIONS:
   --feature_description, -fd
                         Print a table of the sequence features in a GenBank input. 
 			When --feauture_description (-fd) is specified, --input (-i), --attribute (-a), --query(-q), 
-			--columns (-c) --sequence (-seq), and --output (-o) options are valid.
+			--columns (-c), --separation (-sep), --sequence (-seq), and --output (-o) options are valid.
   --dnamap_visualization, -dv
                         Generate the annotated DNA sequence map in a GenBank input. 
 			When --dnamap_visualization (-dv) is specified, --input (-i), --map_view (-m), --attribute (-a),

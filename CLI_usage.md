@@ -221,15 +221,15 @@ Please move to the demo/CLI directory and execute the following commands.
 
 6. Extract the Cas9 fragment and generate its reverse complement.  
    `QUEEN --cropdna --input input/pCMV-Target-AID.gbk --start 3379 --end 7483 | QUEEN --flipdna > output/Cas9_rc.gbk`  
-   The output file is `demo/CLI/output/Cas9_rc.gbk`.
+   The output file is [`demo/CLI/output/Cas9_rc.gbk`](https://github.com/yachielab/QUEEN/blob/master/demo/CLI/output/Cas9_rc.gbk).
 
 7. Generate the annotated dna sequence map of the GenBank input.  
    `QUEEN --dnamap_visualization --input input/pCMV-Target-AID.gbk --map_view circular --output output/pCMV-Target-AID_map.pdf`  
    `QUEEN --dnamap_visualization --input output/pCMV-Target-AID_slided.gbk --map_view circular --output output/pCMV-Target-AID_slided_map.pdf`  
    `QUEEN --dnamap_visualization --input output/Cas9_rc.gbk --linebreak 200 --sequence --rcseq --output output/Cas9_rc_map.pdf`  
-   The output files are `demo/CLI/output/pCMV-Target-AID_map.pdf`, `demo/CLI/output/pCMV-Target-AID_map_slided.pdf`, and `demo/output/Cas9_rc_map.pdf`  
+   The output files are [`demo/CLI/output/pCMV-Target-AID_map.pdf`](https://github.com/yachielab/QUEEN/blob/master/demo/CLI/output/pCMV-Target-AID_map.pdf), [`demo/CLI/output/pCMV-Target-AID_map_slided.pdf`](https://github.com/yachielab/QUEEN/blob/master/demo/CLI/output/pCMV-Target-AID_slided_map.pdf), and [`demo/output/Cas9_rc_map.pdf`](https://github.com/yachielab/QUEEN/blob/master/demo/CLI/output/Cas9_rc_map.pdf).  
 
 8. Generate the plotocol flow to construct a QUEEN-generated GenBank input.  
    `QUEEN --protocolflow_visualization --input input/pCMV-Target-AID.gbk --output output/pCMV-Target-AID_flow.pdf"`  
-   The output file is `demo/CLI/output/pCMV-Target-AID_flow.pdf`.  
+   The output file is [`demo/CLI/output/pCMV-Target-AID_flow.pdf`](https://github.com/yachielab/QUEEN/blob/master/demo/CLI/output/pCMV-Target-AID_flow.pdf).  
 

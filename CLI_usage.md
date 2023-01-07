@@ -3,7 +3,8 @@
 SYNOPSIS
 QUEEN [--help] 
       (--protocol_description | --script_description | --feature_description | --dnamap_visualization | --protocolflow_visualization | --cutdna | --cropdna | --flipdna | --joindna) 
-      [--input INPUT [INPUT ...]] [--output OUTPUT] [--positions POSITIONS [POSITIONS ...]] [--start START] [--end END] [--attribute ATTRIBUTE] [--query QUERY]
+      [--input INPUT [INPUT ...]] [--output OUTPUT] [--separation SEPARATION] [--positions POSITIONS [POSITIONS ...]] 
+      [--start START] [--end END] [--attribute ATTRIBUTE [ATTRIBUTE ...]] [--query QUERY [QUERY ...]]
       [--columns COLUMNS [COLUMNS ...]] [--sequence] [--rcseq] [--linebreak LINEBREAK] [--map_view MAP_VIEW]
 
 OPTIONS:
@@ -56,7 +57,11 @@ OPTIONS:
                         Input file with FASTA or GenBank format. The file type is estimated based on the file extension. 
 			The value on stdin can also be used as a input.
   --output OUTPUT, -o OUTPUT
-                        Output file. The file type is estimated based on the file extension.
+  --separation SEPARATION, -sep SEPARATION
+                        String to separate values of each line. If the value is not given, space(s) to generate a well-formatted 
+			table is used as separators. Output file. The file type is estimated based on the file extension.
+			If you specified "gbk" or "genbank" as this value. The genbank files holding the sequence regions of each 
+			querid feature will be returned. 
   --positions POSITIONS [POSITIONS ...], -pos POSITIONS [POSITIONS ...]
                         List of cut positions. A cut position should be provided by `int`. 
 			For generating sticy-ends, please use the QUEEN functions as python commands instead of this CLI.
@@ -64,10 +69,10 @@ OPTIONS:
                         Start position of the target range in the GenBank/Fasta input. 
   --end END, -e END     
   			End position of the target range in the GenBank/Fasta input.
-  --attribute ATTRIBUTE, -a ATTRIBUTE
+  --attribute ATTRIBUTE [ATTRIBUTE ...], -a ATTRIBUTE [ATTRIBUTE ...]
                         Attribute type to be searched (feature_id, feature_type, 'qualifier:*', or sequence). 
 			If the value is not provided, all sequence features will be to subjected to the operation by the specified command.
-  --query QUERY, -q QUERY
+  --query QUERY [QUERY ...], -q QUERY [QUERY ...]
                         Sequence features with the attribute values that match to the query will be searched.
   --columns COLUMNS [COLUMNS ...], -c COLUMNS [COLUMNS ...]
                         List of feature attributes to be displayed in the output table. 

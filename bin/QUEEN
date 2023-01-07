@@ -161,7 +161,7 @@ def main(args):
     elif args.dnamap_visualization:
         if len(args.attribute) == 1 and len(args.query) == 1: 
             if args.attribute[0] == "all" and args.query[0] == ".+":
-                features = qinput.dnafeatures
+                features = None
             else:
                 features = qinput.searchfeature(key_attribute=args.attribute[0], query=args.query[0])
         else:

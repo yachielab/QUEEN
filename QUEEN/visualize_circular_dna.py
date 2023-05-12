@@ -142,17 +142,12 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
         if label == "":
             label = " "
 
-        strand = feat.location.strand
-        if strand == -1:
-            gs_origin = feat.location.parts[-1].start.position 
-            ge_origin = feat.location.parts[0].end.position
-            gs = gs_origin * 2 * np.pi / length
-            ge = ge_origin * 2 * np.pi / length 
-        else:
-            gs_origin = feat.location.parts[0].start.position 
-            ge_origin = feat.location.parts[-1].end.position
-            gs = gs_origin * 2 * np.pi / length 
-            ge = ge_origin * 2 * np.pi / length
+        strand    = feat.location.strand
+        gs_origin = feat.location.parts[0].start.position 
+        ge_origin = feat.location.parts[-1].end.position
+        
+        gs = gs_origin * 2 * np.pi / length 
+        ge = ge_origin * 2 * np.pi / length
 
         
         y = 0

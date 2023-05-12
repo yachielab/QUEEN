@@ -1552,7 +1552,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                         else:
                             s2, e2 = feat2.location.parts[0].start.position - (len(construct.seq) - ovhg_length), feat2.location.parts[-1].end.position - (len(construct.seq) - ovhg_length)
                         
-                        if feat1.type == feat2.type and (e1 >= s2 and e2 >= s1) and feat1.original == feat2.original:
+                        if feat1.type == feat2.type and feat1.original == feat2.original: 
                             flag = 0
                             for key in feat1.qualifiers:
                                 if key == "broken_feature":
@@ -1575,7 +1575,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                                 length2 = int(note2.split(":")[-4]) 
                                 pos_s2  = int(note2.split(":")[-1].split("..")[0].replace(" ",""))
                                 pos_e2  = int(note2.split(":")[-1].split("..")[1].replace(" ",""))
-                                
+                              
                                 #Join fragmented features
                                 if length1 == length2 and "_original" in feat1.__dict__ and "_original" in feat2.__dict__ and feat1.location.strand == feat2.location.strand:
                                     note    = "{}:{}..{}".format(label1, pos_s1, pos_e2)
@@ -2407,15 +2407,27 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
         feats = [] 
         for feat in dna.dnafeatures:
             strand = feat.location.strand
-            
+            os = feat.location.parts[0].start.position 
+            oe = feat.location.parts[-1].end.position 
             for p in range(len(feat.location.parts)):
                 s, e = feat.location.parts[p].start.position, feat.location.parts[p].end.position
                 feat.location.parts[p]._start = ExactPosition(len(dna.seq) - e) 
                 feat.location.parts[p]._end   = ExactPosition(len(dna.seq) - s) 
 
             if len(feat.location.parts) > 1:
-                feat.location.parts.reverse() 
-
+                if os > oe:
+                    for p in range(0, len(feat.location.parts[:-1])):
+                        if feat.location.parts[p+1].start.position == 0:
+                            break
+                    parts_f = feat.location.parts[:p] 
+                    parts_r = feat.location.parts[p:] 
+                    parts_f.reverse() 
+                    parts_r.reverse() 
+                    feat.location.parts = parts_f + parts_r
+                else:
+                    feat.location.parts.reverse() 
+                    
+                            
             if "original" in feat.__dict__:
                 feat._original = feat.original.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
 

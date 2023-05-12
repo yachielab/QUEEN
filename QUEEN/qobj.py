@@ -1820,8 +1820,8 @@ class QUEEN():
                 label = "null"
 
             strand = feat.location.strand
-            start  = feat.start
-            end    = feat.end
+            start  = feat.location.parts[0].start.position
+            end    = feat.location.parts[-1].end.position
             seq    = feat.sequence 
             
             if x_based_index == 1:

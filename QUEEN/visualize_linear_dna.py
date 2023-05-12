@@ -565,8 +565,13 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
        
         positions   = [p+zero_position-len(brick.seq) if p+zero_position > len(brick.seq) else p+zero_position for p in range(0, len(sub_brick.seq))] 
         if tick_space == "auto":
-            ticks       = [x for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % int(std/(2*enlarge_w)) == 0 or p == 1] 
-            tick_labels = [str(p) if p != 1 else "1" for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % int(std/(2*enlarge_w)) == 0 or  p == 1]
+            if int(std/(2*enlarge_w)) > 50:
+                incr = (int(std/(2*enlarge_w)) - int(std/(2*enlarge_w)) % 50) + 50
+            else:
+                incr = int(std/(2*enlarge_w)) 
+
+            ticks       = [x for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % incr == 0 or p == 1] 
+            tick_labels = [str(p) if p != 1 else "1" for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % incr == 0 or  p == 1]
         elif tick_space > 0:
             ticks       = [x for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % tick_space == 0 or p == 1] 
             tick_labels = [str(p) if p != 1 else "1" for p, x in zip(positions, list(range(0, len(sub_brick.seq)))) if p % tick_space == 0 or  p == 1]

@@ -194,7 +194,8 @@ When a `QUEEN_object` is loaded from a GenBank file, `.dnafeatures` will automat
 * **.productdict**: `dict`  
 Dictionary for all of the inherited `QUEEN_objects` used to construct the present `QUEEN_object`. The `.project` of each `QUEEN_object` serves as a key of this dictionary.
 
-
+* **.record**: `Bio.SeqRecord`  
+Bio.SeqRecord object that was used as the source for creating the QUEEN object.
 
 ## Output functions
 

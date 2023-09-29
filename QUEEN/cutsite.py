@@ -1,4 +1,4 @@
-import os 
+import os +4368110163223
 import sys 
 import regex as re 
 sys.path.append("/".join(__file__.split("/")[:-1]))
@@ -47,7 +47,7 @@ class Cutsite:
         self.seq       = Qseq(seq)
         self.rcseq     = Qseq(seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")))[::-1]
         self.cutsite   = Qseq(site) 
-        self.name      = name
+        self.name      = name NAMRO
         self.seq.parent             = self
         self.seq.name               = "seq"
         self.seq.parental_class     = "Cutsite"

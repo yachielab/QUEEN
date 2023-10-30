@@ -425,7 +425,7 @@ Bio.SeqRecord object that was used as the source for creating the QUEEN object.
   
   
   
-* #####  **`.searchfeature(key_attribute=str, query=regex or str, source=list of DNAfeature_objects, start=int, end=int, strand=int, product=str, process_name=str, process_description="str")`**  
+* #####  **`.searchfeature(key_attribute=str, query=regex or str, source=list of DNAfeature_objects, start=int, end=int, strand=int)`**  
   Search for `DNAfeature_objects` holding a queried value in a designated `key_attribute` in `QUEEN_object`.
     #### Parameters  
     * **key_attribute**: `str` (default: `"all"`)  
@@ -480,7 +480,7 @@ Bio.SeqRecord object that was used as the source for creating the QUEEN object.
 ## Operational functions
 QUEEN objects can be manipulated by four simple operational functions, `cutdna()`, `modifyends()`, `flipdna()`, and `joindna()`, that can collectively represent any of the standard molecular DNA cloning processes, and two super functions, `editsequence()` and `editfeature()`.
 
-* ##### **`cutdna(input=QUEEN_object, *cutsites=*list of (int, "int/int", or  DNAfeature_object), product=str, process_name=str, process_description="str")`**
+* ##### **`cutdna(input=QUEEN_object, *cutsites=*list of (int, "int/int", or  DNAfeature_object))`**
   Cut `QUEEN_object` at queried positions or by queried `DNAfeature_object` and return a list of fragmented `QUEEN_object`. Each existing `DNAfeature_object` in the original `QUEEN_object` will be inherited to the generating `QUEEN_object`. Suppose any `DNAfeature_objects` are at the cut boundaries being split into fragments. In that case, each `DNAfeature_object` will also be carried over to the new `QUEEN_object` with the `"qualifier:broken_feature"` attribute to be `"[.project of the original QUEEN_object]:[.feature_id of the original DNAfeature_object]:[sequence length of the original DNAfeature_object]:[sequence of the original DNAfeature_object]:[start..end positions of the original DNAfeature_object in the sequence of the original QUEEN_object]:[5'..3' end positions of the broken DNAfeature_object in the original DNAfeature_object]"`. This function also linearizes a circular `QUEEN_object`. 
   
   #### Parameters
@@ -622,7 +622,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   
   
   
-* ##### **`cropdna(input=QUEEN_object, start=int, "int/int", or  DNAfeature_object, end=int, "int/int", or  DNAfeature_object, product=str, process_name=str, process_description="str")`**
+* ##### **`cropdna(input=QUEEN_object, start=int, "int/int", or  DNAfeature_object, end=int, "int/int", or  DNAfeature_object)`**
   This is a subfunction of `cutdna()` and extracts a partial fragment from `QUEEN_object`.
   
   #### Parameters
@@ -664,7 +664,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   ```
 
 
-* ##### **`modifyends(input=QUEEN_object, left="str/str", right="str/str", product=str, process_name=str, process_description="str")`**
+* ##### **`modifyends(input=QUEEN_object, left="str/str", right="str/str")`**
   Modify sequence end structures of `QUEEN_object`. If the topology is `"circular"`, it won't work.
   
   #### Parameters
@@ -751,7 +751,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   ```
   
 
-* ##### **`flipdna(input=QUEEN_object, product=str, process_name=str, process_description="str")`** 
+* ##### **`flipdna(input=QUEEN_object)`** 
   Invert `QUEEN_object`. 
  
   #### Parameters
@@ -760,7 +760,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   #### Return
   > `QUEEN_object`
 
-* ##### **`joindna(*inputs=*list of QUEEN objects, topology=str, homology_length=int, product=str, process_name=str, process_description="str")`** 
+* ##### **`joindna(*inputs=*list of QUEEN objects, topology=str, compatibility=str, homology_length=int, autoflip=bool)`** 
   Assemble `QUEEN_objects`. Therefore, the connecting DNA end structures must include compatible region (i.e., only blunt ends and sequence ends including compatible sticky ends can be assembled). 
 
   From QUEEN v1.1.0, `joindna` can also accept ssDNA objects as inputs. When ssdna objects are specified, it can take only two ssDNA objects.  
@@ -799,6 +799,9 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
     The minimum compatible homology length to be required in the assembly.  
     If the compatible end length is shorter than this value, 'joindna' operation will be interrupted and raise the error message.  
     However, if the connecting DNA end structures are blunt ends, this threshold value will be ignored and the QUEEN objects wil be joined.
+  * **autoflip**: `bool`, (default: True)  
+    If this value is True and if the joining fails, the joining process is automatically redone with the flipped fragment.   
+    If False, the fragments should be oriented corrently.  
 
   #### Return
   > `QUEEN_object`
@@ -954,7 +957,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   ```
  
   
-* ##### **`editsequence(input=QUEEN object, source_sequence=regex or str, destination_sequence=str, start=int, end=int, strand=int, product=str, process_name=str, process_description="str")`**
+* ##### **`editsequence(input=QUEEN object, source_sequence=regex or str, destination_sequence=str, start=int, end=int, strand=int)`**
   Edit sequence of `QUEEN_object` by searching target sequence fragments matched to a `source_sequence` and replacing each of them with a `destination_sequence`. All `DNAfeature_objects` located on the edited sequence regions will be given the `"qualifier:broken-feature"` attribute. In any sequence edit that confers change in the sequence length of the `QUEEN object`, the coordinates of all affected `DNAfeature_objects` will be adjusted. This is the parental function of `searchsequence()`. If `destination_sequence` is not provided, it works just as `searchsequence()`.
   
     #### Parameters  
@@ -993,7 +996,7 @@ QUEEN objects can be manipulated by four simple operational functions, `cutdna()
   ```
   
   
-* ##### **`editfeature(input=QUEEN_object, key_attribute=str, query=regex or str, source=list of DNAfeature_objects, start=int, end=int, strand=int, target_attribute=str, operation=function, quine=bool, new_copy=bool, product=str, process_name=str, process_description="str")`**
+* ##### **`editfeature(input=QUEEN_object, key_attribute=str, query=regex or str, source=list of DNAfeature_objects, start=int, end=int, strand=int, target_attribute=str, operation=function, quine=bool, new_copy=bool)`**
   Search for `DNAfeature_objects` holding a `query` value in a designated `key_attribute` and edit a `target_attribute` of the same `DNAfeature_objects` with one of the three operations: `removeattribute`, `replaceattribute`, or `createattribute`. This is the parental function of `searchfeature()`. If `target_attribute` is not provided, it works just as `searchfeature()`.
     #### Parameters
     * **input**:  `QUEEN object`

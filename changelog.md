@@ -1,4 +1,7 @@
 # Changelog
+## version 1.2.1 
+- `autoflip` parameter was added to `joindna` function.
+
 ## version 1.2 
 - Bug fix
     - Fixed bug in `joindna` where `compatibility="complete"` did not work. 

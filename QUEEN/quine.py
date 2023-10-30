@@ -432,7 +432,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             #print("#" * 80, file=o)
             print("project='{}'".format(project), file=o)
             print("import sys", file=o)  
-            print("sys.path.append(\"{}".format("/".join(__file__.split("/")[:-2])  + "\")"), file=o)
+            print("sys.path = [\"{}] + sys.path".format("/".join(__file__.split("/")[:-2])  + "\""), file=o)
             print("from QUEEN.queen import *", file=o) 
             print("from QUEEN import cutsite as cs", file=o) 
             for cutsite in list(cs.new_cutsites):
@@ -475,7 +475,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     if execution == True:
         intermediate_products = {} 
         sys.path.append("/".join(outname.split("/")[:-1]) if len(outname.split("/")) > 1 else ".")
-        
+         
         if outname[-3:] != ".py":
             os.rename(outname, outname + ".py") 
         

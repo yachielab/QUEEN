@@ -120,11 +120,11 @@ class DNAfeature(SeqFeature):
         
         #start->end direction should be 5' to 3' on the top strand.
         if self.location.strand == -1:
-            self._start = self.location.parts[-1].start.position
-            self._end   = self.location.parts[0].end.position
+            self._start = Qint(self.location.parts[-1].start)
+            self._end   = Qint(self.location.parts[0].end) 
         else:
-            self._start = self.location.parts[0].start.position
-            self._end   = self.location.parts[-1].end.position
+            self._start = Qint(self.location.parts[0].start)
+            self._end   = Qint(self.location.parts[-1].end)
         
         self._seq       = None
         self._qkey      = None #ID for features_dict
@@ -182,11 +182,11 @@ class DNAfeature(SeqFeature):
             self.location = CompoundLocation(locations, type=feat.type) 
         
         if self.location.strand == -1:
-            self._start = self.location.parts[-1].start.position
-            self._end   = self.location.parts[0].end.position
+            self._start = Qints(self.location.parts[-1].start)
+            self._end   = Qint(self.location.parts[0].end)
         else:
-            self._start = self.location.parts[0].start.position
-            self._end   = self.location.parts[-1].end.position
+            self._start = Qint(self.location.parts[0].start)
+            self._end   = Qint(self.location.parts[-1].end) 
         
         self._start = Qint(self._start)
         self._end   = Qint(self._end) 
@@ -243,16 +243,29 @@ class QUEEN():
             url = "https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?tool=portal&save=file&log$=seqview&db=nuccore&report=gbwithparts&id={}&withparts=on".format(_id) 
         
         elif dbtype == "addgene": 
-            if ":" not in _id:
-                _id = _id + ":addgene"
-            site = "https://www.addgene.org/{}/sequences/".format(_id.split(":")[0]) 
-            html = requests.get(site)
-            soup = BeautifulSoup(html.content, "html.parser")
-            url  = soup.find(id="{}-full".format(_id.split(":")[1])).find(class_="genbank-file-download").get("href")
+            try:
+                if ":" not in _id:
+                    _id = _id + ":addgene"
+                site = "https://www.addgene.org/{}/sequences/".format(_id.split(":")[0]) 
+                html = requests.get(site)
+                soup = BeautifulSoup(html.content, "html.parser")
+                url  = soup.find(id="{}-full".format(_id.split(":")[1])).find(class_="genbank-file-download").get("href")
+            
+            except Exception as e:
+                if _id.split(":")[1] == "addgene":
+                    _id = _id.split(":")[0] + ":depositor"
+                else:
+                    _id = _id.split(":")[0] + ":addgene"
+                site = "https://www.addgene.org/{}/sequences/".format(_id.split(":")[0]) 
+                html = requests.get(site)
+                soup = BeautifulSoup(html.content, "html.parser")
+                url  = soup.find(id="{}-full".format(_id.split(":")[1])).find(class_="genbank-file-download").get("href")
 
         elif dbtype == "benchling":
             if "https://benchling.com/" not in _id:
                 raise ValueError("Please specify a proper benchling share link")
+            #https://benchling.com/s/seq-U4pePb09KHutQzjyOPQV?m=slm-s4Jmp4ANw4QLh4ocdYqU
+            url = re.match("https:\/\/benchling\.com\/s\/seq-[A-Za-z0-9]+",url).group() 
             url = _id + ".gb"
         
         elif dbtype == "googledrive":
@@ -1097,7 +1110,7 @@ class QUEEN():
                     for qindex, qfeat in enumerate(QUEEN.queried_features_dict[qkey]):
                         if qfeat._second_id == qorigin.parental_id:
                             break
-                    if type(qorigin.item)   == int:
+                    if type(qorigin.ite) in (Qint, int):
                         qorigin = "QUEEN.queried_features_dict['{}'][{}].{}[{}]".format(qkey, qindex, "seq" , qorigin.item)
                     elif type(qorigin.item) == slice:
                         sl_start = qorigin.item.start
@@ -1125,7 +1138,7 @@ class QUEEN():
                             seqname = "QUEEN.dna_dict['{}'].rcseq".format(parental_id)
                     else:
                         seqname = "QUEEN.dna_dict['{}'].seq".format(parental_id)
-                    if type(qorigin.item)   == int:
+                    if type(qorigin.item) in (Qint, int):
                         args.append("{}[{}]".format(seqname, qorigin.item))
                     elif type(qorigin.item) == slice:
                         sl_start = qorigin.item.start
@@ -1275,7 +1288,7 @@ class QUEEN():
                     for qindex, qfeat in enumerate(QUEEN.queried_features_dict[qkey]):
                         if qfeat._second_id == query.parental_id:
                             break
-                    if type(query.item)   == int:
+                    if type(query.item) in (Qint, int):
                         query = "QUEEN.queried_features_dict['{}'][{}].{}[{}]".format(qkey, qindex, "seq" , query.item)
                     elif type(query.item) == slice:
                         sl_start = query.item.start
@@ -1304,7 +1317,7 @@ class QUEEN():
                     else:
                         seqname = "QUEEN.dna_dict['{}'].seq".format(parental_id)
                     
-                    if type(query.item) == int:
+                    if type(query.item) in (Qint, int):
                         args.append("{}[{}]".format(seqname, query.item))
                     elif type(query.item) == slice:
                         sl_start = query.item.start
@@ -1378,7 +1391,7 @@ class QUEEN():
         if type(item) == slice:
             if item.step is None:
                 strand = 1
-            elif type(item.step) != int:
+            elif type(item.step) not in (Qint, int):
                 raise TypeError("slice indices must be integers or None or have an __index__ method.")
             else:
                 strand = item.step
@@ -1386,7 +1399,7 @@ class QUEEN():
             if item.start is None:
                 start = 0 
             else:
-                if type(item.start) == int:
+                if type(item.start) in (Qint, int):
                     start = item.start 
                 else:
                     raise TypeError("slice indices must be integers or None or have an __index__ method.")
@@ -1394,13 +1407,13 @@ class QUEEN():
             if item.stop is None:
                 end = len(self.seq) 
             else:
-                if type(item.stop) == int:
+                if type(item.stop) in (Qint, int):
                     end = item.stop
                 
                 else:
                     raise TypeError("slice indices must be integers or None or have an __index__ method.") 
             
-            if type(start) == int and type(end) == int:
+            if type(start) in (Qint, int) and type(end) in (Qint, int):
                 if start < 0:
                     start = len(self.seq) - abs(start) 
                 if end < 0: 
@@ -1419,7 +1432,7 @@ class QUEEN():
             raise ValueError("Invalid index type was specified.") 
     
     def __add__(self, other):
-        if (type(other) == str and set(other) <= set("ATGCRYKMSWBDHVNatgcrykmswbdhvn-")) or type(other) == Seq:
+        if (type(other) in (Qseq, str) and set(other) <= set("ATGCRYKMSWBDHVNatgcrykmswbdhvn-")) or type(other) == Seq:
             other = QUEEN(seq=other) 
 
         elif type(other) == SeqRecord:
@@ -1434,7 +1447,7 @@ class QUEEN():
             return joindna(self, other, quinable=0)
 
     def __radd__(self, other):
-        if (type(other) == str and set(other) <= set("ATGCRYKMSWBDHVNatgcrykmswbdhvn-")) or type(other) == Seq:
+        if (type(other) in (Qseq, str) and set(other) <= set("ATGCRYKMSWBDHVNatgcrykmswbdhvn-")) or type(other) == Seq:
             other = QUEEN(seq=other) 
 
         elif type(other) == Seq.SeqRecord:
@@ -1485,20 +1498,21 @@ class QUEEN():
             width = len(self.seq) + 1
         else:
             width = linebreak
-
+        
+        tl = len(self._left_end)  if self._left_end_top  == -1 else 0
+        tr = len(self._right_end) if self._right_end_top == -1 else 0
+        truetop = "-" * tl + self.seq[tl:(-1*tr if tr != 0 else None)] + "-" * tr
+            
+        bl = len(self._left_end)  if self._left_end_bottom  == -1 else 0
+        br = len(self._right_end) if self._right_end_bottom == -1 else 0
+        truebottom = "-" * bl + self.rcseq[::-1][bl:(-1*br if br != 0 else None)] + "-" * br
         if hide_middle is None or hide_middle > 0.5 * len(self.seq):
             hide_middle = int(0.5 * len(self.seq)) 
             whole = True
+            top   = truetop 
+            bottom = truebottom 
 
-        if start is None and end is None and strand == 2:
-            tl = len(self._left_end)  if self._left_end_top  == -1 else 0
-            tr = len(self._right_end) if self._right_end_top == -1 else 0
-            truetop = "-" * tl + self.seq[tl:(-1*tr if tr != 0 else None)] + "-" * tr
-            
-            bl = len(self._left_end)  if self._left_end_bottom  == -1 else 0
-            br = len(self._right_end) if self._right_end_bottom == -1 else 0
-            truebottom = "-" * bl + self.rcseq[::-1][bl:(-1*br if br != 0 else None)] + "-" * br
-
+        elif start is None and end is None and strand == 2:
             rcseq  = self.seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
             if len(self._left_end) > hide_middle:
                 left_length = hide_middle
@@ -1532,12 +1546,14 @@ class QUEEN():
             
             top = left_end_top + self.seq[hide_middle:len(self.seq)-hide_middle] + right_end_top
             bottom = left_end_bottom + self.seq[hide_middle:len(self.seq)-hide_middle].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")) + right_end_bottom 
+        
         else: 
             if type(start) is DNAfeature:
                 feature = start
                 start   = feature.start
                 end     = feature.end
                 strand  = feature.strand
+            
             if start is None:
                 start = 0
             
@@ -1555,7 +1571,7 @@ class QUEEN():
             else:    
                 top = self.seq[start:end] 
             bottom = top.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))
-
+        
         out = ""
         if display == True:
             if whole == False:
@@ -1670,7 +1686,7 @@ class QUEEN():
         attribute_dict.setdefault("end", len(self.seq))  
         attribute_dict.setdefault("strand", 1)
          
-        if type(attribute_dict["start"]) == int:
+        if type(attribute_dict["start"]) in (Qint, int):
             if attribute_dict["start"] > attribute_dict["end"] and self.topology == "circular":
                 locations = [[attribute_dict["start"], len(self.seq), attribute_dict["strand"]], [0, attribute_dict["end"], attribute_dict["strand"]]]
                 if attribute_dict["strand"] == -1:
@@ -1802,7 +1818,7 @@ class QUEEN():
             attribute = new_attribute
         if feature_list is None:
             features = list(self.dnafeatures)
-            features.sort(key=lambda x:x.location.parts[0].start.position)
+            features.sort(key=lambda x:int(x.location.parts[0].start))
         else:
             features = feature_list 
 
@@ -1820,8 +1836,8 @@ class QUEEN():
                 label = "null"
 
             strand = feat.location.strand
-            start  = feat.location.parts[0].start.position
-            end    = feat.location.parts[-1].end.position
+            start  = Qint(feat.location.parts[0].start)
+            end    = Qint(feat.location.parts[-1].end)
             seq    = feat.sequence 
             
             if x_based_index == 1:
@@ -1934,25 +1950,29 @@ class QUEEN():
         annotation : dict, default: None
             Dictionary of annotations for the genbank.   
             For details, please see https://biopython.org/docs/latest/api/Bio.SeqRecord.html.
-        export_history : bool, default: True
-            If False, construnction history of the `QUEEN_object` will not be output.
+        describe_brokenfeature : bool, default: True
+            If False, alll "brokenfeature" qualifiers in the features will be removed from the GenBank output.
+        export_history : 0 (0, 1, or 2), default: 2
+            If 0, A construnction history of the `QUEEN_object` will not be output.  
+            If 1, A construnction history of only the present `QUEEN_object` will be output. The past construction 
+            histories of the input objects will be removed. 
+            If 2, All construction histoires of the present `QUEEN_object` and input objects will be output.
 
         Returns
         -------
         None
         
         """
-
-        handle = output
-        export_input = False
-        separate_history = False
+        if export_history not in (0, 1, 2):
+            raise ValueError("Invalid value provided. Expected value of `export_history` must be one of the following: 0, 1, or 2.")
         
+        handle = output
+        separate_history = False
         stdIOflag = 0 
         if handle is None:
             stdIOflag = 1
             handle    = io.StringIO()
        
-        product_dict    = {}
         histories       = quine(self, _return=True) 
         history_nums    = [history[0] for history in histories]
         history_feature = copy.deepcopy(self._history_feature)
@@ -1964,7 +1984,8 @@ class QUEEN():
                 if num in history_nums:
                     process_id = history_feature.qualifiers[key][2].split(",")[0].replace(" ", "")
                     if "-" in process_id:
-                        pass 
+                        if export_history == 1:
+                            remove_keys.append(key)
                     else:
                         history_feature.qualifiers[key][2] = self.project + "-" + self._history_feature.qualifiers[key][2]
                 else:
@@ -1974,7 +1995,7 @@ class QUEEN():
             del history_feature.qualifiers[key] 
 
         features = copy.deepcopy(self.dnafeatures)
-        if export_history is True:
+        if export_history > 0:
             features.append(history_feature) 
         
         for feat in features:
@@ -1991,7 +2012,7 @@ class QUEEN():
                 elif (pos_s == 1 and pos_e == length) or (pos_s == length and pos_e == 1) or describe_brokenfeature == False:
                     del feat.qualifiers["broken_feature"]
                 
-            if separate_history is not False and type(separate_history) is str and export_history == True:
+            if separate_history is not False and type(separate_history) is str and export_history > 0:
                 for feat in self.dnafeatures:
                     if feat.type == "source":
                         for key in feat.qualifiers:
@@ -2008,20 +2029,21 @@ class QUEEN():
                         print(pair[1], pair[2], sep=",", file=o)
                 self.record.annotations["source"] = os.getcwd() + "/" + separate_history
             
-            if export_input == True:
-                for hisoty in histories:
-                    if "QUEEN(record=" in history[1] and ("dbtype='local'" in history or "dbtype" not in history[1]):
-                        match = re.search("QUEEN.dna_dict\['([^\[\]]+)'\]", history[1])
-                        if match is not None:
-                            key = match.group(1)
-                            if dans[0].productdict[key] is not None:
-                                product_dict[key] = dnas[0].prodcutdict[key]
-                                product_dict[key].record.annotations["keyword"]    = "QUEEN input"
-                                product_dict[key].record.annotations["accession"] = re.search("record='([^=]+)'[,\)]", history[1]).group(1) 
-                        else:
-                            pass 
-                    else:
-                        pass 
+            #if export_history == 2:
+            #    product_dict = {} 
+            #    for hisoty in histories:
+            #        if "QUEEN(record=" in history[1] and ("dbtype='local'" in history or "dbtype" not in history[1]):
+            #            match = re.search("QUEEN.dna_dict\['([^\[\]]+)'\]", history[1])
+            #            if match is not None:
+            #                key = match.group(1)
+            #                if dans[0].productdict[key] is not None:
+            #                    product_dict[key] = dnas[0].prodcutdict[key]
+            #                    product_dict[key].record.annotations["keyword"]    = "QUEEN input"
+            #                    product_dict[key].record.annotations["accession"] = re.search("record='([^=]+)'[,\)]", history[1]).group(1) 
+            #            else:
+            #                pass 
+            #        else:
+            #            pass 
 
         if type(handle) is str:
             handle = open(handle, "w") 
@@ -2055,15 +2077,15 @@ class QUEEN():
             else:
                 print(handle.getvalue(), end="") 
 
-        if export_input == True and len(product_dict) > 0:
-            for key in product_dict:
-                value = outputgbk(product_dict[key], export_input=False, _return=True)
-                if stdIOflag == 1:
-                    #print("//") 
-                    print(value, end="") 
-                else:
-                    #handle.write("//\n") 
-                    handle.write(value) 
+        #if export_history == 2 and len(product_dict) > 0:
+        #    for key in product_dict:
+        #        value = outputgbk(product_dict[key], export_history=2, _return=True)
+        #        if stdIOflag == 1:
+        #            #print("//") 
+        #            print(value, end="") 
+        #        else:
+        #            #handle.write("//\n") 
+        #            handle.write(value) 
 
         if stdIOflag == 0:
             handle.close() 

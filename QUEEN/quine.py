@@ -130,7 +130,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     for history in histories:
         history = list(history)
         if re.search("process_description=None",history[1].replace(" ","").replace("–"," ")) is None:
-            process_description = re.search("process_description='[^=]*'",history[1].replace(" ","").replace("–"," "))
+            process_description = re.search("process_description='[^']*'",history[1].replace(" ","").replace("–"," "))
             if process_description is None:
                 pd = None                
             else: 
@@ -145,7 +145,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             descriptions.append(pd)
         
         if re.search("process_name=None",history[1].replace(" ","").replace("–"," ")) is None:
-            process_name = re.search("process_name='[^=]*'",history[1].replace(" ","").replace("–"," "))
+            process_name = re.search("process_name='[^']*'",history[1].replace(" ","").replace("–"," "))
             #print(process_name) 
             if process_name is None:
                 pn = pre_pn            

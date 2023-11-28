@@ -21,9 +21,9 @@ def make_newhistories(histories, search_function=True):
         match0  = re.search("(QUEEN.queried_features_dict\['[^\[\]]+'\]) = (.*)",history)
         match1  = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]),? = ", history)
         match2  = re.search("product='([^=]+)'", history)
-    
-        match_name = re.search("process_name='([^=]*)'", history) 
-        match_description = re.search("process_description='([^=]*)'", history) 
+        #query='([^']+])' 
+        match_name = re.search("process_name='([^']*)'", history) 
+        match_description = re.search("process_description='([^']*)'", history) 
         process_name = match_name.group(1) if match_name is not None else None
         process_description = match_description.group(1) if match_description is not None else None
 
@@ -123,7 +123,6 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
 
     process_description = pd if process_description is None else process_description
     process_description = False if process_description is None else process_description
-    
     split_input = si if split_input is None else split_input
     if split_input is None:
         if len(dnas) > 2:
@@ -355,18 +354,20 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                       '</table>>'])
                 infotext = ""
                 
-                query_flag      = 0 
-                query_match     = re.search("query=([^=]+),", source)
+                query_flag  = 0 
+                query_match = re.search("query='([^']+)',", source)
                 queryname_match = re.search("QUEEN.dna_dict\['([^\[\]]+)'\]", query_match.group(1))
                 if queryname_match is not None:
                     queryname = queryname_match.group(1)
-                    info_dict["query"] = query_match.group(1).replace(queryname_match.group(0), name_dict[queryname_match.group(0)])
-                    #queryname = sourcenames[1] 
+                    qmt = query_match.group(1) 
+                    info_dict["query"] = qmt.replace(queryname_match.group(0), name_dict[queryname_match.group(0)])
                     query_flag = 1 
                     
                 if info_dict is not None:
                     for key, value in info_dict.items():
                         if key != "_source" and key != "_load":
+                            value = value.replace("<","&lt;")
+                            value = value.replace(">","&gt;")
                             infotext += temp.format(key, key, value)
 
                 
@@ -451,7 +452,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                             dg.edge(product_funcname_dict[sourcename][0], funcname+":f"+str(s), arrowhead="dot")
                         else:
                             dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":f"+str(s), arrowhead="dot")
-                 
+                
                 product_funcname_dict[productname] = (funcname, process_name, process_description, info_dict["_source"] if "_source" in info_dict else None) 
 
 

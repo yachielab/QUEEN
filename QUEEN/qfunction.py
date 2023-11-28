@@ -105,11 +105,12 @@ import cutsite as cs
 import visualize_circular_dna as vc
 import visualize_linear_dna as vl 
 import qgraph as qg 
+from qint import Qint
 
 def _assigndnafeatures(dnafeatures):
     features = [] 
     for feat in dnafeatures:
-        if feat.location.start.position == -1:
+        if int(feat.location.start) == -1:
             pass 
         else:
             features.append(feat) 
@@ -121,8 +122,8 @@ def _slide(feats,slide):
         feat = copy.deepcopy(feat)
         strand = feat.location.strand
         for p in range(len(feat.location.parts)):
-            feat.location.parts[p]._start = ExactPosition(feat.location.parts[p].start.position + slide)
-            feat.location.parts[p]._end   = ExactPosition(feat.location.parts[p].end.position + slide)
+            feat.location.parts[p]._start = ExactPosition(int(feat.location.parts[p].start) + slide)
+            feat.location.parts[p]._end   = ExactPosition(int(feat.location.parts[p].end) + slide)
         feat.location.strand = strand
         new_feats.append(feat.__class__(feat))
     return new_feats 
@@ -332,11 +333,11 @@ def _circularizedna(dna):
                         new_feat    = copy.deepcopy(dna.dnafeatures[feat1_index]) 
                         strand      = new_feat.location.strand
                         if len(feat1.location.parts) == 1 and len(feat2.location.parts) == 1:
-                            new_feat.location = FeatureLocation(feat1.location.parts[0].start.position, len(dna.seq) + feat2.location.parts[-1].end.position, feat1.strand)
+                            new_feat.location = FeatureLocation(int(feat1.location.parts[0].start), len(dna.seq) + int(feat2.location.parts[-1].end), feat1.strand)
                             new_feat.location.strand = strand
                         else:
-                            feat2_parts = [(p.start.position + len(dna.seq), p.end.position + len(dna.seq), feat2.strand) for p in feat2.location.parts]
-                            locations   = feat1.location.parts[0:-1] + [FeatureLocation(feat1.location.parts[-1].start.position, len(dna.seq) + feat2.location.parts[0].end.position, feat1.strand)] + feat2_parts[0:-1]
+                            feat2_parts = [(int(p.start) + len(dna.seq), int(p.end) + len(dna.seq), feat2.strand) for p in feat2.location.parts]
+                            locations   = feat1.location.parts[0:-1] + [FeatureLocation(int(feat1.location.parts[-1].start), len(dna.seq) + int(feat2.location.parts[0].end), feat1.strand)] + feat2_parts[0:-1]
                             if strand == -1:
                                 locations.reverse() 
                             new_feat.location = CompoundLocation(locations) 
@@ -359,14 +360,14 @@ def _circularizedna(dna):
                                 remove_list.append(feat2) 
     
     for i in range(len(dna.dnafeatures)):    
-        if dna.dnafeatures[i].location.parts[-1].end.position > len(dna.seq):
-            if dna.dnafeatures[i].location.parts[0].start.position >= len(dna.seq):
-                strand                      = dna.dnafeatures[i].location.strand
-                dna._dnafeatures[i].location = FeatureLocation(dna.dnafeatures[i].location.parts[0].start.position-len(dna.seq),dna.dnafeatures[i].location.parts[-1].end.position-len(dna.seq))
+        if int(dna.dnafeatures[i].location.parts[-1].end) > len(dna.seq):
+            if int(dna.dnafeatures[i].location.parts[0].start) >= len(dna.seq):
+                strand = dna.dnafeatures[i].location.strand
+                dna._dnafeatures[i].location = FeatureLocation(int(dna.dnafeatures[i].location.parts[0].start)-len(dna.seq), int(dna.dnafeatures[i].location.parts[-1].end)-len(dna.seq))
                 dna._dnafeatures[i].location.strand = strand
             else:
                 strand    = dna.dnafeatures[i].location.strand
-                locations = [FeatureLocation(dna.dnafeatures[i].location.parts[0].start.position,len(dna.seq)), FeatureLocation(0,dna.dnafeatures[i].location.parts[-1].end.position-len(dna.seq))]
+                locations = [FeatureLocation(int(dna.dnafeatures[i].location.parts[0].start),len(dna.seq)), FeatureLocation(0,int(dna.dnafeatures[i].location.parts[-1].end)-len(dna.seq))]
                 if strand == -1:
                     locations.reverse()   
                 dna._dnafeatures[i].location = CompoundLocation(locations)
@@ -654,8 +655,8 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                         feat1 = copy.deepcopy(feat)
                         new_locations = []
                         for part in feat1.location.parts:
-                            if part.start.position > part.end.postion:
-                                new_locations.append(FeatureLocation(part.start.position, len(dna.seq)))
+                            if int(part.start) > int(part.end):
+                                new_locations.append(FeatureLocation(int(part.start), len(dna.seq)))
                                 break
                             else:
                                 new_locations.append(part)
@@ -667,8 +668,8 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                         feat2 = copy.deepcopy(feat)
                         new_locations = []
                         for part in feat1.location.parts:
-                            if part.start.position > part.end.postion:
-                                new_locations.append(FeatureLocation(0, part.end.position))
+                            if int(part.start) > int(part.end):
+                                new_locations.append(FeatureLocation(0, int(part.end)))
                                 flag = 1
 
                             if flag == 1:
@@ -813,7 +814,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                 else:
                                     feat.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, len(feat.original), len(feat.original)-(end-s)+1)]
                             else:
-                                s = int(feat.location.parts[0].start.position)
+                                s = int(feat.location.parts[0].start)
                                 note = feat.qualifiers["broken_feature"][0]
                                 if strand >= 0:
                                     label  = ":".join(note.split(":")[:-1])
@@ -838,8 +839,8 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                     sflag = 0 
                     eflag = 0
                     for apart in feat.location.parts:
-                        s = apart.start.position 
-                        e = apart.end.position
+                        s = int(apart.start)
+                        e = int(apart.end)
                         if e > start and s <= end:
                             if "_original" not in feat.__dict__:
                                 feat._original = dna.printsequence(s, e, feat.location.strand if feat.location.strand !=0 else 1) 
@@ -939,7 +940,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                             feat.location = CompoundLocation(locations)
                         feats.append(feat.__class__(feature=feat))
         
-            feats.sort(key=lambda x:(x.location.parts[0].start.position, x.location.parts[-1].end.position))
+            feats.sort(key=lambda x:(int(x.location.parts[0].start), int(x.location.parts[-1].end)))
             subdna = dna.__class__(seq=str(dna.seq[start:end]), quinable=0)
             subdna._history_feature = copy.deepcopy(dna._history_feature) 
             subdna._dnafeatures = feats
@@ -1007,7 +1008,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
             epos = epos + len(dna.seq) if epos < 0 else epos
             new_positions.append((spos,epos))  
         
-        elif type(pos) is int or ("__dict__" in dir(pos) and "_qint" in pos.__dict__):
+        elif type(pos) in (Qint, int):
             pos = (pos, pos)  
             spos, epos = pos
             spos = spos - len(dna.seq) if spos > len(dna.seq) else spos 
@@ -1129,7 +1130,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                 args.append("QUEEN.queried_features_dict['{}'][{}]".format(qkey, qindex))
                 history_features.append(pos.subject._history_feature) 
 
-            elif "__dict__" in dir(pos) and "_qint" in pos.__dict__:
+            elif type(pos) == Qint:
                 qkey = pos.qkey
                 for qindex, qfeat in enumerate(dnas[0].__class__.queried_features_dict[qkey]):
                     if qfeat._second_id == pos.parental_id:
@@ -1273,7 +1274,7 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
                 args.append("QUEEN.queried_features_dict['{}'][{}]".format(qkey, qindex))
                 history_features.append(pos.subject._history_feature) 
             
-            elif "__dict__" in dir(pos) and "_qint" in pos.__dict__:
+            elif type(pos) == Qint:
                 qkey = pos.qkey
                 for qindex, qfeat in enumerate(dna.__class__.queried_features_dict[qkey]):
                     if qfeat._second_id == pos.parental_id:
@@ -1568,15 +1569,15 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
             if len(feats1) > 0 and len(feats2) > 0:
                 for feat1 in feats1:
                     if feat1.location.strand == -1:
-                        s1, e1 = feat1.location.parts[-1].start.position, feat1.location.parts[0].end.position
+                        s1, e1 = Qint(feat1.location.parts[-1].start), Qint(feat1.location.parts[0].end)
                     else:
-                        s1, e1 = feat1.location.parts[0].start.position, feat1.location.parts[-1].end.position
+                        s1, e1 = Qint(feat1.location.parts[0].start), Qint(feat1.location.parts[-1].end)
 
                     for feat2 in feats2:
                         if feat2.location.strand == -1:
-                            s2, e2 = feat2.location.parts[-1].start.position - (len(construct.seq) - ovhg_length), feat2.location.parts[0].end.position - (len(construct.seq) - ovhg_length)
+                            s2, e2 = Qint(feat2.location.parts[-1].start) - (len(construct.seq) - ovhg_length), Qint(feat2.location.parts[0].end) - (len(construct.seq) - ovhg_length)
                         else:
-                            s2, e2 = feat2.location.parts[0].start.position - (len(construct.seq) - ovhg_length), feat2.location.parts[-1].end.position - (len(construct.seq) - ovhg_length)
+                            s2, e2 = Qint(feat2.location.parts[0].start) - (len(construct.seq) - ovhg_length), Qint(feat2.location.parts[-1].end) - (len(construct.seq) - ovhg_length)
                         
                         if feat1.type == feat2.type and feat1.original == feat2.original: 
                             flag = 0
@@ -1610,10 +1611,10 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                                     new_feat    = copy.deepcopy(const_features[feat1_index]) 
                                     strand      = new_feat.location.strand
                                     if len(feat1.location.parts) == 1 and len(feat2.location.parts) == 1:
-                                        new_feat.location = FeatureLocation(feat1.location.parts[0].start.position, feat2.location.parts[-1].end.position, feat1.strand)
+                                        new_feat.location = FeatureLocation(int(feat1.location.parts[0].start), int(feat2.location.parts[-1].end), feat1.strand)
                                         new_feat.location.strand = strand
                                     else:
-                                        locations = feat1.location.parts[0:-1] + [FeatureLocation(feat1.location.parts[-1].start.position, feat2.location.parts[0].end.position, feat1.strand)] + feat2.location.parts[0:-1]
+                                        locations = feat1.location.parts[0:-1] + [FeatureLocation(int(feat1.location.parts[-1].start), int(feat2.location.parts[0].end), feat1.strand)] + feat2.location.parts[0:-1]
                                         if strand == -1:
                                             locations.reverse() 
                                         new_feat.location = CompoundLocation(locations) 
@@ -1634,7 +1635,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
             
             construct._dnafeatures = construct.dnafeatures + feats
         
-        construct._dnafeatures.sort(key=lambda x:x.location.parts[0].start.position)
+        construct._dnafeatures.sort(key=lambda x:int(x.location.parts[0].start))
         for feat in construct.dnafeatures:
             if "broken_feature" in feat.qualifiers:
                 note   = feat.qualifiers["broken_feature"][0]
@@ -2030,6 +2031,14 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
                     left_end        = left_end_top[0:len(left_end_top)-1*len(left_end_bottom)]
                     left_end_top    = 1
                     left_end_bottom = 1
+            
+            elif set(left_end_top) <= set(["-"]) and set(left_end_bottom) <= set(["-"]): 
+                add = -1
+                left_length     = len(left_end_top)
+                left_end        = left_end_top 
+                left_end_top    = -1
+                left_end_bottom = -1
+            
             else:
                 add = 1
                 add_left = 1
@@ -2050,7 +2059,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
         add_right = 1 
         right_end_top, right_end_bottom = right_end, right_end.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))
         right_end = right_end_top + "/" + right_end_bottom
-    
+   
     if len(right_end_top) != len(right_end_bottom):
         raise ValueError("Please specify a proper end sequence structure for the 'right' argument.")
     
@@ -2083,6 +2092,13 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
                     right_end        = right_end_top[len(right_end_bottom):] 
                     right_end_top    = 1
                     right_end_bottom = 1
+            
+            elif set(right_end_top) <= set(["-"]) and set(right_end_bottom) <= set(["-"]): 
+                add = -1 
+                right_length     = len(right_end_top)
+                right_end        = right_end_top 
+                right_end_top    = -1
+                right_end_bottom = -1
             else:
                 add = 1
                 add_right = 1 
@@ -2095,9 +2111,9 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
         right_length = len(right_end_top)  
         right_end_top    = 1
         right_end_bottom = 1
-     
-    if add == 1 or (left_end != dna.seq[left_end_length-left_length:left_end_length-left_length+len(left_end)] 
-                or right_end != str(dna[len(dna.seq)-right_end_length + right_length - len(right_end):len(dna.seq)-right_end_length + right_length].seq)):
+    
+    if add == 1 or (add != -1 and (left_end != dna.seq[left_end_length-left_length:left_end_length-left_length+len(left_end)] 
+                or right_end != str(dna[len(dna.seq)-right_end_length + right_length - len(right_end):len(dna.seq)-right_end_length + right_length].seq))):
         
         if add_left == 1 and add_right == 1:
             new_dna = dna.__class__(seq=left_end.split("/")[0] + dna.seq + right_end.split("/")[0] + "/" 
@@ -2175,7 +2191,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
                     sfeat = feat.start-(length-pose) 
                     sfeat = sfeat if sfeat > 0 else len(new_dna.seq) + sfeat
                     efeat = feat.end+(poss-1)    
-                
+               
                 if note.split(":")[-3] == new_dna.printsequence(sfeat, efeat, strand=feat.location.strand):
                     if sfeat < efeat:
                         location = FeatureLocation(sfeat, efeat, feat.location.strand) 
@@ -2196,12 +2212,101 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
             new_dna._dnafeatures.append(feat) 
     else:
         new_dna   = copy.deepcopy(dna)  
+        if left_end_top == 1 and left_end_bottom == 1:
+            left_end = ""
+            
+        elif left_end_top == -1 and left_end_bottom == -1:
+            new_dna = new_dna[len(left_end):]
+            left_end_top = 1 
+            left_end_bottom = 1
+        
+        elif dna._left_end_top * dna._left_end_bottom == -1:
+            if dna._left_end_top * left_end_top == 1:
+                if len(dna._left_end) > len(left_end):
+                    left_end        = dna._left_end
+                    left_end_top    = dna._left_end_top
+                    left_end_bottom = dna._left_end_bottom
+                else:
+                    pass 
+            else:
+                end_len = abs(len(dna._left_end) - len(left_end)) 
+                if len(dna._left_end) > len(left_end): 
+                    new_dna = new_dna[len(left_end):] 
+                    left_end = new_dna.seq[0:end_len] 
+                    if dna._left_end_top == -1: 
+                        left_end_top = -1
+                        left_end_bottom = 1
+                    else:
+                        left_end_top = 1
+                        left_end_bottom = -1
+                else:
+                    new_dna = new_dna[len(dna._left_end):] 
+                    left_end = new_dna.seq[0:end_len] 
+                    if dna._left_end_top == -1: 
+                        left_end_top = -1
+                        left_end_bottom = 1
+                    else:
+                        left_end_top = 1
+                        left_end_bottom = -1
+        
+        if right_end_top == 1 and right_end_bottom == 1:
+            right_end = ""
+            
+        elif right_end_top == -1 and right_end_bottom == -1:
+            new_dna = new_dna[:len(new_dna.seq)-len(right_end)]
+            right_end_top = 1 
+            right_end_bottom = 1
+
+        elif dna._right_end_top * dna._right_end_bottom == -1:
+            if dna._right_end_top * right_end_top == 1:
+                if len(dna._right_end) > len(right_end):
+                    right_end        = dna._right_end
+                    right_end_top    = dna._right_end_top
+                    right_end_bottom = dna._right_end_bottom
+                else:
+                    pass 
+            else:
+                end_len = abs(len(dna._right_end) - len(right_end)) 
+                if len(dna._right_end) > len(right_end): 
+                    new_dna = new_dna[:len(new_dna.seq)-1*len(right_end)] 
+                    right_end = new_dna.seq[len(new_dna.seq)-end_len:] 
+                    if dna._right_end_top == -1: 
+                        right_end_top = -1
+                        right_end_bottom = 1
+                    else:
+                        right_end_top = 1
+                        right_end_bottom = -1
+                else:
+                    new_dna = new_dna[:len(new_dna.seq)-1*len(dna._right_end)] 
+                    right_end = new_dna.seq[len(new_dna.seq)-end_len:] 
+                    if dna._right_end_top == -1: 
+                        right_end_top = 1
+                        right_end_bottom = -1
+                    else:
+                        right_end_top = -1
+                        right_end_bottom = 1
+           
         new_dna._left_end  = left_end
         new_dna._right_end = right_end
         new_dna._left_end_top     = left_end_top 
         new_dna._left_end_bottom  = left_end_bottom
         new_dna._right_end_top    = right_end_top
         new_dna._right_end_bottom = right_end_bottom
+        if len(left_end) == len(new_dna.seq):
+            if left_end_top == -1:
+                new_dna = flipdna(new_dna, quinable=False)
+                new_dna._ssdna = True
+
+            if left_end_bottom == -1:
+                new_dna._ssdna = True
+
+        elif len(right_end) == len(new_dna.seq):
+            if right_end_top == -1:
+                new_dna = flipdna(new_dna, quinable=False)
+                new_dna._ssdna = True
+
+            if right_end_bottom == -1:
+                new_dna._ssdna = True
     
     if project is None:
         new_dna._unique_id = dna._unique_id 
@@ -2434,17 +2539,17 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
         feats = [] 
         for feat in dna.dnafeatures:
             strand = feat.location.strand
-            os = feat.location.parts[0].start.position 
-            oe = feat.location.parts[-1].end.position 
+            os = Qint(feat.location.parts[0].start)  
+            oe = Qint(feat.location.parts[-1].end) 
             for p in range(len(feat.location.parts)):
-                s, e = feat.location.parts[p].start.position, feat.location.parts[p].end.position
+                s, e = Qint(feat.location.parts[p].start), Qint(feat.location.parts[p].end)
                 feat.location.parts[p]._start = ExactPosition(len(dna.seq) - e) 
                 feat.location.parts[p]._end   = ExactPosition(len(dna.seq) - s) 
 
             if len(feat.location.parts) > 1:
                 if os > oe:
                     for p in range(0, len(feat.location.parts[:-1])):
-                        if feat.location.parts[p+1].start.position == 0:
+                        if int(feat.location.parts[p+1].start) == 0:
                             break
                     parts_f = feat.location.parts[:p] 
                     parts_r = feat.location.parts[p:] 
@@ -2473,7 +2578,7 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
             feats.append(feat.__class__(feature=feat,subject=seq))
     
     comp = dna.__class__(seq=seq, topology = dna.topology, quinable=0) 
-    feats.sort(key=lambda x:x.location.parts[0].start.position) 
+    feats.sort(key=lambda x:int(x.location.parts[0].start)) 
     comp._dnafeatures = feats
     comp._history_feature = dna._history_feature
     comp._supfeatureids()
@@ -3076,17 +3181,17 @@ def _createattribute(dna=None, feat_list=None, target_attribute=None, value=None
             
             for feat in feat_list:
                 if feat.location.strand == -1: 
-                    s1, e1 = feat.location.parts[-1].start.position, feat.location.parts[0].end.position
+                    s1, e1 = Qint(feat.location.parts[-1].start), Qint(feat.location.parts[0].end)
                 else:
-                    s1, e1 = feat.location.parts[0].start.position, feat.location.parts[-1].end.position
+                    s1, e1 = Qint(feat.location.parts[0].start), Qint(feat.location.parts[-1].end)
                 
                 if "_id" not in feat.__dict__:
                     flag = 0
                     for feat2 in dna.dnafeatures:
                         if feat2.location.strand == -1: 
-                            s2, e2 = feat.location.parts[-1].start, feat.location.parts[0].end
+                            s2, e2 = Qint(feat.location.parts[-1].start), Qint(feat.location.parts[0].end)
                         else:
-                            s2, e2 = feat.location.parts[0].start, feat.location.parts[-1].end
+                            s2, e2 = Qint(feat.location.parts[0].start), Qint(feat.location.parts[-1].end) 
 
                         if s1 >= e2 and feat2._id.isdecimal() == True:
                             unique_num = 1
@@ -3124,15 +3229,15 @@ def _createattribute(dna=None, feat_list=None, target_attribute=None, value=None
             if value is None:
                 value = "" 
                 if feat.location.strand == -1: 
-                    s1, e1 = feat.location.parts[-1].start.position, feat.location.parts[0].end.position
+                    s1, e1 = Qint(feat.location.parts[-1].start), Qint(feat.location.parts[0].end)
                 else:
-                    s1, e1 = feat.location.parts[0].start.position, feat.location.parts[-1].end.position
+                    s1, e1 = Qint(feat.location.parts[0].start), Qint(feat.location.parts[-1].end) 
                 flag = 0 
                 for feat2 in dna.dnafeatures:
                     if feat2.location.strand == -1: 
-                        s2, e2 = feat2.location.parts[-1].start, feat2.location.parts[0].end
+                        s2, e2 = Qint(feat2.location.parts[-1].start), Qint(feat2.location.parts[0].end)
                     else:
-                        s2, e2 = feat2.location.parts[0].start, feat2.location.parts[-1].end
+                        s2, e2 = Qint(feat2.location.parts[0].start), Qint(feat2.location.parts[-1].end)
 
                     if s1 >= e2 and feat2._id.isdecimal() == True:
                         unique_num = 1

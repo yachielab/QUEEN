@@ -117,7 +117,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             hindex = index
         else:
             pass 
-    result     = re.findall("QUEEN.dna_dict\['[^\[\]]+'\]",histories[hindex][1].replace(" ","").replace("–"," "))[0] 
+    result     = re.findall(r"QUEEN.dna_dict\['[^\[\]]+'\]",histories[hindex][1].replace(" ","").replace("–"," "))[0] 
     _unique_id = result.split("['")[1][:-2]
     
     pre_pd = None
@@ -129,8 +129,8 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     processid_originalids_dict = {}  
     for history in histories:
         history = list(history)
-        if re.search("process_description=None",history[1].replace(" ","").replace("–"," ")) is None:
-            process_description = re.search("process_description='[^']*'",history[1].replace(" ","").replace("–"," "))
+        if re.search(r"process_description=None",history[1].replace(" ","").replace("–"," ")) is None:
+            process_description = re.search(r"process_description='[^']*'",history[1].replace(" ","").replace("–"," "))
             if process_description is None:
                 pd = None                
             else: 
@@ -144,8 +144,8 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             process_description = "process_description=None"
             descriptions.append(pd)
         
-        if re.search("process_name=None",history[1].replace(" ","").replace("–"," ")) is None:
-            process_name = re.search("process_name='[^']*'",history[1].replace(" ","").replace("–"," "))
+        if re.search(r"process_name=None",history[1].replace(" ","").replace("–"," ")) is None:
+            process_name = re.search(r"process_name='[^']*'",history[1].replace(" ","").replace("–"," "))
             #print(process_name) 
             if process_name is None:
                 pn = pre_pn            
@@ -219,12 +219,12 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     var_num_dict = collections.defaultdict(int) 
     for row in text.split("\n"):
         row = row.rstrip()
-        matches = re.findall("QUEEN.queried_feature_dict\['[^\[\]]+'\]",row)
+        matches = re.findall(r"QUEEN.queried_feature_dict\['[^\[\]]+'\]",row)
         if matches is not None:
             for match in matches:
                 var_num_dict[match] += 1
         
-        matches = re.findall("QUEEN.queried_features_dict\['[^\[\]]+'\]",row)
+        matches = re.findall(r"QUEEN.queried_features_dict\['[^\[\]]+'\]",row)
         if matches is not None:
             for match in matches:
                 var_num_dict[match] += 1
@@ -238,12 +238,12 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     for row, name, description, history in zip(texts, names, descriptions, histories):
         row      = row.rstrip() 
         var_nums = [] 
-        matches = re.findall("QUEEN.queried_feature_dict\['[^\[\]]+'\]",row)
+        matches = re.findall(r"QUEEN.queried_feature_dict\['[^\[\]]+'\]",row)
         if matches is not None:
             for match in matches:
                 var_nums.append(var_num_dict[match]) 
         
-        matches = re.findall("QUEEN.queried_features_dict\['[^\[\]]+'\]",row)
+        matches = re.findall(r"QUEEN.queried_features_dict\['[^\[\]]+'\]",row)
         if matches is not None:
             for match in matches:
                 var_nums.append(var_num_dict[match])
@@ -312,14 +312,14 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
 
     name_dict = {}
     for row in texts:
-        match1 = re.search("(QUEEN.queried_features_dict\['[^\[\]]+'\]) = ",row)
-        match2 = re.search("product='([^=]+)'[,\)]",row) 
+        match1 = re.search(r"(QUEEN.queried_features_dict\['[^\[\]]+'\]) = ",row)
+        match2 = re.search(r"product='([^=]+)'[,\)]",row) 
         if match1 is not None and match2 is not None:
             name_dict[match1.group(1)] = match2.group(1) 
 
-        match1 = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]) = ", row)
+        match1 = re.search(r"(.*QUEEN.dna_dict\['[^\[\]]+'\]) = ", row)
         if match1 is not None and match2 is not None:
-            match3 = re.findall("QUEEN.dna_dict\['[^\[\]]+'\]", match1.group(1))
+            match3 = re.findall(r"QUEEN.dna_dict\['[^\[\]]+'\]", match1.group(1))
             name_dict[match1.group(1)] = match2.group(1) 
             if len(match3) == 1:
                 pass 
@@ -334,35 +334,35 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     new_rows = []
     for row in texts:
         if dna.__class__._namespaceflag == 1 and execution == False:
-            product = re.search("product=([^=]+)[,\)]",row)
+            product = re.search(r"product=([^=]+)[,\)]",row)
             if product is None:
                 pass 
             elif product.group(1) == "None":
                 pass 
             else:
-                matches = re.findall("QUEEN.queried_features_dict\['[^\[\]]+'\] = ",row)
+                matches = re.findall(r"QUEEN.queried_features_dict\['[^\[\]]+'\] = ",row)
                 if len(matches) > 0:
                     for match in matches:
                         row  = row.replace(match, "")
             
-                match = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]) = ",row)
+                match = re.search(r"(.*QUEEN.dna_dict\['[^\[\]]+'\]) = ",row)
                 if match is not None:
                     row  = row.replace(match.group(0), "")
         
-        matches = re.findall("QUEEN.queried_features_dict\['[^\[\]]+'\]",row)
+        matches = re.findall(r"QUEEN.queried_features_dict\['[^\[\]]+'\]",row)
         if len(matches) > 0:
             for match in matches:
                 name = match
                 if name in name_dict:
                     row = row.replace(match, name_dict[name]) 
         
-        match = re.search("QUEEN.dna_dict\['[^\[\]]+'\], QUEEN.dna_dict\['[^\[\]]+'\]", row)
+        match = re.search(r"QUEEN.dna_dict\['[^\[\]]+'\], QUEEN.dna_dict\['[^\[\]]+'\]", row)
         if match is not None:
             for name in name_dict:
                 if name in row and match.group(0) in name:
                     row = row.replace(name, name_dict[name])
 
-        matches = re.findall("QUEEN.dna_dict\['[^\[\]]+'\]",row)
+        matches = re.findall(r"QUEEN.dna_dict\['[^\[\]]+'\]",row)
         if len(matches) > 0:
             for match in matches:
                 name = match
@@ -374,7 +374,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     identical    = 1
     new_new_rows = [] 
     for row in new_rows: 
-        match        = re.search("process_id='([^=]*)'", row)
+        match        = re.search(r"process_id='([^=]*)'", row)
         if match is not None:
             source1      = match.group(0) + ", "
             source2      = match.group(0) + ")"
@@ -396,12 +396,12 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             for line in f:
                 line = line.rstrip()
                 if check_flag == 1:
-                    match = re.search("process_id='([^=]*)-([^=]*)'", line)
+                    match = re.search(r"process_id='([^=]*)-([^=]*)'", line)
                     query = new_rows[lnum]
                     if match is not None:
                         project_names.append(match.group(1))
-                        query = re.sub(", _sourcefile=.*\)", ")".format(project), query)
-                        line  = re.sub(", _sourcefile=.*\)", ")".format(project), line)
+                        query = re.sub(r", _sourcefile=.*\)", ")".format(project), query)
+                        line  = re.sub(r", _sourcefile=.*\)", ")".format(project), line)
                         if line == query:
                             pass 
                         else: 
@@ -441,7 +441,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
                 print("set_namespace(globals())", file=o)
             print("", file=o) 
             for row in new_rows:
-                match = re.search("process_id='([^=]*)'", row)
+                match = re.search(r"process_id='([^=]*)'", row)
                 if match is not None:
                     if "-" in match.group(1):
                         if outname is not None:
@@ -450,11 +450,11 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
                             row = row[:-1] + ", _sourcefile='{}')".format(dnas[0].project + "_construction")  
                     else:
                         if dnas[0].project in project_names:
-                            row = re.sub("process_id='([^=]*)'", "process_id='{}_modified-\\1'".format(project), row)
+                            row = re.sub(r"process_id='([^=]*)'", "process_id='{}_modified-\\1'".format(project), row)
                             if outname is not None:
                                 row = row[:-1] + ", _sourcefile='{}')".format(outname.split("/")[-1].rstrip(".py"))
                         else:
-                            row = re.sub("process_id='([^=]*)'", "process_id='{}-\\1'".format(project), row)
+                            row = re.sub(r"process_id='([^=]*)'", "process_id='{}-\\1'".format(project), row)
                             if outname is not None:
                                 row = row[:-1] + ", _sourcefile='{}')".format(outname.split("/")[-1].rstrip(".py"))
                 print(row, file=o)

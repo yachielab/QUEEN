@@ -18,17 +18,16 @@ def make_newhistories(histories, search_function=True):
         info       = history[2] 
         history    = history[1]
 
-        match0  = re.search("(QUEEN.queried_features_dict\['[^\[\]]+'\]) = (.*)",history)
-        match1  = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]),? = ", history)
-        match2  = re.search("product='([^=]+)'", history)
-        #query='([^']+])' 
-        match_name = re.search("process_name='([^']*)'", history) 
-        match_description = re.search("process_description='([^']*)'", history) 
+        match0  = re.search(r"(QUEEN.queried_features_dict\['[^\[\]]+'\]) = (.*)",history)
+        match1  = re.search(r"(.*QUEEN.dna_dict\['[^\[\]]+'\]),? = ", history)
+        match2  = re.search(r"product='([^=]+)'", history)
+        match_name = re.search(r"process_name='([^']*)'", history) 
+        match_description = re.search(r"process_description='([^']*)'", history) 
         process_name = match_name.group(1) if match_name is not None else None
         process_description = match_description.group(1) if match_description is not None else None
 
         if match1 is not None: 
-            match3 = list(re.finditer("QUEEN.dna_dict\['([^\[\]]+)'\]", match1.group(1))) 
+            match3 = list(re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", match1.group(1))) 
             if match2 is not None:
                 name = match2.group(1)
                 if "," not in name and len(match3) > 1:
@@ -53,7 +52,7 @@ def make_newhistories(histories, search_function=True):
             process_notes.add((process_name, process_description)) 
 
         elif search_function==True and match0 is not None:
-            match3 = re.search("QUEEN.queried_features_dict\['([^\[\]]+)'\]", match0.group(1))
+            match3 = re.search(r"QUEEN.queried_features_dict\['([^\[\]]+)'\]", match0.group(1))
             if match2 is not None:
                 name_dict[match3.group(0)] = match2.group(1) 
             else:
@@ -171,9 +170,9 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
         info        = history[1] 
         history     = history[0]
        
-        matchi = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]) = QUEEN(\(record.*)", history) 
-        matcho = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]),? = (.*)", history) 
-        matchs = re.search("(QUEEN.queried_features_dict\['[^\[\]]+'\]) = (.*)",history)
+        matchi = re.search(r"(.*QUEEN.dna_dict\['[^\[\]]+'\]) = QUEEN(\(record.*)", history) 
+        matcho = re.search(r"(.*QUEEN.dna_dict\['[^\[\]]+'\]),? = (.*)", history) 
+        matchs = re.search(r"(QUEEN.queried_features_dict\['[^\[\]]+'\]) = (.*)",history)
         process_index = process_notes.index((process_name, process_description))
 
         if matcho is not None:
@@ -181,7 +180,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
         else:
             source = matchs.group(2)  
             
-        for key in re.finditer("QUEEN.dna_dict\['([^\[\]]+)'\]", source):
+        for key in re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", source):
             key = key.group(0)
             sourcename = unique_name_dict[key]
             unique_name_count_dict[sourcename] += 1
@@ -223,14 +222,14 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
         else:
             info_dict = {} 
 
-        matchi = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]) = QUEEN(\(record.*)", history) 
-        matcho = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]),? = (.*)", history) 
-        matchs = re.search("(QUEEN.queried_features_dict\['[^\[\]]+'\]) = (.*)",history)
+        matchi = re.search(r"(.*QUEEN.dna_dict\['[^\[\]]+'\]) = QUEEN(\(record.*)", history) 
+        matcho = re.search(r"(.*QUEEN.dna_dict\['[^\[\]]+'\]),? = (.*)", history) 
+        matchs = re.search(r"(QUEEN.queried_features_dict\['[^\[\]]+'\]) = (.*)",history)
         process_index = process_notes.index((process_name, process_description))
 
         sourcenames = []
         if matchi is not None: 
-            for key in re.finditer("QUEEN.dna_dict\['([^\[\]]+)'\]", matchi.group(1)):
+            for key in re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", matchi.group(1)):
                 key = key.group(0) 
                 sourcename = unique_name_dict[key]
                 if sourcename not in gbks:
@@ -241,7 +240,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
         else:
             source = matchs.group(2)  
             
-        for key in re.finditer("QUEEN.dna_dict\['([^\[\]]+)'\]", source):
+        for key in re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", source):
             key = key.group(0)
             sourcename = unique_name_dict[key]
             if sourcename in gbks:
@@ -263,28 +262,28 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
             sourcenames.append(sourcename) 
         
         sourcenames_all.extend(sourcenames) 
-        if re.match("cutdna", source) is not None:
+        if re.match(r"cutdna", source) is not None:
             funclabel = "cutdna"
             funcname  = "cutdna_{}".format(h)
-        elif re.match("cropdna", source) is not None:
+        elif re.match(r"cropdna", source) is not None:
             funclabel = "cropdna"
             funcname  = "cropdna_{}".format(h)
-        elif re.match("modifyends", source) is not None:
+        elif re.match(r"modifyends", source) is not None:
             funclabel = "modifyends"
             funcname  = "modifyends_{}".format(h)
-        elif re.match("flipdna", source) is not None:
+        elif re.match(r"flipdna", source) is not None:
             funclabel = "flipdna"
             funcname  = "flipdna_{}".format(h)
-        elif re.match("joindna", source) is not None:
+        elif re.match(r"joindna", source) is not None:
             funclabel = "joindna"
             funcname  = "joindna_{}".format(h)
-        elif re.match("editsequence", source) is not None:
+        elif re.match(r"editsequence", source) is not None:
             funclabel = "editsequence"
             funcname  = "editsequence_{}".format(h)
-        elif re.search("searchsequence", source) is not None:
+        elif re.search(r"searchsequence", source) is not None:
             funclabel = "searchsequence"
             funcname  = "searchsequence_{}".format(h)
-        elif re.search("searchfeature", source) is not None:
+        elif re.search(r"searchfeature", source) is not None:
             funclabel = "searchfeature"
             funcname  = "searchfeature_{}".format(h)
         else:
@@ -294,7 +293,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
         if matcho is not None:
             productnames = [] 
             product = matcho.group(1)
-            for key in re.finditer("QUEEN.dna_dict\['([^\[\]]+)'\]", product):
+            for key in re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", product):
                 key = key.group(0) 
                 #if funclabel == "cutdna":
                 #    print(key) 
@@ -325,7 +324,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
         else:
             productnames = [] 
             product = matchs.group(1)
-            for key in re.finditer("QUEEN.queried_features_dict\['[^\[\]]+'\]", product):
+            for key in re.finditer(r"QUEEN.queried_features_dict\['[^\[\]]+'\]", product):
                 key = key.group(0) 
                 productname = unique_name_dict[key]
                 productnames.append(productname) 
@@ -355,8 +354,10 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                 infotext = ""
                 
                 query_flag  = 0 
-                query_match = re.search("query='([^']+)',", source)
-                queryname_match = re.search("QUEEN.dna_dict\['([^\[\]]+)'\]", query_match.group(1))
+                query_match = re.search(r"query='([^']+)',", source)
+                if query_match is None:
+                    query_match = re.search(r"query=([^,]+,){1}", source)
+                queryname_match = re.search(r"QUEEN.dna_dict\['([^\[\]]+)'\]", query_match.group(1))
                 if queryname_match is not None:
                     queryname = queryname_match.group(1)
                     qmt = query_match.group(1) 
@@ -489,7 +490,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
 
                 else:
                     startunique = None
-                    start_match = re.search("start=(QUEEN.queried_features_dict\['[^\[\]]+'\])",source)
+                    start_match = re.search(r"start=(QUEEN.queried_features_dict\['[^\[\]]+'\])",source)
                     if start_match is not None:    
                         uniquename   = start_match.group(1) 
                         startunique  = unique_name_dict[uniquename]
@@ -499,13 +500,13 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                         info_dict["start"] = smatch.group(1) 
                 
                     endunique = None 
-                    end_match = re.search("end=(QUEEN.queried_features_dict\['[^\[\]]+'\])",source) 
+                    end_match = re.search(r"end=(QUEEN.queried_features_dict\['[^\[\]]+'\])",source) 
                     if end_match is not None:    
                         uniquename = end_match.group(1) 
                         endunique  = unique_name_dict[uniquename] 
                         endname    = name_dict[uniquename] 
                         rsource    = source.replace(uniquename, endname) 
-                        ematch     = re.search("end=([^=]+)[,\)]", rsource) 
+                        ematch     = re.search(r"end=([^=]+)[,\)]", rsource) 
                         info_dict["end"] = ematch.group(1) 
                    
                     infotext = ""
@@ -602,7 +603,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                     cutsitenames = [] 
                     uniquenames  = [] 
                     rsource = source
-                    for pos_match in re.finditer("(QUEEN.queried_features_dict\['[^\[\]]+'\])(\[[0-9]+\])",source):    
+                    for pos_match in re.finditer(r"(QUEEN.queried_features_dict\['[^\[\]]+'\])(\[[0-9]+\])",source):    
                         uniquename  = pos_match.group(1) 
                         cutsitename = name_dict[uniquename] 
                         rsource     = rsource.replace(uniquename, cutsitename)
@@ -670,17 +671,17 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                       '</table>>'])
                 
                 infotext = ""
-                matchl = re.search("left=\.*(QUEEN.dna_dict\['[^\[\]]+'\])", history) 
+                matchl = re.search(r"left=\.*(QUEEN.dna_dict\['[^\[\]]+'\])", history) 
                 if matchl is not None:
-                    uniquename = re.search("QUEEN.dna_dict\['([^\[\]]+)'\]", info_dict["leftobj"]).group(0)
+                    uniquename = re.search(r"QUEEN.dna_dict\['([^\[\]]+)'\]", info_dict["leftobj"]).group(0)
                     objname    = name_dict[uniquename]
                     infotext += temp.format("left", "left", info_dict["leftobj"].replace(uniquename, objname))
                 else:
                     infotext += temp.format("left", "left", info_dict["left"])
                 
-                matchr = re.search("right=\.*(QUEEN\.dna[^=]*)", history)
+                matchr = re.search(r"right=\.*(QUEEN\.dna[^=]*)", history)
                 if matchr is not None:
-                    uniquename = re.search("QUEEN.dna_dict\['([^\[\]]+)'\]", info_dict["rightobj"]).group(0)
+                    uniquename = re.search(r"QUEEN.dna_dict\['([^\[\]]+)'\]", info_dict["rightobj"]).group(0)
                     objname    = name_dict[uniquename]
                     infotext += temp.format("right", "right", info_dict["rightobj"].replace(uniquename, objname))
                 else:
@@ -866,15 +867,15 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                             for unit in text:
                                 new_text += unit
                                 if charnum > 60:
-                                    new_text += "\l"
+                                    new_text += r"\l"
                                     charnum = 0 
                                 else:
                                     new_text += " "
                                 charnum += len(unit) 
-                            subg.attr(label=new_text+"\l") 
+                            subg.attr(label=new_text+r"\l") 
                         else:
                             subg.attr(style="solid")
-                            subg.attr(label=process_name if process_name is not None else process_description + "\l") 
+                            subg.attr(label=process_name if process_name is not None else process_description + r"\l") 
                         subg.attr(rankdir='LR') 
                     
                     #with clusters[key] as subg:
@@ -1004,10 +1005,10 @@ def generate_processflow(*dnas):
         info                = history[1] 
         history             = history[0]
         
-        matchi = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]) = QUEEN(\(record.*)", history) 
-        matcho = re.search("(.*QUEEN.dna_dict\['[^\[\]]+'\]) = (.*)", history) 
-        matchs = re.search("(QUEEN.queried_features_dict\['[^\[\]]+'\]) = (.*)",history)
-        matchp = re.search("product='([^=]+)'[,\)]", history) 
+        matchi = re.search(r"(.*QUEEN.dna_dict\['[^\[\]]+'\]) = QUEEN(\(record.*)", history) 
+        matcho = re.search(r"(.*QUEEN.dna_dict\['[^\[\]]+'\]) = (.*)", history) 
+        matchs = re.search(r"(QUEEN.queried_features_dict\['[^\[\]]+'\]) = (.*)",history)
+        matchp = re.search(r"product='([^=]+)'[,\)]", history) 
          
         if matcho is not None:
             source = matcho.group(2) 
@@ -1019,50 +1020,50 @@ def generate_processflow(*dnas):
         else:
             product = matchp.group(1) 
 
-        if re.match("cutdna", source) is not None:
+        if re.match(r"cutdna", source) is not None:
             process_dict[process_id] = qcutdna(product, process_name, process_description, process_id) 
-        elif re.match("cropdna", source) is not None:
+        elif re.match(r"cropdna", source) is not None:
             process_dict[process_id] = qcropdna(product, process_name, process_description, process_id) 
-        elif re.match("modifyends", source) is not None:
+        elif re.match(r"modifyends", source) is not None:
             process_dict[process_id] = qmodifyends(product, process_name, process_description, process_id) 
-        elif re.match("flipdna", source) is not None:
+        elif re.match(r"flipdna", source) is not None:
             process_dict[process_id] = qflipdna(product, process_name, process_description, process_id) 
-        elif re.match("joindna", source) is not None:
+        elif re.match(r"joindna", source) is not None:
             process_dict[process_id] = qjoindna(product, process_name, process_description, process_id) 
-        elif re.match("editfeature", source) is not None:
+        elif re.match(r"editfeature", source) is not None:
             process_dict[process_id] = qeditfeature(product, process_name, process_description, process_id) 
-        elif re.match("editsequence", source) is not None:
+        elif re.match(r"editsequence", source) is not None:
             process_dict[process_id] = qeditsequence(product, process_name, process_description, process_id) 
-        elif re.search("searchsequence", source) is not None:
+        elif re.search(r"searchsequence", source) is not None:
             process_dict[process_id] = qsearchsequence(product, process_name, process_description, process_id) 
-        elif re.search("searchfeature", source) is not None:
+        elif re.search(r"searchfeature", source) is not None:
             process_dict[process_id] = qsearchfeature(product, process_name, process_description, process_id) 
         else:
             process_dict[process_id] = qentry(product, process_name, process_description, process_id) 
         
         sourcenames = set([])
-        for key in re.finditer("QUEEN.dna_dict\['([^\[\]]+)'\]", source):
+        for key in re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", source):
             key = key.group(0)
             sourcename = unique_name_dict[key]
             sourcenames.add(sourcename) 
         
         connected_keys = [] 
         subsource_dict = {}
-        for key in re.finditer("([^\(, =]*)=(QUEEN.dna_dict\['[^\[\]]+'\])([^,]*)", source):
+        for key in re.finditer(r"([^\(, =]*)=(QUEEN.dna_dict\['[^\[\]]+'\])([^,]*)", source):
             key1, key2, key3 = key.group(1), key.group(2), key.group(3) 
             sourcename = unique_name_dict[key2]
             subsource_dict[sourcename] = (key1, key3) if len(key3) > 0 else (key1, None) 
             connected_keys.append(key1) 
             sourcenames.add(sourcename)
         
-        for key in re.finditer("([^\(, =]*)=(QUEEN.queried_features_dict\['[^\[\]]+'\])([^,]*)",source):
+        for key in re.finditer(r"([^\(, =]*)=(QUEEN.queried_features_dict\['[^\[\]]+'\])([^,]*)",source):
             key1, key2, key3 = key.group(1), key.group(2), key.group(3)  
             sourcename = unique_name_dict[key2]
             subsource_dict[sourcename] = (key1, key3) if len(key3) > 0 else (key1, None) 
             connected_keys.append(key1)
             sourcenames.add(sourcename)
 
-        for key in re.finditer("([^\( ,=]*)=([^=]*)[,)]", source):
+        for key in re.finditer(r"([^\( ,=]*)=([^=]*)[,)]", source):
             key1, key2 = key.group(1), key.group(2)
             if key1 in connected_keys or key1 == "product":
                 pass 
@@ -1090,7 +1091,7 @@ def generate_processflow(*dnas):
             n = 0 
             productnames = [] 
             product = matcho.group(1)
-            for key in re.finditer("QUEEN.dna_dict\['([^\[\]]+)'\]", product):
+            for key in re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", product):
                 key = key.group(0) 
                 productname = unique_name_dict[key]
                 #if process_dict[process_id].funclabel != "entry":
@@ -1101,7 +1102,7 @@ def generate_processflow(*dnas):
             n = 0 
             productnames = [] 
             product = matchs.group(1)
-            for key in re.finditer("QUEEN.queried_features_dict\['[^\[\]]+'\]", product):
+            for key in re.finditer(r"QUEEN.queried_features_dict\['[^\[\]]+'\]", product):
                 key = key.group(0) 
                 productname = unique_name_dict[key]
                 productnames.append(productname) 

@@ -8,6 +8,7 @@ from qobj import QUEEN
 import qfunction
 import quine
 import qgraph 
+import qexperiment
 import argparse
 from Bio import SeqIO
 
@@ -27,6 +28,12 @@ editsequence     = qfunction.editsequence
 editfeature      = qfunction.editfeature
 visualizemap     = qfunction.visualizemap
 visualizeflow    = qgraph.visualizeflow
+pcr              = qexperiment.pcr 
+digestion        = qexperiment.digestion
+ligation         = qexperiment.ligation
+homology_based_assembly = qexperiment.homology_based_assembly
+annealing        = qexperiment.annealing
+primerdesign     = qexperiment.primerdesign
 quine            = quine.quine
 
 

@@ -265,7 +265,7 @@ class QUEEN():
             if "https://benchling.com/" not in _id:
                 raise ValueError("Please specify a proper benchling share link")
             #https://benchling.com/s/seq-U4pePb09KHutQzjyOPQV?m=slm-s4Jmp4ANw4QLh4ocdYqU
-            url = re.match("https:\/\/benchling\.com\/s\/seq-[A-Za-z0-9]+",url).group() 
+            _id = re.match("https:\/\/benchling\.com\/s\/seq-[A-Za-z0-9]+", _id).group() 
             url = _id + ".gb"
         
         elif dbtype == "googledrive":
@@ -1512,7 +1512,7 @@ class QUEEN():
             top   = truetop 
             bottom = truebottom 
 
-        elif start is None and end is None and strand == 2:
+        if start is None and end is None and strand == 2:
             rcseq  = self.seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
             if len(self._left_end) > hide_middle:
                 left_length = hide_middle

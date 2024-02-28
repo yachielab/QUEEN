@@ -139,8 +139,8 @@ def _combine_history(dna, history_features):
 
 def _search(dna, source, query, attribute=None, strand=None): 
     #attributes = "feature ID", "feature type", "start", "end", "sequence", "query:" 
-    re_digestion    = re.compile("[ATGCRYKMSWBDHVN]+[\^]?\([0-9]+/[0-9]+\)") 
-    attribute_regex = re.compile("sequence:\|[0-9]+\.\.[0-9]+\|[+-]{0,1}")
+    re_digestion    = re.compile(r"[ATGCRYKMSWBDHVN]+[\^]?\([0-9]+/[0-9]+\)") 
+    attribute_regex = re.compile(r"sequence:\|[0-9]+\.\.[0-9]+\|[+-]{0,1}")
     if query == ".+" and attribute == "all":
         return source 
 
@@ -391,11 +391,11 @@ def _circularizedna(dna):
 
 def make_processid(dna, chars, process_id=None, original_ids=None):
     new_chars = chars
-    for key in re.finditer("QUEEN.dna_dict\['([^\[\]]+)'\]", chars):
+    for key in re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", chars):
         key = key.group(0)
         new_chars = new_chars.replace(key, "queen")
     
-    for key in re.finditer("QUEEN.queried_features_dict\['[^\[\]]+'\]", chars):
+    for key in re.finditer(r"QUEEN.queried_features_dict\['[^\[\]]+'\]", chars):
         key = key.group(0)
         new_chars = new_chars.replace(key, "dnafeature")
     
@@ -494,7 +494,7 @@ def compile_cutsite(query):
         topr, bottomr = "null", "null"
 
     else:
-        re_format = re.compile("(N*)([^N].+[^N])(N*)")
+        re_format = re.compile(r"(N*)([^N].+[^N])(N*)")
         match     = re_format.fullmatch(query) 
         nl, nr    = len(match.group(1)), len(match.group(3))
         seq       = match.group(2).replace("^","").replace("_","")  
@@ -689,7 +689,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                         
                         if feat1.feature_type == "CDS" and "translation" in feat1.qualifiers:
                             del feat1.qualifiers["translation"]
-
+                        
                         label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat1.original), original_seq, s, e))
                         if strand >= 0:
                             feat1.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, 1, len(dna.seq)-s)]
@@ -803,8 +803,8 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                 if feat.feature_type == "source" or len(feat.original) > 10000:
                                     original_seq = "-"
                                 else:
-                                    original_seq = feat.original
-                                
+                                    original_seq = feat.original 
+
                                 if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
                                     del feat.qualifiers["translation"]
 
@@ -1318,7 +1318,7 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
         pass 
     else:
         product.replace(" ","") 
-        match = re.fullmatch("(.+)\[(.+)\]", product)
+        match = re.fullmatch(r"(.+)\[(.+)\]", product)
         if match:
             if match.group(2).isdecimal() == True:
                 subdna.__class__._namespace[match.group(1)][int(match.group(2))] = subdna
@@ -1791,7 +1791,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
         pass 
     else:
         product = product.replace(" ","") 
-        match   = re.fullmatch("(.+)\[(.+)\]", product) 
+        match   = re.fullmatch(r"(.+)\[(.+)\]", product) 
         if match:
             if match.group(2).isdecimal() == True:
                 construct.__class__._namespace[match.group(1)][int(match.group(2))] = construct
@@ -1864,10 +1864,10 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
         pass
     
     def parse(seq,count=0):
-        l_bracket = re.compile("\(")
-        r_bracket = re.compile("\)")
-        l_brace   = re.compile("\{")
-        r_brace   = re.compile("\}")
+        l_bracket = re.compile(r"\(")
+        r_bracket = re.compile(r"\)")
+        l_brace   = re.compile(r"\{")
+        r_brace   = re.compile(r"\}")
         if set(str(seq)) <= set("0123456789ATGCRYKMSWBDHVNatgcnrykmswbdhv{}()/-*"):
             lbk_list = [l.start() for l in re.finditer(l_bracket,seq)]
             lbc_list = [l.start() for l in re.finditer(l_brace,seq)]
@@ -1972,7 +1972,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
     left_origin, right_origin = left, right
     left, right = parse(left.upper()), parse(right.upper())
     left, rihgt = str(left), str(right) 
-    pattern1, pattern2, patternl1, patternl2, patternr1, patternr2 = "[ATGCRYKMSWBDHVN*-]*/?[ATGCRYKMSWBDHVN*-]*", "[ATGCRYKMSWBDHVN*]+-+[ATGCRYKMSWBDHVN*]+", "^[ATGCRYKMSWBDHVN*]+-+/", "/[ATGCRYKMSWBDHVN*]+-+$", "^-+[ATGCRYKMSWBDHVN*]+/", "/-+[ATGCRYKMSWBDHVN*]+$" 
+    pattern1, pattern2, patternl1, patternl2, patternr1, patternr2 = r"[ATGCRYKMSWBDHVN*-]*/?[ATGCRYKMSWBDHVN*-]*", r"[ATGCRYKMSWBDHVN*]+-+[ATGCRYKMSWBDHVN*]+", r"^[ATGCRYKMSWBDHVN*]+-+/", r"/[ATGCRYKMSWBDHVN*]+-+$", r"^-+[ATGCRYKMSWBDHVN*]+/", r"/-+[ATGCRYKMSWBDHVN*]+$" 
     pattern1  = re.compile(pattern1) 
     pattern2  = re.compile(pattern2) 
     patternl1 = re.compile(patternl1)
@@ -2476,7 +2476,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
         pass 
     else:
         product = product.replace(" ","")
-        match   = re.fullmatch("(.+)\[(.+)\]", product)
+        match   = re.fullmatch(r"(.+)\[(.+)\]", product)
         if match:
             if match.group(2).isdecimal() == True:
                 new_dna.__class__._namespace[match.group(1)][int(match.group(2))] = new_dna
@@ -2621,7 +2621,7 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
         pass 
     else:
         product = product.replace(" ","")
-        match   = re.fullmatch("(.+)\[(.+)\]", product)
+        match   = re.fullmatch(r"(.+)\[(.+)\]", product)
         if match:
             if match.group(2).isdecimal() == True:
                 comp.__class__._namespace[match.group(1)][int(match.group(2))] = comp
@@ -2937,7 +2937,7 @@ def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=N
     else:
         if _mode == "edit":
             product = product.replace(" ","")
-            match   = re.fullmatch("(.+)\[(.+)\]", product) 
+            match   = re.fullmatch(r"(.+)\[(.+)\]", product) 
             if match:
                 if match.group(2).isdecimal() == True:
                     new_dna.__class__._namespace[match.group(1)][int(match.group(2))] = new_dna
@@ -2957,7 +2957,7 @@ def _replaceattribute(dna=None, feat_list=None, target_attribute=None, query_re=
     _exec = 0
     project = dna._product_id 
     if target_attribute[0:8] == "sequence":
-        attribute_regex = re.compile("sequence:\![0-9]+\.\.[0-9]+\!") 
+        attribute_regex = re.compile(r"sequence:\![0-9]+\.\.[0-9]+\!") 
         for feat in feat_list:
             tmpid = feat._tmpid
             feat = dna.features_dict[feat._id]
@@ -3526,7 +3526,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
                 pass 
             else:
                 dna._product_id = product 
-                match   = re.fullmatch("(.+)\[(.+)\]", product)
+                match   = re.fullmatch(r"(.+)\[(.+)\]", product)
                 if match:
                     if match.group(2).isdecimal() == True:
                         dna.__class__._namespace[match.group(1)][int(match.group(2))] = dna

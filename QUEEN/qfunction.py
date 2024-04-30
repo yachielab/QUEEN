@@ -269,7 +269,7 @@ def _detect_overlap(seq1, seq2, allow_outies=True):
     else:
         return False
 
-def _circularizedna(dna):
+def _circularizedna(dna, compatibility, homology_length):
     dna = copy.deepcopy(dna)
     seq_origin = dna.seq
     feats_origin = dna.dnafeatures
@@ -277,19 +277,31 @@ def _circularizedna(dna):
         print("The QUEEN object topology is circular")
 
     if (dna._right_end_top * dna._left_end_bottom == 1 and dna._right_end_bottom * dna._left_end_top == 1) and len(dna._right_end) > 0 and (dna._left_end_top == -1 or dna._left_end_bottom == -1):
-        if len(dna._right_end) < len(dna._left_end):
-            ovresult = _detect_overlap(dna._right_end, dna._left_end, allow_outies=False)
-        else:
-            ovresult = _detect_overlap(dna._left_end[::-1], dna._right_end[::-1], allow_outies=False)    
+        if compatibility == "partial":
+            if len(dna._right_end) < len(dna._left_end):
+                ovresult = _detect_overlap(dna._right_end, dna._left_end, allow_outies=False)
+            else:
+                ovresult = _detect_overlap(dna._left_end[::-1], dna._right_end[::-1], allow_outies=False)    
 
-        if ovresult == False:
-            raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility.")
-            return False
-        else:
-            ovhg_length = ovresult[1][0]  
-            subdna      = cropdna(dna, 0, len(dna.seq)-ovhg_length, quinable=0)
-            dna._seq    = subdna.seq
-            dna.record  = subdna.record
+            if ovresult == False or ovresult[1][0] < homology_length:
+                raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility.")
+                return False
+            else:
+                ovhg_length = ovresult[1][0]  
+                subdna      = cropdna(dna, 0, len(dna.seq)-ovhg_length, quinable=0)
+                dna._seq    = subdna.seq
+                dna.record  = subdna.record
+        
+        else: 
+            if dna._right_end == dna._left_end:
+                ovhg_length = len(dna._right_end)
+                subdna = cropdna(dna, 0, len(dna.seq) - ovhg_length,quinable=0) 
+                dna._seq    = subdna.seq
+                dna.record  = subdna.record
+            else:
+                raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility.")
+                return False
+
     else:
         ovhg = ""
         ovhg_length = 0 
@@ -424,7 +436,7 @@ def make_processid(dna, chars, process_id=None, original_ids=None):
     dna._processids.append(newprocess_id) 
     return newprocess_id, original_ids
 
-def add_history(dna, histories, _sourcefile):  
+def addhistory(dna, histories, _sourcefile):  
     if _sourcefile is not None and sys.argv[0].split("/")[-1].rstrip(".py") != _sourcefile.rstrip(".py"):
         histories[1] = histories[1] + "; _source: {}".format(_sourcefile) 
 
@@ -771,7 +783,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                 
                                 if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
                                     del feat.qualifiers["translation"]
-
+                                
                                 label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), original_seq, s, e))
                                 if strand >= 0:
                                     feat.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, abs(s-start)+1, e-s)] 
@@ -1178,7 +1190,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
             subdna._history_feature = history_feature
             process_id, original_ids = make_processid(subdna, building_history, process_id, original_ids)
             subdna._check_uniqueness() 
-            add_history(subdna, [building_history, "positions: {}".format(",".join(list(map(str, new_positions_original)))) + "; num_products: {}".format(len(dnas)), ",".join([process_id] + original_ids)], _sourcefile)
+            addhistory(subdna, [building_history, "positions: {}".format(",".join(list(map(str, new_positions_original)))) + "; num_products: {}".format(len(dnas)), ",".join([process_id] + original_ids)], _sourcefile)
     else:
         for subdna in dnas:
             subdna.__dict__["_product_id"] = dna._product_id if "_product_id" in dna.__dict__ else dna._unique_id
@@ -1309,7 +1321,7 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
         history_feature = _combine_history(subdna, history_features)
         subdna._history_feature = history_feature
         process_id, original_ids = make_processid(subdna, building_history, process_id, original_ids)
-        add_history(subdna, [building_history, "start: {}; end: {}".format(*new_positions), ",".join([process_id] + original_ids)], _sourcefile) 
+        addhistory(subdna, [building_history, "start: {}; end: {}".format(*new_positions), ",".join([process_id] + original_ids)], _sourcefile) 
         subdna._check_uniqueness()
     else:
         subdna.__dict__["_product_id"] = dna._product_id if "_product_id" in dna.__dict__ else dna._unique_id
@@ -1328,7 +1340,7 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
             subdna.__class__._namespace[product] = subdna
     return subdna
 
-def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, autoflip=True, unique=True, supfeature=False, product=None, process_name=None, process_description=None, pn=None, pd=None, quinable=True, **kwargs):
+def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, autoflip=False, unique=True, supfeature=False, product=None, process_name=None, process_description=None, pn=None, pd=None, quinable=True, **kwargs):
     """Assemble `QUEEN_object`. 
 
     Assemble `QUEEN_object`. The connecting DNA end structures must include 
@@ -1341,7 +1353,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
 
     Parameters
     ----------
-    dnas : list of QUEEN.qobj.QUEEN object 
+    dnas : list of QUEEN.qobj.QUEEN obFalse 
         List of `QUEEN_object`
     topology : str ("linear" or "circular"), default: "linear" 
         Topology of the output `QUEEN_object`. 
@@ -1375,9 +1387,9 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
         be interrupted and raise the error message. However, the connecting DNA end 
         structures are blunt ends, this threshold value will be ignored and the QUEEN
         objects are joined.
-    autoflip: bool, default: True
-        If this value is True and if the joining fails, the joining process is automatically 
-        redone with the flipped fragment.
+    autoflip: bool, default: False
+        If True and if the joining fails, the joining process is automatically redone 
+        with the flipped fragment. Default is False.
     unique : bool, defau;t: True
         If the value is True, remove duplicated sequence features and keep only one 
         feature from the assembled QUEEN object.
@@ -1410,7 +1422,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
     project = project if product is None else product
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
-   
+
     if compatibility is None:
         fcompatibility = None
         compatibility = "partial"
@@ -1452,16 +1464,16 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
     if len(dnas) > 1:
         flag = 1 
         for fdna in dnas[1:]:
-            if autoflip == True:
-                rdna = flipdna(fdna, quinable=0)
-                frdna = [fdna, rdna] 
-            else:
-                frdna = [fdna] 
-            
-            for dna in frdna: 
-                annealing = False
-                feats     = dna.dnafeatures
-                if dna._ssdna == False and construct._ssdna == False:
+            if fdna._ssdna == False and construct._ssdna == False:
+                if autoflip == True:
+                    rdna = flipdna(fdna, quinable=0)
+                    frdna = [fdna, rdna] 
+                else:
+                    frdna = [fdna] 
+                   
+                for dna in frdna: 
+                    annealing = False
+                    feats     = dna.dnafeatures
                     if (dna._left_end_top * construct._right_end_bottom == 1 or dna._left_end_bottom * construct._right_end_top == 1) and ((dna._left_end_top == -1 or dna._left_end_bottom == -1) or (construct._right_end_top == -1 or construct._right_end_bottom == -1)):
                         if dna._left_end_top == 1:
                             sticky_end = dna._left_end 
@@ -1502,34 +1514,34 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                             flag = 0 
                             continue
 
-                elif dna._ssdna == True and construct._ssdna == True:
-                    annealing = True
-                    if len(construct._right_end) < len(dna._left_end):
-                        ovresult = _detect_overlap(construct._right_end, dna._left_end.translate(str.maketrans("ATGC","TACG"))[::-1])[1]
-                        new_q = ovresult[1] 
-                        ovhg  = ovresult[2]
-                    else:
-                        ovresult = _detect_overlap(dna._left_end, construct._right_end.translate(str.maketrans("ATGC","TACG"))[::-1])[1]   
-                        new_q = ovresult[1] 
-                        ovhg  = ovresult[2] 
-                        new_q = new_q[::-1]
-                    
-                    if compatibility == "complete":
-                        if len(new_q) == len(ovhg):
-                            new_q =  construct.__class__(seq=new_q, quinable=0) 
-                            ovhg_length = len(ovhg)
-                            flag = 1
-                            break 
-                        else:
-                            flag = 0 
-                            continue
-                    else:
-                        new_q = construct.__class__(seq=new_q, quinable=0) 
+            elif fdna._ssdna == True and construct._ssdna == True:
+                dna = fdna
+                annealing = True
+                if len(construct.seq) < len(dna.seq):
+                    ovresult = _detect_overlap(construct.seq, dna.seq.translate(str.maketrans("ATGC","TACG"))[::-1])[1]
+                    new_q = ovresult[1] 
+                    ovhg  = ovresult[2]
+                else:
+                    ovresult = _detect_overlap(dna.seq, construct.seq.translate(str.maketrans("ATGC","TACG"))[::-1])[1]   
+                    new_q = ovresult[1] 
+                    ovhg  = ovresult[2] 
+                    new_q = new_q[::-1]
+                    construct, dna = dna, construct
+                
+                feats = flipdna(dna, quinable=0).dnafeatures
+                if compatibility == "complete":
+                    if len(new_q) == len(ovhg):
+                        new_q =  construct.__class__(seq=new_q, quinable=0) 
                         ovhg_length = len(ovhg)
                         flag = 1
-                        break 
+                    else:
+                        flag = 0 
                 else:
-                    raise ValueError("ssDNA cannot be joined with dsDNA") 
+                    new_q = construct.__class__(seq=new_q, quinable=0) 
+                    ovhg_length = len(ovhg)
+                    flag = 1
+            else:
+                raise ValueError("ssDNA cannot be joined with dsDNA") 
 
             if flag == 0:
                 raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility.")
@@ -1537,7 +1549,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
 
             if ovhg_length < homology_length and ovhg_length > 0:
                 raise ValueError("Compatible stickey end legnth should be larger than or equal to {} bp".format(homology_length)) 
-
+            
             feats       = _slide(feats, len(construct.seq) - ovhg_length)
             feats1      = [feat for feat in construct.dnafeatures if "broken_feature" in feat.qualifiers]
             feats2      = [feat for feat in feats if "broken_feature" in feat.qualifiers]
@@ -1655,7 +1667,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
         construct.record = new_record     
         
         if topology == "circular":
-            construct = _circularizedna(construct)
+            construct = _circularizedna(construct, compatibility, homology_length)
             
             if quinable == True: 
                 zero_positions = [] 
@@ -1670,7 +1682,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                         zero_position += len(dna.seq)
                     zero_position += zero_positions[0][2]
                     construct = cutdna(construct, zero_position, quinable=0)[0]
-                    construct = _circularizedna(construct) 
+                    construct = _circularizedna(construct, compatibility, homology_length) 
                 construct._positions = tuple(range(len(construct.seq)))    
             else:
                 construct._positions = tuple(range(len(construct.seq)))    
@@ -1698,7 +1710,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
         construct._supfeatureids() #Update feature ID
     else:
         topology = "circular"
-        construct = _circularizedna(dnas[0])
+        construct = _circularizedna(dnas[0], compatibility, homology_length)
         construct._positions = construct._positions[0:len(construct.seq)]
     
     if project is None:
@@ -1751,9 +1763,12 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
     elif type(supfeature) == dict:
         construct.setfeature(supfeature)
     
+    for dnafeature in construct.dnafeatures:
+        dnafeature.subject = construct
+
     if unique == True:
         new_features = [] 
-        for feat in construct.dnafeatures:
+        for feat in construct.dnafeatures: 
             if feat in new_features:
                 pass 
             else:
@@ -1775,17 +1790,14 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
         construct._product_id      = construct._unique_id if product is None else product 
         construct.record.id        = construct.project
         dna_elements               = "[" + ", ".join(["QUEEN.dna_dict['{}']".format(dna._product_id) for dna in dnas]) + "]"
-        building_history           = "QUEEN.dna_dict['{}'] = joindna(*{}, topology='{}'{}{}{}{}{}{})".format(construct._product_id, dna_elements, topology, fcompatibility, fhomology_length, fautoflip, fproject, fproduct, process_name, process_description) 
+        building_history           = "QUEEN.dna_dict['{}'] = joindna(*{}, topology='{}'{}{}{}{}{}{}{})".format(construct._product_id, dna_elements, topology, fcompatibility, fhomology_length, fautoflip, fproject, fproduct, process_name, process_description)
         history_feature            = _combine_history(construct, history_features)         
         construct._history_feature = history_feature 
         process_id, original_ids   = make_processid(construct, building_history, process_id, original_ids)
-        add_history(construct, [building_history, "topology: {}".format(topology), ",".join([process_id] + original_ids)], _sourcefile) 
+        addhistory(construct, [building_history, "topology: {}".format(topology), ",".join([process_id] + original_ids)], _sourcefile) 
         construct._check_uniqueness()
     else:
         construct.__dict__["_product_id"] = dnas[0]._product_id if "_product_id" in dnas[0].__dict__ else dnas[0]._unique_id
-
-    for dnafeature in construct.dnafeatures:
-        dnafeature.subject = construct
     
     if product is None:
         pass 
@@ -2464,7 +2476,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
         history_feature     = _combine_history(new_dna, history_features) 
         new_dna._history_feature = history_feature
         process_id, original_ids = make_processid(new_dna, building_history, process_id, original_ids)
-        add_history(new_dna, [building_history, "left: {}; right: {}; leftobj: {}; rightobj: {}".format(*ends, args[2], args[3]), ",".join([process_id] + original_ids)], _sourcefile) 
+        addhistory(new_dna, [building_history, "left: {}; right: {}; leftobj: {}; rightobj: {}".format(*ends, args[2], args[3]), ",".join([process_id] + original_ids)], _sourcefile) 
         new_dna._check_uniqueness()
     else:
         new_dna.__dict__["_product_id"] = dna._product_id if "_product_id" in dna.__dict__ else dna._unique_id
@@ -2517,6 +2529,9 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
     _sourcefile  = kwargs["_sourcefile"]  
     process_id   = kwargs["process_id"] 
     original_ids = kwargs["original_ids"]
+    
+    if dna._ssdna == True:
+        raise TypeError("ssDNA object cannot be processed by `flipdna` function") 
 
     project = None
     project = project if product is None else product
@@ -2608,7 +2623,7 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
         comp._product_id = comp._unique_id if product is None else product 
         building_history = "QUEEN.dna_dict['{}'] = flipdna(QUEEN.dna_dict['{}']{}{}{}{}{})".format(comp._product_id, dna._product_id, fsupfeature, project, fproduct, process_name, process_description) 
         process_id, original_ids = make_processid(comp, building_history, process_id, original_ids)
-        add_history(comp, [building_history,"", ",".join([process_id] + original_ids)], _sourcefile) 
+        addhistory(comp, [building_history,"", ",".join([process_id] + original_ids)], _sourcefile) 
         comp._check_uniqueness() 
     else:
         comp.__dict__["_product_id"] = dna._product_id if "_product_id" in dna.__dict__ else dna._unique_id
@@ -2930,7 +2945,7 @@ def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=N
             history_feature = _combine_history(new_dna, history_features) 
             new_dna._history_feature = history_feature
         process_id, original_ids = make_processid(new_dna, building_history, process_id, original_ids)
-        add_history(new_dna, [building_history, "source: {}; destination: {}; start: {}; end: {}; strand: {}".format(source_sequence, destination_sequence, start, end, strand), ",".join([process_id] + original_ids)], _sourcefile)  
+        addhistory(new_dna, [building_history, "source: {}; destination: {}; start: {}; end: {}; strand: {}".format(source_sequence, destination_sequence, start, end, strand), ",".join([process_id] + original_ids)], _sourcefile)  
         new_dna._check_uniqueness()
     if product is None:
         pass  
@@ -3425,6 +3440,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
         
         if type(query) == dna.seq.__class__:
             if query.parental_class == "DNAFeature":
+                history_features = [dna._history_feature] 
                 qkey = left_origin.qkey
                 for qindex, qfeat in enumerate(dna.__class__.queried_features_dict[qkey]):
                     if qfeat._second_id == query.parental_id:
@@ -3446,6 +3462,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
                 history_features.append(query.parent.subject._history_feature) 
             
             elif query.parental_class == "QUEEN": 
+                history_features = [dna._history_feature] 
                 parental_id = query.parental_id 
                 if query.name != None: 
                     if "printsequence" in query.name:
@@ -3520,7 +3537,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
                 building_history = "QUEEN.dna_dict['{}'] = editfeature(QUEEN.dna_dict['{}'], key_attribute={}, query={}, source={}, start={}, end={}, strand={}, target_attribute={}, operation={}, new_copy={}{}{}{}{})".format(dna._product_id, original_id, *args, project, fproduct, project, process_name, process_description) 
             
             process_id, original_ids = make_processid(dna, building_history, process_id, original_ids)
-            add_history(dna, [building_history, "key_attribute: {}; query: {}; start: {}; end: {}; strand: {}; target_attribute: {}; operation: {}".format(key_attribute, fquery, start, end, strand, target_attribute, command), process_id, ",".join([process_id] + original_ids)], _sourcefile)
+            addhistory(dna, [building_history, "key_attribute: {}; query: {}; start: {}; end: {}; strand: {}; target_attribute: {}; operation: {}".format(key_attribute, fquery, start, end, strand, target_attribute, command), process_id, ",".join([process_id] + original_ids)], _sourcefile)
             dna._check_uniqueness()
             if product is None:
                 pass 

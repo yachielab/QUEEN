@@ -1,7 +1,7 @@
 # Usage of `qexperiment` module
 
-
 ## PCR simulation
+
 Simulate PCR (Polymerase Chain Reaction) on a given DNA template using specific primers.
 
 #### `pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, return_template=False, product=None, process_description=None, pd=None)`
@@ -32,14 +32,19 @@ Simulate PCR (Polymerase Chain Reaction) on a given DNA template using specific 
 - **product** `str`, optional  
   Product name.
 
+- **process_name** or **pn**:  `str`, optional  
+  Brief label for the `pcr` process. Default is `"PCR"`.
+
 - **process_description** or **pd**:  `str`, optional  
   Additional process description.
 
 #### Returns
+
 - `QUEEN object(amplicon)` or `QUEEN object(template)` and `QUEEN(amplicon)`  
   PCR product or both modified template and product.
 
 #### Example Usage
+
 ```python
 >>> template = QUEEN("example_dna_sequence")
 >>> forward_primer = "xxxxxxxxx"
@@ -48,32 +53,47 @@ Simulate PCR (Polymerase Chain Reaction) on a given DNA template using specific 
 ```
 
 ---
+
 ## Digestion simulation
+
 Simulate DNA digestion using restriction enzymes and optionally perform size selection.
 
 #### `digestion(dna, *cutsites, size_selection=None, requirement=None, product=None, process_description=None, pd=None)`
 
 #### Parameters
+
 - **dna**: `QUEEN`  
   DNA sequence to be digested. 
 
 - **cutsites**: `Cutsite` or `str`  
   Restriction enzymes for digestion.
 
-- **size_selection**: `str` or `tuple` of `int`, optional  
-  Criteria for fragment size selection.
+- **size_selection**: `"min"`, `"max"`, `"label:*"`, `"!label:*"`, or `tuple` of `int`, optional
+  Criteria for fragment selection.
+  If `"min"` is provided, the minimum fragment of the digested fragments would be returned.  
+  If `"max"` is provided, the maximum fragment of the digested fragments would be returned.  
+  If `"label:{feature_of_interest}"` is provided, the unique fragment holding the DNAfeature with `feature_of_interest` in "qualifer:label" would be returned. If multiple fragments holding the specified feature are detected, a error will be raised.  
+  If `"!label:{feature_of_interest}"` is provided, the unique fragment not holding the DNAfeature with `feature_of_interest` in "qualifer:label" would be returned. If multiple not fragments holding the specified feature are detected, a error will be raised.
+  If a `tuple` value is provided, The tuple (`min_size`, `max_size`) specifies the size range for filtering the resulting fragments. If multiple fragments holding the are detected in the specified range, a error will be raised.  
+  If `None`, no filtering is done. Default is `None`.
 
 - **product**: `str`, optional  
   Product name.
+
+- **process_name** or **pn**:  `str`, optional  
+  Brief label for the `digestion` process. Default is "Digestion".
 
 - **process_description** or **pd** (`str`, optional)  
   Additional process description.
 
 #### Returns
-- List of `QUEEN object` objects or a single `QUEEN object`  
-  Depending on size selection, digested fragments.
+
+- list of QUEEN or QUEEN  
+  If `selection` is None, return list of QUEEN objects composed of the digested fragments.  
+  Otherwise, return a specific fragment filling the specified condition.
 
 #### Example Usage
+
 ```python
 >>> dna_sequence = QUEEN("example_dna_sequence")
 >>> cutsite1 = Cutsite("restriction_enzyme_1")
@@ -82,12 +102,15 @@ Simulate DNA digestion using restriction enzymes and optionally perform size sel
 ```
 
 ---
+
 ## DNA Ligation Simulation
+
 Simulate the ligation of DNA fragments into unique or multiple constructs.
 
 #### `ligation(*fragments, unique=True, product=None, process_description=None, pd=None):`
 
 #### Parameters
+
 - **fragments**: `QUEEN object`  
   DNA fragments to be ligated.
 
@@ -97,17 +120,22 @@ Simulate the ligation of DNA fragments into unique or multiple constructs.
 - **product**: `str`, optional  
   Product name.
 
+- **process_name** or **pn**:  `str`, optional  
+  Brief label for the ligation process. Default is "Ligation".
+
 - **process_description** or **pd** :`str`, optional  
   Additional process description.
 
 #### Returns
+
 - ｀QUEEN object｀ or `list` of `QUEEN objects`  
-Construct(s) resulted from ligation.  
-If `unique` is True and only one construct is possible, returns that construct as a QUEEN object.   
-If `unique` is False, returns a list of all possible assembled constructs as QUEEN objects.  
-If no constructs are possible, returns an empty list or None.  
+  Construct(s) resulted from ligation.  
+  If `unique` is True and only one construct is possible, returns that construct as a QUEEN object.   
+  If `unique` is False, returns a list of all possible assembled constructs as QUEEN objects.  
+  If no constructs are possible, returns an empty list or None.  
 
 #### Example Usage
+
 ```python
 >>> fragment1 = QUEEN("dna_fragment_1")
 >>> fragment2 = QUEEN("dna_fragment_2")
@@ -115,11 +143,13 @@ If no constructs are possible, returns an empty list or None.
 ```
 
 #### Notes
+
 The function attempts all permutations and orientations of the given fragments for ligation.  
 If `unique` is set to True, it validates the uniqueness of the assembled product.   
 The function handles situations where the assembly is not possible or results in multiple products.
 
 ---
+
 ## Homology-Based DNA Assembly Simulation
 
 Simulate DNA assembly using homology for various assembly modes.
@@ -127,12 +157,12 @@ Simulate DNA assembly using homology for various assembly modes.
 #### `homology_based_assembly(*fragments, mode="gibson", homology_length=20, unique=True, product=None, process_description=None, pd=None)`
 
 #### Parameters
+
 - **fragments**: `QUEEN object`  
   DNA fragments for assembly.
 
 - **mode**: `str`, optional  
-  Assembly mode. Default is "gibson".  
-  Valid options are "gibson", "infusion", and "overlappcr". Default is "gibson".
+  Assembly mode. Valid options are `"gibson"`, `"infusion"`, anb `"overlappcr"`. Default is `"gibson"`.
 
 - **homology_length**: `int`, optional  
   Required homology length. Default is 20.
@@ -143,14 +173,23 @@ Simulate DNA assembly using homology for various assembly modes.
 - **product**: `str`, optional  
   Process name.
 
+- **process_name** or **pn**:  `str`, optional  
+  Brief label for the `homology_based_assembly` process. 
+  If `mode` is `"gibson"`, default is `"Gibson Assembly"`. If `mode` is `"infusion"`, default is `"In-Fusion Assembly"`. 
+
 - **process_description** or **pd**: `str`, optional  
   Additional description.
 
 #### Returns
+
 - `QUEEN object` or list of `QUEEN object`  
-  Construct(s) resulted from assembly.
+  Construct(s) resulted from assembly.   
+  If `unique` is True and only one construct is possible, returns that construct as a QUEEN object.  
+  If `unique` is False, returns a list of all possible assembled constructs as QUEEN objects.   
+  If no constructs are possible, returns an empty list or None.
 
 #### Example Usage
+
 ```python
 >>> fragment1 = QUEEN("dna_fragment_1")
 >>> fragment2 = QUEEN("dna_fragment_2")
@@ -158,9 +197,11 @@ Simulate DNA assembly using homology for various assembly modes.
 ```
 
 #### Notes
+
 The function considers different assembly modes, each with its specific requirements for fragment or ientation and homology lengths. It handles permutations and orientations of the given fragments.
 
 ---
+
 ## DNA Annealing Simulation
 
 Simulate the annealing of two single-stranded DNA molecules based on homology.
@@ -168,6 +209,7 @@ Simulate the annealing of two single-stranded DNA molecules based on homology.
 #### `annealing(ssdna1, ssdna2, homology_length=4, product=None, pd=None, process_description=None)`
 
 #### Parameters
+
 - **ssdna1** & **ssdna2**: `QUEEN object`  
   Single-stranded DNAs for annealing.
 
@@ -177,10 +219,14 @@ Simulate the annealing of two single-stranded DNA molecules based on homology.
 - **product**: `str`, optional  
   Product name.
 
+- **process_name** or **pn**:  `str`, optional  
+  Brief label for the `annealing` process. Default is `"Annealing"`. 
+
 - **process_description** or **pd**: `str`, optional  
   Additional description.
 
 #### Returns
+
 - `QUEEN object`  
   Double-stranded DNA molecule after annealing.
 
@@ -201,6 +247,7 @@ Design forward and reverse primers for PCR amplification of a target region, all
 #### `primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, rv_margin=0, target_tm=60.0, tm_func=None, primer_length=(16, 25), design_num=1, fw_adapter=None, rv_adapter=None, homology_length=20, nonspecific_limit=3, requirement=lambda x: x["fw"][-1] not in ("A", "T") and x["rv"][-1] not in ("A", "T"), fw_name="fw_primer", rv_name="rv_primer")`
 
 #### Parameters
+
 - **template** & **target**: `QUEEN object`  
   Template and target regions for PCR.
 
@@ -248,22 +295,24 @@ Design forward and reverse primers for PCR amplification of a target region, all
 
 - **fw_name**: `str`, optional  
   Foward primer name, Default is "fw_primer". 
-  
+
 - **rv_name**: `str`, optional  
   Reverse primer name, Default is "rv_primer". 
-  
+
 #### Returns
+
 - `list` of `dict`
   A list of dictionaries where each dictionary represents a primer pair.  
   Each dictionary contains two keys, "fw" and "rv", with the corresponding primer sequences  formed by ssDNA QUEEN objects.   
   The list is sorted by the closeness of the primer's Tm to the target_tm, with the closest pair first.
 
 #### Example Usage
+
 ```python
 >>> from QUEEN.queen import *
 >>> template_Q = QUEEN('ATGC...')
 >>> target_Q = QUEEN('ATGC...')
->>> # Assuming target_Q sequence is within template_Q
+>>> #Assuming target_Q sequence is within template_Q
 >>> primers = primerdesign(template_Q, target_Q, target_tm=65.0, num_design=5)
 >>> primers
 [
@@ -274,4 +323,17 @@ Design forward and reverse primers for PCR amplification of a target region, all
 ```
 
 #### Notes
+
 The requirement for the target sequence to be within the template sequence ensures specificity of the primers to the region of interest. The function will not proceed if the target sequence is not a subset of the template.
+
+
+
+---
+
+## Under implementation
+
+- gateway_reaction
+
+- golden_gate_assembly
+
+- intra_site_specific_recombination

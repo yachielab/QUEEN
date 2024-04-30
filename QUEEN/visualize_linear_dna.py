@@ -29,7 +29,7 @@ matplotlib.rcParams['ytick.major.pad']   = 4
 matplotlib.rcParams['xtick.major.size']  = 4
 matplotlib.rcParams['ytick.major.size']  = 4
 
-color_dict = {"G":"#f2f059", "C":"#74b2d7", "A":"#79E5B7", "T":"#ff776c", "N":"#FFFFFF", "-":"#FFFFFF"}
+color_dict = {"G":"#f2f059", "C":"#74b2d7", "A":"#79E5B7", "T":"#ff776c", "N":"#AAAAAA", "-":"#000000"}
 
 #colorblind (facecolor_set)
 colorblind=["#0173B2", "#DE8F05", "#029E73", "#D55E00", "#CC78BC", "#CA9161", "#FBAFE4", "#949494", "#ECE133", "#56B4E9"]
@@ -346,7 +346,7 @@ def colorbar(ax, color_dict, ref_seq, char=False, fontsize=10):
     for bar, c in zip(bars,ref_seq):
         color = color_dict[c]
         bar.set_facecolor(color)
-        if char == True:
+        if char == True and fontsize > 0:
             bar.set_alpha(0.7)
             ax.text(p+0.5,0.45,c,va="center",ha="center",fontsize=fontsize,zorder=100)     
         p += 1 
@@ -619,9 +619,9 @@ def visualize(brick, start=0, end=None, wrap_width=None, annotation_loc=None, la
                 ax_seqr = fig.add_axes([0, -0.60*2*enlarge_h/(abs(ytop-ybottom)), enlarge_w*len(sub_brick.seq)/std, 0.6*enlarge_h/(abs(ytop-ybottom))], label="{}_seq".format(num+basenum))
                 if nucl_char != True and nucl_char != False:
                     if enlarge_w < 30:
-                        colorbar(ax_seqr, nucl_color_dict, sub_brick.seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")), char=False, fontsize=fontsize-2)
+                        colorbar(ax_seqr, nucl_color_dict, sub_brick.seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")), char=False, fontsize=fontsize_nucl)
                     else:
-                        colorbar(ax_seqr, nucl_color_dict, sub_brick.seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")), char=True, fontsize=fontsize-2)
+                        colorbar(ax_seqr, nucl_color_dict, sub_brick.seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")), char=True, fontsize=fontsize_nucl)
                 else:
                     colorbar(ax_seqr, nucl_color_dict, sub_brick.seq, char=nucl_char)
                 

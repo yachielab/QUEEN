@@ -156,7 +156,7 @@ class DNAfeature(SeqFeature):
             raise ValueError("'end' value should be larger than 'start' value. First, please change 'start' value") 
 
         strand   = self.location.strand
-        if type(position[0]) is int and type(position[1]) is int:
+        if type(position[0]) in (Qint, int) and type(position[1]) in (Qint, int):
             s = position[0]
             e = position[1] 
             if s < e:
@@ -220,9 +220,6 @@ class QUEEN():
     _source  = None
     _project = None 
     
-    def set_project(value=None):
-        QUEEN._project = value 
-                     
     def _get_genbank(_id, dbtype="ncbi"):
         """
         
@@ -265,13 +262,13 @@ class QUEEN():
             if "https://benchling.com/" not in _id:
                 raise ValueError("Please specify a proper benchling share link")
             #https://benchling.com/s/seq-U4pePb09KHutQzjyOPQV?m=slm-s4Jmp4ANw4QLh4ocdYqU
-            _id = re.match("https:\/\/benchling\.com\/s\/seq-[A-Za-z0-9]+", _id).group() 
+            _id = re.match(r"https://benchling\.com/s/seq-[A-Za-z0-9]+", _id).group() 
             url = _id + ".gb"
         
         elif dbtype == "googledrive":
             if "https://drive.google.com" not in _id:
                 raise ValueError("Please specify a proper googledrive share link")
-            match = re.search("https://drive\.google\.com/file/d/(.+)/view\?usp=sharing", url)
+            match = re.search(r"https://drive\.google\.com/file/d/(.+)/view\?usp=sharing", url)
             fileid = match.group(1) 
             url = "https://drive.google.com/uc?export=download&id=" + fileid
         else: 
@@ -534,10 +531,10 @@ class QUEEN():
             defined based on the `product` value  to be unique amongst the existing 
             `.productdict` keys.
         seq : str  
-            Top strand sequence (5′→3′). This property cannot be directly edited; only the 
+            Top strand sequence (5'-to-3'). This property cannot be directly edited; only the 
             built-in operational functions of QUEEN described below can edit this property.
         rcseq : str  
-            Bottom strand sequence (5′→3′). This property cannot be directly edited; only the 
+            Bottom strand sequence (5'-to-3'). This property cannot be directly edited; only the 
             built-in operational functions of QUEEN described below can edit this property.
         topology : str ("linear" or "circular")   
             Sequence topology. When a `QUEEN_object` is created by loading from a GenBank file, 
@@ -699,7 +696,7 @@ class QUEEN():
                                 history = feat.qualifiers[key][0]
                                 feat.qualifiers[key][0] = feat.qualifiers[key][0].replace(" ","") 
                                 feat.qualifiers[key][2] = feat.qualifiers[key][2].replace(" ","") 
-                                results = re.findall("QUEEN.dna_dict\['[^\[\]]+'\]", history) 
+                                results = re.findall(r"QUEEN.dna_dict\['[^\[\]]+'\]", history) 
                                 for result in results:
                                     _unique_id = result.split("['")[1][:-2] 
                                     QUEEN.dna_dict[_unique_id] = None
@@ -932,7 +929,7 @@ class QUEEN():
             pass 
         else:
             QUEEN._namespace[product] = self
-
+    
     def searchsequence(self, query, start=0, end=None, strand=2, unique=False, product=None, process_name=None, process_description=None, pn=None, pd=None, quinable=True, **kwargs):
         """Search for specific sequences from a QUEEN object.
         
@@ -1178,15 +1175,15 @@ class QUEEN():
                 if strand == 2:
                     building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}{}{}{}{})".format(qkey, self._product_id, qorigin, funique, fproduct, process_name, process_description)
                     process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
-                    add_history(self, [building_history, "query: {}".format(qorigin), ",".join([process_id] + original_ids)], _sourcefile)
+                    addhistory(self, [building_history, "query: {}".format(qorigin), ",".join([process_id] + original_ids)], _sourcefile)
                 else:
                     building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}, strand={}{}{}{}{})".format(qkey, self._product_id, qorigin, strand, funique, fproduct, process_name, process_description)
                     process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
-                    add_history(self, [building_history, "query: {}; strand: {}".format(qorigin, strand), ",".join([process_id] + original_ids)], _sourcefile)
+                    addhistory(self, [building_history, "query: {}; strand: {}".format(qorigin, strand), ",".join([process_id] + original_ids)], _sourcefile)
             else:
                 building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}, start={}, end={}, strand={}{}{}{}{})".format(qkey, self._product_id, qorigin, start, end, strand, funique, fproduct, process_name, process_description)   
                 process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
-                add_history(self, [building_history, "query: {}; start: {}; end: {}; strand: {}".format(qorigin, start, end, strand), ",".join([process_id] + original_ids)], _sourcefile)
+                addhistory(self, [building_history, "query: {}; start: {}; end: {}; strand: {}".format(qorigin, start, end, strand), ",".join([process_id] + original_ids)], _sourcefile)
             QUEEN._qnum += 1 
         
         if product is None:
@@ -1363,21 +1360,21 @@ class QUEEN():
                 if strand == 2 and source is None:
                     building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchfeature(key_attribute='{}', query={}{}{}{})".format(qkey, self._product_id, key_attribute, query, fproduct, process_name, process_description)
                     process_id, oiginal_ids = make_processid(self, building_history, process_id, original_ids)
-                    add_history(self, [building_history, "key_attribute: {}; query: {}".format(key_attribute, query), ",".join([process_id] + original_ids)], _sourcefile)
+                    addhistory(self, [building_history, "key_attribute: {}; query: {}".format(key_attribute, query), ",".join([process_id] + original_ids)], _sourcefile)
                 elif strand == 2:
                     building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchfeature(key_attribute='{}', query={}, source={}{}{}{})".format(qkey, self._product_id, key_attribute, query, source, fproduct, process_name, process_description)
                     process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
-                    add_history(self, [building_history, "key_attribute: {}; query: {}; : {}".format(key_attribute, query, source), ",".join([process_id] + original_ids)], _sourcefile)
+                    addhistory(self, [building_history, "key_attribute: {}; query: {}; : {}".format(key_attribute, query, source), ",".join([process_id] + original_ids)], _sourcefile)
 
                 else:
                     building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchfeature(key_attribute='{}', query={}, source={}, strand={}{}{}{})".format(qkey, self._product_id, key_attribute, query, source, strand, fproduct, process_name, process_description)
                     process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
-                    add_history(self, [building_history, "key_attribute: {}; query: {}; : {}; strand: {}".format(key_attribute, query, source, strand), ",".join([process_id] + original_ids)], _sourcefile)
+                    addhistory(self, [building_history, "key_attribute: {}; query: {}; : {}; strand: {}".format(key_attribute, query, source, strand), ",".join([process_id] + original_ids)], _sourcefile)
 
             else:
                 building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchfeature(key_attribute='{}', query={}, source={}, start={}, end={}, strand={}{}{}{})".format(qkey, self._product_id, key_attribute, query, source, start, end, strand, fproduct, process_name, process_description) 
                 process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
-                add_history(self, [building_history, "key_attribute: {}; query: {}; : {}; start: {}; end: {}; strand: {}".format(key_attribute, query, source, start, end, strand), ",".join([process_id] + original_ids)], _sourcefile) 
+                addhistory(self, [building_history, "key_attribute: {}; query: {}; : {}; start: {}; end: {}; strand: {}".format(key_attribute, query, source, start, end, strand), ",".join([process_id] + original_ids)], _sourcefile) 
             QUEEN._qnum += 1 
 
         if product is None:
@@ -1438,13 +1435,19 @@ class QUEEN():
         elif type(other) == SeqRecord:
             other = QUEEN(record=other) 
 
-        elif type(other) ==QUEEN:
+        elif type(other) == QUEEN:
             pass 
         
         if other.topology == "circular" or self.topology == "circular":
             raise ValueError("Cicularized QUEEN object cannot be joined with others.") 
         else:
-            return joindna(self, other, quinable=0)
+            if self._ssdna == True:
+                self._ssdna = False 
+                outobj = joindna(self, other, quinable=0)
+                outobj._ssdna = True
+                return outobj
+            else:
+                return joindna(self, other, quinable=0)
 
     def __radd__(self, other):
         if (type(other) in (Qseq, str) and set(other) <= set("ATGCRYKMSWBDHVNatgcrykmswbdhvn-")) or type(other) == Seq:
@@ -1459,7 +1462,13 @@ class QUEEN():
         if other.topology == "circular" or self.topology == "circular":
             raise ValueError("Cicularized QUEEN object cannot be joined with others.") 
         else:
-            return joindna(other, self, quinable=0) 
+            if self._ssdna == True:
+                self._ssdna = False 
+                outobj = joindna(other, self, quinable=0)
+                outobj._ssdna = True
+                return outobj
+            else:
+                return joindna(other, self, quinable=0) 
     
     def printsequence(self, start=None, end=None, strand=2, hide_middle=None, linebreak=None, display=False):
         """Returns and displays partial or the entire dsDNA sequence and sequence end structures.
@@ -1482,9 +1491,9 @@ class QUEEN():
         Returns
         -------
         If `strand` == `1` or `-1`,  
-        sequence of the defined strand (5’→3’)    
+        sequence of the defined strand (5'-to-3')    
         If `strand` == `2`,  
-        "str/str" (top strand sequence (5’→3’)/bottom strand sequence (3’→5’))  
+        "str/str" (top strand sequence (5'-to-3')/bottom strand sequence (3'-to-5'))  
 
         """
 
@@ -1730,20 +1739,21 @@ class QUEEN():
         
         if "feature_id" not in attribute_dict:
             feature_ids = [feat.feature_id for feat in self.dnafeatures if feat.feature_id.isdecimal()] 
-            
+
             if len(feature_ids) == 0:
                 new_id = str(1)  
             
-            for _id in feature_ids:
-                start  = features_dict[_id].start
+            feature_ids.sort(key=lambda x: (features_dict[x].start, -1 * features_dict[x].end))
+            starts = [("-1", 0)] + [(_id, features_dict[_id].start) for _id in feature_ids]
+            for _id, start in starts:
                 new_id = str(int(_id) + 1)
-                if attribute_dict["start"] > start:
+                if attribute_dict["start"] >= start:
                     idnum = 1
                     while new_id in features_dict: 
                         new_id = str(int(_id) + 1 + idnum)
                         idnum += 1
                     break
-        
+
             new_feat._id = new_id
         
         else:
@@ -1754,7 +1764,7 @@ class QUEEN():
 
         self._dnafeatures.append(new_feat)
 
-    def printfeature(self, feature_list=None, attribute=None, separation=None, seq=False, output=None, x_based_index=0):
+    def printfeature(self, feature_list=None, attribute=None, separation=None, seq=False, output=None, x_based_index=0, return_df=True):
         """ Print a tidy data table of annotation features/attributes of `QUEEN_object`. 
         
         Default output attributes are `"feature_id"`, `"feature_type"`, 
@@ -1776,11 +1786,14 @@ class QUEEN():
         separation : str, default: space(s) to generate a well-formatted table   
             String to separate values of each line.
         output : str, default: STDOUT   
-            Output file name. 
+            Output file name. If False, no output. 
         x_based_index : 0 or 1, default: 0 
             As a default, positions of all features are given in the zero-based indexing in 
             QUEEN (same as Python). If this parameter is set to `1`, they will be shown in 
             the 1-based indexing (as seen in the GenBank format).
+        returned_df : True or False, default: True
+            If `True`, this function returns a Pandas DataFrame object consisting of DNAfeatures 
+            in the QUEEN object.
         
         Returns
         -------
@@ -1818,7 +1831,7 @@ class QUEEN():
             attribute = new_attribute
         if feature_list is None:
             features = list(self.dnafeatures)
-            features.sort(key=lambda x:int(x.location.parts[0].start))
+            features.sort(key=lambda x:(int(x.location.parts[0].start), int(x.location.parts[0].end * -1)))
         else:
             features = feature_list 
 
@@ -1902,36 +1915,45 @@ class QUEEN():
         if "sequence" in attribute:
             rows.append(sequences) 
             maxes.append(sequencemax) 
-        
-        if type(output) is str:
-            output = open(output,"w")
-            if sep == ",":
-                import csv
-                output = csv.writer(output) 
-        
-        else:
-            if sep == ",":
-                import csv
-                output = csv.writer(sys.stdout) 
-            else:
-                pass 
-
-        for n, row in enumerate(zip(*rows)): 
-            if sep is None:
-                text = ""
-                for m, x in enumerate(row):
-                    text += x + " " * (maxes[m]-len(x)) 
-                print(text, file=output) 
+       
+        if output != False:
+            if type(output) is str:
+                output = open(output,"w")
+                if sep == ",":
+                    import csv
+                    output = csv.writer(output) 
+            
             else:
                 if sep == ",":
-                    output.writerow(row) 
+                    import csv
+                    output = csv.writer(sys.stdout) 
                 else:
-                    print(*row, sep=sep, file=output)
-                    
-        if output is None:
-            print() 
+                    pass 
 
-    def outputgbk(self, output=None, format="genbank", record_id=None, annotation=None, export_history=True, describe_brokenfeature=True, _return=False):
+            for n, row in enumerate(zip(*rows)): 
+                if sep is None:
+                    text = ""
+                    for m, x in enumerate(row):
+                        text += x + " " * (maxes[m]-len(x)) 
+                    print(text, file=output) 
+                else:
+                    if sep == ",":
+                        output.writerow(row) 
+                    else:
+                        print(*row, sep=sep, file=output)
+                        
+            if output is None:
+                print() 
+        
+        if return_df == True:
+            import pandas as pd 
+            columns = rows[0][1:]
+            index   = [row[0] for row in rows[1:]]
+            values  = [row[1:] for row in rows[1:]]
+            df = pd.DataFrame(values, index=index, columns=columns) 
+            return df.transpose() 
+
+    def outputgbk(self, output=None, format="genbank", record_id=None, annotation=None, export_history=1, describe_brokenfeature=True, _return=False):
         """Output `QUEEN_object` to a GenBank file. 
 
         In addition to all of the `DNAfeature_objects` in the input `QUEEN_object`, 
@@ -1952,11 +1974,11 @@ class QUEEN():
             For details, please see https://biopython.org/docs/latest/api/Bio.SeqRecord.html.
         describe_brokenfeature : bool, default: True
             If False, alll "brokenfeature" qualifiers in the features will be removed from the GenBank output.
-        export_history : 0 (0, 1, or 2), default: 2
-            If 0, A construnction history of the `QUEEN_object` will not be output.  
-            If 1, A construnction history of only the present `QUEEN_object` will be output. The past construction 
-            histories of the input objects will be removed. 
-            If 2, All construction histoires of the present `QUEEN_object` and input objects will be output.
+        export_history : bool, default: True
+            If False, A construnction history of the `QUEEN_object` will not be output.  
+            Otherwise, All construction histoires of the present `QUEEN_object` and the input QUEEN objects will be output.
+            To export a construnction history of only the present `QUEEN_object`, you should use `import_history=False` option 
+            when loading the input QUEEN object.
 
         Returns
         -------
@@ -1984,7 +2006,7 @@ class QUEEN():
                 if num in history_nums:
                     process_id = history_feature.qualifiers[key][2].split(",")[0].replace(" ", "")
                     if "-" in process_id:
-                        if export_history == 1:
+                        if 0:
                             remove_keys.append(key)
                     else:
                         history_feature.qualifiers[key][2] = self.project + "-" + self._history_feature.qualifiers[key][2]
@@ -2018,7 +2040,7 @@ class QUEEN():
                         for key in feat.qualifiers:
                             if "building_history" in key[0:18] and import_history == True:
                                 history = feat.qualifiers[key][0]
-                                results = re.findall("QUEEN.dna_dict\['[^\[\]]+'\]", history) 
+                                results = re.findall(r"QUEEN.dna_dict\['[^\[\]]+'\]", history) 
                                 history_num = int(key.split("_")[-1]) 
                                 pairs.append((feat, history_num, history))     
                 
@@ -2047,7 +2069,8 @@ class QUEEN():
 
         if type(handle) is str:
             handle = open(handle, "w") 
-
+        
+        features.sort(key=lambda x:(int(x.location.parts[0].start), int(x.location.parts[0].end * -1))) 
         self.record.features = features 
         if record_id is None:
             self.record.id = self.project

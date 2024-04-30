@@ -25,7 +25,7 @@ def make_newhistories(histories, search_function=True):
         match_description = re.search(r"process_description='([^']*)'", history) 
         process_name = match_name.group(1) if match_name is not None else None
         process_description = match_description.group(1) if match_description is not None else None
-
+        
         if match1 is not None: 
             match3 = list(re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", match1.group(1))) 
             if match2 is not None:
@@ -163,6 +163,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
     productnames_all       = [] 
     removedproducts        = [] 
     product_funcname_dict  = {}
+    edge_set = set([])  
     unique_name_count_dict = collections.defaultdict(int)  
     for h, history in enumerate(new_histories):
         process_description = history[3] 
@@ -377,8 +378,13 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                     nodes.add(sourcenames[0]) 
                 
                 dg.node(funcname, label.format(funclabel, infotext), shape="plaintext", fontname="Arial")
-                dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
-
+                
+                if (sourcenames[0], funcname+":func") not in edge_set:
+                    edge_set.add((sourcenames[0], funcname+":func")) 
+                    dg.edge(sourcenames[0], funcname+":func", arrowhead="dot")
+                else:
+                    pass
+                
                 if query_flag == 1:
                     if queryname not in productnames_all and unique_name_count_dict[queryname] > 1:
                         if queryname + "_search" not in nodes:
@@ -386,7 +392,9 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                             nodes.add(queryname + "_search") 
                         else:
                             pass
-                        dg.edge(queryname + "_search", funcname+":query", arrowhead="odot")
+                        if (queryname + "_search", funcname+":query",  funcname+":query") not in edge_set:
+                            edge_set.add((queryname + "_search", funcname+":query",  funcname+":query")) 
+                            dg.edge(queryname + "_search", funcname+":query", arrowhead="odot")
                     else:
                         if queryname in product_funcname_dict:
                             if inherited_process == True:
@@ -395,21 +403,37 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                                         dg.node(queryname, label=queryname, margin="0.05", shape="oval", fontname="Arial") 
                                         nodes.add(queryname)
                                     if "cutdna" in product_funcname_dict[queryname][0]:
-                                        dg.edge(product_funcname_dict[queryname][0], queryname) 
+                                        if (product_funcname_dict[queryname][0], queryname) not in edge_set:
+                                            edge_set.add((product_funcname_dict[queryname][0], queryname))
+                                            dg.edge(product_funcname_dict[queryname][0], queryname) 
                                     else:
-                                        dg.edge(product_funcname_dict[queryname][0] + ":func", queryname) 
-                                dg.edge(queryname, funcname+":query", arrowhead="dot")
+                                        if (product_funcname_dict[queryname][0] + ":func", queryname) not in edge_set:
+                                            edge_set.add((product_funcname_dict[queryname][0] + ":func", queryname))
+                                            dg.edge(product_funcname_dict[queryname][0] + ":func", queryname) 
+                                
+                                if (queryname, funcname+":query") not in edge_set:
+                                    edge_set.add((queryname, funcname+":query"))
+                                    dg.edge(queryname, funcname+":query", arrowhead="dot")
 
                             else:
                                 if "cutdna" in product_funcname_dict[queryname][0]:
-                                    dg.edge(product_funcname_dict[queryname][0], funcname+":query", arrowhead="dot")
+                                    if (product_funcname_dict[queryname][0], funcname+":query") not in edge_set:
+                                        edge_set.add((product_funcname_dict[queryname][0], funcname+":query"))
+                                        dg.edge(product_funcname_dict[queryname][0], funcname+":query", arrowhead="dot")
                                 else:
-                                    dg.edge(product_funcname_dict[queryname][0] + ":func", funcname+":query", arrowhead="dot")
+                                    if (product_funcname_dict[queryname][0] + ":func", funcname+":query") not in edge_set:
+                                        edge_set.add((product_funcname_dict[queryname][0] + ":func", funcname+":query"))
+                                        dg.edge(product_funcname_dict[queryname][0] + ":func", funcname+":query", arrowhead="dot")
                         else:
-                            dg.edge(queryname, funcname+":query", arrowhead="odot")
+                            if (queryname, funcname+":query") not in edge_set:
+                                edge_set.add((queryname, funcname+":query")) 
+                                dg.edge(queryname, funcname+":query", arrowhead="odot")
+                            
 
                 for product in productnames:
-                    dg.edge(funcname+":func", product)
+                    if (funcname+":func", product) not in edge_set:
+                        edge_set.add((funcname+":func", product)) 
+                        dg.edge(funcname+":func", product)
 
             elif funclabel == "joindna":
                 temp = '<tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f{}"> </td></tr>'
@@ -444,15 +468,26 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                                 dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
                                 nodes.add(sourcename)
                             if "cutdna" in product_funcname_dict[sourcename][0]:
-                                dg.edge(product_funcname_dict[sourcename][0], sourcename) 
+                                if (product_funcname_dict[sourcename][0], sourcename) not in edge_set: 
+                                    edge_set.add((product_funcname_dict[sourcename][0], sourcename)) 
+                                    dg.edge(product_funcname_dict[sourcename][0], sourcename) 
                             else:
-                                dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
-                        dg.edge(sourcename, funcname+":f"+str(s), arrowhead="dot")
+                                if (product_funcname_dict[sourcename][0] + ":func", sourcename) not in edge_set:
+                                    edge_set.add((product_funcname_dict[sourcename][0] + ":func", sourcename))
+                                    dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
+                        
+                        if (sourcename, funcname+":f"+str(s)) not in edge_set:
+                            edge_set.add((sourcename, funcname+":f"+str(s)))
+                            dg.edge(sourcename, funcname+":f"+str(s), arrowhead="dot")
                     else:
                         if "cutdna" in product_funcname_dict[sourcename][0]:
-                            dg.edge(product_funcname_dict[sourcename][0], funcname+":f"+str(s), arrowhead="dot")
+                            if (product_funcname_dict[sourcename][0], funcname+":f"+str(s)) not in edge_set:
+                                edge_set.add((product_funcname_dict[sourcename][0], funcname+":f"+str(s)))
+                                dg.edge(product_funcname_dict[sourcename][0], funcname+":f"+str(s), arrowhead="dot")
                         else:
-                            dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":f"+str(s), arrowhead="dot")
+                            if (product_funcname_dict[sourcename][0] + ":func", funcname+":f"+str(s)) not in edge_set:
+                                edge_set.add((product_funcname_dict[sourcename][0] + ":func", funcname+":f"+str(s)))  
+                                dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":f"+str(s), arrowhead="dot")
                 
                 product_funcname_dict[productname] = (funcname, process_name, process_description, info_dict["_source"] if "_source" in info_dict else None) 
 
@@ -481,12 +516,21 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                                 dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
                                 nodes.add(sourcename)
                             if "cutdna" in product_funcname_dict[sourcename][0]:
-                                dg.edge(product_funcname_dict[sourcename][0], sourcename) 
+                                if (product_funcname_dict[sourcename][0], sourcename) not in edge_set:
+                                    edge_set.add((product_funcname_dict[sourcename][0], sourcename)) 
+                                    dg.edge(product_funcname_dict[sourcename][0], sourcename) 
                             else:
-                                dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
-                        dg.edge(sourcename, funcname+":func", arrowhead="dot")
+                                if (product_funcname_dict[sourcename][0] + ":func", sourcename) not in edge_set:
+                                    edge_set.add((product_funcname_dict[sourcename][0] + ":func", sourcename)) 
+                                    dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
+                        
+                        if (sourcename, funcname+":func") not in edge_set:
+                            edge_set.add((sourcename, funcname+":func")) 
+                            dg.edge(sourcename, funcname+":func", arrowhead="dot")
                     else:  
-                        dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
+                        if (product_funcname_dict[sourcename][0] + ":func", funcname+":func") not in edge_set:
+                            edge_set((product_funcname_dict[sourcename][0] + ":func", funcname+":func")) 
+                            dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
 
                 else:
                     startunique = None
@@ -525,21 +569,38 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                             if sourcename not in nodes:
                                 dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
                                 nodes.add(sourcename)
+                            
                             if "cutdna" in product_funcname_dict[sourcename][0]:
-                                dg.edge(product_funcname_dict[sourcename][0], sourcename) 
+                                if (product_funcname_dict[sourcename][0], sourcename) not in edge_set:
+                                    edge_set.add((product_funcname_dict[sourcename][0], sourcename)) 
+                                    dg.edge(product_funcname_dict[sourcename][0], sourcename) 
                             else:
-                                dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
-                        dg.edge(sourcename, funcname+":func", arrowhead="dot")
+                                if (product_funcname_dict[sourcename][0] + ":func", sourcename) not in edge_set: 
+                                    edge_set.add((product_funcname_dict[sourcename][0] + ":func", sourcename)) 
+                                    dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
+                        
+                        if (sourcename, funcname+":func") not in edge_set:
+                            edge_set.add((sourcename, funcname+":func")) 
+                            dg.edge(sourcename, funcname+":func", arrowhead="dot")
                     else:
                         if "cutdna" in product_funcname_dict[sourcename][0]:
-                            dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
+                            if (product_funcname_dict[sourcename][0], funcname+":func") not in edge_set:
+                                edge_set.add((product_funcname_dict[sourcename][0], funcname+":func"))
+                                dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
                         else:
-                            dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
+                            if (product_funcname_dict[sourcename][0] + ":func", funcname+":func") not in edge_set:
+                                edge_set.add((product_funcname_dict[sourcename][0] + ":func", funcname+":func"))
+                                dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
                    
                     if startunique is not None:
-                        dg.edge(startunique, funcname+":start", arrowhead="odot")
+                        if (startunique, funcname+":start") not in edge_set:
+                            edge_set.add((startunique, funcname+":start"))
+                            dg.edge(startunique, funcname+":start", arrowhead="odot")
+                    
                     if endunique is not None:
-                        dg.edge(endunique, funcname+":end", arrowhead="odot")
+                        if (endunique, funcname+":end") not in edge_set:
+                            edge_set.add((endunique, funcname+":end")) 
+                            dg.edge(endunique, funcname+":end", arrowhead="odot")
                  
                 product_funcname_dict[productname] = (funcname, process_name, process_description, info_dict["_source"] if "_source" in info_dict else None) 
 
@@ -589,16 +650,28 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                             if sourcename not in nodes:
                                 dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
                                 nodes.add(sourcename)
+                            
                             if "cutdna" in product_funcname_dict[sourcename][0]:
-                                dg.edge(product_funcname_dict[sourcename][0], sourcename) 
+                                if (product_funcname_dict[sourcename][0], sourcename) not in edge_set:
+                                    edge_set.add((product_funcname_dict[sourcename][0], sourcename)) 
+                                    dg.edge(product_funcname_dict[sourcename][0], sourcename) 
                             else:
-                                dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
-                        dg.edge(sourcename, funcname+":func", arrowhead="dot")
+                                if (product_funcname_dict[sourcename][0] + ":func", sourcename) not in edge_set:
+                                    edge_set.add((product_funcname_dict[sourcename][0] + ":func", sourcename))
+                                    dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
+                        
+                        if (sourcename, funcname+":func") not in edge_set: 
+                            edge_set.add((sourcename, funcname+":func")) 
+                            dg.edge(sourcename, funcname+":func", arrowhead="dot")
                     else:
                         if "cutdna" in product_funcname_dict[sourcename][0]:
-                            dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
+                            if (product_funcname_dict[sourcename][0], funcname+":func") not in edge_set:
+                                edge_set.add((product_funcname_dict[sourcename][0], funcname+":func")) 
+                                dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
                         else:
-                            dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
+                            if (product_funcname_dict[sourcename][0] + ":func", funcname+":func") not in edge_set:
+                                edge_set.add((product_funcname_dict[sourcename][0] + ":func", funcname+":func"))
+                                dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
                 else:   
                     cutsitenames = [] 
                     uniquenames  = [] 
@@ -637,22 +710,32 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                                 dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
                                 nodes.add(sourcename)
                             if "cutdna" in product_funcname_dict[sourcename][0]:
-                                dg.edge(product_funcname_dict[sourcename][0], sourcename) 
+                                if (product_funcname_dict[sourcename][0], sourcename) not in edge_set:
+                                    edge_set.add((product_funcname_dict[sourcename][0], sourcename)) 
+                                    dg.edge(product_funcname_dict[sourcename][0], sourcename) 
                             else:
-                                dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
+                                if (product_funcname_dict[sourcename][0] + ":func", sourcename) not in edge_set:
+                                    edge_set.add((product_funcname_dict[sourcename][0] + ":func", sourcename))
+                                    dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
                         dg.edge(sourcename, funcname+":func", arrowhead="dot")
                     else:
                         if "cutdna" in product_funcname_dict[sourcename][0]:
-                            dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
+                            if (product_funcname_dict[sourcename][0], funcname+":func") not in edge_set:
+                                edge_set.add((product_funcname_dict[sourcename][0], funcname+":func")) 
+                                dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
                         else:
-                            dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
+                            if (product_funcname_dict[sourcename][0] + ":func", funcname+":func") not in edge_set: 
+                                edge_set.add((product_funcname_dict[sourcename][0] + ":func", funcname+":func"))
+                                dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
                     
                     for key, value in info_dict.items():
                         if key  == "positions":
                             for v, pos in enumerate(value.split(",")):
                                 for cutsitename, uniquename in zip(cutsitenames, uniquenames):
                                     if cutsitename in pos:
-                                        dg.edge(uniquename, funcname+":" + key + "_" + str(v), arrowhead="odot")
+                                        if (uniquename, funcname+":" + key + "_" + str(v)) not in edge_set:
+                                            edge_set.add((uniquename, funcname+":" + key + "_" + str(v)))
+                                            dg.edge(uniquename, funcname+":" + key + "_" + str(v), arrowhead="odot")
                                 else:
                                     pass 
                         else:
@@ -691,25 +774,39 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                 
                 for sourcename in sourcenames:
                     if matchl is not None and sourcename in matchl.group(1):
-                        dg.edge(sourcename, funcname+":left", arrowhead="odot")
+                        if (sourcename, funcname+":left") not in edge_set:
+                            edge_set.add((sourcename, funcname+":left")) 
+                            dg.edge(sourcename, funcname+":left", arrowhead="odot")
                     elif matchr is not None and sourcename in matchr.group(1):
-                        dg.edge(sourcename, funcname+":right", arrowhead="odot")
+                        if (sourcename, funcname+":right") not in edge_set:
+                            edge_set.add((sourcename, funcname+":right")) 
+                            dg.edge(sourcename, funcname+":right", arrowhead="odot")
                     else:
                         if inherited_process == True or (sourcename not in product_funcname_dict) or (process_name != product_funcname_dict[sourcename][1] or process_description != product_funcname_dict[sourcename][2]):
                             if sourcename in product_funcname_dict:
                                 if sourcename not in nodes:
                                     dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
                                     nodes.add(sourcename)
-                                dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
+                                if (product_funcname_dict[sourcename][0] + ":func") not in edge_set:
+                                    edge_set.add((product_funcname_dict[sourcename][0] + ":func")) 
+                                    dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
                             if "cutdna" in product_funcname_dict[sourcename][0]:
-                                dg.edge(product_funcname_dict[sourcename][0], sourcename) 
+                                if (product_funcname_dict[sourcename][0]) not in edge_set:
+                                    edge_set.add((product_funcname_dict[sourcename][0])) 
+                                    dg.edge(product_funcname_dict[sourcename][0], sourcename) 
                             else:
-                                dg.edge(sourcename, funcname+":func", arrowhead="dot")
+                                if (sourcename, funcname+":func") not in edge_set:
+                                    edge_set.add((sourcename, funcname+":func")) 
+                                    dg.edge(sourcename, funcname+":func", arrowhead="dot")
                         else:  
                             if "cutdna" in product_funcname_dict[sourcename][0]:
-                                dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
+                                if (product_funcname_dict[sourcename][0], funcname+":func") not in edge_set:
+                                    edge_set.add((product_funcname_dict[sourcename][0], funcname+":func")) 
+                                    dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
                             else:
-                                dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
+                                if (product_funcname_dict[sourcename][0] + ":func", funcname+":func") not in edge_set:
+                                    edge_set.add((product_funcname_dict[sourcename][0] + ":func", funcname+":func")) 
+                                    dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
  
                 product_funcname_dict[productname] = (funcname, process_name, process_description, info_dict["_source"] if "_source" in info_dict else None) 
 
@@ -735,15 +832,25 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                             dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
                             nodes.add(sourcename)
                         if "cutdna" in product_funcname_dict[sourcename][0]:
-                            dg.edge(product_funcname_dict[sourcename][0], sourcename) 
+                            if (product_funcname_dict[sourcename][0], sourcename) not in edge_set:
+                                edge_set.add((product_funcname_dict[sourcename][0], sourcename)) 
+                                dg.edge(product_funcname_dict[sourcename][0], sourcename) 
                         else:
-                            dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
-                    dg.edge(sourcename, funcname+":func", arrowhead="dot")
+                            if (product_funcname_dict[sourcename][0] + ":func", sourcename) not in edge_set:
+                                edge_set.add((product_funcname_dict[sourcename][0] + ":func", sourcename)) 
+                                dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
+                    if (sourcename, funcname+":func") not in edge_set:
+                        edge_set.add((sourcename, funcname+":func"))
+                        dg.edge(sourcename, funcname+":func", arrowhead="dot")
                 else:
                     if "cutdna" in product_funcname_dict[sourcename][0]:
-                        dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
+                        if (product_funcname_dict[sourcename][0], funcname+":func") not in edge_set:
+                            edge_set.add((product_funcname_dict[sourcename][0], funcname+":func")) 
+                            dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
                     else:
-                        dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
+                        if (product_funcname_dict[sourcename][0] + ":func", funcname+":func") not in edge_set:
+                            edge_set.add((product_funcname_dict[sourcename][0] + ":func", funcname+":func"))
+                            dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
 
                 product_funcname_dict[productname] = (funcname, process_name, process_description, info_dict["_source"] if "_source" in info_dict else None) 
 
@@ -770,15 +877,25 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                             dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
                             nodes.add(sourcename)
                         if "cutdna" in product_funcname_dict[sourcename][0]:
-                            dg.edge(product_funcname_dict[sourcename][0], sourcename) 
+                            if (product_funcname_dict[sourcename][0]) not in edge_set:
+                                dg.add((product_funcname_dict[sourcename][0])) 
+                                dg.edge(product_funcname_dict[sourcename][0], sourcename) 
                         else:
-                            dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
-                    dg.edge(sourcename, funcname+":func", arrowhead="dot")
+                            if (product_funcname_dict[sourcename][0] + ":func") not in edge_set:
+                                dg.add((product_funcname_dict[sourcename][0] + ":func"))
+                                dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
+                    if (sourcename, funcname+":func") not in edge_set:
+                        edge_set.add((sourcename, funcname+":func")) 
+                        dg.edge(sourcename, funcname+":func", arrowhead="dot")
                 else:
                     if "cutdna" in product_funcname_dict[sourcename][0]:
-                        dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
+                        if (product_funcname_dict[sourcename][0], funcname+":func") not in edge_set:
+                            edge_set.add((product_funcname_dict[sourcename][0], funcname+":func")) 
+                            dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
                     else:
-                        dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
+                        if (product_funcname_dict[sourcename][0] + ":func", funcname+":func") not in edge_set:
+                            edge_set.add((product_funcname_dict[sourcename][0] + ":func", funcname+":func")) 
+                            dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
 
                 if info_dict is None:
                     product_funcname_dict[productname] = (funcname, process_name, process_description, None) 
@@ -808,15 +925,25 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                             dg.node(sourcename, label=sourcename, margin="0.05", shape="oval", fontname="Arial") 
                             nodes.add(sourcename)
                         if "cutdna" in product_funcname_dict[sourcename][0]:
-                            dg.edge(product_funcname_dict[sourcename][0], sourcename) 
+                            if (product_funcname_dict[sourcename][0], sourcename) not in edge_set:
+                                edge_set.add((product_funcname_dict[sourcename][0], sourcename)) 
+                                dg.edge(product_funcname_dict[sourcename][0], sourcename) 
                         else:
-                            dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
-                    dg.edge(sourcename, funcname+":func", arrowhead="dot")
+                            if (product_funcname_dict[sourcename][0] + ":func", sourcename) not in edge_set:
+                                edge_set.add((product_funcname_dict[sourcename][0] + ":func", sourcename)) 
+                                dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
+                    if (sourcename, funcname+":func") not in edge_set:
+                        edge_set.add((sourcename, funcname+":func"))
+                        dg.edge(sourcename, funcname+":func", arrowhead="dot")
                 else:
                     if "cutdna" in product_funcname_dict[sourcename][0]:
-                        dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
+                        if (product_funcname_dict[sourcename][0], funcname+":func") not in edge_set:
+                            edge_set.add((product_funcname_dict[sourcename][0], funcname+":func")) 
+                            dg.edge(product_funcname_dict[sourcename][0], funcname+":func", arrowhead="dot")
                     else:
-                        dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
+                        if (product_funcname_dict[sourcename][0] + ":func", funcname+":func") not in edge_set:
+                            edge_set.add((product_funcname_dict[sourcename][0] + ":func", funcname+":func")) 
+                            dg.edge(product_funcname_dict[sourcename][0] + ":func", funcname+":func", arrowhead="dot")
                 
                 product_funcname_dict[productname] = (funcname, process_name, process_description, info_dict["_source"] if "_source" in info_dict else None) 
            
@@ -838,7 +965,9 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                         if productname not in nodes:
                             dg.node(productname, label=productname, margin="0.05", shape="oval", fontname="Arial") 
                             nodes.add(productname)
-                        dg.edge(funcname+":func", productname, arrowhead="dot")
+                        if (funcname+":func", productname) not in edge_set:
+                            edge_set.add((funcname+":func", productname)) 
+                            dg.edge(funcname+":func", productname, arrowhead="dot")
                     sdgs_nodes[name].add(productname)
             else:
                 sdg = dg 
@@ -848,7 +977,9 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                         if productname not in nodes:
                             dg.node(productname, label=productname, margin="0.05", shape="oval", fontname="Arial") 
                             nodes.add(productname)
-                        dg.edge(funcname+":func", productname, arrowhead="dot")
+                        if (funcname+":func", productname) not in edge_set:
+                            edge_set.add((funcname+":func", productname)) 
+                            dg.edge(funcname+":func", productname, arrowhead="dot")
             
             if process_classification == True:
                 if process_description is not None or process_name is not None: 
@@ -943,18 +1074,24 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                     with clusters[key] as subg:
                         subg.attr(style='dashed') 
                         subg.node(productname, label=productname, margin="0.05", shape="oval", fontname="Arial")
-                        subg.edge(funcname, productname, arrowhead="dot") 
-                    if sdgflag == 1:                
+                        if (funcname, productname) not in edge_set:
+                            edge_set.add((funcname, productname))
+                            subg.edge(funcname, productname, arrowhead="dot") 
+                    if sdgflag == 1:  
                         sdg_obj.parent.subgraph(sdg_obj.graph)
             else:
                 dg.node(productname, label=productname, margin="0.05", shape="oval", fontname="Arial") 
-                dg.edge(funcname + ":func", productname) 
+                if (funcname + ":func", productname) not in edge_set:
+                    edge_set.add((funcname + ":func", productname))
+                    dg.edge(funcname + ":func", productname) 
     
     for node in nodes:
         if "–" in node:
             key = "–".join(node.split("–")[:-1])
             if key in nodes:
-                 dg.edge(key, node)
+                 if (key, node) not in edge_set:
+                     edge_set.add((key, node)) 
+                     dg.edge(key, node)
 
     if process_classification == False:
         subdg = dg.subgraph() 

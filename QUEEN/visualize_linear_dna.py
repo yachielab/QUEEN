@@ -91,11 +91,11 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
                 label = feat.type
             strand = feat.location.strand
             if strand == 1:
-                gs = feat.location.parts[0].start.position 
-                ge = feat.location.parts[-1].end.position
+                gs = int(feat.location.parts[0].start)
+                ge = int(feat.location.parts[-1].end)
             else:
-                gs = feat.location.parts[-1].start.position 
-                ge = feat.location.parts[0].end.position
+                gs = int(feat.location.parts[-1].start)
+                ge = int(feat.location.parts[0].end)
             
             if i > 0:
                 flag = 0

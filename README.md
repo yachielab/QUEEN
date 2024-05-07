@@ -45,6 +45,8 @@ qexperiment module enable users to easily describe and simulate experimental mol
 - ligation
 - homology_based_assembly
 - annealing
+- gateway_reaction
+- goldengate_assembly
 - primer_desigin (prototype)
 
 For deatails, please see [qexperiment_usage.md](https://github.com/yachielab/QUEEN/blob/master/qexperiment_usage.md), [qexperiment_demo.ipynb](https://github.com/yachielab/QUEEN/blob/master/demo/qexperiment/qexperiment_demo.ipynb) and [Google colab notebook](https://colab.research.google.com/drive/1gzwVUcO3YYqf3Ypqq6TT7OZttDYs1U4D?usp=sharing).

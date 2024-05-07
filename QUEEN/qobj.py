@@ -15,6 +15,21 @@ from quine import *
 from qint import Qint
 from qseq import Qseq
 
+def _convert_kwargs(arguments):
+    out = [] 
+    defaults = ["_sourcefile", "process_id", "original_ids"] 
+    for key in arguments:
+        if key in defaults:
+            pass 
+        else:
+            arguments[key] = arguments[key].replace("'", "\'") 
+            out.append("{}='{}'".format(key, arguments[key]))
+    if len(out) == 0:
+        out = ""
+    else:
+        out = ", " + ", ".join(out) 
+    return out
+
 def _combine_history(dna, history_features):
     history_feature = SeqFeature(FeatureLocation(0, len(dna.seq), strand=0), type="source")
     history_feature = history_features[0].__class__(history_feature, subject=dna.seq)
@@ -381,7 +396,7 @@ class QUEEN():
         if key == "_unique_id":
             if "_unique_id" in self.__dict__:
                 if value in self.__class__.dna_dict:
-                    if value.split("_")[-1].isdecimal() == True:
+                    if value.isdecimal() == False and value.split("_")[-1].isdecimal() == True:
                         value = "_".join(value.split("_")[:-1]) 
                     unique = 0
                     while value + "_" + str(unique) in self.__class__.dna_dict:
@@ -397,7 +412,7 @@ class QUEEN():
         
         elif key == "_product_id":
             if value in self.__class__._products:
-                if value.split("_")[-1].isdecimal() == True:
+                if value.isdecimal() == False and value.split("_")[-1].isdecimal() == True:
                     value = "_".join(value.split("_")[:-1]) 
                 unique = 0
                 while value + "_" + str(unique) in self.__class__._products:
@@ -1170,18 +1185,18 @@ class QUEEN():
             fproduct = "" if product is None else ", product='{}'".format(product)
             process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
             process_description = "" if process_description is None else ", process_description='{}'".format(process_description)
-            
+            additional_info = _convert_kwargs(kwargs) 
             if start == 0 and end == len(self.seq):
                 if strand == 2:
-                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}{}{}{}{})".format(qkey, self._product_id, qorigin, funique, fproduct, process_name, process_description)
+                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}{}{}{}{}{})".format(qkey, self._product_id, qorigin, funique, additional_info, fproduct, process_name, process_description)
                     process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
                     addhistory(self, [building_history, "query: {}".format(qorigin), ",".join([process_id] + original_ids)], _sourcefile)
                 else:
-                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}, strand={}{}{}{}{})".format(qkey, self._product_id, qorigin, strand, funique, fproduct, process_name, process_description)
+                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}, strand={}{}{}{}{}{})".format(qkey, self._product_id, qorigin, strand, funique, additional_info, fproduct, process_name, process_description)
                     process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
                     addhistory(self, [building_history, "query: {}; strand: {}".format(qorigin, strand), ",".join([process_id] + original_ids)], _sourcefile)
             else:
-                building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}, start={}, end={}, strand={}{}{}{}{})".format(qkey, self._product_id, qorigin, start, end, strand, funique, fproduct, process_name, process_description)   
+                building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchsequence(query={}, start={}, end={}, strand={}{}{}{}{}{})".format(qkey, self._product_id, qorigin, start, end, strand, funique, additional_info, fproduct, process_name, process_description)   
                 process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
                 addhistory(self, [building_history, "query: {}; start: {}; end: {}; strand: {}".format(qorigin, start, end, strand), ",".join([process_id] + original_ids)], _sourcefile)
             QUEEN._qnum += 1 
@@ -1351,6 +1366,7 @@ class QUEEN():
             fproduct            = "" if product is None else ", product='" + product + "'"
             process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
             process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
+            additional_info = _convert_kwargs(kwargs) 
 
             if len(history_features) > 1:
                 history_feature = _combine_history(self, history_features) 
@@ -1358,21 +1374,21 @@ class QUEEN():
 
             if start == 0 and end == len(self.seq):
                 if strand == 2 and source is None:
-                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchfeature(key_attribute='{}', query={}{}{}{})".format(qkey, self._product_id, key_attribute, query, fproduct, process_name, process_description)
+                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchfeature(key_attribute='{}', query={}{}{}{}{})".format(qkey, self._product_id, key_attribute, query, additional_info, fproduct, process_name, process_description)
                     process_id, oiginal_ids = make_processid(self, building_history, process_id, original_ids)
                     addhistory(self, [building_history, "key_attribute: {}; query: {}".format(key_attribute, query), ",".join([process_id] + original_ids)], _sourcefile)
                 elif strand == 2:
-                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchfeature(key_attribute='{}', query={}, source={}{}{}{})".format(qkey, self._product_id, key_attribute, query, source, fproduct, process_name, process_description)
+                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchfeature(key_attribute='{}', query={}, source={}{}{}{}{})".format(qkey, self._product_id, key_attribute, query, additional_info, source, fproduct, process_name, process_description)
                     process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
                     addhistory(self, [building_history, "key_attribute: {}; query: {}; : {}".format(key_attribute, query, source), ",".join([process_id] + original_ids)], _sourcefile)
 
                 else:
-                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchfeature(key_attribute='{}', query={}, source={}, strand={}{}{}{})".format(qkey, self._product_id, key_attribute, query, source, strand, fproduct, process_name, process_description)
+                    building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchfeature(key_attribute='{}', query={}, source={}, strand={}{}{}{}{})".format(qkey, self._product_id, key_attribute, query, source, strand, additional_info, fproduct, process_name, process_description)
                     process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
                     addhistory(self, [building_history, "key_attribute: {}; query: {}; : {}; strand: {}".format(key_attribute, query, source, strand), ",".join([process_id] + original_ids)], _sourcefile)
 
             else:
-                building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchfeature(key_attribute='{}', query={}, source={}, start={}, end={}, strand={}{}{}{})".format(qkey, self._product_id, key_attribute, query, source, start, end, strand, fproduct, process_name, process_description) 
+                building_history  = "QUEEN.queried_features_dict['{}'] = QUEEN.dna_dict['{}'].searchfeature(key_attribute='{}', query={}, source={}, start={}, end={}, strand={}{}{}{}{})".format(qkey, self._product_id, key_attribute, query, source, start, end, strand, additional_info, fproduct, process_name, process_description) 
                 process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
                 addhistory(self, [building_history, "key_attribute: {}; query: {}; : {}; start: {}; end: {}; strand: {}".format(key_attribute, query, source, start, end, strand), ",".join([process_id] + original_ids)], _sourcefile) 
             QUEEN._qnum += 1 
@@ -1764,7 +1780,7 @@ class QUEEN():
 
         self._dnafeatures.append(new_feat)
 
-    def printfeature(self, feature_list=None, attribute=None, separation=None, seq=False, output=None, x_based_index=0, return_df=True):
+    def printfeature(self, feature_list=None, attribute=None, separation=None, seq=False, output=None, display=True, x_based_index=0, return_df=True):
         """ Print a tidy data table of annotation features/attributes of `QUEEN_object`. 
         
         Default output attributes are `"feature_id"`, `"feature_type"`, 
@@ -1916,7 +1932,7 @@ class QUEEN():
             rows.append(sequences) 
             maxes.append(sequencemax) 
        
-        if output != False:
+        if output != False and display != False:
             if type(output) is str:
                 output = open(output,"w")
                 if sep == ",":

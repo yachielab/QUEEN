@@ -241,7 +241,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
         else:
             source = matchs.group(2)  
             
-        for key in re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", source):
+        for key in re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", source.split("qexparam")[0]):
             key = key.group(0)
             sourcename = unique_name_dict[key]
             if sourcename in gbks:
@@ -1179,14 +1179,14 @@ def generate_processflow(*dnas):
             process_dict[process_id] = qentry(product, process_name, process_description, process_id) 
         
         sourcenames = set([])
-        for key in re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", source):
+        for key in re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", source.split("qexparam")[0]):
             key = key.group(0)
             sourcename = unique_name_dict[key]
             sourcenames.add(sourcename) 
         
         connected_keys = [] 
         subsource_dict = {}
-        for key in re.finditer(r"([^\(, =]*)=(QUEEN.dna_dict\['[^\[\]]+'\])([^,]*)", source):
+        for key in re.finditer(r"([^\(, =]*)=(QUEEN.dna_dict\['[^\[\]]+'\])([^,]*)", source.split("qexparam")[0]):
             key1, key2, key3 = key.group(1), key.group(2), key.group(3) 
             sourcename = unique_name_dict[key2]
             subsource_dict[sourcename] = (key1, key3) if len(key3) > 0 else (key1, None) 
@@ -1199,7 +1199,8 @@ def generate_processflow(*dnas):
             subsource_dict[sourcename] = (key1, key3) if len(key3) > 0 else (key1, None) 
             connected_keys.append(key1)
             sourcenames.add(sourcename)
-
+        
+        print(history, sorucenames) 
         for key in re.finditer(r"([^\( ,=]*)=([^=]*)[,)]", source):
             key1, key2 = key.group(1), key.group(2)
             if key1 in connected_keys or key1 == "product":

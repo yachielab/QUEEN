@@ -96,9 +96,7 @@ Simulate DNA digestion using restriction enzymes and optionally perform size sel
 
 ```python
 >>> dna_sequence = QUEEN("example_dna_sequence")
->>> cutsite1 = Cutsite("restriction_enzyme_1")
->>> cutsite2 = Cutsite("restriction_enzyme_2")
->>> fragments = digestion(dna_sequence, cutsite1, cutsite2, size_selection=(100, 1000))
+>>> fragments = digestion(dna_sequence, cs.lib["BamHI"], cutsite["AgeI"], size_selection=(100, 1000))
 ```
 
 ---
@@ -107,7 +105,7 @@ Simulate DNA digestion using restriction enzymes and optionally perform size sel
 
 Simulate the ligation of DNA fragments into unique or multiple constructs.
 
-#### `ligation(*fragments, unique=True, product=None, process_description=None, pd=None):`
+#### `ligation(*fragments, unique=True, follow_order=False, product=None, process_description=None, pd=None):`
 
 #### Parameters
 
@@ -116,6 +114,10 @@ Simulate the ligation of DNA fragments into unique or multiple constructs.
 
 - **unique**: `bool`, optional  
   Whether to return only a unique construct. Default is True.
+
+- **follow_order** : `bool`, optional 
+  If True, a ligation reaction will be simulated along with the given order of fragments.  
+  Default is False. 
 
 - **product**: `str`, optional  
   Product name.
@@ -154,7 +156,7 @@ The function handles situations where the assembly is not possible or results in
 
 Simulate DNA assembly using homology for various assembly modes.
 
-#### `homology_based_assembly(*fragments, mode="gibson", homology_length=20, unique=True, product=None, process_description=None, pd=None)`
+#### `homology_based_assembly(*fragments, mode="gibson", homology_length=20, unique=True, follow_order=None, product=None, process_description=None, pd=None)`
 
 #### Parameters
 
@@ -169,6 +171,10 @@ Simulate DNA assembly using homology for various assembly modes.
 
 - **unique**: `bool`, optional  
   Return only a unique construct. Default is True.
+
+- **follow_order** : `bool`, optional 
+  If True, a ligation reaction will be simulated along with the given order of fragments. 
+  If the number of given fragments is larger than 4, default is True. Otherwise, False.   
 
 - **product**: `str`, optional  
   Process name.
@@ -234,8 +240,8 @@ Simulate the annealing of two single-stranded DNA molecules based on homology.
 
 ```python
 >>> ssdna1 = QUEEN("ATCG")
->>> ssdna2 = QUEEN("CGTA")
->>> dsdna = annealing(ssdna1, ssdna2, homology_length=4)
+>>> ssdna2 = QUEEN("CGAT")
+>>> dsdna = annealing(ssdna1, ssdna2)
 ```
 
 ---
@@ -276,10 +282,16 @@ Design forward and reverse primers for PCR amplification of a target region, all
   Number of primer pairs to design. Default is 1.
 
 - **fw_adapter** `ssDNA QUEEN object` or `str`, optional  
-  Adapter sequence to prepend to any designed forward primer.
+  If it's a string or a single-stranded DNA (ssDNA) QUEEN object, the sequence will be added at the beginning of any forward primers designed.  
+  If it's a double-stranded DNA (dsDNA) QUEEN object with linear topology, the homology sequence to the 3' end of the QUEEN object will be added at the beginning of any forward primers.  
+  Alternatively, you can specify the name of a restriction enzyme or 'attB'. In these cases, the adapter sequence including the specified site will be added at the beginning of the primers.  
+  For now, "attB" sequence as fw adapter is "GGGGACAAGTTTGTACAAAAAAGCAGGCT".
 
 - **rv_adapter**: `ssDNA QUEEN object` or `str`, optional  
-  Adapter sequence to prepend to any designed reverse primer.
+  If it's a string or a single-stranded DNA (ssDNA) QUEEN object, the sequence will be added at the beginning of any reverse primers designed.  
+  If it's a double-stranded DNA (dsDNA) QUEEN object with linear topology, the homology sequence to the 3' end of the QUEEN object will be added at the beginning of any reverse primers.  
+  Alternatively, you can specify the name of a restriction enzyme or 'attB'. In these cases, the adapter sequence including the specified site will be added at the beginning of the primers.  
+  For now, "attB" sequence as rv adapter is "GGGGACCACTTTGTACAAGAAAGCTGGGT".  
 
 - **homology_length** `int`, optional  
   Required homology for adapters.  
@@ -326,14 +338,8 @@ Design forward and reverse primers for PCR amplification of a target region, all
 
 The requirement for the target sequence to be within the template sequence ensures specificity of the primers to the region of interest. The function will not proceed if the target sequence is not a subset of the template.
 
-
-
 ---
 
 ## Under implementation
-
-- gateway_reaction
-
-- golden_gate_assembly
-
 - intra_site_specific_recombination
+- homologous_recombination

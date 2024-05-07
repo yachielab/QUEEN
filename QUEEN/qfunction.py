@@ -107,6 +107,21 @@ import visualize_linear_dna as vl
 import qgraph as qg 
 from qint import Qint
 
+def _convert_kwargs(arguments):
+    out = [] 
+    defaults = ["_sourcefile", "process_id", "original_ids"] 
+    for key in arguments:
+        if key in defaults:
+            pass 
+        else:
+            arguments[key] = arguments[key].replace("'", "\'") 
+            out.append('{}="{}"'.format(key, arguments[key]))
+    if len(out) == 0:
+        out = ""
+    else:
+        out = "," + ", ".join(out) 
+    return out
+
 def _assigndnafeatures(dnafeatures):
     features = [] 
     for feat in dnafeatures:
@@ -590,7 +605,6 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
     list of QUEEN.qobj.QUEEN object 
 
     """
-    
     kwargs.setdefault("_sourcefile", None) 
     kwargs.setdefault("process_id", None)
     kwargs.setdefault("original_ids", []) 
@@ -1012,6 +1026,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
     
     dnas = [] 
     new_positions = [] 
+    
     for pos in cutsites:
         if type(pos) is str:
             pos = tuple(map(int,pos.split("/")))
@@ -1123,7 +1138,6 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
     else:
         for subdna in dnas:
             subdna._unique_id = project
-    
     if quinable == True:
         products = []
         dna_keys = list(dnas[0].__class__.dna_dict.keys())
@@ -1178,12 +1192,14 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
         fsupfeature         = "" if supfeature == False else ", supfeature={}".format(str(supfeature))
         fproduct            = "" if product is None else ", product='" + product + "'"
         process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
-        process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
+        process_description = "" if process_description is None else ", process_description='" + process_description + "'"
+        additional_info = _convert_kwargs(kwargs) 
+
         
         if len(products) > 1:
-            building_history = "{} = cutdna(QUEEN.dna_dict['{}'], {}{}{}{}{}{}{})".format(", ".join(products), dna._product_id, ", ".join(args), fcrop, fsupfeature, project, fproduct, process_name, process_description) 
+            building_history = "{} = cutdna(QUEEN.dna_dict['{}'], {}{}{}{}{}{}{}{})".format(", ".join(products), dna._product_id, ", ".join(args), fcrop, fsupfeature, project, additional_info, fproduct, process_name, process_description) 
         else:
-            building_history = "{}, = cutdna(QUEEN.dna_dict['{}'], {}{}{}{}{}{}{})".format(", ".join(products), dna._product_id, ", ".join(args), fcrop, project, fsupfeature, fproduct, process_name, process_description)
+            building_history = "{}, = cutdna(QUEEN.dna_dict['{}'], {}{}{}{}{}{}{}{})".format(", ".join(products), dna._product_id, ", ".join(args), fcrop, project, fsupfeature, additional_info, fproduct, process_name, process_description)
         
         for subdna in dnas:
             history_feature = _combine_history(subdna, history_features)
@@ -1225,7 +1241,7 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
         Start position of the fragment of the `QUEEN_object` sequence to be trimmed. 
         When the value is specified by `int` or `"int/int"`, the numerical values 
         should follow the zero-based indexing. 
-    end : int, str ("int/int") zero-based indexing, or QUEEN.qobj.DNAfeature, default: 0
+    end : int, str ("int/int") zero-based indexing, or QUEEN.qobj.DNAfeature, default: , additional_info0
         End position of the fragment of the `QUEEN_object` sequence to be trimmed.   
         When the value is specified by `int` or `"int/int"`, the numerical values should 
         follow the zero-based indexing. If the topology is `"circular"` and the `start` 
@@ -1314,9 +1330,10 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
         fproduct            = "" if product is None else ", product='" + product + "'"
         process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
         process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
-        
+        additional_info = _convert_kwargs(kwargs) 
+
         subdna._product_id = subdna._unique_id if product is None else product 
-        building_history = "QUEEN.dna_dict['{}'] = cropdna(QUEEN.dna_dict['{}'], start={}, end={}{}{}{}{}{})".format(subdna._product_id, dna._product_id, args[0], args[1], fsupfeature, project, fproduct, process_name, process_description)
+        building_history = "QUEEN.dna_dict['{}'] = cropdna(QUEEN.dna_dict['{}'], start={}, end={}{}{}{}{}{}{})".format(subdna._product_id, dna._product_id, args[0], args[1], fsupfeature, additional_info, project, fproduct, process_name, process_description)
         
         history_feature = _combine_history(subdna, history_features)
         subdna._history_feature = history_feature
@@ -1786,11 +1803,12 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
         fproduct            = "" if product is None else ", product='" + product + "'"
         process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
         process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
-        
+        additional_info = _convert_kwargs(kwargs) 
+
         construct._product_id      = construct._unique_id if product is None else product 
         construct.record.id        = construct.project
         dna_elements               = "[" + ", ".join(["QUEEN.dna_dict['{}']".format(dna._product_id) for dna in dnas]) + "]"
-        building_history           = "QUEEN.dna_dict['{}'] = joindna(*{}, topology='{}'{}{}{}{}{}{}{})".format(construct._product_id, dna_elements, topology, fcompatibility, fhomology_length, fautoflip, fproject, fproduct, process_name, process_description)
+        building_history           = "QUEEN.dna_dict['{}'] = joindna(*{}, topology='{}'{}{}{}{}{}{}{}{})".format(construct._product_id, dna_elements, topology, fcompatibility, fhomology_length, fautoflip, additional_info, fproject, fproduct, process_name, process_description)
         history_feature            = _combine_history(construct, history_features)         
         construct._history_feature = history_feature 
         process_id, original_ids   = make_processid(construct, building_history, process_id, original_ids)
@@ -2125,7 +2143,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
         right_end_bottom = 1
     
     if add == 1 or (add != -1 and (left_end != dna.seq[left_end_length-left_length:left_end_length-left_length+len(left_end)] 
-                or right_end != str(dna[len(dna.seq)-right_end_length + right_length - len(right_end):len(dna.seq)-right_end_length + right_length].seq))):
+                or right_end != str(dna.seq[len(dna.seq) - right_end_length + right_length - len(right_end):len(dna.seq)- right_end_length + right_length]))):
         
         if add_left == 1 and add_right == 1:
             new_dna = dna.__class__(seq=left_end.split("/")[0] + dna.seq + right_end.split("/")[0] + "/" 
@@ -2161,7 +2179,12 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
             tmp_left = None
             if left_origin.name is not None: 
                 if left_origin.name == "rcseq":
-                    tmp_left = flipdna(left_origin.parent, quinable=0) 
+                    if left_origin.parent._ssdna == False:
+                        tmp_left = flipdna(left_origin.parent, quinable=0) 
+                    else:
+                        left_origin.parent._ssdna = False
+                        tmp_left = flipdna(left_origin.parent, quinable=0)
+                        left_origin.parent._ssdna = True
                 else:
                     tmp_left = None
             else:
@@ -2175,7 +2198,12 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
             tmp_right = None
             if right_origin.name is not None: 
                 if right_origin.name == "rcseq":
-                    tmp_right = flipdna(right_origin.parent, quinable=0) 
+                    if right_origin.parent._ssdna == False:
+                        tmp_right = flipdna(right_origin.parent, quinable=0) 
+                    else:
+                        right_origin.parent._ssdna = False
+                        tmp_right = flipdna(right_origin.parent, quinable=0)
+                        right_origin.parent._ssdna = True
                 else:
                     tmp_right = None
             else:
@@ -2470,9 +2498,10 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
         fproduct            = "" if product is None else ", product='" + product + "'"
         process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
         process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
+        additional_info = _convert_kwargs(kwargs) 
 
         new_dna._product_id = new_dna._unique_id if product is None else product 
-        building_history    = "QUEEN.dna_dict['{}'] = modifyends(QUEEN.dna_dict['{}'], left={}, right={}{}{}{}{}{})".format(new_dna._product_id, dna._product_id, args[2], args[3], fsupfeature, project, fproduct, process_name, process_description)  
+        building_history    = "QUEEN.dna_dict['{}'] = modifyends(QUEEN.dna_dict['{}'], left={}, right={}{}{}{}{}{}{})".format(new_dna._product_id, dna._product_id, args[2], args[3], fsupfeature, additional_info, project, fproduct, process_name, process_description)  
         history_feature     = _combine_history(new_dna, history_features) 
         new_dna._history_feature = history_feature
         process_id, original_ids = make_processid(new_dna, building_history, process_id, original_ids)
@@ -2619,9 +2648,10 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
         fproduct            = "" if product is None else ", product='" + product + "'"
         process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
         process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
+        additional_info = _convert_kwargs(kwargs) 
 
         comp._product_id = comp._unique_id if product is None else product 
-        building_history = "QUEEN.dna_dict['{}'] = flipdna(QUEEN.dna_dict['{}']{}{}{}{}{})".format(comp._product_id, dna._product_id, fsupfeature, project, fproduct, process_name, process_description) 
+        building_history = "QUEEN.dna_dict['{}'] = flipdna(QUEEN.dna_dict['{}']{}{}{}{}{}{})".format(comp._product_id, dna._product_id, fsupfeature, additional_info, project, fproduct, process_name, process_description) 
         process_id, original_ids = make_processid(comp, building_history, process_id, original_ids)
         addhistory(comp, [building_history,"", ",".join([process_id] + original_ids)], _sourcefile) 
         comp._check_uniqueness() 
@@ -2935,12 +2965,12 @@ def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=N
         fproduct             = "" if product is None else ", product='" + product + "'"
         process_name         = "" if process_name is None else ", process_name='" + process_name + "'"
         process_description  = "" if process_description is None else ", process_description='" + process_description + "'" 
-        
+        additional_info = _convert_kwargs(kwargs) 
         new_dna._product_id = new_dna._unique_id if product is None else product 
         if start == 0 and end == len(dna.seq):
-            building_history     = "QUEEN.dna_dict['{}'] = editsequence(QUEEN.dna_dict['{}'], source_sequence={}, destination_sequence={}, strand={}{}{}{}{})".format(new_dna._product_id, original_id, fsource, destination_sequence, strand, project, fproduct, process_name, process_description)
+            building_history     = "QUEEN.dna_dict['{}'] = editsequence(QUEEN.dna_dict['{}'], source_sequence={}, destination_sequence={}, strand={}{}{}{}{}{})".format(new_dna._product_id, original_id, fsource, destination_sequence, strand, additional_info, project, fproduct, process_name, process_description)
         else:  
-            building_history     = "QUEEN.dna_dict['{}'] = editsequence(QUEEN.dna_dict['{}'], source_sequence={}, destination_sequence={}, start={}, end={}, strand={}{}{}{}{})".format(new_dna._product_id, original_id, fsource, destination_sequence, start, end, strand, project, fproduct, process_name, process_description)
+            building_history     = "QUEEN.dna_dict['{}'] = editsequence(QUEEN.dna_dict['{}'], source_sequence={}, destination_sequence={}, start={}, end={}, strand={}{}{}{}{}{})".format(new_dna._product_id, original_id, fsource, destination_sequence, start, end, strand, additional_info, project, fproduct, process_name, process_description)
         if len(history_features) > 1:
             history_feature = _combine_history(new_dna, history_features) 
             new_dna._history_feature = history_feature
@@ -3521,20 +3551,22 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
             fproduct            = "" if product is None else ", product='" + product + "'"
             process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
             process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
+            additional_info = _convert_kwargs(kwargs) 
+
             dna._product_id = dna._unique_id if product is None else product 
             if start == 0 and end == len(dna.seq):
                 args = [key_attribute, fquery, source, strand, target_attribute, command, new_copy]
                 for i in range(len(args)):
                     if type(args[i]) is str and i != 5 and i != 1:
                         args[i] = "'" + args[i] + "'" 
-                building_history = "QUEEN.dna_dict['{}'] = editfeature(QUEEN.dna_dict['{}'], key_attribute={}, query={}, source={}, strand={}, target_attribute={}, operation={}, new_copy={}{}{}{}{})".format(dna._product_id, original_id, *args, project, fproduct, process_name, process_description) 
+                building_history = "QUEEN.dna_dict['{}'] = editfeature(QUEEN.dna_dict['{}'], key_attribute={}, query={}, source={}, strand={}, target_attribute={}, operation={}, new_copy={}{}{}{}{}{})".format(dna._product_id, original_id, *args, additional_info, project, fproduct, process_name, process_description) 
             
             else:
                 args = [key_attribute, fquery, source, start, end, strand, target_attribute, command, new_copy]
                 for i in range(len(args)):
                     if type(args[i]) is str and i != 7 and i != 1:
                         args[i] = "'" + args[i] + "'" 
-                building_history = "QUEEN.dna_dict['{}'] = editfeature(QUEEN.dna_dict['{}'], key_attribute={}, query={}, source={}, start={}, end={}, strand={}, target_attribute={}, operation={}, new_copy={}{}{}{}{})".format(dna._product_id, original_id, *args, project, fproduct, project, process_name, process_description) 
+                building_history = "QUEEN.dna_dict['{}'] = editfeature(QUEEN.dna_dict['{}'], key_attribute={}, query={}, source={}, start={}, end={}, strand={}, target_attribute={}, operation={}, new_copy={}{}{}{}{}{})".format(dna._product_id, original_id, *args, additional_info, project, fproduct, project, process_name, process_description) 
             
             process_id, original_ids = make_processid(dna, building_history, process_id, original_ids)
             addhistory(dna, [building_history, "key_attribute: {}; query: {}; start: {}; end: {}; strand: {}; target_attribute: {}; operation: {}".format(key_attribute, fquery, start, end, strand, target_attribute, command), process_id, ",".join([process_id] + original_ids)], _sourcefile)
@@ -3557,11 +3589,12 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
             fproduct            = "" if product is None else ", product='" + product + "'"
             process_name        = "" if process_name is None else ", process_name='" + process_name + "'"
             process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
+            additional_info = _convert_kwargs(kwargs) 
             args = [key_attribute, fquery, source, start, end, strand, target_attribute, command, new_copy]
             for i in range(len(args)):
                 if type(args[i]) is str and i != 7 and i != 1:
                     args[i] = "'" + args[i] + "'" 
-            building_history = "editfeature(QUEEN.dna_dict['{}'], key_attribute={}, query={}, source={}, start={}, end={}, strand={}, target_attribute={}, operation={}, new_copy={}{}{}{}{})".format(dna._unique_id, *args, project, fproduct, process_name, process_description)
+            building_history = "editfeature(QUEEN.dna_dict['{}'], key_attribute={}, query={}, source={}, start={}, end={}, strand={}, target_attribute={}, operation={}, new_copy={}{}{}{}{}{})".format(dna._unique_id, *args, additional_info, project, fproduct, process_name, process_description)
     
     else:
         raise ValueError("'operation' can take only one of 'createattribute,' 'removeattribute,' and 'replaceattribute.'")

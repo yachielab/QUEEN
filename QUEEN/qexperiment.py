@@ -8,7 +8,7 @@ from cutsite import Cutsite
 from Bio.SeqUtils import MeltingTemp as mt
 import functools
 
-def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, return_template=False, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
+def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, add_primerbind=False, tm_func=None, return_tm=False, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
     """
     Simulates a PCR (Polymerase Chain Reaction) process on a given DNA template using forward and reverse primers. This function does not provide the function to check cross dimer and homo dimer in primer design as default. If you wanna add such function, set the original `requirement` equiation. 
     Parameters
@@ -27,16 +27,24 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, return_template=F
         The maximum number of mismatches allowed in the primer binding, by default 1.
     endlength : int, optional
         The length of the end region of the primer to consider during binding, by default 3.
-    return_template : bool, optional
-        If True, returns the modified template, by default False.
+    add_primerbind : bool, optional
+        If True, add DNAfeature on the primer binding regions in the template DNA. 
+    tm_func : function, optional
+        Function to calculate the melting temperature of primer candidates. Default is xxxx. 
+        As built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. This function is implemented 
+        based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, so the all parameters of 
+        `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, can be acceptable.
+    return_tm : bool, optional
+        If True, tm values of the primer pair are also returned.  
+        The tm values will be calculated based on thier biding region excluding adaptor regions.
     product : str, optional 
         Product name of the PCR process.
     process_name : str, optional
         Brief label for the PCR process, by default "PCR"
-    pn : str, optional
-        Alias for process_description.
     process_description : str, optional
         Additional description for the PCR process.
+    pn : str, optional
+        Alias for process_description.
     pd : str, optional
         Alias for process_description.
     **kwargs
@@ -44,9 +52,8 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, return_template=F
 
     Returns
     -------
-    QUEEN (amplicon) or QUEEN (template) and QUEEN (amplicon)
-        If return_template is True, returns the modified DNA template with primer binding features. 
-        Otherwise, returns the PCR product (amplicon) as a QUEEN object.
+    QUEEN (amplicon)
+    Returns the PCR product (amplicon) as a QUEEN object.
 
     Examples
     --------
@@ -66,7 +73,8 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, return_template=F
     QUEEN, cropdna, modifyends
 
     """
-    def search_binding_site(template, primer, strand=1, endlength=3, pn=None, pd=None, **kwargs): 
+    def search_binding_site(template, primer, strand=1, bindnum=16, endlength=3, flag=1, pn=None, pd=None, **kwargs): 
+        site = [] 
         primer_end = primer.seq[-1*endlength:]
         for i in range(bindnum-endlength, len(primer.seq)-endlength):
             binding_site = primer.seq[-1*i + -1*endlength:-1*endlength]
@@ -81,11 +89,17 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, return_template=F
         
         if len(site) == 1: #and site[0].strand == strand:
             site = template.searchsequence(query="(?:{}){{s<={}}}{}".format(binding_site, mismatch, primer_end), pn=pn, pd=pd)
-            return site[0]
+            if flag == 1:
+                return site[0]
+            else:
+                return site
         
         elif len(site) == 0:
-            raise ValueError("No primer binding sites were found.")
-        
+            if flag == 1:
+                raise ValueError("No primer binding sites were found.")
+            else:
+                return site 
+
         elif len(site) > 1: 
             raise ValueError("Multiple primer binding sites were detected.") 
         
@@ -117,15 +131,33 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, return_template=F
     
     kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
     kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
-    qexd = "pcr(QUEEN.dna_dict['{}'], {}, {}, bindnum={}, mismatch={}, endlegth={}, return_template={}{})".format(template._product_id, fwstr, rvstr, bindnum, mismatch, endlength, return_template, kwargs_str)
+    qexd = "pcr(QUEEN.dna_dict['{}'], {}, {}, bindnum={}, mismatch={}, endlegth={}, add_primerbind={}{})".format(template._product_id, fwstr, rvstr, bindnum, mismatch, endlength, add_primerbind, kwargs_str)
 
     process_description = pd if process_description is None else process_description
     #process_description = pd_suffix if process_description is None else process_description
     if -1 in [template._left_end_top, template._left_end_bottom, template._right_end_top, template._right_end_bottom]:
         template = modifyends(template, pn=process_name, pd=process_description)
     
-    site1 = search_binding_site(template, fw, 1, endlength, pn=process_name, pd=process_description) 
-    site2 = search_binding_site(template, rv, -1, endlength, pn=process_name, pd=process_description) 
+    if return_tm == True or add_primerbind == True:
+        i = 0
+        while 1:
+            tmpsite = search_binding_site(template, fw, 1, bindnum+i, endlength, flag=0, pn=process_name, pd=process_description)
+            if len(tmpsite) == 0:
+                break
+            site1 = tmpsite[0]
+            i += 1
+
+        i = 0
+        while 1:
+            tmpsite = search_binding_site(template, rv, -1, bindnum+i, endlength, flag=0, pn=process_name, pd=process_description)
+            if len(tmpsite) == 0:
+                break
+            site2 = tmpsite[0] 
+            i += 1
+    else:
+        site1 = search_binding_site(template, fw, 1, bindnum, endlength, pn=process_name, pd=process_description) 
+        site2 = search_binding_site(template, rv, -1, bindnum, endlength, pn=process_name, pd=process_description) 
+    
     if site1.strand == 1 and site2.strand == -1:
         fw_site = site1  
         rv_site = site2
@@ -144,10 +176,16 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, return_template=F
     extract  = cropdna(template, fw_site.end, rv_site.start, pn=process_name, pd=process_description)
     amplicon = modifyends(extract, fw.seq, rv.rcseq, product=product, pn=process_name, pd=process_description, qexparam=qexd)
     
-    if return_template == True:
+    if add_primerbind == True:
         template.setfeature({"start": fw_site.start, "end": fw_site.end, "strand":1,  "feature_type":"primer_bind"}) 
         template.setfeature({"start": rv_site.start, "end": rv_site.end, "strand":-1, "feature_type":"primer_bind"})  
-        return template, amplicon
+    
+    if return_tm == True:
+        if tm_func is None:
+            tm_func = Tm_NN() 
+        fw_tm = tm_func(seq=template.seq[fw_site.start:fw_site.end]) 
+        rv_tm = tm_func(seq=template.seq[rv_site.start:rv_site.end])
+        return amplicon, (fw_tm, rv_tm) 
     else:
         return amplicon
 
@@ -446,12 +484,12 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=20, uniqu
         If `mode` is `"gibson"`, default is "Gibson Assembly". 
         If `mode` is `"infusion"`, default is "In-Fusion Assembly". 
         If `mode` is `"overlappcr"`, default is "Overlap PCR".
-    pn : str, optional
-        Alias for process_description.
     process_description : str, optional
         Additional description for the assembly process.
-    pd : str, optional
+    pn : str, optional
         Alias for process_description.
+    pd : str, optional
+        Alias for process_name.
     **kwargs
         Additional keyword arguments for advanced configurations.
 
@@ -596,11 +634,11 @@ def annealing(ssdna1, ssdna2, homology_length=4, product=None, pn=None, pd=None,
     product : str, optional 
         Product name of the ligation process
     process_name : str, optional
-        Brief label for the ligation process, by default "Annealing".
-    pn : str, optional
-        Alias for process_description.
+        Brief label for the gateway reaction process. Default is "Gateway Reaction".
     process_description : str, optional
-        Additional description for the annealing process.
+        Additional description for the gateway reaction process.
+    pn : str, optional
+        Alias for process_name.
     pd : str, optional
         Alias for process_description.
     **kwargs
@@ -628,7 +666,7 @@ def annealing(ssdna1, ssdna2, homology_length=4, product=None, pn=None, pd=None,
     
     kwargs_str    = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
     kwargs_str    = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
-    qexd = "annealing(QUEEN.dna_dict['{}'], QUEEN.dna_dict['{}'], homology_length={}{})".format(ssdna1._product_id, ssdna2._product_id, homology_length, kwarg_str)
+    qexd = "annealing(QUEEN.dna_dict['{}'], QUEEN.dna_dict['{}'], homology_length={}{})".format(ssdna1._product_id, ssdna2._product_id, homology_length, kwargs_str)
     process_description = pd if process_description is None else process_description
     #process_description = pd_suffix if process_description is None else process_description #+ "\n" + pd_suffix
 
@@ -668,18 +706,18 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
 
     Parameters
     ----------
-    destination : QUEEN
+    destination : QUEE object N
         The destination QUEEN object holding the backbone DNA molecule.
-    entry : QUEEN
+    entry : QUEEN object
         The entry QUEEN object holding the insert DNA molecule.
     mode: str, tuple, or list
         The mode of the reaction, can be "BP" or "LR". Default is "BP".
     process_name : str, optional
         Brief label for the gateway reaction process. Default is "Gateway Reaction".
-    pn : str, optional
-        Alias for process_description.
     process_description : str, optional
         Additional description for the gateway reaction process.
+    pn : str, optional
+        Alias for process_name.
     pd : str, optional
         Alias for process_description.
     **kwargs
@@ -771,18 +809,18 @@ def goldengate_assembly(destination, entry, enzyme=None, product=None, process_n
 
     Parameters
     ----------
-    destination : QUEEN
+    destination : QUEEN object
         The destination QUEEN object holding the backbone DNA molecule.
-    *entry : QUEEN object or list of QUEEN objects
-        The entry QUEEN object(s) holding the insert DNA molecules.
+    entry : list of QUEEN objects
+        The entry QUEEN objects holding the insert DNA molecules.
     enzyme : Cutsite or str
         The restriction enzyme used for this reaction.    
     process_name : str, optional
         Brief label for the gateway reaction process. Default is "Golden Gate Assembly".
-    pn : str, optional
-        Alias for process_description.
     process_description : str, optional
         Additional description for the gateway reaction process.
+    pn : str, optional
+        Alias for process_name.
     pd : str, optional
         Alias for process_description.
     **kwargs
@@ -842,10 +880,10 @@ def intra_site_specific_recombination(dna, site="loxP", product=None, process_na
         recombination sites in the DNA sequence to simulate the recombination process.
     process_name : str, optional
         Brief label for the gateway reaction process. Default is "Golden Gate Assembly".
-    pn : str, optional
-        Alias for process_description.
     process_description : str, optional
         Additional description for the gateway reaction process.
+    pn : str, optional
+        Alias for process_description.
     pd : str, optional
         Alias for process_description.
     **kwargs
@@ -940,10 +978,10 @@ def homologous_recombination(donor, entry, left_homology=None, right_homology=No
         The minimum length of homology required for the assembly. Default is 100.
     process_name : str, optional
         Brief label for the gateway reaction process. Default is "Gateway Reaction".
-    pn : str, optional
-        Alias for process_description.
     process_description : str, optional
         Additional description for the gateway reaction process.
+    pn : str, optional
+        Alias for process_name.
     pd : str, optional
         Alias for process_description.
     **kwargs

@@ -4,17 +4,17 @@
 
 Simulate PCR (Polymerase Chain Reaction) on a given DNA template using specific primers.
 
-#### `pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, return_template=False, product=None, process_description=None, pd=None)`
+#### `pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, return_template=False, product=None, product=None, process_description=None, pn=None, pd=None)`
 
 #### Parameters
 
-- **template**: `QUEEN`  
+- **template**: `QUEEN object`  
   DNA template to be amplified.
 
-- **fw**: `QUEEN` or `str`  
+- **fw**: `QUEEN object` or `str`  
   Forward primer. Can be a `QUEEN` object or a string.
 
-- **rv**: `QUEEN` or `str`  
+- **rv**: `QUEEN object` or `str`  
   Reverse primer. Can be a `QUEEN` object or a string.
 
 - **bindnum**: `int`, optional  
@@ -26,8 +26,18 @@ Simulate PCR (Polymerase Chain Reaction) on a given DNA template using specific 
 - **endlength**: `int`, optional  
   Length of primer's end region for binding consideration. Default is 3.
 
-- **return_template** `bool`, optional  
-  Whether to return the modified template. Default is False.
+- **add_primerbind** `bool`, optional  
+  If True, add DNAfeature on the primer binding regions in the template DNA. 
+
+- **tm_func** `function`, optional
+  Function to calculate the melting temperature of primer candidates. Default is xxxx. 
+  As built-in algorithms, `QUEEN.qexperiment.Tm_NN()`.   
+  This function is implemented based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, so the all parameters of   
+  `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, can be acceptable.
+
+- **return_tm** : `bool`, optional
+  If True, tm values of the primer pair are also returned.    
+  The tm values will be calculated based on thier biding region excluding adaptor regions.
 
 - **product** `str`, optional  
   Product name.
@@ -38,10 +48,18 @@ Simulate PCR (Polymerase Chain Reaction) on a given DNA template using specific 
 - **process_description** or **pd**:  `str`, optional  
   Additional process description.
 
+- **pn** `str`, optional
+  Alias for `process_name`.
+
+- **pd** : `str`, optional
+  Alias for `process_description`.
+
+
 #### Returns
 
-- `QUEEN object(amplicon)` or `QUEEN object(template)` and `QUEEN(amplicon)`  
-  PCR product or both modified template and product.
+- `QUEEN object` if `return_tm` is False, Otherwise `QUEEN object, (tm_fw, tm_rv)`
+  Returns the PCR product (amplicon) as a QUEEN object. 
+  If `return_tm` is True, the Tm values of the given primer pair is also returned.  
 
 #### Example Usage
 
@@ -58,11 +76,11 @@ Simulate PCR (Polymerase Chain Reaction) on a given DNA template using specific 
 
 Simulate DNA digestion using restriction enzymes and optionally perform size selection.
 
-#### `digestion(dna, *cutsites, size_selection=None, requirement=None, product=None, process_description=None, pd=None)`
+#### `digestion(dna, *cutsites, size_selection=None, requirement=None, product=None, process_name=None, process_description=None, pn=None, pd=None)`
 
 #### Parameters
 
-- **dna**: `QUEEN`  
+- **dna**: `QUEEN object`  
   DNA sequence to be digested. 
 
 - **cutsites**: `Cutsite` or `str`  
@@ -86,9 +104,15 @@ Simulate DNA digestion using restriction enzymes and optionally perform size sel
 - **process_description** or **pd** (`str`, optional)  
   Additional process description.
 
+- **pn** `str`, optional
+  Alias for `process_name`.
+
+- **pd** : `str`, optional
+  Alias for `process_description`.
+
 #### Returns
 
-- list of QUEEN or QUEEN  
+- `list` of `QUEEN objects` or `QUEEN object` 
   If `selection` is None, return list of QUEEN objects composed of the digested fragments.  
   Otherwise, return a specific fragment filling the specified condition.
 
@@ -105,11 +129,11 @@ Simulate DNA digestion using restriction enzymes and optionally perform size sel
 
 Simulate the ligation of DNA fragments into unique or multiple constructs.
 
-#### `ligation(*fragments, unique=True, follow_order=False, product=None, process_description=None, pd=None):`
+#### `ligation(*fragments, unique=True, follow_order=False, product=None, process_name=None, process_description=None, pn=None, pd=None):`
 
 #### Parameters
 
-- **fragments**: `QUEEN object`  
+- **fragments**: `list` of `QUEEN object`  
   DNA fragments to be ligated.
 
 - **unique**: `bool`, optional  
@@ -127,6 +151,12 @@ Simulate the ligation of DNA fragments into unique or multiple constructs.
 
 - **process_description** or **pd** :`str`, optional  
   Additional process description.
+
+- **pn** `str`, optional
+  Alias for `process_name`.
+
+- **pd** : `str`, optional
+  Alias for `process_description`.
 
 #### Returns
 
@@ -156,7 +186,7 @@ The function handles situations where the assembly is not possible or results in
 
 Simulate DNA assembly using homology for various assembly modes.
 
-#### `homology_based_assembly(*fragments, mode="gibson", homology_length=20, unique=True, follow_order=None, product=None, process_description=None, pd=None)`
+#### `homology_based_assembly(*fragments, mode="gibson", homology_length=20, unique=True, follow_order=None, product=None, process_name=None, process_description=None, pn=None, pd=None)`
 
 #### Parameters
 
@@ -177,7 +207,7 @@ Simulate DNA assembly using homology for various assembly modes.
   If the number of given fragments is larger than 4, default is True. Otherwise, False.   
 
 - **product**: `str`, optional  
-  Process name.
+  Product name.
 
 - **process_name** or **pn**:  `str`, optional  
   Brief label for the `homology_based_assembly` process. 
@@ -185,6 +215,13 @@ Simulate DNA assembly using homology for various assembly modes.
 
 - **process_description** or **pd**: `str`, optional  
   Additional description.
+
+- **pn** `str`, optional
+  Alias for `process_name`.
+
+- **pd** : `str`, optional
+  Alias for `process_description`.
+
 
 #### Returns
 
@@ -212,7 +249,7 @@ The function considers different assembly modes, each with its specific requirem
 
 Simulate the annealing of two single-stranded DNA molecules based on homology.
 
-#### `annealing(ssdna1, ssdna2, homology_length=4, product=None, pd=None, process_description=None)`
+#### `annealing(ssdna1, ssdna2, homology_length=4, product=None, process_name=None, process_description=None, pn=None, pd=None)`
 
 #### Parameters
 
@@ -231,6 +268,12 @@ Simulate the annealing of two single-stranded DNA molecules based on homology.
 - **process_description** or **pd**: `str`, optional  
   Additional description.
 
+- **pn** `str`, optional
+  Alias for `process_name`.
+
+- **pd** : `str`, optional
+  Alias for `process_description`.
+
 #### Returns
 
 - `QUEEN object`  
@@ -246,11 +289,77 @@ Simulate the annealing of two single-stranded DNA molecules based on homology.
 
 ---
 
+## Gateway Reaction Simulation 
+
+Simulates a gateway reaction of two DNA molecules. For now, basic `BP` and `LR` reactions are available.  
+
+#### `gateway_reaction(destination, entry, mode="BP", product=None, process_name=None, process_description=None, pn=None, pd=None)`
+
+#### Parameters
+
+- **destination** : `QUEEN object`
+  The destination QUEEN object holding the backbone DNA molecule.
+
+- **entry** : `QUEEN object`
+  The entry QUEEN object holding the insert DNA molecule.
+
+- **mode**: `str`, `tuple`, or `list
+  The mode of the reaction, can be "BP" or "LR". Default is "BP".  
+  For executing a custom BP or LR reaction, please speicy `[B1 or L1 sequence, B1 or L2 sequence, P1 or R1 sequnce, P2 or R2 sequnece]` along with the QUEEN's cutsite format."
+- **process_name** or **pn**:  `str`, optional  
+  Brief label for the `annealing` process. Default is `"Gateway Reaction"`. 
+
+- **process_description** or **pd**: `str`, optional  
+  Additional description.
+
+- **pn** `str`, optional
+  Alias for `process_name`.
+
+- **pd** : `str`, optional
+  Alias for `process_description`.
+
+#### Returns
+
+- `QUEEN object`
+  The QUEEN object representing the result of the gateway reaction process.
+
+## Golden Gate Assembly Simulation 
+
+Simulates a Golden Gate Assembly.
+
+#### Parameters
+
+- **destination** : `QUEEN object`
+  The destination QUEEN object holding the backbone DNA molecule.
+
+- **entry** : `list` of `QUEEN objects`
+  The entry QUEEN object(s) holding the insert DNA molecules.
+
+- **enzyme** : `Cutsite` or `str`
+  The restriction enzyme used for this reaction.    
+
+- **process_name** : str, optional
+  Brief label for the gateway reaction process. Default is "Golden Gate Assembly".
+
+- **process_description** : str, optional
+  Additional description for the gateway reaction process.
+
+- **pn** : str, optional
+  Alias for `process_name`.
+
+- **pd** : str, optional
+  Alias for `process_description`.
+
+#### Returns
+
+- `QUEEN object`
+  The QUEEN object representing the result of the Golden Gate Assembly.
+
 ## Primer Design for PCR Amplification
 
 Design forward and reverse primers for PCR amplification of a target region, allowing for introduction of specific mutations, checking primer specificity, and meeting additional user-defined requirements.
 
-#### `primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, rv_margin=0, target_tm=60.0, tm_func=None, primer_length=(16, 25), design_num=1, fw_adapter=None, rv_adapter=None, homology_length=20, nonspecific_limit=3, requirement=lambda x: x["fw"][-1] not in ("A", "T") and x["rv"][-1] not in ("A", "T"), fw_name="fw_primer", rv_name="rv_primer")`
+#### `primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, rv_margin=0, target_tm=60.0, tm_func=None, primer_length=(16, 25), design_num=1, fw_adapter=None, rv_adapter=None, homology_length=20, nonspecific_limit=3, requirement=None, fw_name="fw_primer", rv_name="rv_primer")`
 
 #### Parameters
 
@@ -304,6 +413,10 @@ Design forward and reverse primers for PCR amplification of a target region, all
   Function that takes a dictionary representing a primer pair and returns True if the pair meets the specified conditions.  
   Ensures that the 3' end nucleotide of both primers is not A or T by default.   
   The detailed default function is `lambda x: x["fw"][-1] not in ("A", "T") and x["rv"][-1] not in ("A", "T")`
+  Default requirement is as follows.
+  	- `x["fw"][-1] not in ("A", "T") and x["rv"][-1] not in ("A", "T")`
+	- `"AAAA" not in x["fw"] and "TTTT" not in x["fw"] and "GGGG" not in x["fw"] and "CCCC" not in x["fw"]`
+	- `"AAAA" not in x["rv"] and "TTTT" not in x["rv"] and "GGGG" not in x["rv"] and "CCCC" not in x["rv"]`
 
 - **fw_name**: `str`, optional  
   Foward primer name, Default is "fw_primer". 

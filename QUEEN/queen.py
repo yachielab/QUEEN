@@ -34,6 +34,7 @@ ligation         = qexperiment.ligation
 homology_based_assembly = qexperiment.homology_based_assembly
 annealing        = qexperiment.annealing
 primerdesign     = qexperiment.primerdesign
+Tm_NN            = qexperiment.Tm_NN
 quine            = quine.quine
 
 

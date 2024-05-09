@@ -2559,8 +2559,8 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
     process_id   = kwargs["process_id"] 
     original_ids = kwargs["original_ids"]
     
-    if dna._ssdna == True:
-        raise TypeError("ssDNA object cannot be processed by `flipdna` function") 
+    #if dna._ssdna == True:
+    #    raise TypeError("ssDNA object cannot be processed by `flipdna` function") 
 
     project = None
     project = project if product is None else product

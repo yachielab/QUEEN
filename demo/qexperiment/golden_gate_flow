@@ -1,0 +1,390 @@
+digraph cluster_operation {
+	rankdir=LR
+	fontname=arial
+	nodesep=0.1
+	ranksep=0.2
+	"195715–0" [label=195715 fontname=Arial margin=0.05 shape=note]
+	"195715_f0" [label="195715_f0" fontname=Arial margin=0.05 shape=box]
+	searchsequence_25 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195715–0" -> searchsequence_25:func [arrowhead=dot]
+	searchsequence_25:func -> "195715_f0"
+	cutdna_26 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195715_f0[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195715_f0[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195715–0" -> cutdna_26:func [arrowhead=dot]
+	"195715_f0" -> cutdna_26:positions_0 [arrowhead=odot]
+	"195715_f0" -> cutdna_26:positions_1 [arrowhead=odot]
+	"195716–0" [label=195716 fontname=Arial margin=0.05 shape=note]
+	"195716_f1" [label="195716_f1" fontname=Arial margin=0.05 shape=box]
+	searchsequence_27 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195716–0" -> searchsequence_27:func [arrowhead=dot]
+	searchsequence_27:func -> "195716_f1"
+	cutdna_28 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195716_f1[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195716_f1[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195716–0" -> cutdna_28:func [arrowhead=dot]
+	"195716_f1" -> cutdna_28:positions_0 [arrowhead=odot]
+	"195716_f1" -> cutdna_28:positions_1 [arrowhead=odot]
+	"195717–0" [label=195717 fontname=Arial margin=0.05 shape=note]
+	"195717_f2" [label="195717_f2" fontname=Arial margin=0.05 shape=box]
+	searchsequence_29 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195717–0" -> searchsequence_29:func [arrowhead=dot]
+	searchsequence_29:func -> "195717_f2"
+	cutdna_30 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195717_f2[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195717_f2[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195717–0" -> cutdna_30:func [arrowhead=dot]
+	"195717_f2" -> cutdna_30:positions_0 [arrowhead=odot]
+	"195717_f2" -> cutdna_30:positions_1 [arrowhead=odot]
+	"195718–0" [label=195718 fontname=Arial margin=0.05 shape=note]
+	"195718_f3" [label="195718_f3" fontname=Arial margin=0.05 shape=box]
+	searchsequence_31 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195718–0" -> searchsequence_31:func [arrowhead=dot]
+	searchsequence_31:func -> "195718_f3"
+	cutdna_32 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195718_f3[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195718_f3[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195718–0" -> cutdna_32:func [arrowhead=dot]
+	"195718_f3" -> cutdna_32:positions_0 [arrowhead=odot]
+	"195718_f3" -> cutdna_32:positions_1 [arrowhead=odot]
+	"195719–0" [label=195719 fontname=Arial margin=0.05 shape=note]
+	"195719_f4" [label="195719_f4" fontname=Arial margin=0.05 shape=box]
+	searchsequence_33 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195719–0" -> searchsequence_33:func [arrowhead=dot]
+	searchsequence_33:func -> "195719_f4"
+	cutdna_34 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195719_f4[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195719_f4[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195719–0" -> cutdna_34:func [arrowhead=dot]
+	"195719_f4" -> cutdna_34:positions_0 [arrowhead=odot]
+	"195719_f4" -> cutdna_34:positions_1 [arrowhead=odot]
+	"195720–0" [label=195720 fontname=Arial margin=0.05 shape=note]
+	"195720_f5" [label="195720_f5" fontname=Arial margin=0.05 shape=box]
+	searchsequence_35 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195720–0" -> searchsequence_35:func [arrowhead=dot]
+	searchsequence_35:func -> "195720_f5"
+	cutdna_36 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195720_f5[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195720_f5[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195720–0" -> cutdna_36:func [arrowhead=dot]
+	"195720_f5" -> cutdna_36:positions_0 [arrowhead=odot]
+	"195720_f5" -> cutdna_36:positions_1 [arrowhead=odot]
+	"195721–0" [label=195721 fontname=Arial margin=0.05 shape=note]
+	"195721_f6" [label="195721_f6" fontname=Arial margin=0.05 shape=box]
+	searchsequence_37 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195721–0" -> searchsequence_37:func [arrowhead=dot]
+	searchsequence_37:func -> "195721_f6"
+	cutdna_38 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195721_f6[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195721_f6[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195721–0" -> cutdna_38:func [arrowhead=dot]
+	"195721_f6" -> cutdna_38:positions_0 [arrowhead=odot]
+	"195721_f6" -> cutdna_38:positions_1 [arrowhead=odot]
+	"195722–0" [label=195722 fontname=Arial margin=0.05 shape=note]
+	"195722_f7" [label="195722_f7" fontname=Arial margin=0.05 shape=box]
+	searchsequence_39 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195722–0" -> searchsequence_39:func [arrowhead=dot]
+	searchsequence_39:func -> "195722_f7"
+	cutdna_40 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195722_f7[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195722_f7[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195722–0" -> cutdna_40:func [arrowhead=dot]
+	"195722_f7" -> cutdna_40:positions_0 [arrowhead=odot]
+	"195722_f7" -> cutdna_40:positions_1 [arrowhead=odot]
+	"195723–0" [label=195723 fontname=Arial margin=0.05 shape=note]
+	"195723_f8" [label="195723_f8" fontname=Arial margin=0.05 shape=box]
+	searchsequence_41 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195723–0" -> searchsequence_41:func [arrowhead=dot]
+	searchsequence_41:func -> "195723_f8"
+	cutdna_42 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195723_f8[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195723_f8[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195723–0" -> cutdna_42:func [arrowhead=dot]
+	"195723_f8" -> cutdna_42:positions_0 [arrowhead=odot]
+	"195723_f8" -> cutdna_42:positions_1 [arrowhead=odot]
+	"195724–0" [label=195724 fontname=Arial margin=0.05 shape=note]
+	"195724_f9" [label="195724_f9" fontname=Arial margin=0.05 shape=box]
+	searchsequence_43 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195724–0" -> searchsequence_43:func [arrowhead=dot]
+	searchsequence_43:func -> "195724_f9"
+	cutdna_44 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195724_f9[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195724_f9[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195724–0" -> cutdna_44:func [arrowhead=dot]
+	"195724_f9" -> cutdna_44:positions_0 [arrowhead=odot]
+	"195724_f9" -> cutdna_44:positions_1 [arrowhead=odot]
+	"195725–0" [label=195725 fontname=Arial margin=0.05 shape=note]
+	"195725_f10" [label="195725_f10" fontname=Arial margin=0.05 shape=box]
+	searchsequence_45 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195725–0" -> searchsequence_45:func [arrowhead=dot]
+	searchsequence_45:func -> "195725_f10"
+	cutdna_46 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195725_f10[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195725_f10[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195725–0" -> cutdna_46:func [arrowhead=dot]
+	"195725_f10" -> cutdna_46:positions_0 [arrowhead=odot]
+	"195725_f10" -> cutdna_46:positions_1 [arrowhead=odot]
+	"195726–0" [label=195726 fontname=Arial margin=0.05 shape=note]
+	"195726_f11" [label="195726_f11" fontname=Arial margin=0.05 shape=box]
+	searchsequence_47 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195726–0" -> searchsequence_47:func [arrowhead=dot]
+	searchsequence_47:func -> "195726_f11"
+	cutdna_48 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195726_f11[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195726_f11[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195726–0" -> cutdna_48:func [arrowhead=dot]
+	"195726_f11" -> cutdna_48:positions_0 [arrowhead=odot]
+	"195726_f11" -> cutdna_48:positions_1 [arrowhead=odot]
+	"195727–0" [label=195727 fontname=Arial margin=0.05 shape=note]
+	"195727_f12" [label="195727_f12" fontname=Arial margin=0.05 shape=box]
+	searchsequence_49 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195727–0" -> searchsequence_49:func [arrowhead=dot]
+	searchsequence_49:func -> "195727_f12"
+	cutdna_50 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195727_f12[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195727_f12[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195727–0" -> cutdna_50:func [arrowhead=dot]
+	"195727_f12" -> cutdna_50:positions_0 [arrowhead=odot]
+	"195727_f12" -> cutdna_50:positions_1 [arrowhead=odot]
+	"195728–0" [label=195728 fontname=Arial margin=0.05 shape=note]
+	"195728_f13" [label="195728_f13" fontname=Arial margin=0.05 shape=box]
+	searchsequence_51 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195728–0" -> searchsequence_51:func [arrowhead=dot]
+	searchsequence_51:func -> "195728_f13"
+	cutdna_52 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195728_f13[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195728_f13[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195728–0" -> cutdna_52:func [arrowhead=dot]
+	"195728_f13" -> cutdna_52:positions_0 [arrowhead=odot]
+	"195728_f13" -> cutdna_52:positions_1 [arrowhead=odot]
+	"195729–0" [label=195729 fontname=Arial margin=0.05 shape=note]
+	"195729_f14" [label="195729_f14" fontname=Arial margin=0.05 shape=box]
+	searchsequence_53 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195729–0" -> searchsequence_53:func [arrowhead=dot]
+	searchsequence_53:func -> "195729_f14"
+	cutdna_54 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195729_f14[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195729_f14[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195729–0" -> cutdna_54:func [arrowhead=dot]
+	"195729_f14" -> cutdna_54:positions_0 [arrowhead=odot]
+	"195729_f14" -> cutdna_54:positions_1 [arrowhead=odot]
+	"195730–0" [label=195730 fontname=Arial margin=0.05 shape=note]
+	"195730_f15" [label="195730_f15" fontname=Arial margin=0.05 shape=box]
+	searchsequence_55 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195730–0" -> searchsequence_55:func [arrowhead=dot]
+	searchsequence_55:func -> "195730_f15"
+	cutdna_56 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195730_f15[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195730_f15[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195730–0" -> cutdna_56:func [arrowhead=dot]
+	"195730_f15" -> cutdna_56:positions_0 [arrowhead=odot]
+	"195730_f15" -> cutdna_56:positions_1 [arrowhead=odot]
+	"195731–0" [label=195731 fontname=Arial margin=0.05 shape=note]
+	"195731_f16" [label="195731_f16" fontname=Arial margin=0.05 shape=box]
+	searchsequence_57 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195731–0" -> searchsequence_57:func [arrowhead=dot]
+	searchsequence_57:func -> "195731_f16"
+	cutdna_58 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195731_f16[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195731_f16[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195731–0" -> cutdna_58:func [arrowhead=dot]
+	"195731_f16" -> cutdna_58:positions_0 [arrowhead=odot]
+	"195731_f16" -> cutdna_58:positions_1 [arrowhead=odot]
+	"195732–0" [label=195732 fontname=Arial margin=0.05 shape=note]
+	"195732_f17" [label="195732_f17" fontname=Arial margin=0.05 shape=box]
+	searchsequence_59 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195732–0" -> searchsequence_59:func [arrowhead=dot]
+	searchsequence_59:func -> "195732_f17"
+	cutdna_60 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195732_f17[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195732_f17[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195732–0" -> cutdna_60:func [arrowhead=dot]
+	"195732_f17" -> cutdna_60:positions_0 [arrowhead=odot]
+	"195732_f17" -> cutdna_60:positions_1 [arrowhead=odot]
+	"195733–0" [label=195733 fontname=Arial margin=0.05 shape=note]
+	"195733_f18" [label="195733_f18" fontname=Arial margin=0.05 shape=box]
+	searchsequence_61 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195733–0" -> searchsequence_61:func [arrowhead=dot]
+	searchsequence_61:func -> "195733_f18"
+	cutdna_62 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195733_f18[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195733_f18[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195733–0" -> cutdna_62:func [arrowhead=dot]
+	"195733_f18" -> cutdna_62:positions_0 [arrowhead=odot]
+	"195733_f18" -> cutdna_62:positions_1 [arrowhead=odot]
+	"195734–0" [label=195734 fontname=Arial margin=0.05 shape=note]
+	"195734_f19" [label="195734_f19" fontname=Arial margin=0.05 shape=box]
+	searchsequence_63 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195734–0" -> searchsequence_63:func [arrowhead=dot]
+	searchsequence_63:func -> "195734_f19"
+	cutdna_64 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195734_f19[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195734_f19[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195734–0" -> cutdna_64:func [arrowhead=dot]
+	"195734_f19" -> cutdna_64:positions_0 [arrowhead=odot]
+	"195734_f19" -> cutdna_64:positions_1 [arrowhead=odot]
+	"195735–0" [label=195735 fontname=Arial margin=0.05 shape=note]
+	"195735_f20" [label="195735_f20" fontname=Arial margin=0.05 shape=box]
+	searchsequence_65 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195735–0" -> searchsequence_65:func [arrowhead=dot]
+	searchsequence_65:func -> "195735_f20"
+	cutdna_66 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195735_f20[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195735_f20[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195735–0" -> cutdna_66:func [arrowhead=dot]
+	"195735_f20" -> cutdna_66:positions_0 [arrowhead=odot]
+	"195735_f20" -> cutdna_66:positions_1 [arrowhead=odot]
+	"195736–0" [label=195736 fontname=Arial margin=0.05 shape=note]
+	"195736_f21" [label="195736_f21" fontname=Arial margin=0.05 shape=box]
+	searchsequence_67 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195736–0" -> searchsequence_67:func [arrowhead=dot]
+	searchsequence_67:func -> "195736_f21"
+	cutdna_68 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195736_f21[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195736_f21[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195736–0" -> cutdna_68:func [arrowhead=dot]
+	"195736_f21" -> cutdna_68:positions_0 [arrowhead=odot]
+	"195736_f21" -> cutdna_68:positions_1 [arrowhead=odot]
+	"195737–0" [label=195737 fontname=Arial margin=0.05 shape=note]
+	"195737_f22" [label="195737_f22" fontname=Arial margin=0.05 shape=box]
+	searchsequence_69 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195737–0" -> searchsequence_69:func [arrowhead=dot]
+	searchsequence_69:func -> "195737_f22"
+	cutdna_70 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195737_f22[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195737_f22[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195737–0" -> cutdna_70:func [arrowhead=dot]
+	"195737_f22" -> cutdna_70:positions_0 [arrowhead=odot]
+	"195737_f22" -> cutdna_70:positions_1 [arrowhead=odot]
+	"195738–0" [label=195738 fontname=Arial margin=0.05 shape=note]
+	"195738_f23" [label="195738_f23" fontname=Arial margin=0.05 shape=box]
+	searchsequence_71 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195738–0" -> searchsequence_71:func [arrowhead=dot]
+	searchsequence_71:func -> "195738_f23"
+	cutdna_72 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195738_f23[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195738_f23[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195738–0" -> cutdna_72:func [arrowhead=dot]
+	"195738_f23" -> cutdna_72:positions_0 [arrowhead=odot]
+	"195738_f23" -> cutdna_72:positions_1 [arrowhead=odot]
+	"195714–0" [label=195714 fontname=Arial margin=0.05 shape=note]
+	"195714_f24" [label="195714_f24" fontname=Arial margin=0.05 shape=box]
+	searchsequence_73 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1"><tr><td port="func" border="1" bgcolor="#66FFCC"><font color="black" point-size="16">searchsequence<b> </b></font></td></tr><tr><td port="query" border="1" align="left"><b> </b><i>query </i> = cs.lib['BsaI'].cutsite</td></tr></table>> fontname=Arial shape=plaintext]
+	"195714–0" -> searchsequence_73:func [arrowhead=dot]
+	searchsequence_73:func -> "195714_f24"
+	cutdna_74 [label=<<table border="0" cellborder="0" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td port="func" rowspan="2" border="1" color="#000000" bgcolor="#FFFDC7" align="center"><font color="black" point-size="16">cutdna</font><b> </b></td><td border="1" color="#000000" bgcolor="#FFFDC7" port="f0">[0]</td></tr><tr><td border="1" color="#00000" bgcolor="#FFFDC7" port="f1">[1]</td></tr></table></td></tr><tr><td port="positions_0" border="1" align="left"><b> </b><i>positions</i>[0] = 195714_f24[0]</td></tr><tr><td port="positions_1" border="1" align="left"><b> </b><i>positions</i>[1] = 195714_f24[1]</td></tr></table>> fontname=Arial shape=plaintext]
+	"195714–0" -> cutdna_74:func [arrowhead=dot]
+	"195714_f24" -> cutdna_74:positions_0 [arrowhead=odot]
+	"195714_f24" -> cutdna_74:positions_1 [arrowhead=odot]
+	joindna_75 [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="0"><tr><td><table cellpadding="0" cellspacing="0" border="0"><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f0"> </td><td port="func" rowspan="25" border="1" color="#FFFDC7" bgcolor="#FFFDC7" align="left"><font color="black" point-size="16">joindna</font><b> </b></td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f1"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f2"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f3"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f4"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f5"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f6"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f7"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f8"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f9"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f10"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f11"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f12"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f13"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f14"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f15"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f16"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f17"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f18"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f19"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f20"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f21"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f22"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f23"> </td></tr><tr><td border="1" color="#FFFDC7" bgcolor="#FFFDC7" port="f24"> </td></tr></table></td></tr><tr><td border="1" align="left" height="20"><b> </b><i>topology </i> = 'circular'<b> </b></td></tr></table>> fontname=Arial margin=0.05 shape=plaintext]
+	cutdna_26:f0 -> joindna_75:f0 [arrowhead=dot]
+	cutdna_28:f0 -> joindna_75:f1 [arrowhead=dot]
+	cutdna_30:f0 -> joindna_75:f2 [arrowhead=dot]
+	cutdna_32:f0 -> joindna_75:f3 [arrowhead=dot]
+	cutdna_34:f0 -> joindna_75:f4 [arrowhead=dot]
+	cutdna_36:f0 -> joindna_75:f5 [arrowhead=dot]
+	cutdna_38:f0 -> joindna_75:f6 [arrowhead=dot]
+	cutdna_40:f0 -> joindna_75:f7 [arrowhead=dot]
+	cutdna_42:f0 -> joindna_75:f8 [arrowhead=dot]
+	cutdna_44:f0 -> joindna_75:f9 [arrowhead=dot]
+	cutdna_46:f0 -> joindna_75:f10 [arrowhead=dot]
+	cutdna_48:f0 -> joindna_75:f11 [arrowhead=dot]
+	cutdna_50:f0 -> joindna_75:f12 [arrowhead=dot]
+	cutdna_52:f0 -> joindna_75:f13 [arrowhead=dot]
+	cutdna_54:f0 -> joindna_75:f14 [arrowhead=dot]
+	cutdna_56:f0 -> joindna_75:f15 [arrowhead=dot]
+	cutdna_58:f0 -> joindna_75:f16 [arrowhead=dot]
+	cutdna_60:f0 -> joindna_75:f17 [arrowhead=dot]
+	cutdna_62:f0 -> joindna_75:f18 [arrowhead=dot]
+	cutdna_64:f0 -> joindna_75:f19 [arrowhead=dot]
+	cutdna_66:f0 -> joindna_75:f20 [arrowhead=dot]
+	cutdna_68:f0 -> joindna_75:f21 [arrowhead=dot]
+	cutdna_70:f0 -> joindna_75:f22 [arrowhead=dot]
+	cutdna_72:f0 -> joindna_75:f23 [arrowhead=dot]
+	cutdna_74:f0 -> joindna_75:f24 [arrowhead=dot]
+	subgraph cluster_0 {
+		style=solid
+		label="Golden Gate Assembly"
+		rankdir=LR
+		searchsequence_25
+		"195715–0"
+		"195715_f0"
+		cutdna_26
+		"195715–0"
+		searchsequence_27
+		"195716–0"
+		"195716_f1"
+		cutdna_28
+		"195716–0"
+		searchsequence_29
+		"195717–0"
+		"195717_f2"
+		cutdna_30
+		"195717–0"
+		searchsequence_31
+		"195718–0"
+		"195718_f3"
+		cutdna_32
+		"195718–0"
+		searchsequence_33
+		"195719–0"
+		"195719_f4"
+		cutdna_34
+		"195719–0"
+		searchsequence_35
+		"195720–0"
+		"195720_f5"
+		cutdna_36
+		"195720–0"
+		searchsequence_37
+		"195721–0"
+		"195721_f6"
+		cutdna_38
+		"195721–0"
+		searchsequence_39
+		"195722–0"
+		"195722_f7"
+		cutdna_40
+		"195722–0"
+		searchsequence_41
+		"195723–0"
+		"195723_f8"
+		cutdna_42
+		"195723–0"
+		searchsequence_43
+		"195724–0"
+		"195724_f9"
+		cutdna_44
+		"195724–0"
+		searchsequence_45
+		"195725–0"
+		"195725_f10"
+		cutdna_46
+		"195725–0"
+		searchsequence_47
+		"195726–0"
+		"195726_f11"
+		cutdna_48
+		"195726–0"
+		searchsequence_49
+		"195727–0"
+		"195727_f12"
+		cutdna_50
+		"195727–0"
+		searchsequence_51
+		"195728–0"
+		"195728_f13"
+		cutdna_52
+		"195728–0"
+		searchsequence_53
+		"195729–0"
+		"195729_f14"
+		cutdna_54
+		"195729–0"
+		searchsequence_55
+		"195730–0"
+		"195730_f15"
+		cutdna_56
+		"195730–0"
+		searchsequence_57
+		"195731–0"
+		"195731_f16"
+		cutdna_58
+		"195731–0"
+		searchsequence_59
+		"195732–0"
+		"195732_f17"
+		cutdna_60
+		"195732–0"
+		searchsequence_61
+		"195733–0"
+		"195733_f18"
+		cutdna_62
+		"195733–0"
+		searchsequence_63
+		"195734–0"
+		"195734_f19"
+		cutdna_64
+		"195734–0"
+		searchsequence_65
+		"195735–0"
+		"195735_f20"
+		cutdna_66
+		"195735–0"
+		searchsequence_67
+		"195736–0"
+		"195736_f21"
+		cutdna_68
+		"195736–0"
+		searchsequence_69
+		"195737–0"
+		"195737_f22"
+		cutdna_70
+		"195737–0"
+		searchsequence_71
+		"195738–0"
+		"195738_f23"
+		cutdna_72
+		"195738–0"
+		searchsequence_73
+		"195714–0"
+		"195714_f24"
+		cutdna_74
+		"195714–0"
+		joindna_75
+	}
+	construct [label=construct fontname=Arial margin=0.05 shape=oval]
+	joindna_75:func -> construct
+}

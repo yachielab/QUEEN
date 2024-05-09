@@ -1,0 +1,98 @@
+LOCUS       Exported                2056 bp    DNA     circular SYN 05-MAY-2024
+DEFINITION  This plasmid carries a fragment from a 24-fragment lacI/lacZ
+            cassette split that was designed as a Golden Gate assembly with high
+            fidelity..
+ACCESSION   195737
+VERSION     195737
+KEYWORDS    pUC57-mini v2-HF24_F23.
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+            .
+REFERENCE   1  (bases 1 to 2056)
+  AUTHORS   Potapov V, Ong JL, Kucera RB, Langhorst BW, Bilotti K, Pryor JM,
+            Cantor EJ, Canton B, Knight TF, Evans TC Jr, Lohman GJS
+  TITLE     Comprehensive Profiling of Four Base Overhang Ligation Fidelity by
+            T4 DNA Ligase and Application to DNA Assembly.
+  JOURNAL   ACS Synth Biol. 2018 Nov 16;7(11):2665-2674. doi:
+            10.1021/acssynbio.8b00333. Epub 2018 Oct 29.
+   PUBMED   30335370
+REFERENCE   2  (bases 1 to 2056)
+  AUTHORS   .
+  TITLE     Direct Submission
+  JOURNAL   Exported Feb 23, 2023 from SnapGene Server 1.1.58
+            http://www.snapgene.com
+FEATURES             Location/Qualifiers
+     source          1..2056
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+     source          1..2056
+                     /label="195737"
+                     /description="Record of building history"
+                     /building_history_17="QUEEN.dna_dict['195737']–=–QUEEN(reco
+                     rd='195737',–dbtype='addgene',–project='195737')"
+                     /building_history_17=""
+                     /building_history_17="195737-4B10NAJ49381F5COT23TL38H"
+     rep_origin      complement(301..889)
+                     /direction=LEFT
+                     /label="ori"
+                     /note="high-copy-number ColE1/pMB1/pBR322/pUC origin of
+                     replication"
+     primer_bind     complement(381..400)
+                     /label="pBR322ori-F"
+                     /note="pBR322 origin, forward primer"
+     CDS             complement(1060..1920)
+                     /codon_start=1
+                     /gene="bla"
+                     /product="beta-lactamase"
+                     /label="AmpR"
+                     /note="confers resistance to ampicillin, carbenicillin, and
+                     related antibiotics"
+                     /translation="MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYI
+                     ELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYS
+                     PVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRW
+                     EPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSA
+                     LPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGAS
+                     LIKHW"
+     primer_bind     1683..1702
+                     /label="Amp-R"
+                     /note="Ampicillin resistance gene, reverse primer"
+     promoter        complement(1921..2025)
+                     /gene="bla"
+                     /label="AmpR promoter"
+ORIGIN
+        1 ccaatgatgg tctcagtctc actggtgaaa agaaaaacca ccctggcgcc caatacgcaa
+       61 accgcctctc cccgcgcgtt ggccgattca ttaatgcagc tggcacgaca ggtttcccga
+      121 ctggaaagcg ggcagtgagc gcaacgcaat taatgtaagt tagctcactc attaggcacc
+      181 gggatctcga ccgatgccct tgagagcctt caacccagtc agcgagacca tcggaaagaa
+      241 catgtgagca aaaggccagc aaaaggccag gaaccgtaaa aaggccgcgt tgctggcgtt
+      301 tttccatagg ctccgccccc ctgacgagca tcacaaaaat cgacgctcaa gtcagaggtg
+      361 gcgaaacccg acaggactat aaagatacca ggcgtttccc cctggaagct ccctcgtgcg
+      421 ctctcctgtt ccgaccctgc cgcttaccgg atacctgtcc gcctttctcc cttcgggaag
+      481 cgtggcgctt tctcatagct cacgctgtag gtatctcagt tcggtgtagg tcgttcgctc
+      541 caagctgggc tgtgtgcacg aaccccccgt tcagcccgac cgctgcgcct tatccggtaa
+      601 ctatcgtctt gagtccaacc cggtaagaca cgacttatcg ccactggcag cagccactgg
+      661 taacaggatt agcagagcga ggtatgtagg cggtgctaca gagttcttga agtggtggcc
+      721 taactacggc tacactagaa gaacagtatt tggtatctgc gctctgctga agccagttac
+      781 cttcggaaaa agagttggta gctcttgatc cggcaaacaa accaccgctg gtagcggtgg
+      841 tttttttgtt tgcaagcagc agattacgcg cagaaaaaaa ggatctcaag aagatccttt
+      901 gatcttttct acggggtctg acgctcagtg gaacgaaaac tcacgttaag ggattttggt
+      961 catgagatta tcaaaaagga tcttcaccta gatcctttta aattaaaaat gaagttttaa
+     1021 atcaatctaa agtatatatg agtaaacttg gtctgacagt taccaatgct taatcagtga
+     1081 ggcacctatc tcagcgatct gtctatttcg ttcatccata gttgcctgac tccccgtcgt
+     1141 gtagataact acgatacggg agggcttacc atctggcccc agtgctgcaa tgataccgcg
+     1201 agatccacgc tcaccggctc cagatttatc agcaataaac cagccagccg gaagggccga
+     1261 gcgcagaagt ggtcctgcaa ctttatccgc ctccatccag tctattaatt gttgccggga
+     1321 agctagagta agtagttcgc cagttaatag tttgcgcaac gttgttgcca ttgctacagg
+     1381 catcgtggtg tcacgctcgt cgtttggtat ggcttcattc agctccggtt cccaacgatc
+     1441 aaggcgagtt acatgatccc ccatgttgtg caaaaaagcg gttagctcct tcggtcctcc
+     1501 gatcgttgtc agaagtaagt tggccgcagt gttatcactc atggttatgg cagcactgca
+     1561 taattctctt actgtcatgc catccgtaag atgcttttct gtgactggtg agtactcaac
+     1621 caagtcattc tgagaatagt gtatgcggcg accgagttgc tcttgcccgg cgtcaatacg
+     1681 ggataatacc gcgccacata gcagaacttt aaaagtgctc atcattggaa aacgttcttc
+     1741 ggggcgaaaa ctctcaagga tcttaccgct gttgagatcc agttcgatgt aacccactcg
+     1801 tgcacccaac tgatcttcag catcttttac tttcaccagc gtttctgggt gagcaaaaac
+     1861 aggaaggcaa aatgccgcaa aaaagggaat aagggcgaca cggaaatgtt gaatactcat
+     1921 actcttcctt tttcaatatt attgaagcat ttatcagggt tattgtctca tgagcggata
+     1981 catatttgaa tgtatttaga aaaataaaca aataggggtt ccgcgcacat ttccccgaaa
+     2041 agtgccacct gacgtc
+//

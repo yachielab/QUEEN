@@ -1,0 +1,305 @@
+LOCUS       gateway_construct       3261 bp    DNA     circular UNK 07-MAY-2024
+DEFINITION  .
+ACCESSION   gateway_construct
+VERSION     gateway_construct
+KEYWORDS    .
+SOURCE      .
+  ORGANISM  .
+            .
+FEATURES             Location/Qualifiers
+     source          1..3261
+                     /building_history_3="QUEEN.dna_dict['mEGFP']–=–QUEEN(record
+                     ='https://benchling.com/s/seq-xhW4nsjXvwWqCPBKAVgk?m=slm-6T
+                     V0zj2Jo38Zdyb1cjtm',–dbtype='benchling',–project='mEGFP')"
+                     /building_history_3=""
+                     /building_history_3="gateway_construct-53HABD5ZR8T5DYTP0LS7
+                     VE3J"
+                     /building_history_166="QUEEN.queried_features_dict['mEGFP_f
+                     0']–=–QUEEN.dna_dict['mEGFP'].searchsequence(query='(?:GAGC
+                     AAGGGCGAGG){s<=1}AGC',–process_name='PCR')"
+                     /building_history_166="query:
+                     '(?:GAGCAAGGGCGAGG){s<=1}AGC'"
+                     /building_history_166="gateway_construct-B8KU28PCTP9VE8K7O2
+                     PEL829"
+                     /building_history_167="QUEEN.queried_features_dict['mEGFP_f
+                     1']–=–QUEEN.dna_dict['mEGFP'].searchsequence(query='(?:AGCT
+                     CGTCCATGCC){s<=1}GAG',–process_name='PCR')"
+                     /building_history_167="query:
+                     '(?:AGCTCGTCCATGCC){s<=1}GAG'"
+                     /building_history_167="gateway_construct-DE1JXIJK8Y6S60CM0T
+                     SN6YCU"
+                     /building_history_168="QUEEN.dna_dict['mEGFP_2']–=–cropdna(
+                     QUEEN.dna_dict['mEGFP'],–start=QUEEN.queried_features_dict[
+                     'mEGFP_f0'][0].end,–end=QUEEN.queried_features_dict['mEGFP_
+                     f1'][0].start,–process_name='PCR')"
+                     /building_history_168="start: 22; end: 693"
+                     /building_history_168="gateway_construct-XT5MQN10XR7K8HCIE3
+                     G7PS5V"
+                     /building_history_4="QUEEN.dna_dict['fw_primer']–=–QUEEN(se
+                     q='GGGGACAAGTTTGTACAAAAAAGCAGGCTATGGTGAGCAAGGGCGAGGAGC',–ss
+                     dna='True',–product='fw_primer')"
+                     /building_history_4=""
+                     /building_history_4="gateway_construct-3P8SYZFC7PDSDTPR93HF
+                     8TCA"
+                     /building_history_85="QUEEN.dna_dict['rv_primer']–=–QUEEN(s
+                     eq='GGGGACCACTTTGTACAAGAAAGCTGGGTCTTGTACAGCTCGTCCATGCCGAG',
+                     –ssdna='True',–product='rv_primer')"
+                     /building_history_85=""
+                     /building_history_85="gateway_construct-4DGP3C38SWQO82K1EKH
+                     L6S6O"
+                     /building_history_169="QUEEN.dna_dict['egfp_amplicon']–=–mo
+                     difyends(QUEEN.dna_dict['mEGFP_2'],–left=QUEEN.dna_dict['fw
+                     _primer'].seq,–right=QUEEN.dna_dict['rv_primer'].rcseq,qexp
+                     aram=""pcr(QUEEN.dna_dict['mEGFP'],–QUEEN.dna_dict['fw_prim
+                     er'],–QUEEN.dna_dict['rv_primer'],–bindnum=16,–mismatch=1,–
+                     endlegth=3,–return_template=False)"",–product='egfp_amplico
+                     n',–process_name='PCR')"
+                     /building_history_169="left:
+                     GGGGACAAGTTTGTACAAAAAAGCAGGCTATGGTGAGCAAGGGCGAGGAGC; right:
+                     CTCGGCATGGACGAGCTGTACAAGACCCAGCTTTCTTGTACAAAGTGGTCCCC;
+                     leftobj: QUEEN.dna_dict['fw_primer'].seq; rightobj:
+                     QUEEN.dna_dict['rv_primer'].rcseq"
+                     /building_history_169="gateway_construct-8AJSBHBR8AJXCKVDWC
+                     X0V3HV"
+                     /building_history_170="QUEEN.queried_features_dict['egfp_am
+                     plicon_f2']–=–QUEEN.dna_dict['egfp_amplicon'].searchsequenc
+                     e(query=cs.lib['attX1'].cutsite,–product='attB1_site',–proc
+                     ess_name='Gateway–Reaction')"
+                     /building_history_170="query: cs.lib['attX1'].cutsite"
+                     /building_history_170="gateway_construct-1RKIP0L9G9SJ6ZC107
+                     MHXUBF"
+                     /building_history_171="QUEEN.queried_features_dict['egfp_am
+                     plicon_f3']–=–QUEEN.dna_dict['egfp_amplicon'].searchsequenc
+                     e(query=cs.lib['attX2'].cutsite,–product='attB2_site',–proc
+                     ess_name='Gateway–Reaction')"
+                     /building_history_171="query: cs.lib['attX2'].cutsite"
+                     /building_history_171="gateway_construct-CKDSAPEQ91UT5J3XU6
+                     J2575Z"
+                     /building_history_174="QUEEN.dna_dict['egfp_amplicon_0']–=–
+                     cropdna(QUEEN.dna_dict['egfp_amplicon'],–start=QUEEN.querie
+                     d_features_dict['egfp_amplicon_f2'][0],–end=QUEEN.queried_f
+                     eatures_dict['egfp_amplicon_f3'][0],–process_name='Gateway–
+                     Reaction')"
+                     /building_history_174="start: '12/19'; end: '756/763'"
+                     /building_history_174="gateway_construct-62EAYXAHWX2EEY0CRI
+                     HBW2EB"
+                     /building_history_2="QUEEN.dna_dict['pDONR221']–=–QUEEN(rec
+                     ord='https://benchling.com/s/seq-firszn2z0eHWgzfdus5c?m=slm
+                     -5OmpvGSHNeTHKTNA1H67',–dbtype='benchling',–project='pDONR2
+                     21')"
+                     /building_history_2=""
+                     /building_history_2="gateway_construct-8J0VRBE944367MN5N30C
+                     FOAI"
+                     /building_history_172="QUEEN.queried_features_dict['pDONR22
+                     1_f4']–=–QUEEN.dna_dict['pDONR221'].searchsequence(query=cs
+                     .lib['attY1'].cutsite,–product='attP1_site',–process_name='
+                     Gateway–Reaction')"
+                     /building_history_172="query: cs.lib['attY1'].cutsite"
+                     /building_history_172="gateway_construct-D4B8W57QX2XQ9ULOUS
+                     IOAU5P"
+                     /building_history_173="QUEEN.queried_features_dict['pDONR22
+                     1_f5']–=–QUEEN.dna_dict['pDONR221'].searchsequence(query=cs
+                     .lib['attY2'].cutsite,–product='attP1_site',–process_name='
+                     Gateway–Reaction')"
+                     /building_history_173="query: cs.lib['attY2'].cutsite"
+                     /building_history_173="gateway_construct-DMF1XL4LVFSACGQV7I
+                     S7EM2W"
+                     /building_history_175="QUEEN.dna_dict['pDONR221_0']–=–cropd
+                     na(QUEEN.dna_dict['pDONR221'],–start=QUEEN.queried_features
+                     _dict['pDONR221_f5'][0],–end=QUEEN.queried_features_dict['p
+                     DONR221_f4'][0],–process_name='Gateway–Reaction')"
+                     /building_history_175="start: '2895/2902'; end: '651/658'"
+                     /building_history_175="gateway_construct-EYS0MYPUS8EZEY0CRI
+                     HBW2EB"
+                     /building_history_176="QUEEN.dna_dict['gateway_construct']–
+                     =–joindna(*[QUEEN.dna_dict['egfp_amplicon_0'],–QUEEN.dna_di
+                     ct['pDONR221_0']],–topology='circular',–compatibility='comp
+                     lete',–autoflip=False,qexparam=""gateway_reaction(QUEEN.dna
+                     _dict['pDONR221'],–QUEEN.dna_dict['egfp_amplicon'],–mode='B
+                     P')"",–product='gateway_construct',–process_name='Gateway–R
+                     eaction')"
+                     /building_history_176="topology: circular"
+                     /building_history_176="gateway_construct-A5AG8F4N3YO62OILW0
+                     C8H2H5"
+     source          1..658
+                     /label="source"
+                     /ApEinfo_revcolor="#ff9ccd"
+                     /ApEinfo_fwdcolor="#ff9ccd"
+                     /note="organism: synthetic DNA construct lab_host:
+                     Escherichia coli mol_type: other DNA"
+                     /broken_feature="pDONR221:0:4761:-:0..4761:1..658"
+     terminator      268..295
+                     /label="rrnB T2 terminator"
+                     /ApEinfo_revcolor="#f58a5e"
+                     /ApEinfo_fwdcolor="#f58a5e"
+                     /note="note: transcription terminator T2 from the E. coli
+                     rrnB gene"
+     terminator      387..473
+                     /label="rrnB T1 terminator"
+                     /ApEinfo_revcolor="#9eafd2"
+                     /ApEinfo_fwdcolor="#9eafd2"
+                     /note="gene: Escherichia coli rrnB note: transcription
+                     terminator T1 from the E. coli rrnB gene"
+     primer_bind     537..553
+                     /label="M13 fwd"
+                     /ApEinfo_revcolor="#75c6a9"
+                     /ApEinfo_fwdcolor="#75c6a9"
+                     /note="note: common sequencing primer, one of multiple
+                     similar variants"
+     protein_bind    570..658
+                     /label="attP1"
+                     /ApEinfo_revcolor="#85dae9"
+                     /ApEinfo_fwdcolor="#85dae9"
+                     /note="gene: mutant version of attP bound_moiety: BP
+                     Clonase(TM) note: recombination site for the Gateway(R) BP
+                     reaction (pDONR(TM)221 version)"
+                     /broken_feature="pDONR221:400:232:AAATAATGATTTTATTTTGACTGAT
+                     AGTGACCTGTTCGTTGCAACAAATTGATGAGCAATGCTTTTTTATAATGCCAACTTTGT
+                     ACAAAAAAGCTGAACGAGAAACGTAAAATGATATAAATATCAATATATTAAATTAGATT
+                     TTGCATAAAAAACAGACTACATAATACTGTAAAACACAACATATCCAGTCACTATGAAT
+                     CAACTACTTAGATGGTATTAGTGACCTGTA:569..801:1..89"
+     misc_feature    652..690
+                     /label="fw_primer"
+                     /broken_feature="egfp_amplicon:1:51:GGGGACAAGTTTGTACAAAAAAG
+                     CAGGCTATGGTGAGCAAGGGCGAGGAGC:0..51:13..51"
+     source          691..1361
+                     /label="source"
+                     /ApEinfo_revcolor="#ffef86"
+                     /ApEinfo_fwdcolor="#ffef86"
+                     /mol_type="other DNA"
+                     /organism="synthetic DNA construct"
+                     /broken_feature="mEGFP:0:720:-:0..720:23..693"
+     CDS             691..1361
+                     /label="mEGFP"
+                     /ApEinfo_revcolor="#84b0dc"
+                     /ApEinfo_fwdcolor="#84b0dc"
+                     /note="mammalian codon-optimized"
+                     /note="This feature has 3 segments:1: 1 .. 3 / #05fd142: 4
+                     .. 6 / #05fd14 / 1a3: 7 .. 720 / #05fd14"
+                     /product="EGFP rendered monomeric by the A206K mutation
+                     (Zacharias et al., 2002)"
+                     /broken_feature="mEGFP:100:720:ATGGTGAGCAAGGGCGAGGAGCTGTTCA
+                     CCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAAGTTCAGC
+                     GTGTCCGGCGAGGGCGAGGGCGATGCCACCTACGGCAAGCTGACCCTGAAGTTCATCTG
+                     CACCACCGGCAAGCTGCCCGTGCCCTGGCCCACCCTCGTGACCACCCTGACCTACGGCG
+                     TGCAGTGCTTCAGCCGCTACCCCGACCACATGAAGCAGCACGACTTCTTCAAGTCCGCC
+                     ATGCCCGAAGGCTACGTCCAGGAGCGCACCATCTTCTTCAAGGACGACGGCAACTACAA
+                     GACCCGCGCCGAGGTGAAGTTCGAGGGCGACACCCTGGTGAACCGCATCGAGCTGAAGG
+                     GCATCGACTTCAAGGAGGACGGCAACATCCTGGGGCACAAGCTGGAGTACAACTACAAC
+                     AGCCACAACGTCTATATCATGGCCGACAAGCAGAAGAACGGCATCAAGGTGAACTTCAA
+                     GATCCGCCACAACATCGAGGACGGCAGCGTGCAGCTCGCCGACCACTACCAGCAGAACA
+                     CCCCCATCGGCGACGGCCCCGTGCTGCTGCCCGACAACCACTACCTGAGCACCCAGTCC
+                     AAGCTGAGCAAAGACCCCAACGAGAAGCGCGATCACATGGTCCTGCTGGAGTTCGTGAC
+                     CGCCGCCGGGATCACTCTCGGCATGGACGAGCTGTACAAGTAA:0..720:23..693"
+     misc_feature    complement(1362..1402)
+                     /label="rv_primer"
+                     /broken_feature="egfp_amplicon:300:53:GGGGACCACTTTGTACAAGAA
+                     AGCTGGGTCTTGTACAGCTCGTCCATGCCGAG:722..775:53..13"
+     source          1396..3261
+                     /label="source"
+                     /ApEinfo_revcolor="#ff9ccd"
+                     /ApEinfo_fwdcolor="#ff9ccd"
+                     /note="organism: synthetic DNA construct lab_host:
+                     Escherichia coli mol_type: other DNA"
+                     /broken_feature="pDONR221:0:4761:-:0..4761:2896..4761"
+     protein_bind    complement(1396..1484)
+                     /label="attP2"
+                     /ApEinfo_revcolor="#75c6a9"
+                     /ApEinfo_fwdcolor="#75c6a9"
+                     /note="gene: mutant version of attP bound_moiety: BP
+                     Clonase(TM) note: recombination site for the Gateway(R) BP
+                     reaction (pDONR(TM)221 version)"
+                     /broken_feature="pDONR221:1000:232:AAATAATGATTTTATTTTGACTGA
+                     TAGTGACCTGTTCGTTGCAACAAATTGATAAGCAATGCTTTCTTATAATGCCAACTTTG
+                     TACAAGAAAGCTGAACGAGAAACGTAAAATGATATAAATATCAATATATTAAATTAGAT
+                     TTTGCATAAAAAACAGACTACATAATACTGTAAAACACAACATATCCAGTCACTATGAA
+                     TCAACTACTTAGATGGTATTAGTGACCTGTA:2752..2984:89..1"
+     primer_bind     complement(1526..1542)
+                     /label="M13 rev"
+                     /ApEinfo_revcolor="#f58a5e"
+                     /ApEinfo_fwdcolor="#f58a5e"
+                     /note="note: common sequencing primer, one of multiple
+                     similar variants"
+     CDS             1655..2464
+                     /label="KanR"
+                     /ApEinfo_revcolor="#c6c9d1"
+                     /ApEinfo_fwdcolor="#c6c9d1"
+                     /note="gene: aph(3')-Ia product: aminoglycoside
+                     phosphotransferase note: confers resistance to kanamycin in
+                     bacteria or G418 (Geneticin(R)) in eukaryotes translation:
+                     MSHIQRETSRPRLNSNMDADLYGYKWARDNVGQSGATIYRLYGKPDAPELFLKHGKGSV
+                     ANDVTDEMVRLNWLTEFMPLPTIKHFIRTPDDAWLLTTAIPGKTAFQVLEEYPDSGENI
+                     VDALAVFLRRLHSIPVCNCPFNSDRVFRLAQAQSRMNNGLVDASDFDDERNGWPVEQVW
+                     KEMHKLLPFSPDSVVTHGDFSLDNLIFDEGKLIGCIDVGRVGIADRYQDLAILWNCLGE
+                     FSPSLQKRLFQKYGIDNPDMNKLQFHLMLDEFF"
+     CDS             1655..2464
+                     /ApEinfo_revcolor="#84b0dc"
+                     /ApEinfo_fwdcolor="#84b0dc"
+                     /translation="MSHIQRETSRPRLNSNMDADLYGYKWARDNVGQSGATIYRLYGKP
+                     DAPELFLKHGKGSVANDVTDEMVRLNWLTEFMPLPTIKHFIRTPDDAWLLTTAIPGKTA
+                     FQVLEEYPDSGENIVDALAVFLRRLHSIPVCNCPFNSDRVFRLAQAQSRMNNGLVDASD
+                     FDDERNGWPVEQVWKEMHKLLPFSPDSVVTHGDFSLDNLIFDEGKLIGCIDVGRVGIAD
+                     RYQDLAILWNCLGEFSPSLQKRLFQKYGIDNPDMNKLQFHLMLDEFF*"
+     rep_origin      2611..3199
+                     /label="ori"
+                     /ApEinfo_revcolor="#b1ff67"
+                     /ApEinfo_fwdcolor="#b1ff67"
+                     /note="direction: RIGHT note: high-copy-number
+                     ColE1/pMB1/pBR322/pUC origin of replication"
+ORIGIN
+        1 ctttcctgcg ttatcccctg attctgtgga taaccgtatt accgcctttg agtgagctga
+       61 taccgctcgc cgcagccgaa cgaccgagcg cagcgagtca gtgagcgagg aagcggaaga
+      121 gcgcccaata cgcaaaccgc ctctccccgc gcgttggccg attcattaat gcagctggca
+      181 cgacaggttt cccgactgga aagcgggcag tgagcgcaac gcaattaata cgcgtaccgc
+      241 tagccaggaa gagtttgtag aaacgcaaaa aggccatccg tcaggatggc cttctgctta
+      301 gtttgatgcc tggcagttta tggcgggcgt cctgcccgcc accctccggg ccgttgcttc
+      361 acaacgttca aatccgctcc cggcggattt gtcctactca ggagagcgtt caccgacaaa
+      421 caacagataa aacgaaaggc ccagtcttcc gactgagcct ttcgttttat ttgatgcctg
+      481 gcagttccct actctcgcgt taacgctagc atggatgttt tcccagtcac gacgttgtaa
+      541 aacgacggcc agtcttaagc tcgggcccca aataatgatt ttattttgac tgatagtgac
+      601 ctgttcgttg caacaaattg atgagcaatg cttttttata atgccaactt tgtacaaaaa
+      661 agcaggctat ggtgagcaag ggcgaggagc tgttcaccgg ggtggtgccc atcctggtcg
+      721 agctggacgg cgacgtaaac ggccacaagt tcagcgtgtc cggcgagggc gagggcgatg
+      781 ccacctacgg caagctgacc ctgaagttca tctgcaccac cggcaagctg cccgtgccct
+      841 ggcccaccct cgtgaccacc ctgacctacg gcgtgcagtg cttcagccgc taccccgacc
+      901 acatgaagca gcacgacttc ttcaagtccg ccatgcccga aggctacgtc caggagcgca
+      961 ccatcttctt caaggacgac ggcaactaca agacccgcgc cgaggtgaag ttcgagggcg
+     1021 acaccctggt gaaccgcatc gagctgaagg gcatcgactt caaggaggac ggcaacatcc
+     1081 tggggcacaa gctggagtac aactacaaca gccacaacgt ctatatcatg gccgacaagc
+     1141 agaagaacgg catcaaggtg aacttcaaga tccgccacaa catcgaggac ggcagcgtgc
+     1201 agctcgccga ccactaccag cagaacaccc ccatcggcga cggccccgtg ctgctgcccg
+     1261 acaaccacta cctgagcacc cagtccaagc tgagcaaaga ccccaacgag aagcgcgatc
+     1321 acatggtcct gctggagttc gtgaccgccg ccgggatcac tctcggcatg gacgagctgt
+     1381 acaagaccca gctttcttgt acaaagttgg cattataaga aagcattgct tatcaatttg
+     1441 ttgcaacgaa caggtcacta tcagtcaaaa taaaatcatt atttgccatc cagctgatat
+     1501 cccctatagt gagtcgtatt acatggtcat agctgtttcc tggcagctct ggcccgtgtc
+     1561 tcaaaatctc tgatgttaca ttgcacaaga taaaaatata tcatcatgaa caataaaact
+     1621 gtctgcttac ataaacagta atacaagggg tgttatgagc catattcaac gggaaacgtc
+     1681 gaggccgcga ttaaattcca acatggatgc tgatttatat gggtataaat gggctcgcga
+     1741 taatgtcggg caatcaggtg cgacaatcta tcgcttgtat gggaagcccg atgcgccaga
+     1801 gttgtttctg aaacatggca aaggtagcgt tgccaatgat gttacagatg agatggtcag
+     1861 actaaactgg ctgacggaat ttatgcctct tccgaccatc aagcatttta tccgtactcc
+     1921 tgatgatgca tggttactca ccactgcgat ccccggaaaa acagcattcc aggtattaga
+     1981 agaatatcct gattcaggtg aaaatattgt tgatgcgctg gcagtgttcc tgcgccggtt
+     2041 gcattcgatt cctgtttgta attgtccttt taacagcgat cgcgtatttc gtctcgctca
+     2101 ggcgcaatca cgaatgaata acggtttggt tgatgcgagt gattttgatg acgagcgtaa
+     2161 tggctggcct gttgaacaag tctggaaaga aatgcataaa cttttgccat tctcaccgga
+     2221 ttcagtcgtc actcatggtg atttctcact tgataacctt atttttgacg aggggaaatt
+     2281 aataggttgt attgatgttg gacgagtcgg aatcgcagac cgataccagg atcttgccat
+     2341 cctatggaac tgcctcggtg agttttctcc ttcattacag aaacggcttt ttcaaaaata
+     2401 tggtattgat aatcctgata tgaataaatt gcagtttcat ttgatgctcg atgagttttt
+     2461 ctaatcagaa ttggttaatt ggttgtaaca ctggcagagc attacgctga cttgacggga
+     2521 cggcgcaagc tcatgaccaa aatcccttaa cgtgagttac gcgtcgttcc actgagcgtc
+     2581 agaccccgta gaaaagatca aaggatcttc ttgagatcct ttttttctgc gcgtaatctg
+     2641 ctgcttgcaa acaaaaaaac caccgctacc agcggtggtt tgtttgccgg atcaagagct
+     2701 accaactctt tttccgaagg taactggctt cagcagagcg cagataccaa atactgttct
+     2761 tctagtgtag ccgtagttag gccaccactt caagaactct gtagcaccgc ctacatacct
+     2821 cgctctgcta atcctgttac cagtggctgc tgccagtggc gataagtcgt gtcttaccgg
+     2881 gttggactca agacgatagt taccggataa ggcgcagcgg tcgggctgaa cggggggttc
+     2941 gtgcacacag cccagcttgg agcgaacgac ctacaccgaa ctgagatacc tacagcgtga
+     3001 gctatgagaa agcgccacgc ttcccgaagg gagaaaggcg gacaggtatc cggtaagcgg
+     3061 cagggtcgga acaggagagc gcacgaggga gcttccaggg ggaaacgcct ggtatcttta
+     3121 tagtcctgtc gggtttcgcc acctctgact tgagcgtcga tttttgtgat gctcgtcagg
+     3181 ggggcggagc ctatggaaaa acgccagcaa cgcggccttt ttacggttcc tggccttttg
+     3241 ctggcctttt gctcacatgt t
+//

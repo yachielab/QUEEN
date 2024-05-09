@@ -1,0 +1,123 @@
+LOCUS       Exported                2144 bp    DNA     circular SYN 05-MAY-2024
+DEFINITION  This plasmid carries a fragment from a 24-fragment lacI/lacZ
+            cassette split that was designed as a Golden Gate assembly with high
+            fidelity..
+ACCESSION   195729
+VERSION     195729
+KEYWORDS    pUC57-mini v2-HF24_F15.
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+            .
+REFERENCE   1  (bases 1 to 2144)
+  AUTHORS   Potapov V, Ong JL, Kucera RB, Langhorst BW, Bilotti K, Pryor JM,
+            Cantor EJ, Canton B, Knight TF, Evans TC Jr, Lohman GJS
+  TITLE     Comprehensive Profiling of Four Base Overhang Ligation Fidelity by
+            T4 DNA Ligase and Application to DNA Assembly.
+  JOURNAL   ACS Synth Biol. 2018 Nov 16;7(11):2665-2674. doi:
+            10.1021/acssynbio.8b00333. Epub 2018 Oct 29.
+   PUBMED   30335370
+REFERENCE   2  (bases 1 to 2144)
+  AUTHORS   .
+  TITLE     Direct Submission
+  JOURNAL   Exported Feb 23, 2023 from SnapGene Server 1.1.58
+            http://www.snapgene.com
+FEATURES             Location/Qualifiers
+     source          1..2144
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+     source          1..2144
+                     /label="195729"
+                     /description="Record of building history"
+                     /building_history_15="QUEEN.dna_dict['195729']–=–QUEEN(reco
+                     rd='195729',–dbtype='addgene',–project='195729')"
+                     /building_history_15=""
+                     /building_history_15="195729-2FTGUCNL4QQ27L0V33HUVBZL"
+     primer_bind     89..111
+                     /label="M13/pUC Forward"
+                     /note="In lacZ gene"
+     primer_bind     103..120
+                     /label="M13 Forward"
+                     /note="In lacZ gene. Also called M13-F20 or M13 (-21)
+                     Forward"
+     primer_bind     104..120
+                     /label="M13 fwd"
+                     /note="common sequencing primer, one of multiple similar
+                     variants"
+     RBS             148..170
+                     /note="efficient ribosome binding site from bacteriophage
+                     T7 gene 10 (Olins and Rangwala, 1989)"
+     protein_bind    185..209
+                     /label="lac operator"
+                     /bound_moiety="lac repressor encoded by lacI"
+                     /note="The lac repressor binds to the lac operator to
+                     inhibit transcription in E. coli. This inhibition can be
+                     relieved by adding lactose or
+                     isopropyl-beta-D-thiogalactopyranoside (IPTG)."
+     promoter        complement(213..243)
+                     /label="lac promoter"
+                     /note="promoter for the E. coli lac operon"
+     rep_origin      complement(389..977)
+                     /direction=LEFT
+                     /label="ori"
+                     /note="high-copy-number ColE1/pMB1/pBR322/pUC origin of
+                     replication"
+     primer_bind     complement(469..488)
+                     /label="pBR322ori-F"
+                     /note="pBR322 origin, forward primer"
+     CDS             complement(1148..2008)
+                     /codon_start=1
+                     /gene="bla"
+                     /product="beta-lactamase"
+                     /label="AmpR"
+                     /note="confers resistance to ampicillin, carbenicillin, and
+                     related antibiotics"
+                     /translation="MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYI
+                     ELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYS
+                     PVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRW
+                     EPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSA
+                     LPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGAS
+                     LIKHW"
+     primer_bind     1771..1790
+                     /label="Amp-R"
+                     /note="Ampicillin resistance gene, reverse primer"
+     promoter        complement(2009..2113)
+                     /gene="bla"
+                     /label="AmpR promoter"
+ORIGIN
+        1 ccaatgatgg tctcgtcttc gctattacgc cagctggcga aagggggatg tgctgcaagg
+       61 cgattaagtt gggtaacgcc agggttttcc cagtcacgac gttgtaaaac gacggccagt
+      121 gaatccgtaa tcatggtcat atgtatatct ccttcttaaa gttaaacaaa attatttcta
+      181 gaggggaatt gttatccgct cacaattcca cacaacatac gagccggaag cataaagtgt
+      241 aaagcctggg atcgagatct cgatcctcta cgccggacgc atcgtggccg gcatcaccgg
+      301 cgccacaggt cgagaccatc ggaaagaaca tgtgagcaaa aggccagcaa aaggccagga
+      361 accgtaaaaa ggccgcgttg ctggcgtttt tccataggct ccgcccccct gacgagcatc
+      421 acaaaaatcg acgctcaagt cagaggtggc gaaacccgac aggactataa agataccagg
+      481 cgtttccccc tggaagctcc ctcgtgcgct ctcctgttcc gaccctgccg cttaccggat
+      541 acctgtccgc ctttctccct tcgggaagcg tggcgctttc tcatagctca cgctgtaggt
+      601 atctcagttc ggtgtaggtc gttcgctcca agctgggctg tgtgcacgaa ccccccgttc
+      661 agcccgaccg ctgcgcctta tccggtaact atcgtcttga gtccaacccg gtaagacacg
+      721 acttatcgcc actggcagca gccactggta acaggattag cagagcgagg tatgtaggcg
+      781 gtgctacaga gttcttgaag tggtggccta actacggcta cactagaaga acagtatttg
+      841 gtatctgcgc tctgctgaag ccagttacct tcggaaaaag agttggtagc tcttgatccg
+      901 gcaaacaaac caccgctggt agcggtggtt tttttgtttg caagcagcag attacgcgca
+      961 gaaaaaaagg atctcaagaa gatcctttga tcttttctac ggggtctgac gctcagtgga
+     1021 acgaaaactc acgttaaggg attttggtca tgagattatc aaaaaggatc ttcacctaga
+     1081 tccttttaaa ttaaaaatga agttttaaat caatctaaag tatatatgag taaacttggt
+     1141 ctgacagtta ccaatgctta atcagtgagg cacctatctc agcgatctgt ctatttcgtt
+     1201 catccatagt tgcctgactc cccgtcgtgt agataactac gatacgggag ggcttaccat
+     1261 ctggccccag tgctgcaatg ataccgcgag atccacgctc accggctcca gatttatcag
+     1321 caataaacca gccagccgga agggccgagc gcagaagtgg tcctgcaact ttatccgcct
+     1381 ccatccagtc tattaattgt tgccgggaag ctagagtaag tagttcgcca gttaatagtt
+     1441 tgcgcaacgt tgttgccatt gctacaggca tcgtggtgtc acgctcgtcg tttggtatgg
+     1501 cttcattcag ctccggttcc caacgatcaa ggcgagttac atgatccccc atgttgtgca
+     1561 aaaaagcggt tagctccttc ggtcctccga tcgttgtcag aagtaagttg gccgcagtgt
+     1621 tatcactcat ggttatggca gcactgcata attctcttac tgtcatgcca tccgtaagat
+     1681 gcttttctgt gactggtgag tactcaacca agtcattctg agaatagtgt atgcggcgac
+     1741 cgagttgctc ttgcccggcg tcaatacggg ataataccgc gccacatagc agaactttaa
+     1801 aagtgctcat cattggaaaa cgttcttcgg ggcgaaaact ctcaaggatc ttaccgctgt
+     1861 tgagatccag ttcgatgtaa cccactcgtg cacccaactg atcttcagca tcttttactt
+     1921 tcaccagcgt ttctgggtga gcaaaaacag gaaggcaaaa tgccgcaaaa aagggaataa
+     1981 gggcgacacg gaaatgttga atactcatac tcttcctttt tcaatattat tgaagcattt
+     2041 atcagggtta ttgtctcatg agcggataca tatttgaatg tatttagaaa aataaacaaa
+     2101 taggggttcc gcgcacattt ccccgaaaag tgccacctga cgtc
+//

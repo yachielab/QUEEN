@@ -250,6 +250,8 @@ def _search(dna, source, query, attribute=None, strand=None):
         else:
             new_feat_list.append(feat)
             feat_set.add(element)
+
+    new_feat_list.sort(key=lambda x: (x.start, -1 * x.end))
     return new_feat_list
 
 def _detect_overlap(seq1, seq2, allow_outies=True):
@@ -1563,7 +1565,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
             if flag == 0:
                 raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility.")
                 return False
-
+            
             if ovhg_length < homology_length and ovhg_length > 0:
                 raise ValueError("Compatible stickey end legnth should be larger than or equal to {} bp".format(homology_length)) 
             
@@ -2279,15 +2281,22 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
                     else:
                         left_end_top = 1
                         left_end_bottom = -1
+                
+                elif len(dna._left_end) == len(left_end):   
+                    new_dna = new_dna[len(left_end):] 
+                    left_end = new_dna.seq[0:end_len] 
+                    left_end_top    = 1
+                    left_end_bottom = 1
+                
                 else:
                     new_dna = new_dna[len(dna._left_end):] 
                     left_end = new_dna.seq[0:end_len] 
                     if dna._left_end_top == -1: 
-                        left_end_top = -1
-                        left_end_bottom = 1
-                    else:
                         left_end_top = 1
                         left_end_bottom = -1
+                    else:
+                        left_end_top = -1
+                        left_end_bottom = 1
         
         if right_end_top == 1 and right_end_bottom == 1:
             right_end = ""
@@ -2316,6 +2325,13 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
                     else:
                         right_end_top = 1
                         right_end_bottom = -1
+                
+                elif len(dna._right_end) == len(right_end): 
+                    new_dna = new_dna[:len(new_dna.seq)-1*len(right_end)] 
+                    right_end = new_dna.seq[len(new_dna.seq)-end_len:] 
+                    right_end_top    = 1
+                    right_end_bottom = 1
+
                 else:
                     new_dna = new_dna[:len(new_dna.seq)-1*len(dna._right_end)] 
                     right_end = new_dna.seq[len(new_dna.seq)-end_len:] 

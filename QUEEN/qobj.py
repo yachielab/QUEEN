@@ -1437,9 +1437,58 @@ class QUEEN():
                 raise TypeError("slice indices must be integers or None or have an __index__ method")
             
             if strand == -1 or strand < 0:
-                return flipdna(subdna, quinable==0)
+                return flipdna(subdna, quinable=0)
             else:
                 return subdna 
+
+        if type(item) == str:
+            site = self.searchfeature(query=item)[0]
+            return self[site.start:site.end] 
+        
+        if type(item) == tuple:
+            if len(item) == 1 and type(item[0]) == str:
+                return self[item[0]]
+            
+            if len(item) > 1:
+                if item[-1] == -1:
+                    item = item[:-1] 
+                    exclude = 1 
+                else:
+                    exclude = 0 
+            
+            if len(item) > 1:
+                temp = self
+                starts = [] 
+                end  = 0 
+                for i, query in enumerate(item):
+                    site  =  temp.searchfeature(query=query)[0] 
+                    if i == 0:
+                        start = site.start
+                        temp  =  temp[site.end:] + self[0:]
+                    else:    
+                        temp  =  temp[site.end:]
+                    end += site.end
+                
+                if end > len(self.seq):
+                    end = end - len(self.seq) 
+
+                if exclude == 1:
+                    if self.topology == "circular":
+                        return self[end:start]
+                    else:
+                        return self[:start], self[end:] 
+                else:
+                    return self[start:end] 
+
+            else:
+                if type(item[0]) == str and exclude == 1:
+                    site = self.searchfeature(query=item[0])[0]
+                    if self.topology == "circular":
+                        return self[site.end:site.start]
+                    else:
+                        return self[:site.start], self[site.end:] 
+                else:
+                    return None
 
         else:
             raise ValueError("Invalid index type was specified.") 

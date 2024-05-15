@@ -140,19 +140,21 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, add_primerbind=Fa
     
     if return_tm == True or add_primerbind == True:
         i = 0
+        tmpsite1 = None
         while 1:
-            tmpsite = search_binding_site(template, fw, 1, bindnum+i, endlength, flag=0, pn=process_name, pd=process_description)
-            if len(tmpsite) == 0:
+            tmpsite1 = search_binding_site(template, fw, 1, bindnum+i, endlength, flag=0, pn=process_name, pd=process_description)
+            if len(tmpsite1) == 0:
                 break
-            site1 = tmpsite[0]
+            site1 = tmpsite1[0]
             i += 1
 
         i = 0
+        tmpsite2 = None
         while 1:
-            tmpsite = search_binding_site(template, rv, -1, bindnum+i, endlength, flag=0, pn=process_name, pd=process_description)
-            if len(tmpsite) == 0:
+            tmpsite2 = search_binding_site(template, rv, -1, bindnum+i, endlength, flag=0, pn=process_name, pd=process_description)
+            if len(tmpsite2) == 0:
                 break
-            site2 = tmpsite[0] 
+            site2 = tmpsite2[0] 
             i += 1
     else:
         site1 = search_binding_site(template, fw, 1, bindnum, endlength, pn=process_name, pd=process_description) 
@@ -162,6 +164,7 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, add_primerbind=Fa
         fw_site = site1  
         rv_site = site2
     elif site1.strand == -1 and site2.strand == 1:
+        fw, rv = rv, fw 
         fw_site = site2
         rv_site = site1
     else:
@@ -286,7 +289,8 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
         if (type(selection) != tuple) and selection not in ("min", "max") and (selection.startswith("label:") == False and selection.startswith("!label:") == False):
             raise TypeError("`selection` should be `tuple` value, 'min', 'max', or `str` starting with 'label:' or '!label'.")
     
-    cutsite_names = [] 
+    cutsite_names = []
+    cutsites = list(cutsites)
     for c in range(len(cutsites)):   
         if type(cutsites[c]) == str and cutsites[c] in cs.lib.keys():
             cutsites[c] = cs.lib[cutsites[c]]  
@@ -459,7 +463,7 @@ def ligation(*fragments, unique=True, follow_order=False, product=None, process_
             products.append(outobj)
         return products 
 
-def homology_based_assembly(*fragments, mode="gibson", homology_length=20, unique=True, follow_order=None, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs): #homology_based_assembly
+def homology_based_assembly(*fragments, mode="gibson", homology_length=15, unique=True, follow_order=None, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs): #homology_based_assembly
     """
     Simulates a homology-based DNA assembly, supporting various modes like Gibson, Infusion, or Overlap PCR.
 
@@ -584,6 +588,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=20, uniqu
         else:
             nums_orders      = [nums]  
             flip_status_list = [[1 for i in range(len(framgents))]]    
+        errors = [] 
         products = [] 
         for numset in nums_orders:
             execed = [] 
@@ -606,6 +611,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=20, uniqu
                         outobj = joindna(*fragment_set, autoflip=False, homology_length=homology_length, topology="circular", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
                         products.append(outobj) 
                     except Exception as e:
+                        errors.append(e) 
                         #fragment_set[0].printsequence(display=True, hide_middle=30) 
                         #fragment_set[1].printsequence(display=True, hide_middle=30)
                         pass 
@@ -615,7 +621,10 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=20, uniqu
         if len(products) > 1: 
             raise ValueError("Multiple assembled constructs were detected. You should review your assembly design.")
         else:
-            return products[0] 
+            try:
+                return products[0]
+            except Exception as e:
+                raise ValueError(", ".join(errors)) 
     else: 
         return products 
 
@@ -1163,7 +1172,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         ...
     ]
     """
-    def append_adapter(amplicon_region, filtered_primer_pairs, adapter, adapter_form, strand, name):
+    def append_adapter(amplicon_region, filtered_primer_pairs, adapter, mode, adapter_form, strand, name):
         if adapter is None:
             for i in range(len(filtered_primer_pairs)):
                 filtered_primer_pairs[i][strand][0] = QUEEN(seq=filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
@@ -1202,7 +1211,31 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 rv_req = (adapter_features[0].feature_type == "CDS" and amplicon_features[-1].feature_type == "CDS") 
                 req = {"fw":fw_req, "rv":rv_req} 
                 
-                if req[strand] == True: 
+                if req[strand] == True:
+                    if strand == "fw": 
+                        if mode == "gibson":
+                            if adapter._right_end_bottom == 1 and adapter._right_end_top == -1: 
+                                adapter = adapter[:len(adapter.seq) - len(adapter._right_end)] 
+                            else:
+                                pass 
+                        elif mode == "infusion":
+                            if adapter._right_end_bottom == -1 and adapter._right_end_top == 1:
+                                adapter = adapter[:len(adapter.seq) - len(adapter._right_end)] 
+                            else:
+                                pass 
+                    
+                    if strand == "rv":
+                        if mode == "gibson":
+                            if adapter._left_end_bottom == -1 and adapter._left_end_top == 1: 
+                                adapter = adapter[len(adapter._left_end):] 
+                            else:
+                                pass 
+                        elif mode == "infusion":
+                            if adapter._left_end_bottom == 1 and adapter._left_end_top == -1:
+                                adapter = adapter[len(adapter._left_end):] 
+                            else:
+                                pass
+                    
                     if type(adapter_form) == int:
                         if strand == "fw":
                             feat1 = adapter_features[-1] 
@@ -1241,8 +1274,15 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             req4 = "AAAA" not in x["fw"] and "TTTT" not in x["fw"] and "GGGG" not in x["fw"] and "CCCC" not in x["fw"]
             req5 = "AAAA" not in x["rv"] and "TTTT" not in x["rv"] and "GGGG" not in x["rv"] and "CCCC" not in x["rv"]
             return req1 * req4 *  req5
+    
+    if type(homology_length) == int or homology_length is None:
+        mode = "gibson"
+        adapter_form = homology_length
+    
+    elif type(homology_length) == tuple:
+        mode = homology_length[0] 
+        adapter_form = homology_length[1] 
 
-    adapter_form = homology_length
     if type(template) != QUEEN:
         raise TypeError("`template` object must be instance of QUEEN class.") 
     
@@ -1344,8 +1384,8 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             filtered_primer_pairs.append(primer_pair)  
         else:
             pass
-    filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, fw_adapter, adapter_form, "fw", fw_name)
-    filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, adapter_form, "rv", rv_name)
+    filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, fw_adapter, mode, adapter_form, "fw", fw_name)
+    filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, mode, adapter_form, "rv", rv_name)
 
     for i in range(len(filtered_primer_pairs)):
         filtered_primer_pairs[i]["fw"] = filtered_primer_pairs[i]["fw"][0] 

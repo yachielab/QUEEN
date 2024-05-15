@@ -31,12 +31,13 @@ visualizeflow    = qgraph.visualizeflow
 pcr              = qexperiment.pcr 
 digestion        = qexperiment.digestion
 ligation         = qexperiment.ligation
-homology_based_assembly = qexperiment.homology_based_assembly
 annealing        = qexperiment.annealing
 primerdesign     = qexperiment.primerdesign
 Tm_NN            = qexperiment.Tm_NN
 quine            = quine.quine
-
+homology_based_assembly = qexperiment.homology_based_assembly
+goldengate_assembly     = qexperiment.goldengate_assembly
+gateway_reaction        = qexperiment.gateway_reaction
 
 commands = [
             "protocol_description", 

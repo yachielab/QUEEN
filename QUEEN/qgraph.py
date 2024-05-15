@@ -878,11 +878,11 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
                             nodes.add(sourcename)
                         if "cutdna" in product_funcname_dict[sourcename][0]:
                             if (product_funcname_dict[sourcename][0]) not in edge_set:
-                                dg.add((product_funcname_dict[sourcename][0])) 
+                                edge_set.add((product_funcname_dict[sourcename][0])) 
                                 dg.edge(product_funcname_dict[sourcename][0], sourcename) 
                         else:
                             if (product_funcname_dict[sourcename][0] + ":func") not in edge_set:
-                                dg.add((product_funcname_dict[sourcename][0] + ":func"))
+                                edge_set.add((product_funcname_dict[sourcename][0] + ":func"))
                                 dg.edge(product_funcname_dict[sourcename][0] + ":func", sourcename) 
                     if (sourcename, funcname+":func") not in edge_set:
                         edge_set.add((sourcename, funcname+":func")) 

@@ -20,6 +20,7 @@ INSTALL_REQUIRES = [
     'regex>=2.5',
     'graphviz==0.17', 
     'beautifulsoup4>=4.4'
+    'pandas' 
 ]
 
 PACKAGES = [

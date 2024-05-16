@@ -173,8 +173,14 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, add_primerbind=Fa
     fw_bind_length = len(fw_site.sequence) 
     rv_bind_length = len(rv_site.sequence) 
     
-    #fw.setfeature({"start":len(fw.seq)-fw_bind_length, "end":len(fw.seq), "qualifier:note":"primer_bind"})  
-    #rv.setfeature({"start":len(rv.seq)-rv_bind_length, "end":len(rv.seq), "qualifier:note":"primer_bind"})
+    fw_feats = fw.searchfeature(key_attribute="feature_type", query="primer") 
+    rv_feats = fw.searchfeature(key_attribute="feature_type", query="primer")
+    
+    if len(fw_feats) == 0:
+        fw.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer"})  
+    
+    if len(rv_feats) == 0:
+        rv.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer"})
     
     extract  = cropdna(template, fw_site.end, rv_site.start, pn=process_name, pd=process_description)
     amplicon = modifyends(extract, fw.seq, rv.rcseq, product=product, pn=process_name, pd=process_description, qexparam=qexd)

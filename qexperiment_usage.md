@@ -1,5 +1,7 @@
 # Usage of `qexperiment` module
 
+---
+
 ## PCR simulation
 
 Simulate PCR (Polymerase Chain Reaction) on a given DNA template using specific primers.
@@ -354,6 +356,8 @@ Simulates a Golden Gate Assembly.
 
 - `QUEEN object`
   The QUEEN object representing the result of the Golden Gate Assembly.
+
+---
 
 ## Primer Design for PCR Amplification
 

@@ -3693,6 +3693,8 @@ def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,la
     matplolib.pyplot.figure object
 
     """
+    if dna.topology == "linear" and map_view == "circular":
+        raise ValueError("The sequence topology is linear, you should set map_view='lienar'.")
 
     if fontsize is None and map_view == "linear":
         fontsize = 12

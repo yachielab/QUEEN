@@ -24,3 +24,5 @@
 /dist/
 /tmp/
 /output/
+/python_queen.egg-info/
+/development/

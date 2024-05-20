@@ -19,7 +19,7 @@ INSTALL_REQUIRES = [
     'requests>=2.23.0',
     'regex>=2.5',
     'graphviz==0.17', 
-    'beautifulsoup4>=4.4'
+    'beautifulsoup4>=4.4',
     'pandas' 
 ]
 

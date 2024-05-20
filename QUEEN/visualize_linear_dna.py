@@ -328,6 +328,8 @@ def map_feat(fig, ax, feats, length, head_length, unvisible_types=["source"], vi
 
                 for j in range(ts, te):
                     text_position_matrix[t][j] = 1
+                    if j >= len(text_position_matrix[t])-1:
+                        break
         else:
             if label_visible == 0:
                 text.set_visible(False)

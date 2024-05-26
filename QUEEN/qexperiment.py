@@ -28,10 +28,11 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, add_primerbind=Fa
     endlength : int, optional
         The length of the end region of the primer to consider during binding, by default 3.
     add_primerbind : bool, optional
-        If True, add DNAfeature on the primer binding regions in the template DNA. 
-    tm_func : function, optional
-        Function to calculate the melting temperature of primer candidates. Default is xxxx. 
-        As built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. This function is implemented 
+        If True, add DNAfeatures on the primer binding sites in the template DNA. 
+    tm_func : str, function, optional
+        Function to calculate the melting temperature of the primer pair 
+        As `str` specfication, you can select `"Breslauer"` and `"SantaLucia"`. Default is `"SantaLucia"`.  
+        Also, as built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. This function is implemented 
         based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, so the all parameters of 
         `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, can be acceptable.
     return_tm : bool, optional
@@ -177,10 +178,10 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, add_primerbind=Fa
     rv_feats = fw.searchfeature(key_attribute="feature_type", query="primer")
     
     if len(fw_feats) == 0:
-        fw.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer"})  
+        fw.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})  
     
     if len(rv_feats) == 0:
-        rv.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer"})
+        rv.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})
     
     extract  = cropdna(template, fw_site.end, rv_site.start, pn=process_name, pd=process_description)
     amplicon = modifyends(extract, fw.seq, rv.rcseq, product=product, pn=process_name, pd=process_description, qexparam=qexd)
@@ -192,6 +193,13 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, add_primerbind=Fa
     if return_tm == True:
         if tm_func is None:
             tm_func = Tm_NN() 
+        
+        elif tm_func == "SantaLucia":
+            tm_func = Tm_NN(nn_table=mt.DNA_NN3)
+
+        elif tm_func == "Breslauer":
+            tm_func = Tm_NN(nn_table=mt.DNA_NN1)
+
         fw_tm = tm_func(seq=template.seq[fw_site.start:fw_site.end]) 
         rv_tm = tm_func(seq=template.seq[rv_site.start:rv_site.end])
         return amplicon, (fw_tm, rv_tm) 
@@ -818,7 +826,7 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
 
     return ligation(insert, destination, product=product, pn=process_name, pd=process_description, qexparam=qexd) 
 
-def goldengate_assembly(destination, entry, enzyme=None, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
+def goldengate_assembly(destination, entry, cutsite=None, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
     """
     Simulates a Golden Gate Assembly
 
@@ -828,8 +836,8 @@ def goldengate_assembly(destination, entry, enzyme=None, product=None, process_n
         The destination QUEEN object holding the backbone DNA molecule.
     entry : list of QUEEN objects
         The entry QUEEN objects holding the insert DNA molecules.
-    enzyme : Cutsite or str
-        The restriction enzyme used for this reaction.    
+    cutsite : Cutsite or str
+        The restriction enzyme site used for this reaction.    
     process_name : str, optional
         Brief label for the gateway reaction process. Default is "Golden Gate Assembly".
     process_description : str, optional
@@ -1074,7 +1082,8 @@ def Tm_NN(check=True, strict=True, nn_table=None, tmm_table=None, imm_table=None
 
 def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, rv_margin=0,
                  target_tm=60.0, tm_func=None, primer_length=(16, 25), 
-                 design_num=1, fw_adapter=None, rv_adapter=None, homology_length=20, nonspecific_limit=3, 
+                 design_num=1, fw_adapter=None, rv_adapter=None, cloning_mode="gibson", 
+                 homology_length=15, nonspecific_limit=3, auto_adjust=1, 
                  requirement=None, fw_name="fw_primer", rv_name="rv_primer"):
     """
     Design forward and reverse primers for PCR amplification of a target region,
@@ -1097,9 +1106,10 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         Additional base pairs to add to the 3' end of the target region when designing the reverse primer. Default is 0.
     target_tm : float, optional
         Desired melting temperature (Tm) for the primers in degrees Celsius. Default is 60.0.
-    tm_func : function, optional
-        Function to calculate the melting temperature of primer candidates. Default is xxxx. 
-        As built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. This function is implemented 
+    tm_func : str, function, optional
+        Function to calculate the melting temperature of primer candidates. 
+        As `str` specfication, you can select `"Breslauer"` and `"SantaLucia"`. Default is `"SantaLucia"`.  
+        Also, as built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. This function is implemented 
         based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, so the all parameters of 
         `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, can be acceptable.
     primer_legnth : tuple of int, optional
@@ -1122,14 +1132,24 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         Alternatively, you can specify the name of a restriction enzyme or 'attB'. In these cases,   
         the adapter sequence including the specified site will be added at the beginning of the primers.  
         For now, "attB" sequence as rv adapter is "GGGGACCACTTTGTACAAGAAAGCTGGGT".
+    cloning_mode : str("gibson", "infusion", "overlappcr"), optional
+        If the adapter is a dsDNA QUEEN object, the adapter sequence, which can be joined with the target amplicon   
+        via the specified `cloning_mode`, will be automatically generated.
     homology_length : int, optional
-        This parameter is active if either fw_adapter or rv_adapter is specified as a dsDNA QUEEN object.
-        If an int value is provided, an adapter sequence including an overlapping end with the specified dsDNA QUEEN object
-        will be designed, such that the overlap is greater than or equal to the provided value. Default value is 20.
+        This parameter is active if either `fw_adapter` or `rv_adapter` is specified as a dsDNA QUEEN object 
+        and `cloning_mode` is `"gibson"`, `"infusion"`, or `"overlappcr"`.  
+        If an int value is provided, an adapter sequence including an overlapping end with the specified  
+        dsDNA QUEEN object will be designed, such that the overlap is greater than or equal to the provided value.  
+        Default value is 15.
     nonspecific_limit : int, optional
-        The maximum number of mismatches allowed for primer binding outside of the designated primer design region within the template sequence.
-        Primer pairs that bind to any region of the template with a number of mismatches equal to or less than this limit will be excluded from the design,
-        to increase the specificity of the PCR reaction and decrease the likelihood of nonspecific amplification. Defaults to 3.
+        The maximum number of mismatches allowed for primer binding outside of the designated primer design region  
+        within the template sequence. Primer pairs that bind to any region of the template with a number of mismatches  
+        equal to or less than this limit will be excluded from the design, to increase the specificity of the PCR reaction  
+        and decrease the likelihood of nonspecific amplification.  
+        Defaults to 3.
+    auto_adjust : bool, optional
+        If True and the adapter is dsDNA QUEEN object, the adapter sequence will be automatically adjusted to ensure  
+        the reading frame of the genes in the target amplicon. 
     requirement : lambda function, optional
         Function that takes a dictionary representing a primer pair and returns True if the pair meets the specified conditions.
         Default requirement is as follows.
@@ -1140,6 +1160,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         The forward primer name designed in this function. If the value is not specified, the foward primer is named as `fw_primer`. 
     rv_name : str, optional 
         The reverse primer name designed in this function. If the value is not specified, the foward primer is named as `rv_primer`.
+    
     Raises
     ------
     ValueError
@@ -1213,35 +1234,70 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 amplicon_features = [feat for feat in pcr_amplicon.dnafeatures if feat.feature_type != "source"]
                 amplicon_features.sort(key=lambda x: x.start) 
                 
-                fw_req = (adapter_features[-1].feature_type == "CDS" and amplicon_features[0].feature_type == "CDS")                
-                rv_req = (adapter_features[0].feature_type == "CDS" and amplicon_features[-1].feature_type == "CDS") 
-                req = {"fw":fw_req, "rv":rv_req} 
+                if strand == "fw":
+                    feat1 = adapter_features[-1] 
+                    feat2 = amplicon_features[0] 
+                    if feat1.feature_type == "promoter" and feat2.feature_type == "CDS":
+                        if feat1.strand == 1 and feat2.strand == -1:
+                            print("**Attention**: The directions of the gene in the adapter and the gene in the application are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                        else:
+                            pass
+                    if feat1.feature_type == "CDS" and feat2.feature_type == "promoter":
+                        if feat1.strand == -1 and feat2.strand == 1:
+                            print("**Attention**: The directions of the gene in the adapter and the gene in the application are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                        else:
+                            pass 
+
+                if strand == "rv":
+                    feat1 = amplicon_features[-1] 
+                    feat2 = adapter_features[0] 
+                    if feat1.feature_type == "CDS" and feat2.feature_type == "promoter":
+                        if feat1.strand == 1 and feat2.strand == -1:
+                            print("**Attention**: The directions of the gene in the adapter and the gene in the application are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                        else:
+                            pass
+                    if feat1.feature_type == "promoter" and feat2.feature_type == "CDS":
+                        if feat1.strand == -1 and feat2.strand == 1:
+                            print("**Attention**: The directions of the gene in the adapter and the gene in the application are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                        else:
+                            pass 
+
+                if feat1.feature_type == "CDS" and feat2.feature_type == "CDS":
+                    if ("broken_feature" in feat1.qualifiers or "broken_feature" in feat2.qualifiers) and (len(feat1.sequence)%3 != 0 or len(feat2.sequence)%3 != 0):
+                        req = False         
+                    else:
+                        if feat1.strand == feat2.strand:
+                            req = True
+                        else:
+                            req = True
+                            print("**Attention**: The directions of the gene in the adapter and the gene in the application are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                else:
+                    req = False 
+
+                if strand == "fw": 
+                    if mode == "gibson":
+                        if adapter._right_end_bottom == 1 and adapter._right_end_top == -1: 
+                            adapter = adapter[:len(adapter.seq) - len(adapter._right_end)] 
+                        else:
+                            pass 
+                    elif mode == "infusion":
+                        if adapter._right_end_bottom == -1 and adapter._right_end_top == 1:
+                            adapter = adapter[:len(adapter.seq) - len(adapter._right_end)] 
+                        else:
+                            pass 
+                if strand == "rv":
+                    if mode == "gibson":
+                        if adapter._left_end_bottom == -1 and adapter._left_end_top == 1: 
+                            adapter = adapter[len(adapter._left_end):] 
+                        else:
+                            pass 
+                    elif mode == "infusion":
+                        if adapter._left_end_bottom == 1 and adapter._left_end_top == -1:
+                            adapter = adapter[len(adapter._left_end):] 
+                        else:
+                            pass
                 
-                if req[strand] == True:
-                    if strand == "fw": 
-                        if mode == "gibson":
-                            if adapter._right_end_bottom == 1 and adapter._right_end_top == -1: 
-                                adapter = adapter[:len(adapter.seq) - len(adapter._right_end)] 
-                            else:
-                                pass 
-                        elif mode == "infusion":
-                            if adapter._right_end_bottom == -1 and adapter._right_end_top == 1:
-                                adapter = adapter[:len(adapter.seq) - len(adapter._right_end)] 
-                            else:
-                                pass 
-                    
-                    if strand == "rv":
-                        if mode == "gibson":
-                            if adapter._left_end_bottom == -1 and adapter._left_end_top == 1: 
-                                adapter = adapter[len(adapter._left_end):] 
-                            else:
-                                pass 
-                        elif mode == "infusion":
-                            if adapter._left_end_bottom == 1 and adapter._left_end_top == -1:
-                                adapter = adapter[len(adapter._left_end):] 
-                            else:
-                                pass
-                    
+                if req == True:
                     if type(adapter_form) == int:
                         if strand == "fw":
                             feat1 = adapter_features[-1] 
@@ -1316,7 +1372,11 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
 
     if tm_func is None:
         tm_func = Tm_NN() 
-     
+    elif tm_func == "SantaLucia":
+        tm_func = Tm_NN(nn_table=mt.DNA_NN3)
+    elif tm_func == "Breslauer":
+        tm_func = Tm_NN(nn_table=mt.DNA_NN1)
+
     start = template.seq.find(target.seq) - fw_margin
     if start < 0:
         if template.topology == "circular":
@@ -1336,7 +1396,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
     fw_candidates = [] 
     if fw_primer is None:
         for pos in range(start+1):
-            for plen in range(*primer_length): 
+            for plen in range(primer_length[0], primer_length[1] + 1): 
                 fw_candidate = amplicon_region.seq[pos:pos+plen]
                 fw_candidates.append([str(fw_candidate), pos]) 
     else:
@@ -1346,7 +1406,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
     rv_candidates = [] 
     if rv_primer is None:
         for pos in range(end-len(target.seq)+1):
-            for plen in range(*primer_length): 
+            for plen in range(primer_length[0], primer_length[1] + 1): 
                 rv_candidate = amplicon_region.rcseq[pos:pos+plen]
                 rv_candidates.append([str(rv_candidate), pos]) 
     else:

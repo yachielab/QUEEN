@@ -32,9 +32,10 @@ Simulate PCR (Polymerase Chain Reaction) on a given DNA template using specific 
   If True, add DNAfeature on the primer binding regions in the template DNA. 
 
 - **tm_func** `function`, optional
-  Function to calculate the melting temperature of primer candidates. Default is xxxx. 
-  As built-in algorithms, `QUEEN.qexperiment.Tm_NN()`.   
-  This function is implemented based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, so the all parameters of   
+  Function to calculate the melting temperature of the primer pair. 
+  As `str` specfication, you can select `"Breslauer"` and `"SantaLucia"`. Default is `"SantaLucia"`.  
+  Also, as built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. This function is implemented 
+  based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, so the all parameters of 
   `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, can be acceptable.
 
 - **return_tm** : `bool`, optional
@@ -329,6 +330,8 @@ Simulates a gateway reaction of two DNA molecules. For now, basic `BP` and `LR` 
 
 Simulates a Golden Gate Assembly.
 
+#### `goldengate_assembly(destination, entry, cutsite=None, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs)`
+
 #### Parameters
 
 - **destination** : `QUEEN object`
@@ -337,8 +340,8 @@ Simulates a Golden Gate Assembly.
 - **entry** : `list` of `QUEEN objects`
   The entry QUEEN object(s) holding the insert DNA molecules.
 
-- **enzyme** : `Cutsite` or `str`
-  The restriction enzyme used for this reaction.    
+- **cutsite** : `Cutsite` or `str`
+  The restriction enzyme site used for this reaction.    
 
 - **process_name** : str, optional
   Brief label for the gateway reaction process. Default is "Golden Gate Assembly".

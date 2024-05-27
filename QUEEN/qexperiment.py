@@ -174,14 +174,14 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, add_primerbind=Fa
     fw_bind_length = len(fw_site.sequence) 
     rv_bind_length = len(rv_site.sequence) 
     
-    fw_feats = fw.searchfeature(key_attribute="feature_type", query="primer") 
-    rv_feats = fw.searchfeature(key_attribute="feature_type", query="primer")
-    
+    fw_feats = fw.searchfeature(key_attribute="feature_type", query="primer_bind") 
+    rv_feats = rv.searchfeature(key_attribute="feature_type", query="primer_bind")
+       
     if len(fw_feats) == 0:
-        fw.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})  
+        fw.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
     
     if len(rv_feats) == 0:
-        rv.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})
+        rv.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})
     
     extract  = cropdna(template, fw_site.end, rv_site.start, pn=process_name, pd=process_description)
     amplicon = modifyends(extract, fw.seq, rv.rcseq, product=product, pn=process_name, pd=process_description, qexparam=qexd)
@@ -535,7 +535,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
     QUEEN, flipdna, joindna, modifyends
 
     """
-    max_homology_length = 200 #max_homology_length
+    max_homology_length = 500 #max_homology_length
     
     process_name = pn if process_name is None else process_name
     if process_name is None:
@@ -563,13 +563,27 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
         raise ValueError("Invalid mode value. The 'mode' variable can only take 'gibson', 'infusion' or 'overlappcr' as values.")
     
     if mode == "overlappcr":
+        for fragment in fragments:
+            if fragment._left_end_top * fragment._left_end_bottom == -1 or fragment._right_end_top * fragment._right_end_bottom == -1:
+                raise ValueError("dsDNA ojbects with sticy ends cannot be handled in `overlappcr`. please use `modifyends` function to refrom sticy ends to blunt ends.")
+            else:
+                pass 
+
         nums = list(range(len(fragments)))
         if (len(fragments) < 5 and follow_order is None) or follow_order == False:
-            nums_orders      = list(it.permutations(nums)) 
+            nums_orders     = list(it.permutations(nums))
+            new_nums_orders = [] 
+            for nums_order in nums_orders:
+                if tuple(reversed(nums_order)) in new_nums_orders:
+                    pass
+                else:
+                    new_nums_orders.append(nums_order) 
+            nums_orders = new_nums_orders
             flip_status_list = list(it.product(*[[1,-1] for i in range(len(fragments))]))   
         else:
             nums_orders      = [nums]  
             flip_status_list = [[1 for i in range(len(framgents))]]    
+        errors = [] 
         products = [] 
         for numset in nums_orders:
             execed = [] 
@@ -581,16 +595,16 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
                     try:
                         fragment1 = fragment_set[0]
                         for f, fragment2 in enumerate(fragment_set[1:]): 
-                            fragment1 = modifyends(fragment1, "*{}/-{}".format(len(fragment1.seq), len(fragment1.seq)), "", pn=process_name, pd=process_description)
-                            fragment2 = modifyends(fragment2, "-{}/*{}".format(len(fragment2.seq), len(fragment2.seq)), "", pn=process_name, pd=process_description)
+                            fragment1 = modifyends(fragment1, "-{{{}}}/*{{{}}}".format(len(fragment1.seq),len(fragment1.seq)), "*{{{}}}/-{{{}}}".format(len(fragment1.seq),len(fragment1.seq)), pn=process_name, pd=process_description)
+                            fragment2 = modifyends(fragment2, "-{{{}}}/*{{{}}}".format(len(fragment2.seq),len(fragment2.seq)), "*{{{}}}/-{{{}}}".format(len(fragment2.seq),len(fragment2.seq)), pn=process_name, pd=process_description)
                             fragment1 = joindna(fragment1, fragment2, topology="linear", homology_length=homology_length, pn=process_name, pd=process_description) 
                             if f == len(fragment_set) - 2:
                                 fragment1 = modifyends(fragment1, "*/*", "*/*", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
                             else:
                                 fragment1 = modifyends(fragment1, "*/*", "*/*", pn=process_name, pd=process_description) 
                         products.append(fragment1)
-                    except:
-                        pass 
+                    except Exception as e:
+                        errors.append(e) 
                 execed.append(flipset) 
 
     else:
@@ -609,12 +623,12 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
             for flipset in flip_status_list:
                 if tuple([state * -1 for state in flipset]) in execed: 
                     pass 
-                else: 
+                else:
                     fragment_set = [fragments[num] if flip == 1 else flipdna(fragments[num]) for num, flip in zip(numset, flipset)]  
                     for f in range(len(fragment_set)):
                         fragment = fragment_set[f]
-                        if len(fragment.seq) <= 2 * max_homology_length: 
-                            mhl = int(len(fragment.seq)/2) 
+                        if len(fragment.seq) <= max_homology_length: 
+                            mhl = int(len(fragment.seq)) - len(fragment._left_end) - len(fragment._right_end) - 1
                         else:
                             mhl = max_homology_length
                         if mode == "gibson":
@@ -638,7 +652,8 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
             try:
                 return products[0]
             except Exception as e:
-                raise ValueError(", ".join(errors)) 
+                print(errors) 
+                raise ValueError("Error") 
     else: 
         return products 
 

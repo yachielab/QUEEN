@@ -332,6 +332,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
                         name_dict[match] = match2.group(1) + "[{}]".format(m)
     
     new_rows = []
+    """
     for row in texts:
         if dna.__class__._namespaceflag == 1 and execution == False:
             product = re.search(r"product=([^=]+)[,\)]",row)
@@ -369,7 +370,8 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
                 if name in name_dict:
                     row = row.replace(match, name_dict[name])
         new_rows.append(row) 
-   
+    """
+    new_rows = texts
     #Check quine code is identical with original file.
     identical    = 1
     new_new_rows = [] 

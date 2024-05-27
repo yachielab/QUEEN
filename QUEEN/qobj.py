@@ -1421,8 +1421,7 @@ class QUEEN():
                 end = len(self.seq) 
             else:
                 if type(item.stop) in (Qint, int):
-                    end = item.stop
-                
+                    end = item.stop  
                 else:
                     raise TypeError("slice indices must be integers or None or have an __index__ method.") 
             
@@ -1431,7 +1430,12 @@ class QUEEN():
                     start = len(self.seq) - abs(start) 
                 if end < 0: 
                     end = len(self.seq) - abs(end) 
-                subdna = cropdna(self, start, end, quinable=0)
+                
+                if start == end and self.topology == "circular":
+                    subdna = cutdna(self, start, quinable=0)[0] 
+                    subdna = joindna(subdna, quinable=0) 
+                else:
+                    subdna = cropdna(self, start, end, quinable=0)
                              
             else:
                 raise TypeError("slice indices must be integers or None or have an __index__ method")

@@ -143,9 +143,13 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
             label = " "
 
         strand    = feat.location.strand
-        gs_origin = int(feat.location.parts[0].start)
-        ge_origin = int(feat.location.parts[-1].end) 
-        
+        if strand == -1:
+            gs_origin = int(feat.location.parts[-1].start)
+            ge_origin = int(feat.location.parts[0].end) 
+        else:
+            gs_origin = int(feat.location.parts[0].start)
+            ge_origin = int(feat.location.parts[-1].end) 
+
         gs = gs_origin * 2 * np.pi / length 
         ge = ge_origin * 2 * np.pi / length
 

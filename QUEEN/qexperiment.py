@@ -1470,7 +1470,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
 
     for i in range(len(filtered_primer_pairs)):
         filtered_primer_pairs[i]["fw"] = filtered_primer_pairs[i]["fw"][0] 
-        filtered_primer_pairs[i]["fw"].setfeature({"feature_type":"misc_feature", "qualifier:label":fw_name})
+        filtered_primer_pairs[i]["fw"].setfeature({"feature_type":"primer_bind", "qualifier:label":fw_name})
         filtered_primer_pairs[i]["rv"] = filtered_primer_pairs[i]["rv"][0]
-        filtered_primer_pairs[i]["rv"].setfeature({"feature_type":"misc_feature", "qualifier:label":rv_name})
+        filtered_primer_pairs[i]["rv"].setfeature({"feature_type":"primer_bind", "qualifier:label":rv_name})
     return filtered_primer_pairs[:design_num]

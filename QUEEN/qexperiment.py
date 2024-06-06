@@ -1098,7 +1098,7 @@ def Tm_NN(check=True, strict=True, nn_table=None, tmm_table=None, imm_table=None
 def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, rv_margin=0,
                  target_tm=60.0, tm_func=None, primer_length=(16, 25), 
                  design_num=1, fw_adapter=None, rv_adapter=None, cloning_mode="gibson", 
-                 homology_length=15, nonspecific_limit=3, auto_adjust=1, 
+                 homology_length=20, nonspecific_limit=3, auto_adjust=1, 
                  requirement=None, fw_name="fw_primer", rv_name="rv_primer"):
     """
     Design forward and reverse primers for PCR amplification of a target region,

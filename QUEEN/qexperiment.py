@@ -652,7 +652,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
             try:
                 return products[0]
             except Exception as e:
-                print(errors) 
+                print(e, errors) 
                 raise ValueError("Error") 
     else: 
         return products 

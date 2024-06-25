@@ -49,10 +49,10 @@ feature_color_dict["CDS"]           = list(zip(pastel, colorblind))
 misc_colors                         = list(zip(pastel, colorblind))
 
 
-def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0, format=1, bottom=300, fontsize=10, display_label=True, display_axis=True, tick_space="auto", labelcolor="k"):
+def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.03, enlarge=1.0, format=1, bottom=300, fontsize=10, display_label=True, display_axis=True, tick_space="auto", labelcolor="k"):
     if format == 0 or format == 1:
-        outer    = 55 * 1.2
-        inner    = 42 * 1.2
+        outer    = 50 * 1.2
+        inner    = 40 * 1.2
         if bottom is None and format == 1:
             bottom_h = 600
         elif bottom is None and format == 0:
@@ -68,17 +68,20 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
         if fontsize is None:
             matplotlib.rcParams['font.size'] = 8.0
         else:
-            matplotlib.rcParams['font.size'] = 8.0
+            matplotlib.rcParams['font.size'] = fontsize
     else:
         outer    = 60
-        inner    = 44
+        inner    = 48
         if bottom is None:
             bottom_h = 400
         else:
             bottom_h = bottom 
-        lane_h   = 250
+        lane_h   = 180
         normal_w = 1000
-        matplotlib.rcParams['font.size'] = 7.0
+        if fontsize is None:
+            matplotlib.rcParams['font.size'] = 8.0
+        else:
+            matplotlib.rcParams['font.size'] = fontsize
     
     fig_width  = normal_w
     renderer   = fig.canvas.get_renderer()
@@ -129,7 +132,8 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
             if flag == 1:
                 label_color_dict[label] = (feat.qualifiers["facecolor_queen"][0], feat.qualifiers["edgecolor_queen"][0]) 
              
-
+    
+    y = 0
     for i, feat in enumerate(feats):
         if "label" in feat.qualifiers:
             if type(feat.qualifiers["label"]) == list:
@@ -153,8 +157,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
         gs = gs_origin * 2 * np.pi / length 
         ge = ge_origin * 2 * np.pi / length
 
-        
-        y = 0
+        #y = 0
         if i > 0:
             flag = 0
             if gs_origin < ge_origin:
@@ -170,7 +173,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
                     gene_position_matrix.append([0] * length)
                     text_position_matrix.append(np.array([0] * length))
                     text_position_matrix.append(np.array([0] * length))
-                    text_position_matrix.append(np.array([0] * length))
+                    #text_position_matrix.append(np.array([0] * length))
                 else:
                     pass 
             else:
@@ -193,7 +196,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
                     gene_position_matrix.append([0] * length)
                     text_position_matrix.append(np.array([0] * length))
                     text_position_matrix.append(np.array([0] * length))
-                    text_position_matrix.append(np.array([0] * length))
+                    #text_position_matrix.append(np.array([0] * length))
                 else:
                     pass 
         
@@ -229,7 +232,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
         if format == 1 or format == 0:
             margin = np.pi*(0.006)
         else:
-            margin = np.pi*(0.005)
+            margin = np.pi*(0.006)
         
         if abs(ge-gs) < head_length * 1.2:
             hl  = abs(ge-gs)
@@ -348,6 +351,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
             
             gs_origin, ge_origin = int(new_gs_origin), int(new_ge_origin+1)
             flag = 0 
+            
             if i > 0:
                 if gs_origin < ge_origin:
                     for yy, row in enumerate(gene_position_matrix[y:]):
@@ -373,7 +377,6 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
                         gene_position_matrix.append([0] * length)
                     else:
                         y = y + yy
-            
             if abs(ge-gs) < head_length * 1.2:
                 hl  = abs(ge-gs)
             else:
@@ -474,6 +477,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
                     ax.bar([gs], [outer], bottom=y*lane_h+375, width=width, align="edge", fc=facecolor, ec=edgecolor, lw=0.0)
 
         else:
+            
             if width > 1.2 * head_length:
                 if strand == 1:
                     ax.bar([gs], [outer], bottom=y*lane_h+bottom_h-outer/2, width=width-hl*0.98, align="edge", fc=edgecolor, lw=0.0, zorder=1)
@@ -507,9 +511,10 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
                         ax.arrow(x=gs+width-mg, y=y*lane_h+bottom_h, dx=-1*(width-2.4*mg), dy=0, width=hw, head_width=hw, head_length=width-2.4*mg, length_includes_head=True, fc=facecolor, lw=0.0)
                 
                 else:
-                    ax.bar([gs], [outer], bottom=y*lane_h+375, width=width, align="edge", fc=facecolor, ec=edgecolor, lw=0.0)
+                    ax.bar([gs], [outer], bottom=y*lane_h+bottom_h, width=width, align="edge", fc=facecolor, ec=edgecolor, lw=0.0)
 
             label_position_list.append((label, width,  gs, ge,  middle,  y, facecolor, edgecolor))
+        
         
         if gs_origin < ge_origin:
             for j in range(gs_origin,ge_origin):
@@ -520,7 +525,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
                 gene_position_matrix[y][j] = 1 
             for j in range(0, ge_origin):
                 gene_position_matrix[y][j] = 1
-
+        
         y_list.append(y)
              
     if format != 0:
@@ -584,24 +589,23 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
             else:
                 flag = 0 
                 sign = 1
-                #print(new_pos_list[0][2])
                 if format == 1:
                     i = 0 
                 else:
                     i = new_pos_list[0][2] * 3
                 while i < len(text_position_matrix):
                     if format == 1:
-                        if i < 3:
+                        if i < 2:
                             y = bottom_h - 58 - i * 55
                         else:
                             y = max(y_list)*lane_h+bottom_h + 58 + (i-3) * 55
                     else:
-                        if i % 3 == 0:
-                            y = (i//3)*lane_h+bottom_h+60
-                        elif i % 3 == 1:
-                            y = (i//3)*lane_h+bottom_h+113
+                        if i % 2 == 0:
+                            y = (i//2)*lane_h+bottom_h+60
+                        elif i % 2 == 1:
+                            y = (i//2)*lane_h+bottom_h+113
                         else:
-                            y = (i//3)*lane_h+bottom_h+166
+                            y = (i//2)*lane_h+bottom_h+166
                     
                     ts = np.arccos(new_pos_list[0][3]/y)-0.5*np.pi + x
                     te = np.arccos(new_pos_list[-1][3]/y)-0.5*np.pi + x 
@@ -739,7 +743,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
                 elif direction == -1:
                     ax.bar([s[0]-ebuf], [40], width=e[0]-s[0]+sbuf+ebuf, bottom=s[3]-20, lw=0.5, ec=ec, fc=fc, align="edge")
                
-                ty_list.append(y) 
+                ty_list.append(y)
 
     y_set = list(set(y_list)) 
     y_set.sort() 
@@ -747,7 +751,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.030, enlarge=1.0
     if format == 0:
         ylim = max(y_list)*lane_h + bottom_h + 2.5 * lane_h
     else:
-        ylim = max([max(y_list)*lane_h + bottom_h, max(ty_list)]) + 3 * lane_h
+        ylim = max([max(y_list)*lane_h + bottom_h, max(ty_list)]) + 1.5 * lane_h
         
     if display_axis == True:
         if tick_space == "auto":
@@ -836,6 +840,7 @@ def visualize(brick, format=0, feature_list=None, bottom=None, fontsize=8, label
             else:
                 feature_list.append(feat)
         feature_list.sort(key=lambda x:len(brick.printsequence(x.start, x.end)))
+        #rint(feature_list[0]) 
     ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(fig, ax, ax2, feature_list, len(brick.seq), format=format, bottom=bottom, enlarge=1.0, display_label=label_visible, fontsize=fontsize, display_axis=axis_visible, tick_space=tick_space, labelcolor=labelcolor)  
     if title_visible == True:
         renderer    = fig.canvas.get_renderer()
@@ -855,6 +860,6 @@ if __name__ == "__main__":
     from dna import *
     brick = Dbrick(record=sys.argv[1])
     brick.name = sys.argv[1].split("/")[-1].replace(".gbk","")  
-    fig   = visualize(brick, format=2, unvisible_types=["primer_bind"], bottom=400) 
+    fig   = visualize(brick, format=1, unvisible_types=["primer_bind"], bottom=400) 
     fig.patch.set_alpha(0.0) 
     fig.savefig("{}.pdf".format(brick.name), bbox_inches="tight")

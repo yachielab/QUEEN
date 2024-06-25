@@ -3699,7 +3699,7 @@ def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,la
     if fontsize is None and map_view == "linear":
         fontsize = 12
     elif fontsize is None and map_view == "circular":
-        fontsize = 10
+        fontsize = 8.0 
     else:
         pass 
 
@@ -3711,7 +3711,7 @@ def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,la
     
     standard_scale = 4000
     if map_view == "circular":
-        figo, ax1, ax2= vc.visualize(dna, format=0, feature_list=feature_list, bottom=400 * diamater_scale, label_visible=display_label, fontsize=fontsize, 
+        figo, ax1, ax2= vc.visualize(dna, format=0, feature_list=feature_list, bottom=600 * diamater_scale, label_visible=display_label, fontsize=fontsize, 
                                  title_visible=display_title, axis_visible=display_axis, tick_space=tick_interval, labelcolor=labelcolor, 
                                  titlename=title, fig=fig)
         try:

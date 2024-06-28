@@ -183,8 +183,14 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, add_primerbind=Fa
     if len(rv_feats) == 0:
         rv.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})
     
-    extract  = cropdna(template, fw_site.end, rv_site.start, pn=process_name, pd=process_description)
-    amplicon = modifyends(extract, fw.seq, rv.rcseq, product=product, pn=process_name, pd=process_description, qexparam=qexd)
+    if fw_site.end > rv_site.start and fw_site.end <= rv_site.end:
+        extract   = cropdna(template, rv_site.start,  fw_site.end, pn=process_name, pd=process_description)
+        fw_index = len(fw.seq) - (fw_site.end - rv_site.start) 
+        rv_index = fw_site.end - rv_site.start 
+        amplicon = modifyends(extract, fw.seq[:fw_index], rv.rcseq[rv_index:], product=product, pn=process_name, pd=process_description, qexparam=qexd)
+    else:
+        extract  = cropdna(template, fw_site.end, rv_site.start, pn=process_name, pd=process_description)
+        amplicon = modifyends(extract, fw.seq, rv.rcseq, product=product, pn=process_name, pd=process_description, qexparam=qexd)
     
     if add_primerbind == True:
         template.setfeature({"start": fw_site.start, "end": fw_site.end, "strand":1,  "feature_type":"primer_bind"}) 

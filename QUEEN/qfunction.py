@@ -1493,12 +1493,9 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                 for dna in frdna: 
                     annealing = False
                     feats     = dna.dnafeatures
-                    if (dna._left_end_top * construct._right_end_bottom == 1 or dna._left_end_bottom * construct._right_end_top == 1) and ((dna._left_end_top == -1 or dna._left_end_bottom == -1) or (construct._right_end_top == -1 or construct._right_end_bottom == -1)):
-                        if dna._left_end_top == 1:
-                            sticky_end = dna._left_end 
-                        else:
-                            sticky_end = construct._right_end
-                        
+                    if (dna._left_end_top * construct._right_end_bottom == 1 or dna._left_end_bottom * construct._right_end_top == 1) and ((dna._left_end_top == -1 or dna._left_end_bottom == -1) and (construct._right_end_top == -1 or construct._right_end_bottom == -1)):
+                                              
+                        #Sticy end ligation
                         if compatibility == "partial":
                             if len(construct._right_end) < len(dna._left_end):
                                 ovresult = _detect_overlap(construct._right_end, dna._left_end, allow_outies=False)
@@ -1523,6 +1520,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                                 flag = 0 
                                 continue
                     else:
+                        #Blunt end ligation
                         if (construct._right_end == "" and ((dna._left_end == "") or (dna._left_end == dna.seq))) or (construct._right_end_top >= 0 and construct._right_end_bottom >= 0 and dna._left_end_top >= 0 and dna._left_end_bottom >= 0):
                             new_dna     = dna
                             ovhg_length = 0 

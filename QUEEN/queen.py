@@ -38,7 +38,7 @@ quine            = quine.quine
 homology_based_assembly = qexperiment.homology_based_assembly
 goldengate_assembly     = qexperiment.goldengate_assembly
 gateway_reaction        = qexperiment.gateway_reaction
-
+topo_cloning            = qexperiment.topo_cloning
 commands = [
             "protocol_description", 
             "script_description", 

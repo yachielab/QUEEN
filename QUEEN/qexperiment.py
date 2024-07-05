@@ -8,7 +8,7 @@ from cutsite import Cutsite
 from Bio.SeqUtils import MeltingTemp as mt
 import functools
 
-def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, add_primerbind=False, tm_func=None, return_tm=False, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
+def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=False, tm_func=None, return_tm=False, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
     """
     Simulates a PCR (Polymerase Chain Reaction) process on a given DNA template using forward and reverse primers. This function does not provide the function to check cross dimer and homo dimer in primer design as default. If you wanna add such function, set the original `requirement` equiation. 
     Parameters
@@ -22,7 +22,7 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, add_primerbind=Fa
         The reverse primer. Can be a QUEEN object or a string representing the DNA sequence.
         If a dsDNA QUEEN object is given, its top strand sequence is used as reverse primer.
     bindnum : int, optional
-        The minimum number of binding nucleotides for a primer, by default 16.
+        The minimum number of binding nucleotides for a primer, by default 15.
     mismatch : int, optional
         The maximum number of mismatches allowed in the primer binding, by default 1.
     endlength : int, optional
@@ -74,10 +74,10 @@ def pcr(template, fw, rv, bindnum=16, mismatch=1, endlength=3, add_primerbind=Fa
     QUEEN, cropdna, modifyends
 
     """
-    def search_binding_site(template, primer, strand=1, bindnum=16, endlength=3, flag=1, pn=None, pd=None, **kwargs): 
+    def search_binding_site(template, primer, strand=1, bindnum=15, endlength=3, flag=1, pn=None, pd=None, **kwargs): 
         site = [] 
         primer_end = primer.seq[-1*endlength:]
-        for i in range(bindnum-endlength, len(primer.seq)-endlength):
+        for i in range(bindnum-endlength, len(primer.seq)-endlength+1):
             binding_site = primer.seq[-1*i + -1*endlength:-1*endlength]
             try:
                 site = template.searchsequence(query="(?:{}){{s<={}}}{}".format(binding_site, mismatch, primer_end), quinable=False) 
@@ -216,6 +216,10 @@ def _select(fragments, selection=None):
     if selection is None:
         return fragments  
     
+    elif type(selection) == int:
+        fragments.sort(key=lambda x:abs(len(x.seq)-selection))
+        return fragments[0] 
+
     elif type(selection) == tuple:
         fragments = [fragment for fragment in fragments if min(size_range) <= len(fragment.seq) <= max(size_range)] 
         if len(fragments) > 1:
@@ -267,6 +271,7 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
         If a `tuple` value is provided, The tuple (min_size, max_size) specifies the size range for filtering 
         the resulting fragments. If multiple fragments holding the are detected in the specified range, 
         a error will be raised.  
+        If a `int` value is specified, the fragment with the nearest length to the specified value will be selected. 
         If None, no selection is done. Default is None.  
     product : str, optional 
         Product name of the digestion process.
@@ -306,7 +311,7 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
 
     """
     if selection is not None:
-        if (type(selection) != tuple) and selection not in ("min", "max") and (selection.startswith("label:") == False and selection.startswith("!label:") == False):
+        if (type(selection) not in (int, tuple)) and selection not in ("min", "max") and (selection.startswith("label:") == False and selection.startswith("!label:") == False):
             raise TypeError("`selection` should be `tuple` value, 'min', 'max', or `str` starting with 'label:' or '!label'.")
     
     cutsite_names = []
@@ -347,7 +352,10 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
         new_cutsites.extend(sites) 
     
     fragments = cutdna(dna, *new_cutsites, product=product, pn=process_name, pd=process_description, qexparam=qexd)
-    return _select(fragments, selection) 
+    if len(fragments) == 1 and selection is None: 
+        return _select(fragments, "max") 
+    else:
+        return _select(fragments, selection) 
 
 def ligation(*fragments, unique=True, follow_order=False, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs): 
     """
@@ -504,7 +512,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
     product : str, optional 
         Product name of the homology_based_assembly (hba) process. 
     process_name : str, optional
-        Brief label for the `homology_based_assembly` process .
+        Brief label for the `homology_based_assembly` process.
         If `mode` is `"gibson"`, default is "Gibson Assembly". 
         If `mode` is `"infusion"`, default is "In-Fusion Assembly". 
         If `mode` is `"overlappcr"`, default is "Overlap PCR".
@@ -615,7 +623,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
 
     else:
         nums = list(range(len(fragments)))
-        if (len(fragments) < 5 and follow_order is None) or follow_order == False:
+        if (len(fragments) < 6 and follow_order is None) or follow_order == False:
             nums_orders = list(map(list,it.permutations(nums[:-1])))
             nums_orders = [numlist + [nums[-1]] for numlist in nums_orders]
             flip_status_list = list(it.product(*[[1,-1] for i in range(len(fragments))]))   
@@ -738,8 +746,8 @@ def annealing(ssdna1, ssdna2, homology_length=4, product=None, pn=None, pd=None,
     
     annealed_dna  = joindna(ssdna1, ssdna2, homology_length=homology_length, product=product, pn=process_name, pd=process_description, qexparam=qexd)
     
-    ssdna1._ssdna = False if flag1 == 1 else True 
-    ssdna2._ssdna = False if flag2 == 1 else True
+    ssdna1._ssdna       = False if flag1 == 1 else True 
+    ssdna2._ssdna       = False if flag2 == 1 else True
 
     return annealed_dna 
 
@@ -870,9 +878,9 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
     **kwargs
         Additional keyword arguments for advanced configurations.
     """
-    if type(enzyme) == str and enzyme in cs.lib.keys():
-        enzyme = cs.lib[enzyme]  
-    elif type(cutsites[c]) == Cutsite or "cutsite" in cutsites[c].__dict__:
+    if type(cutsite) == str and cutsite in cs.lib.keys():
+        cutsite = cs.lib[cutsite]  
+    elif type(cutsite) == Cutsite or "cutsite" in cutsite.__dict__:
         pass 
 
     process_name = pn if process_name is None else process_name
@@ -883,7 +891,7 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
     kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
     entry_str  = ", ".join(["QUEEN.dna_dict['{}']".format(aentry._product_id) for aentry in entry])
     entry_str  = "[{}]".format(entry_str)
-    qexd = "golden_gate_assembly(QUEEN.dna_dict['{}'], {}, enzyme='{}'{})".format(destination._product_id, entry_str, enzyme.name, kwargs_str)
+    qexd = "golden_gate_assembly(QUEEN.dna_dict['{}'], {}, cutsite='{}'{})".format(destination._product_id, entry_str, cutsite.name, kwargs_str)
     process_description = pd if process_description is None else process_description
     #process_description = pd_suffix if process_description is None else process_description #+ "\n" + pd_suffix
 
@@ -892,17 +900,21 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
     
     fragments = [] 
     for aentry in entry:
-        inserts = digestion(aentry, enzyme, product=aentry.project, pn=process_name, pd=process_description, qexparam="")
-        for insert in inserts:
-            if enzyme.seq in insert.seq or enzyme.rcseq in insert.seq:
-                pass
-            else:
-                break
+        if aentry.topology == "linear" and len(aentry.searchsequence(query=cutsite, quinable=0)) == 0:
+            insert = aentry
+        else: 
+            inserts = digestion(aentry, cutsite, product=aentry.project, pn=process_name, pd=process_description, qexparam="")
+            for insert in inserts:
+                if cutsite.seq in insert.seq or cutsite.rcseq in insert.seq:
+                    pass
+                else:
+                    break
+        
         fragments.append(insert) 
 
-    backbones =  digestion(destination, enzyme, product=destination.project, pn=process_name, pd=process_description, qexparam="") 
+    backbones =  digestion(destination, cutsite, product=destination.project, pn=process_name, pd=process_description, qexparam="") 
     for backbone in backbones:
-        if enzyme.seq in backbone.seq or enzyme.rcseq in backbone.seq:
+        if cutsite.seq in backbone.seq or cutsite.rcseq in backbone.seq:
             pass
         else:
             break
@@ -911,13 +923,70 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
     outobj = ligation(*fragments, product=product, pn=process_name, pd=process_description, qexparam=qexd) 
     return outobj
 
+def topo_cloning(destination, entry, mode="TA", product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
+    """
+    Simulate TOPO cloning 
+    
+    Parameters
+    ----------
+    destination : QUEEN object
+        The destination QUEEN object holding the backbone DNA molecule. Basically, the sequence topology should be linear and proper end structure along with the `mode` value. However, if the sequence topology is circular, the sequence would be processed pre-defined restriction enzymes based on `mode` value.  
+    entry : QUEEN object with blunt-linear topology
+        The entry QUEEN objects holding the insert DNA molecules. If `mode` is `"directional"`, its 5' end sequnence should be `"CACC"`. 
+    mode : "TA", "blunt", or "directional"
+        Brief label for the `topo_cloning` process.
+    process_description : str, optional
+        Additional description for the gateway reaction process.
+    pn : str, optional
+        Alias for process_description.
+    pd : str, optional
+        Alias for process_description.
+    **kwargs
+        Additional keyword arguments for advanced configurations.
+    
+    Returns
+    -------
+    QUEEN (construct)
+    Returns the topo cloning construct.
+    """
+    kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
+    kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
+    qexd = "topo_cloning(QUEEN.dna_dict['{}'], QUEEN.dna_dict['{}'], mode='{}'{})".format(destination._product_id, entry._product_id, mode, kwargs_str)
+
+    if mode == "TA":
+        if destination.topology == "circular":
+            destination = digestion(destination, "AflII", selection="max", product=destination.project, pn=process_name, pd=process_description, qexparam="")
+            destination = modifyends(destination, pn=process_name, pd=process_description) 
+            destination = modifyends(destination, "-/*", "*/-", pn=process_name, pd=process_description) 
+        
+        entry  = modifyends(entry, "T", "A", pn=process_name, pd=process_description) 
+        entry  = modifyends(entry, "-/*", "*/-", pn=process_name, pd=process_description)
+        outobj = joindna(destination, entry, autoflip=False, compatibility="complete", homology_length=1, topology="circular", product=product, pn=process_name, pd=process_description, qexparam=qexd)
+
+    elif mode == "blunt": 
+        if destination.topology == "circular":
+            destination = digestion(destination, "AflII", selection="max", product=destination.project, pn=process_name, pd=process_description, qexparam="")
+            destination = modifyends(destination, pn=process_name, pd=process_description) 
+        outobj = joindna(destination, entry, autoflip=False, compatibility="complete", topology="circular", product=product, pn=process_name, pd=process_description, qexparam=qexd)
+
+    elif mode == "directional":
+        if destination.topology == "circular":
+            destination = digestion(destination, "StyI", selection="max", product=destination.project, pn=process_name, pd=process_description, qexparam="")
+            destination = modifyends(destination, pn=process_name, pd=process_description)
+            destination = cropdna(destination, 1, len(destination.seq)-3, pn=process_name, pd=process_description)
+            destination = modifyends(destination, "", "----/****", pn=process_name, pd=process_description)
+        entry = modifyends(entry, "****/----", "", pn=process_name, pd=process_description)
+        outobj = joindna(destination, entry, autoflip=False, compatibility="complete", topology="circular", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
+    
+    return outobj
+
 def intra_site_specific_recombination(dna, site="loxP", product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
     """
     Simulates a intra molecule site-specific recombination.
 
     Parameters
     ----------
-    dna : QUEEN
+    dna : QUEEN object
         The target QUEEN object.
     site : str ("loxP", "lox2272", "FRT") 
         The target site for the recombination reaction. At least two identical   
@@ -1212,7 +1281,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
     >>> template_Q = QUEEN('ATGC...')
     >>> target_Q = QUEEN('ATGC...')
     >>> # Assuming target_Q sequence is within template_Q
-    >>> primers = primerdesign(template_Q, target_Q, target_tm=65.0, num_design=5)
+    >>> primers = primerdesign(template_Q, target_Q, target_tm=65.0, design_num=5)
     >>> primers
     [
         {"fw": QUEEN(seq="ATGCGT...", ssdna=True), "rv": QUEEN(seq="TACGCA...", ssdna=True)},
@@ -1240,7 +1309,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         
         elif type(adapter) == str:
             for i in range(len(filtered_primer_pairs)):
-                filtered_primer_pairs[i][strand][0] = QUEEN(seq="ATGC" + adapter + filtered_primer_pairs[i][strand][0], ssdna=True, product=name) 
+                filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter + filtered_primer_pairs[i][strand][0], ssdna=True, product=name) 
 
         elif type(adapter) == QUEEN and adapter._ssdna == True:
             for i in range(len(filtered_primer_pairs)):

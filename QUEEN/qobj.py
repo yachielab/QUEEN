@@ -256,6 +256,8 @@ class QUEEN():
         
         elif dbtype == "addgene": 
             try:
+                if _id[0] == "#":
+                    _id = _id[1:]
                 if ":" not in _id:
                     _id = _id + ":addgene"
                 site = "https://www.addgene.org/{}/sequences/".format(_id.split(":")[0]) 
@@ -264,6 +266,8 @@ class QUEEN():
                 url  = soup.find(id="{}-full".format(_id.split(":")[1])).find(class_="genbank-file-download").get("href")
             
             except Exception as e:
+                if _id[0] == "#":
+                    _id = _id[1:]
                 if _id.split(":")[1] == "addgene":
                     _id = _id.split(":")[0] + ":depositor"
                 else:

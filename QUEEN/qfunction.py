@@ -716,6 +716,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                             original_seq = feat1.original
                         
                         if feat1.feature_type == "CDS" and "translation" in feat1.qualifiers:
+                            feat1.type = "gene" #CDS to gene
                             del feat1.qualifiers["translation"]
                         
                         label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat1.original), original_seq, s, e))
@@ -747,6 +748,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                             original_seq = feat2.original
                         
                         if feat2.feature_type == "CDS" and "translation" in feat2.qualifiers:
+                            feat2.type = "gene"
                             del feat2.qualifiers["translation"]
 
                         label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat2.original), original_seq, s, e))
@@ -798,6 +800,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                     original_seq = feat.original
                                 
                                 if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
+                                    feat.type = "gene"
                                     del feat.qualifiers["translation"]
                                 
                                 label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), original_seq, s, e))
@@ -834,6 +837,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                     original_seq = feat.original 
 
                                 if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
+                                    feat.type = "gene"
                                     del feat.qualifiers["translation"]
 
                                 label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), original_seq, s, e))
@@ -893,6 +897,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                     original_seq = feat.original
                                 
                                 if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
+                                    feat.type = "gene"
                                     del feat.qualifiers["translation"]
 
                                 label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), original_seq, s, e))
@@ -1532,7 +1537,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                             continue
 
             elif fdna._ssdna == True and construct._ssdna == True:
-                dna = fdna
+                dna = copy.deepcopy(fdna) 
                 annealing = True
                 if len(construct.seq) < len(dna.seq):
                     ovresult = _detect_overlap(construct.seq, dna.seq.translate(str.maketrans("ATGC","TACG"))[::-1])[1]
@@ -1554,7 +1559,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                     else:
                         flag = 0 
                 else:
-                    new_q = construct.__class__(seq=new_q, quinable=0) 
+                    new_q = construct.__class__(seq=new_q, quinable=0)
                     ovhg_length = len(ovhg)
                     flag = 1
             else:
@@ -1700,6 +1705,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                     zero_position += zero_positions[0][2]
                     construct = cutdna(construct, zero_position, quinable=0)[0]
                     construct = _circularizedna(construct, compatibility, homology_length) 
+                    
                 construct._positions = tuple(range(len(construct.seq)))    
             else:
                 construct._positions = tuple(range(len(construct.seq)))    
@@ -2151,7 +2157,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
             new_dna._dnafeatures     = _slide(dna.dnafeatures, len(left_end.split("/")[0])) 
             new_dna.record           = copy.copy(dna.record) 
             new_dna.record.features  = new_dna.dnafeatures
-            new_dna._positions =  (-1,) * len(left_end.split("/")[0]) + new_dna._positions + (-1,) * len(right_end.split("/")[0])
+            new_dna._positions =  (-1,) * len(left_end.split("/")[0]) + dna._positions + (-1,) * len(right_end.split("/")[0])
             
         
         elif add_right == 1:

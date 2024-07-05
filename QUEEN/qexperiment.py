@@ -183,13 +183,18 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
     if len(rv_feats) == 0:
         rv.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})
     
+    
     if fw_site.end > rv_site.start and fw_site.end <= rv_site.end:
-        extract   = cropdna(template, rv_site.start,  fw_site.end, pn=process_name, pd=process_description)
+        start = rv_site.start if rv_site.start < len(template.seq) else rv_site.start - len(template.seq)
+        end   = fw_site.end if fw_site.end < len(template.seq) else fw_site.end - len(template.seq)
+        extract  = cropdna(template, start,  end, pn=process_name, pd=process_description)
         fw_index = len(fw.seq) - (fw_site.end - rv_site.start) 
         rv_index = fw_site.end - rv_site.start 
         amplicon = modifyends(extract, fw.seq[:fw_index], rv.rcseq[rv_index:], product=product, pn=process_name, pd=process_description, qexparam=qexd)
     else:
-        extract  = cropdna(template, fw_site.end, rv_site.start, pn=process_name, pd=process_description)
+        start = fw_site.end if fw_site.end < len(template.seq) else fw_site.end - len(template.seq)
+        end   = rv_site.start if rv_site.start < len(template.seq) else rv_site.start - len(template.seq)
+        extract  = cropdna(template, start, end, pn=process_name, pd=process_description)
         amplicon = modifyends(extract, fw.seq, rv.rcseq, product=product, pn=process_name, pd=process_description, qexparam=qexd)
     
     if add_primerbind == True:
@@ -667,7 +672,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
                 return products[0]
             except Exception as e:
                 print(e, errors) 
-                raise ValueError("Error") 
+                raise ValueError("Error, incompatible ends were detected") 
     else: 
         return products 
 

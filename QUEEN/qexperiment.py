@@ -102,6 +102,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
                 return site 
 
         elif len(site) > 1: 
+            print(site) 
             raise ValueError("Multiple primer binding sites were detected.") 
         
         #else:

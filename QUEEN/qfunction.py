@@ -2718,8 +2718,8 @@ def get_matchlist_regex(dna, query, value=None, subject=None, s=None, e=None, st
         match_set = set([]) 
         for match in match_iter:
             result  = {"start":None, "end":None, "strand":None, "match":None} 
-            span    = match.span() 
-            span    = (span[0] - e if span[0] >= e else span[0], span[1] - e if span[1] >= e else span[1])
+            span    = match.span()
+            span    = (span[0] - e if span[0] >= e else span[0], span[1] - e if span[1] > e else span[1])
             if span not in match_set:
                 match_set.add(span) 
                 span    = (e-span[1], e-span[0])
@@ -2760,7 +2760,7 @@ def get_matchlist_regex(dna, query, value=None, subject=None, s=None, e=None, st
         for match in match_iter:
             result  = {"start":None, "end":None, "strand":None, "match":None} 
             span    = match.span() 
-            span    = (span[0] - e if span[0] >= e else span[0], span[1] - e if span[1] >= e else span[1])
+            span    = (span[0] - e if span[0] >= e else span[0], span[1] - e if span[1] > e else span[1])
             if span not in match_set:
                 match_set.add(span) 
                 result["start"]  = s + span[0]

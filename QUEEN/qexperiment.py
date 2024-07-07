@@ -31,10 +31,11 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
         If True, add DNAfeatures on the primer binding sites in the template DNA. 
     tm_func : str, function, optional
         Function to calculate the melting temperature of the primer pair 
-        As `str` specfication, you can select `"Breslauer"` and `"SantaLucia"`. Default is `"SantaLucia"`.  
-        Also, as built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. This function is implemented 
-        based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, so the all parameters of 
-        `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, can be acceptable.
+        As `str` specfication, you can select `"Breslauer" or "br"` and `"SantaLucia" or "sa"`. 
+        Default is `"SantaLucia"`. Also, as built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. 
+        This function is implemented based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, 
+        so the all parameters of `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, 
+        can be acceptable.
     return_tm : bool, optional
         If True, tm values of the primer pair are also returned.  
         The tm values will be calculated based on thier biding region excluding adaptor regions.
@@ -206,10 +207,10 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
         if tm_func is None:
             tm_func = Tm_NN() 
         
-        elif tm_func == "SantaLucia":
+        elif tm_func == "SantaLucia" or "sa":
             tm_func = Tm_NN(nn_table=mt.DNA_NN3)
 
-        elif tm_func == "Breslauer":
+        elif tm_func == "Breslauer" or "br":
             tm_func = Tm_NN(nn_table=mt.DNA_NN1)
 
         fw_tm = tm_func(seq=template.seq[fw_site.start:fw_site.end]) 
@@ -1178,7 +1179,7 @@ def Tm_NN(check=True, strict=True, nn_table=None, tmm_table=None, imm_table=None
 
 def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, rv_margin=0,
                  target_tm=60.0, tm_func=None, primer_length=(16, 25), 
-                 design_num=1, fw_adapter=None, rv_adapter=None, cloning_mode="gibson", 
+                 design_num=1, fw_adapter=None, rv_adapter=None, adapter_mode="standard", 
                  homology_length=20, nonspecific_limit=3, auto_adjust=1, 
                  requirement=None, fw_name="fw_primer", rv_name="rv_primer"):
     """
@@ -1203,40 +1204,49 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
     target_tm : float, optional
         Desired melting temperature (Tm) for the primers in degrees Celsius. Default is 60.0.
     tm_func : str, function, optional
-        Function to calculate the melting temperature of primer candidates. 
-        As `str` specfication, you can select `"Breslauer"` and `"SantaLucia"`. Default is `"SantaLucia"`.  
-        Also, as built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. This function is implemented 
-        based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, so the all parameters of 
-        `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, can be acceptable.
+        Function to calculate the melting temperature of the primer pair 
+        As `str` specfication, you can select `"Breslauer" or "br"` and `"SantaLucia" or "sa"`. 
+        Default is `"SantaLucia"`. Also, as built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. 
+        This function is implemented based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, 
+        so the all parameters of `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, 
+        can be acceptable.
     primer_legnth : tuple of int, optional
         A tuple (min_size, max_size) specifying the primer length. Default is (16, 25).
     design_num : int, optional
         Number of primer pairs to design. Defaults to 1.
-    fw_adapter : QUEEN object, str or Cutsite, optional
-        If it's a string or a single-stranded DNA (ssDNA) QUEEN object, the sequence will be added at   
-        the beginning of any forward primers designed.  
-        If it's a double-stranded DNA (dsDNA) QUEEN object with linear topology, the homology sequence   
-        to the 3' end of the QUEEN object will be added at the beginning of any forward primers.  
-        Alternatively, you can specify the name of a restriction enzyme or 'attB'. In these cases,   
-        the adapter sequence including the specified site will be added at the beginning of the primers.  
-        For now, "attB" sequence as fw adapter is "GGGGACAAGTTTGTACAAAAAAGCAGGCT".
+    adapter_mode : "standard", "gibson", "infusion", "overlappcr", "RE", or "BP". Default is "standard"
+        The mode value specifies the the format of `fw_adapter` and `rv_adapter`.  
+    fw_adapter : QUEEN object, str or Cutsite
+        If mode is `"standard"`, the value must be a QUEEN object or a `str` object representing a DNA 
+        sequence. The sequence will be added at the beginning of any forward primers designed.
+        If mode is `"gibson"`, `"infusion"`, or `"overlappcr"`, the value must be a dsDNA QUEEN object. 
+        The adapter sequence overlapping the specified QUEEN object will be automatically designed and 
+        prepended to the forward primers.
+        If mode is `"RE"`, the value must be a Cutsite object or a `str` object representing a restriction 
+        enzyme (RE) site. The adapter sequence including the specified RE site will be added at the beginning 
+        of the forward primers.
+        If mode is "BP", the value must be "attB1" or "attB2". The specified attB site will be added at the 
+        beginning of the forward primers. Currently, "attB1" and "attB2" are specified as follows:
+        attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
+        attB2: GGGGACCACTTTGTACAAGAAAGCTGGGT
     rv_adapter : QUEEN object, str or Cutsite, optional
-        If it's a string or a single-stranded DNA (ssDNA) QUEEN object, the sequence will be added at   
-        the beginning of any reverse primers designed.  
-        If it's a double-stranded DNA (dsDNA) QUEEN object with linear topology, the homology sequence   
-        to the 3' end of the QUEEN object will be added at the beginning of any reverse primers.  
-        Alternatively, you can specify the name of a restriction enzyme or 'attB'. In these cases,   
-        the adapter sequence including the specified site will be added at the beginning of the primers.  
-        For now, "attB" sequence as rv adapter is "GGGGACCACTTTGTACAAGAAAGCTGGGT".
-    cloning_mode : str("gibson", "infusion", "overlappcr"), optional
-        If the adapter is a dsDNA QUEEN object, the adapter sequence, which can be joined with the target amplicon   
-        via the specified `cloning_mode`, will be automatically generated.
+        If mode is `"standard"`, the value must be a QUEEN object or a `str` object representing a DNA 
+        sequence. The sequence will be added at the beginning of any reverse primers designed.
+        If mode is `"gibson"`, `"infusion"`, or `"overlappcr"`, the value must be a dsDNA QUEEN object. 
+        The adapter sequence overlapping the specified QUEEN object will be automatically designed and 
+        prepended to the revese primers.
+        If mode is `"RE"`, the value must be a Cutsite object or a `str` object representing a restriction 
+        enzyme (RE) site. The adapter sequence including the specified RE site will be added at the beginning 
+        of the reverse primers.
+        If mode is "BP", the value must be "attB1" or "attB2". The specified attB site will be added at the 
+        beginning of the reverse primers. Currently, "attB1" and "attB2" are specified as follows:
+        attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
+        attB2: GGGGACCACTTTGTACAAGAAAGCTGGGT
     homology_length : int, optional
-        This parameter is active if either `fw_adapter` or `rv_adapter` is specified as a dsDNA QUEEN object 
-        and `cloning_mode` is `"gibson"`, `"infusion"`, or `"overlappcr"`.  
+        This parameter is active if `adapter_mode` is `"gibson"`, `"infusion"`, or `"overlappcr"`.  
         If an int value is provided, an adapter sequence including an overlapping end with the specified  
         dsDNA QUEEN object will be designed, such that the overlap is greater than or equal to the provided value.  
-        Default value is 15.
+        Default value is 20.
     nonspecific_limit : int, optional
         The maximum number of mismatches allowed for primer binding outside of the designated primer design region  
         within the template sequence. Primer pairs that bind to any region of the template with a number of mismatches  
@@ -1295,33 +1305,51 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         ...
     ]
     """
-    def append_adapter(amplicon_region, filtered_primer_pairs, adapter, mode, adapter_form, strand, name):
+    def append_adapter(amplicon_region, filtered_primer_pairs, adapter, mode, homology_length, strand, name, auto_adjust):
         if adapter is None:
             for i in range(len(filtered_primer_pairs)):
-                filtered_primer_pairs[i][strand][0] = QUEEN(seq=filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
-
-        elif adapter == "attB":
-            for i in range(len(filtered_primer_pairs)):
-                if strand == "fw":
-                    filtered_primer_pairs[i][strand][0] = QUEEN(seq="GGGGACAAGTTTGTACAAAAAAGCAGGCT" + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
+                    filtered_primer_pairs[i][strand][0] = QUEEN(seq=filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
+        elif mode == "standard":
+            if type(adapter) == QUEEN or (type(adapter) == str and set(adapter.upper()) <= set("ATGCRYKMSWBDHVN")):
+                if type(adapter) == QUEEN:
+                    if adapter._ssdna == True:
+                        for i in range(len(filtered_primer_pairs)):
+                            filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + adaper + QUEEN(seq=filtered_primer_pairs[i][strand][0], ssdna=True, quinable=0)
+                    else:
+                        for i in range(len(filtered_primer_pairs)):
+                            filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter.seq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
                 else:
+                    for i in range(len(filtered_primer_pairs)):
+                        filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
+
+            else:
+                raise ValueError("When 'adapter_mode' is 'standard', adapter value must be a QUEEN object or str object.")
+
+
+        elif mode == "attB":
+            for i in range(len(filtered_primer_pairs)):
+                if adapter == "attB1":
+                    filtered_primer_pairs[i][strand][0] = QUEEN(seq="GGGGACAAGTTTGTACAAAAAAGCAGGCT" + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
+                elif adapter == "attB2":
                     filtered_primer_pairs[i][strand][0] = QUEEN(seq="GGGGACCACTTTGTACAAGAAAGCTGGGT" + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
+                else:
+                    raise ValueError("When 'adapter_mode' is 'BP', adapter value must be a QUEEN object or str object.")
 
-        elif (type(adapter) == str and adapter in cs.lib.keys()) or "Cutsite" in type(adapter).__name__:
-            if type(adapter) == str: 
-                adapter = cs.lib[adapter]
-            for i in range(len(filtered_primer_pairs)):
-                filtered_primer_pairs[i][strand][0] = QUEEN(seq="ATGC" + adapter.seq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name) 
-        
-        elif type(adapter) == str:
-            for i in range(len(filtered_primer_pairs)):
-                filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter + filtered_primer_pairs[i][strand][0], ssdna=True, product=name) 
+        elif mode == "RE":
+            if (type(adapter) == str and adapter in cs.lib.keys()) or "Cutsite" in type(adapter).__name__:
+                if type(adapter) == str: 
+                    adapter = cs.lib[adapter]
+                for i in range(len(filtered_primer_pairs)):
+                    filtered_primer_pairs[i][strand][0] = QUEEN(seq="ATGC" + adapter.seq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name) 
+            else:
+                raise ValueError("When 'adapter_mode' is 'RE', adapter value must be a Cutsite object or a str object.") 
 
-        elif type(adapter) == QUEEN and adapter._ssdna == True:
-            for i in range(len(filtered_primer_pairs)):
-                filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter.seq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
+        elif mode in ("gibson", "infusion", "overlappcr"):
+            if type(adapter) == QUEEN and adapter._ssdna == False:
+                pass 
+            else:
+                raise ValueError("When 'adapter_mode' is 'gibson', 'infusion', or 'overlappcr', adapter value must be a dsDNA QUEEN object or str object.")
 
-        elif type(adapter) == QUEEN and adapter._ssdna == False:
             adapter_features = [feat for feat in adapter.dnafeatures if feat.feature_type != "source"]
             for i in range(len(filtered_primer_pairs)):
                 s = filtered_primer_pairs[i]["fw"][1]
@@ -1334,13 +1362,13 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                     feat1 = adapter_features[-1] 
                     feat2 = amplicon_features[0] 
                     if feat1.feature_type == "promoter" and feat2.feature_type == "CDS":
-                        if feat1.strand == 1 and feat2.strand == -1:
-                            print("**Attention**: The directions of the gene in the adapter and the gene in the application are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                        if feat1.strand == 1 and feat2.strand == -1 and auto_adjust == True:
+                            raise ValueError("**Attention**: The directions of the gene in the adapter and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
                         else:
                             pass
                     if feat1.feature_type == "CDS" and feat2.feature_type == "promoter":
-                        if feat1.strand == -1 and feat2.strand == 1:
-                            print("**Attention**: The directions of the gene in the adapter and the gene in the application are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                        if feat1.strand == -1 and feat2.strand == 1 and auto_adjust == True:
+                            raise ValueError("**Attention**: The directions of the gene in the adapter and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
                         else:
                             pass 
 
@@ -1348,13 +1376,13 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                     feat1 = amplicon_features[-1] 
                     feat2 = adapter_features[0] 
                     if feat1.feature_type == "CDS" and feat2.feature_type == "promoter":
-                        if feat1.strand == 1 and feat2.strand == -1:
-                            print("**Attention**: The directions of the gene in the adapter and the gene in the application are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                        if feat1.strand == 1 and feat2.strand == -1 and auto_adjust == True:
+                            raise ValueError("**Attention**: The directions of the gene in the adapter and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
                         else:
                             pass
                     if feat1.feature_type == "promoter" and feat2.feature_type == "CDS":
-                        if feat1.strand == -1 and feat2.strand == 1:
-                            print("**Attention**: The directions of the gene in the adapter and the gene in the application are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                        if feat1.strand == -1 and feat2.strand == 1 and auto_adjust == True:
+                            raise ValueError("**Attention**: The directions of the gene in the adapter and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
                         else:
                             pass 
 
@@ -1364,9 +1392,10 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                     else:
                         if feat1.strand == feat2.strand:
                             req = True
+                        elif auto_adjust == True:
+                            raise ValueError("**Attention**: The directions of the gene in the adapter and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
                         else:
-                            req = True
-                            print("**Attention**: The directions of the gene in the adapter and the gene in the application are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                            pass 
                 else:
                     req = False 
 
@@ -1393,34 +1422,27 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                         else:
                             pass
                 
-                if req == True:
-                    if type(adapter_form) == int:
-                        if strand == "fw":
-                            feat1 = adapter_features[-1] 
-                            feat2 = amplicon_features[0] 
-                            fragment1 = adapter[feat1.start:].seq  
-                            fragment2 = pcr_amplicon[:feat2.end].seq 
-                            gapseq = "".join([random.choice("ATGC") for _ in range((len(fragment1) + len(fragment2)) % 3)])
-                            filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter.seq[-1*adapter_form:] + gapseq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
-                        else:
-                            feat1 = amplicon_features[-1] 
-                            feat2 = adapter_features[0] 
-                            fragment1 = pcr_amplicon[feat1.start:].seq  
-                            fragment2 = adapter[:feat2.end].seq 
-                            gapseq = "".join([random.choice("ATGC") for _ in range((len(fragment1) + len(fragment2)) % 3)])
-                            filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter.rcseq[-1*adapter_form:] + gapseq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
-
-                    elif type(adapter_form) == Cutsite:
-                        pass
+                if req == True and auto_adjust == True:
+                    if strand == "fw":
+                        feat1 = adapter_features[-1] 
+                        feat2 = amplicon_features[0] 
+                        fragment1 = adapter[feat1.start:].seq  
+                        fragment2 = pcr_amplicon[:feat2.end].seq 
+                        gapseq = "".join([random.choice("ATGC") for _ in range((len(fragment1) + len(fragment2)) % 3)])
+                        filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter.seq[-1*homology_length:] + gapseq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
+                    else:
+                        feat1 = amplicon_features[-1] 
+                        feat2 = adapter_features[0] 
+                        fragment1 = pcr_amplicon[feat1.start:].seq  
+                        fragment2 = adapter[:feat2.end].seq 
+                        gapseq = "".join([random.choice("ATGC") for _ in range((len(fragment1) + len(fragment2)) % 3)])
+                        filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter.rcseq[-1*homology_length:] + gapseq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
 
                 else:
-                    if type(adapter_form) == int:
-                        if strand == "fw":
-                            filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter.seq[-1*adapter_form:] + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
-                        else:
-                            filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter.rcseq[-1*adapter_form:] + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
-                    elif type(adapter_form) == Cutsite:
-                        pass 
+                    if strand == "fw":
+                        filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter.seq[-1*homology_length:] + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
+                    else:
+                        filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter.rcseq[-1*homology_length:] + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
         else:
             raise TypeError("adapter object must be instance of QUEEN, Cutsite or str class.")
      
@@ -1431,16 +1453,8 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             req1 =  x["fw"][-1] not in ("A", "T") and x["rv"][-1] not in ("A", "T") 
             req4 = "AAAA" not in x["fw"] and "TTTT" not in x["fw"] and "GGGG" not in x["fw"] and "CCCC" not in x["fw"]
             req5 = "AAAA" not in x["rv"] and "TTTT" not in x["rv"] and "GGGG" not in x["rv"] and "CCCC" not in x["rv"]
-            return req1 * req4 *  req5
-    
-    if type(homology_length) == int or homology_length is None:
-        mode = "gibson"
-        adapter_form = homology_length
-    
-    elif type(homology_length) == tuple:
-        mode = homology_length[0] 
-        adapter_form = homology_length[1] 
-
+            return req1 and req4 and req5
+        
     if type(template) != QUEEN:
         raise TypeError("`template` object must be instance of QUEEN class.") 
     
@@ -1468,9 +1482,9 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
 
     if tm_func is None:
         tm_func = Tm_NN() 
-    elif tm_func == "SantaLucia":
+    elif tm_func == "SantaLucia" or "sa":
         tm_func = Tm_NN(nn_table=mt.DNA_NN3)
-    elif tm_func == "Breslauer":
+    elif tm_func == "Breslauer" or "br":
         tm_func = Tm_NN(nn_table=mt.DNA_NN1)
 
     start = template.seq.find(target.seq) - fw_margin
@@ -1546,8 +1560,8 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             filtered_primer_pairs.append(primer_pair)  
         else:
             pass
-    filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, fw_adapter, mode, adapter_form, "fw", fw_name)
-    filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, mode, adapter_form, "rv", rv_name)
+    filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, fw_adapter, adapter_mode, homology_length, "fw", fw_name, auto_adjust)
+    filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, adapter_mode, homology_length, "rv", rv_name, auto_adjust)
 
     for i in range(len(filtered_primer_pairs)):
         filtered_primer_pairs[i]["fw"] = filtered_primer_pairs[i]["fw"][0] 

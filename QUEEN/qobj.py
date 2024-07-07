@@ -1450,7 +1450,10 @@ class QUEEN():
                 return subdna 
 
         if type(item) == str:
-            site = self.searchfeature(query=item)[0]
+            s1 = self.searchfeature(query="^"+item+"$", key_attribute="feature_id")
+            s2 = self.searchfeature(query=item, key_attribute="qualifier:label")
+            s3 = self.searchfeature(query=item, key_attribute="qualifier:gene")
+            site = (s1 + s2 + s3)[0]
             return self[site.start:site.end] 
         
         if type(item) == tuple:
@@ -1469,7 +1472,10 @@ class QUEEN():
                 starts = [] 
                 end  = 0 
                 for i, query in enumerate(item):
-                    site  =  temp.searchfeature(query=query)[0] 
+                    s1 = temp.searchfeature(query="^"+query+"$", key_attribute="feature_id")
+                    s2 = temp.searchfeature(query=query, key_attribute="qualifier:label")
+                    s3 = temp.searchfeature(query=query, key_attribute="qualifier:gene")
+                    site = (s1 + s2 + s3)[0] 
                     if i == 0:
                         start = site.start
                         temp  =  temp[site.end:] + self[0:]
@@ -1479,7 +1485,7 @@ class QUEEN():
                 
                 if end > len(self.seq):
                     end = end - len(self.seq) 
-
+                
                 if exclude == 1:
                     if self.topology == "circular":
                         return self[end:start]
@@ -1490,7 +1496,10 @@ class QUEEN():
 
             else:
                 if type(item[0]) == str and exclude == 1:
-                    site = self.searchfeature(query=item[0])[0]
+                    s1 = self.searchfeature(query="^"+item[0]+"$", key_attribute="feature_id")
+                    s2 = self.searchfeature(query=item[0], key_attribute="qualifier:label")
+                    s3 = self.searchfeature(query=item[0], key_attribute="qualifier:gene")
+                    site = (s1 + s2 + s3)[0]
                     if self.topology == "circular":
                         return self[site.end:site.start]
                     else:
@@ -1514,10 +1523,8 @@ class QUEEN():
         if other.topology == "circular" or self.topology == "circular":
             raise ValueError("Cicularized QUEEN object cannot be joined with others.") 
         else:
-            if self._ssdna == True:
-                self._ssdna = False 
-                outobj = joindna(self, other, quinable=0)
-                outobj._ssdna = True
+            if self._ssdna == True and other._ssdna == True: 
+                outobj = joindna(self, other, quinable=0, homology_length=0)
                 return outobj
             else:
                 return joindna(self, other, quinable=0)
@@ -1535,10 +1542,8 @@ class QUEEN():
         if other.topology == "circular" or self.topology == "circular":
             raise ValueError("Cicularized QUEEN object cannot be joined with others.") 
         else:
-            if self._ssdna == True:
-                self._ssdna = False 
-                outobj = joindna(other, self, quinable=0)
-                outobj._ssdna = True
+            if self._ssdna == True and other._ssdna == True:
+                outobj = joindna(other, self, quinable=0, homology_length=0)
                 return outobj
             else:
                 return joindna(other, self, quinable=0) 

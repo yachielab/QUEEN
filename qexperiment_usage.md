@@ -366,7 +366,7 @@ Simulates a Golden Gate Assembly.
 
 Design forward and reverse primers for PCR amplification of a target region, allowing for introduction of specific mutations, checking primer specificity, and meeting additional user-defined requirements.
 
-#### `primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, rv_margin=0, target_tm=60.0, tm_func=None, primer_length=(16, 25), design_num=1, fw_adapter=None, rv_adapter=None, homology_length=20, nonspecific_limit=3, requirement=None, fw_name="fw_primer", rv_name="rv_primer")`
+#### `primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, rv_margin=0, target_tm=60.0, tm_func=None, primer_length=(16, 25), design_num=1, fw_adapter=None, rv_adapter=None, adapter_mode="standard", homology_length=20, nonspecific_limit=3, auto_adjust=1, requirement=None, fw_name="fw_primer", rv_name="rv_primer")`
 
 #### Parameters
 
@@ -397,17 +397,25 @@ Design forward and reverse primers for PCR amplification of a target region, all
 - **design_num**: `int`, optional   
   Number of primer pairs to design. Default is 1.
 
+- **adapter_mode**: `"standard"`, `"gibson"`, `"infusion"`, `"overlappcr"`, `"RE"`, or `"BP"`. Default is `"standard"`.   
+  The mode value specifies the the format of `fw_adapter` and `rv_adapter`.  
+
 - **fw_adapter** `ssDNA QUEEN object` or `str`, optional  
-  If it's a string or a single-stranded DNA (ssDNA) QUEEN object, the sequence will be added at the beginning of any forward primers designed.  
-  If it's a double-stranded DNA (dsDNA) QUEEN object with linear topology, the homology sequence to the 3' end of the QUEEN object will be added at the beginning of any forward primers.  
-  Alternatively, you can specify the name of a restriction enzyme or 'attB'. In these cases, the adapter sequence including the specified site will be added at the beginning of the primers.  
-  For now, "attB" sequence as fw adapter is "GGGGACAAGTTTGTACAAAAAAGCAGGCT".
+  If mode is `"standard"`, the value must be a QUEEN object or a `str` object representing a DNA sequence. The sequence will be added at the beginning of any forward primers designed.  
+  If mode is `"gibson"`, `"infusion"`, or `"overlappcr"`, the value must be a dsDNA QUEEN object.  
+  The adapter sequence overlapping the specified QUEEN object will be automatically designed and prepended to the forward primers.
+  If mode is `"RE"`, the value must be a Cutsite object or a `str` object representing a restriction enzyme (RE) site. The adapter sequence including the specified RE site will be added at the beginning of the forward primers. If mode is "BP", the value must be "attB1" or "attB2". The specified attB site will be added at the beginning of the forward primers. Currently, "attB1" and "attB2" are specified as follows:  
+  - attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
+  - attB2: GGGGACCACTTTGTACAAGAAAGCTGGGT
 
 - **rv_adapter**: `ssDNA QUEEN object` or `str`, optional  
-  If it's a string or a single-stranded DNA (ssDNA) QUEEN object, the sequence will be added at the beginning of any reverse primers designed.  
-  If it's a double-stranded DNA (dsDNA) QUEEN object with linear topology, the homology sequence to the 3' end of the QUEEN object will be added at the beginning of any reverse primers.  
-  Alternatively, you can specify the name of a restriction enzyme or 'attB'. In these cases, the adapter sequence including the specified site will be added at the beginning of the primers.  
-  For now, "attB" sequence as rv adapter is "GGGGACCACTTTGTACAAGAAAGCTGGGT".  
+  If mode is `"standard"`, the value must be a QUEEN object or a `str` object representing a DNA sequence. The sequence will be added at the beginning of any reverse primers designed.  
+  If mode is `"gibson"`, `"infusion"`, or `"overlappcr"`, the value must be a dsDNA QUEEN object.  
+  The adapter sequence overlapping the specified QUEEN object will be automatically designed and prepended to the reverse primers.
+  If mode is `"RE"`, the value must be a Cutsite object or a `str` object representing a restriction enzyme (RE) site. The adapter sequence including the specified RE site will be added at the beginning of the reverse primers.  
+  If mode is "BP", the value must be "attB1" or "attB2". The specified attB site will be added at the beginning of the reverse primers. Currently, "attB1" and "attB2" are specified as follows:  
+  - attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
+  - attB2: GGGGACCACTTTGTACAAGAAAGCTGGGT
 
 - **homology_length** `int`, optional  
   Required homology for adapters.  

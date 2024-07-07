@@ -114,7 +114,7 @@ def _convert_kwargs(arguments):
         if key in defaults:
             pass 
         else:
-            arguments[key] = arguments[key].replace("'", "\'") 
+            arguments[key] = str(arguments[key]).replace("'", "\'") 
             out.append('{}="{}"'.format(key, arguments[key]))
     if len(out) == 0:
         out = ""
@@ -1539,7 +1539,10 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
             elif fdna._ssdna == True and construct._ssdna == True:
                 dna = copy.deepcopy(fdna) 
                 annealing = True
-                if len(construct.seq) < len(dna.seq):
+                if homology_length == 0:
+                    annealing = False
+
+                elif len(construct.seq) < len(dna.seq):
                     ovresult = _detect_overlap(construct.seq, dna.seq.translate(str.maketrans("ATGC","TACG"))[::-1])[1]
                     new_q = ovresult[1] 
                     ovhg  = ovresult[2]
@@ -1551,7 +1554,12 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                     construct, dna = dna, construct
                 
                 feats = flipdna(dna, quinable=0).dnafeatures
-                if compatibility == "complete":
+                
+                if homology_length == 0:
+                    new_dna = dna 
+                    ovhg_length = 0 
+                
+                elif compatibility == "complete":
                     if len(new_q) == len(ovhg):
                         new_q =  construct.__class__(seq=new_q, quinable=0) 
                         ovhg_length = len(ovhg)
@@ -1562,6 +1570,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                     new_q = construct.__class__(seq=new_q, quinable=0)
                     ovhg_length = len(ovhg)
                     flag = 1
+            
             else:
                 raise ValueError("ssDNA cannot be joined with dsDNA") 
 
@@ -3706,7 +3715,6 @@ def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,la
         fontsize = 8.0 
     else:
         pass 
-
     if title is None or title == "":
         display_titlee = False
 

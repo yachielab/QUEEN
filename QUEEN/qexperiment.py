@@ -734,7 +734,7 @@ def annealing(ssdna1, ssdna2, homology_length=4, product=None, pn=None, pd=None,
     
     if type(ssdna2) == str:
         ssdna2 = QUEEN(seq=ssdna2, ssdna=True)
-    
+
     flag1 = 0
     if ssdna1._ssdna == False: 
         flag1 = 1
@@ -765,8 +765,8 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
 
     Parameters
     ----------
-    destination : QUEE object N
-        The destination QUEEN object holding the backbone DNA molecule.
+    destination : QUEE object 
+        The destination QUEEN object with circular sequence topolgy holding the backbone DNA molecule.
     entry : QUEEN object
         The entry QUEEN object holding the insert DNA molecule.
     mode: str, tuple, or list
@@ -787,6 +787,15 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
     QUEEN
         The QUEEN object representing the result of the gateway reaction process.
     """
+    
+    if type(destination) == QUEEN:
+        if destination.topology == "circular":
+            pass 
+        else:
+            raise TypeError("`destination` must be a QUEEN object with circular sequence topology.") 
+    else:
+        raise TypeError("`destination` must be a QUEEN object with circular sequence topology.") 
+
     process_name = pn if process_name is None else process_name
     if process_name is None:
         process_name = "Gateway Reaction" 
@@ -869,7 +878,7 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
     Parameters
     ----------
     destination : QUEEN object
-        The destination QUEEN object holding the backbone DNA molecule.
+        The destination QUEEN object with circular sequence topology holding the backbone DNA molecule.
     entry : list of QUEEN objects
         The entry QUEEN objects holding the insert DNA molecules.
     cutsite : Cutsite or str
@@ -885,6 +894,19 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
     **kwargs
         Additional keyword arguments for advanced configurations.
     """
+    if type(destination) == QUEEN:
+        if destination.topology == "circular":
+            pass 
+        else:
+            raise TypeError("`destination` must be a QUEEN object with circular sequence topology. You do not need to process the `digestion`.") 
+    else:
+        raise TypeError("`destination` must be a QUEEN object with circular sequence topology.") 
+    
+    if type(entry) in (tuple, list):
+        pass 
+    else:
+        raise TypeError("`entry` must be a list composed of QUEEN object(s)")  
+
     if type(cutsite) == str and cutsite in cs.lib.keys():
         cutsite = cs.lib[cutsite]  
     elif type(cutsite) == Cutsite or "cutsite" in cutsite.__dict__:

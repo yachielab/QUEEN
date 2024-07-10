@@ -320,8 +320,11 @@ def _circularizedna(dna, compatibility, homology_length):
                 return False
 
     else:
-        ovhg = ""
-        ovhg_length = 0 
+        if (dna._right_end == "" and ((dna._left_end == "") or (dna._left_end == dna.seq))) or (dna._right_end_top >= 0 and dna._right_end_bottom >= 0 and dna._left_end_top >= 0 and dna._left_end_bottom >= 0):
+            ovhg = ""
+            ovhg_length = 0 
+        else:
+            raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility.")
 
     dna._topology = "circular"
     remove_list = [] 

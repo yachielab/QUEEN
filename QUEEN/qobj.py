@@ -3,6 +3,7 @@ import copy
 import urllib
 import tempfile
 import requests
+import inspect
 from bs4 import BeautifulSoup 
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -225,6 +226,7 @@ class QUEEN():
     queried_features_dict      = {}
     queried_features_name_dict = {} 
     process_description = None
+    zero_index = True
     _namespace     = {}
     _products      = {} 
     _processes     = {}  
@@ -660,6 +662,8 @@ class QUEEN():
                         o.seek(0)  
                         record = SeqIO.parse(o,fmt)
                         record  = next(record)
+                else:
+                    raise TypeError("`dbtype` must be 'local', 'ncbi', 'addgene' or 'benchling'.")
 
             elif type(record) == SeqRecord:
                 record = record 
@@ -1405,6 +1409,9 @@ class QUEEN():
         return features
 
     def __getitem__(self, item):
+        stack = inspect.stack()
+        caller_frame = stack[1]
+        caller_name = caller_frame.function
         if type(item) == slice:
             if item.step is None:
                 strand = 1
@@ -1417,7 +1424,10 @@ class QUEEN():
                 start = 0 
             else:
                 if type(item.start) in (Qint, int):
-                    start = item.start 
+                    if caller_name=="<module>" and QUEEN.zero_index == False:
+                        start = item.start - 1
+                    else:
+                        start = item.start 
                 else:
                     raise TypeError("slice indices must be integers or None or have an __index__ method.")
            

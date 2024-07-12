@@ -104,7 +104,6 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
                 return site 
 
         elif len(site) > 1: 
-            print(site) 
             raise ValueError("Multiple primer binding sites were detected. You should re-design the primer sequneces.") 
         
         #else:
@@ -488,7 +487,6 @@ def ligation(*fragments, unique=True, follow_order=False, product=None, process_
         if len(indexes_list) == 1:
             orders, flips = indexes_list[-1]
             fragment_set  = [flipdna(fragments[ind], product=fragments[ind].project, pn=process_name, pd=process_description) if fl == -1 else fragments[ind] for ind, fl in zip(orders, flips)]
-            #print([fragment.project for fragment in fragment_set])
             outobj = joindna(*fragment_set, topology="circular", autoflip=False, compatibility="complete", product=product, pn=process_name, pd=process_description, qexparam=qexd)
         elif len(indexes_list) == 0:
             raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility. Maybe you need to reflect the PCR primers or restriction enzymes used to generate the fragments.") 
@@ -1415,10 +1413,6 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                         else:
                             pass 
                             
-                print("feat1", strand, feat1)  
-                print("feat2", strand, feat2) 
-                print() 
-                print() 
                 if feat1.feature_type == "CDS" and feat2.feature_type == "CDS":
                     if ("broken_feature" in feat1.qualifiers or "broken_feature" in feat2.qualifiers) and (len(feat1.sequence)%3 != 0 or len(feat2.sequence)%3 != 0):
                         req = False         

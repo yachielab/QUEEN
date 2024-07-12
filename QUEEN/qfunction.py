@@ -720,7 +720,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                         
                         if feat1.feature_type == "CDS" and "translation" in feat1.qualifiers:
                             feat1.type = "gene" #CDS to gene
-                            del feat1.qualifiers["translation"]
+                            #del feat1.qualifiers["translation"]
                         
                         label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat1.original), original_seq, s, e))
                         if strand >= 0:
@@ -752,7 +752,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                         
                         if feat2.feature_type == "CDS" and "translation" in feat2.qualifiers:
                             feat2.type = "gene"
-                            del feat2.qualifiers["translation"]
+                            #del feat2.qualifiers["translation"]
 
                         label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat2.original), original_seq, s, e))
                         if strand >= 0:
@@ -804,7 +804,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                 
                                 if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
                                     feat.type = "gene"
-                                    del feat.qualifiers["translation"]
+                                    #del feat.qualifiers["translation"]
                                 
                                 label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), original_seq, s, e))
                                 if strand >= 0:
@@ -841,7 +841,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
 
                                 if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
                                     feat.type = "gene"
-                                    del feat.qualifiers["translation"]
+                                    #del feat.qualifiers["translation"]
 
                                 label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), original_seq, s, e))
                                 if strand >= 0: 
@@ -901,7 +901,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                 
                                 if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
                                     feat.type = "gene"
-                                    del feat.qualifiers["translation"]
+                                    #del feat.qualifiers["translation"]
 
                                 label = "{}".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), original_seq, s, e))
                                 if strand >= 0:
@@ -936,7 +936,8 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                     original_seq = feat.original
                                 
                                 if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
-                                    del feat.qualifiers["translation"]
+                                    feat.type = "gene" #CDS to gene
+                                    #del feat.qualifiers["translation"]
 
                                 label = "[{}]".format("{}:{}:{}:{}:{}..{}".format(dna.project, label, len(feat.original), original_seq, s, e))
                                 feat.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, 1, end-s)]
@@ -1752,7 +1753,8 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
         construct._unique_id = dnas[0]._unique_id
     else:
         construct._unique_id = project
-
+    
+    #Recover fragmented features if complete sequence is in the construct.
     new_features    = [] 
     remove_features = [] 
     for feat in construct.dnafeatures:
@@ -1766,9 +1768,9 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                 sfeat = sfeat if sfeat >= 0 else len(construct.seq) + sfeat
                 efeat = feat.end+(length-pose)
             else:
-                sfeat = feat.start-(length-pose) 
+                sfeat = feat.start-(length-poss) 
                 sfeat = sfeat if sfeat >= 0 else len(construct.seq) + sfeat
-                efeat = feat.end+(poss-1)    
+                efeat = feat.end+(pose-1)    
             
             if feat.subject is None:
                 feat.subject = construct
@@ -1779,7 +1781,12 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                 else:
                     location = CompoundLocation([FeatureLocation(sfeat, len(construct.seq)), FeatureLocation(0, efeat, feat.location.strand)])  
                 newfeat = feat.__class__(location=location, subject=construct)
-                newfeat.type = feat.type
+                
+                if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
+                    newfeat.type = "CDS"
+                else:
+                    newfeat.type = feat.type
+                
                 newfeat.qualifiers = feat.qualifiers
                 del newfeat.qualifiers["broken_feature"]
                 newfeat._id = label.split(":")[1]
@@ -2246,17 +2253,23 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
                     sfeat = sfeat if sfeat > 0 else len(new_dna.seq) + sfeat
                     efeat = feat.end+(length-pose)
                 else:
-                    sfeat = feat.start-(length-pose) 
+                    sfeat = feat.start-(length-poss) 
                     sfeat = sfeat if sfeat > 0 else len(new_dna.seq) + sfeat
-                    efeat = feat.end+(poss-1)    
-               
+                    efeat = feat.end+(pose-1)    
+                
+                #print(note.split(":")[-3], new_dna.printsequence(sfeat, efeat, strand=feat.location.strand)) 
                 if note.split(":")[-3] == new_dna.printsequence(sfeat, efeat, strand=feat.location.strand):
                     if sfeat < efeat:
                         location = FeatureLocation(sfeat, efeat, feat.location.strand) 
                     else:
                         location = CompoundLocation([FeatureLocation(sfeat, len(new_dna.seq)), FeatureLocation(0, efeat, feat.location.strand)])  
                     newfeat = feat.__class__(location=location, subject=new_dna)
-                    newfeat.type = feat.type
+                    
+                    if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
+                        newfeat.type = "CDS"
+                    else:
+                        newfeat.type = feat.type
+                    
                     newfeat.qualifiers = feat.qualifiers
                     del newfeat.qualifiers["broken_feature"]
                     newfeat._id = label.split(":")[1]

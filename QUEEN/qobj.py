@@ -663,7 +663,30 @@ class QUEEN():
                         record = SeqIO.parse(o,fmt)
                         record  = next(record)
                 else:
-                    raise TypeError("`dbtype` must be 'local', 'ncbi', 'addgene' or 'benchling'.")
+                    dbflag = 0 
+                    if "benchling" in record:
+                        dbflag = 1
+                        dbtype = "benchling"
+                    
+                    elif record.isdigit():
+                        dbflag = 1 
+                        dbtype = "addgene"
+                    
+                    elif record.isalnum() and "http" not in record:
+                        dbflag = 1 
+                        dbtype == "ncbi" 
+                        
+                    if dbflag == 1:
+                        fmt    = "genbank"
+                        record = QUEEN._get_genbank(record, dbtype)
+                        with tempfile.TemporaryFile(mode="w+") as o:
+                            content = record.getvalue() 
+                            o.write(content)
+                            o.seek(0)  
+                            record = SeqIO.parse(o,fmt)
+                            record  = next(record)
+                    else:
+                        raise TypeError("`dbtype` must be 'local', 'ncbi', 'addgene' or 'benchling'.")
 
             elif type(record) == SeqRecord:
                 record = record 

@@ -1,3 +1,4 @@
+import random
 import copy
 import itertools as it
 from qfunction import joindna, cropdna, cutdna, flipdna, modifyends
@@ -98,13 +99,13 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
         
         elif len(site) == 0:
             if flag == 1:
-                raise ValueError("No primer binding sites were found.")
+                raise ValueError("No primer binding sites were found. You should re-confirm the template-primer pair.")
             else:
                 return site 
 
         elif len(site) > 1: 
             print(site) 
-            raise ValueError("Multiple primer binding sites were detected.") 
+            raise ValueError("Multiple primer binding sites were detected. You should re-design the primer sequneces.") 
         
         #else:
         #    raise ValueError("Primer binded to an unexpected strand.") 
@@ -416,7 +417,12 @@ def ligation(*fragments, unique=True, follow_order=False, product=None, process_
     QUEEN, flipdna, joindna
 
     """
-    
+    for fragment in fragments:  
+        if type(fragment) == list and type(fragment[0]) == QUEEN:
+            raise TypeError("Each QUEEN object should be specified individually, not as a list. Perhaps you forgot to select a single fragment from the digestion results?") 
+        else:
+            pass 
+
     process_name = pn if process_name is None else process_name
     if process_name is None:
         process_name = "Ligation"  
@@ -485,7 +491,7 @@ def ligation(*fragments, unique=True, follow_order=False, product=None, process_
             #print([fragment.project for fragment in fragment_set])
             outobj = joindna(*fragment_set, topology="circular", autoflip=False, compatibility="complete", product=product, pn=process_name, pd=process_description, qexparam=qexd)
         elif len(indexes_list) == 0:
-            raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility.") 
+            raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility. Maybe you need to reflect the PCR primers or restriction enzymes used to generate the fragments.") 
         else:
             raise ValueError("Multiple different constructs will be assembled. You should review your assembly design.")
         return outobj
@@ -674,7 +680,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
                 return products[0]
             except Exception as e:
                 print(e, errors) 
-                raise ValueError("Error, incompatible ends were detected") 
+                raise ValueError("Error, Incompatible ends were detected. Maybe you need to reflect the PCR primers or restriction enzymes used to generate the fragments.") 
     else: 
         return products 
 
@@ -1328,9 +1334,10 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
     ]
     """
     def append_adapter(amplicon_region, filtered_primer_pairs, adapter, mode, homology_length, strand, name, auto_adjust):
-        if adapter is None:
+        if (type(adapter) == str and adapter == "") or (adapter is None):
             for i in range(len(filtered_primer_pairs)):
                     filtered_primer_pairs[i][strand][0] = QUEEN(seq=filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
+        
         elif mode == "standard":
             if type(adapter) == QUEEN or (type(adapter) == str and set(adapter.upper()) <= set("ATGCRYKMSWBDHVN")):
                 if type(adapter) == QUEEN:
@@ -1368,11 +1375,11 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
 
         elif mode in ("gibson", "infusion", "overlappcr"):
             if type(adapter) == QUEEN and adapter._ssdna == False:
-                pass 
+                pass
             else:
                 raise ValueError("When 'adapter_mode' is 'gibson', 'infusion', or 'overlappcr', adapter value must be a dsDNA QUEEN object or str object.")
 
-            adapter_features = [feat for feat in adapter.dnafeatures if feat.feature_type != "source"]
+            adapter_features = [feat for feat in adapter.dnafeatures if feat.feature_type not in ("source", "primer", "primer_bind")]
             for i in range(len(filtered_primer_pairs)):
                 s = filtered_primer_pairs[i]["fw"][1]
                 e = len(amplicon_region.seq) - filtered_primer_pairs[i]["rv"][1] 
@@ -1407,7 +1414,11 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                             raise ValueError("**Attention**: The directions of the gene in the adapter and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
                         else:
                             pass 
-
+                            
+                print("feat1", strand, feat1)  
+                print("feat2", strand, feat2) 
+                print() 
+                print() 
                 if feat1.feature_type == "CDS" and feat2.feature_type == "CDS":
                     if ("broken_feature" in feat1.qualifiers or "broken_feature" in feat2.qualifiers) and (len(feat1.sequence)%3 != 0 or len(feat2.sequence)%3 != 0):
                         req = False         

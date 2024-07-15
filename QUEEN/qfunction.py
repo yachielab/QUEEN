@@ -1782,7 +1782,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                     location = CompoundLocation([FeatureLocation(sfeat, len(construct.seq)), FeatureLocation(0, efeat, feat.location.strand)])  
                 newfeat = feat.__class__(location=location, subject=construct)
                 
-                if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
+                if feat.feature_type == "gene" and "translation" in feat.qualifiers:
                     newfeat.type = "CDS"
                 else:
                     newfeat.type = feat.type
@@ -2265,7 +2265,7 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
                         location = CompoundLocation([FeatureLocation(sfeat, len(new_dna.seq)), FeatureLocation(0, efeat, feat.location.strand)])  
                     newfeat = feat.__class__(location=location, subject=new_dna)
                     
-                    if feat.feature_type == "CDS" and "translation" in feat.qualifiers:
+                    if feat.feature_type == "gene" and "translation" in feat.qualifiers:
                         newfeat.type = "CDS"
                     else:
                         newfeat.type = feat.type

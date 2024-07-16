@@ -377,8 +377,9 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.03, enlarge=1.0,
                         gene_position_matrix.append([0] * length)
                     else:
                         y = y + yy
-            if abs(ge-gs) < head_length * 1.2:
+            if abs(ge-gs) < head_length * 350/(y*lane_h+bottom_h):
                 hl  = abs(ge-gs)
+                #hl  = head_length * 350/(y*lane_h+bottom_h)
             else:
                 hl  = head_length * 350/(y*lane_h+bottom_h)
             mg = margin * 350/(y*lane_h+bottom_h)
@@ -442,7 +443,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.03, enlarge=1.0,
                 if tflag == 1 or display_label>=1:
                     ax.text(theta, height, char, ha="center", va="center", rotation=rotation(theta), zorder=10, fontsize=fontsize, color=labelcolor)
           
-            if width > 1.2 * head_length:
+            if width > head_length * 350/(y*lane_h+bottom_h):
                 if strand == 1:
                     ax.bar([gs], [outer], bottom=y*lane_h+bottom_h-outer/2, width=width-hl*0.98, align="edge", fc=edgecolor, lw=0.0, zorder=1)
                     ax.bar([gs+mg], [inner], bottom=y*lane_h+bottom_h-inner/2, width=width-mg-hl*0.98, align="edge", fc=facecolor, lw=0.0, zorder=2)

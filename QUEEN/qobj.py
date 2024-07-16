@@ -1486,7 +1486,13 @@ class QUEEN():
             s1 = self.searchfeature(query="^"+item+"$", key_attribute="feature_id")
             s2 = self.searchfeature(query=item, key_attribute="qualifier:label")
             s3 = self.searchfeature(query=item, key_attribute="qualifier:gene")
-            site = (s1 + s2 + s3)[0]
+            s4 = self.searchfeature(query=item, key_attribute="qualifier:product")
+            s1234 = s1 + s2 + s3 + s4
+            if len(s1234) == 0:
+                raise ValueError("The index value(s) were not found, you should try different value.") 
+            else:
+                site = s1234[0]
+            
             return self[site.start:site.end] 
         
         if type(item) == tuple:
@@ -1508,7 +1514,13 @@ class QUEEN():
                     s1 = temp.searchfeature(query="^"+query+"$", key_attribute="feature_id")
                     s2 = temp.searchfeature(query=query, key_attribute="qualifier:label")
                     s3 = temp.searchfeature(query=query, key_attribute="qualifier:gene")
-                    site = (s1 + s2 + s3)[0] 
+                    s4 = temp.searchfeature(query=query, key_attribute="qualifier:product")
+                    s1234 = s1 + s2 + s3 + s4
+                    if len(s1234) == 0:
+                        raise ValueError("The index value(s) were not found, you should try different value.") 
+                    else:
+                        site = s1234[0]
+                    
                     if i == 0:
                         start = site.start
                         temp  =  temp[site.end:] + self[0:]
@@ -1532,7 +1544,13 @@ class QUEEN():
                     s1 = self.searchfeature(query="^"+item[0]+"$", key_attribute="feature_id")
                     s2 = self.searchfeature(query=item[0], key_attribute="qualifier:label")
                     s3 = self.searchfeature(query=item[0], key_attribute="qualifier:gene")
-                    site = (s1 + s2 + s3)[0]
+                    s4 = self.searchfeature(query=item[0], key_attribute="qualifier:product")
+                    s1234 = s1 + s2 + s3 + s4
+                    if len(s1234) == 0:
+                        raise ValueError("The index value(s) were not found, you should try different value.") 
+                    else:
+                        site = s1234[0]
+
                     if self.topology == "circular":
                         return self[site.end:site.start]
                     else:

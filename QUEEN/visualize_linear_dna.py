@@ -346,7 +346,10 @@ def colorbar(ax, color_dict, ref_seq, char=False, fontsize=10):
     ax.set_ylim(0,1.00)
     p = 0
     for bar, c in zip(bars,ref_seq):
-        color = color_dict[c]
+        if c not in color_dict:
+            color = "#AAAAAA"
+        else:
+            color = color_dict[c]
         bar.set_facecolor(color)
         if char == True and fontsize > 0:
             bar.set_alpha(0.7)

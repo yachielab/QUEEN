@@ -1102,7 +1102,7 @@ def intra_site_specific_recombination(dna, site="loxP", product=None, process_na
     else:
         return outobj_list 
 
-def homologous_recombination(donor, entry, left_homology=None, right_homology=None, homology_legnth=100, product=None, process_name=None, pn=None, process_description=None, pd=None):
+def homologous_recombination(donor, entry, left_homology=None, right_homology=None, homology_length=100, product=None, process_name=None, pn=None, process_description=None, pd=None):
     """
     Simulates a homology recombination of two DNA molecules.
     
@@ -1205,49 +1205,57 @@ def Tm_NN(check=True, strict=True, nn_table=None, tmm_table=None, imm_table=None
 
 def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, rv_margin=0,
                  target_tm=60.0, tm_func=None, primer_length=(16, 25), 
-                 design_num=1, fw_adapter=None, rv_adapter=None, adapter_mode="standard", 
+                 design_num=1, adapter_mode="standard", fw_adapter=None, rv_adapter=None, 
                  homology_length=20, nonspecific_limit=3, auto_adjust=1, 
                  requirement=None, fw_name="fw_primer", rv_name="rv_primer"):
     """
-    Design forward and reverse primers for PCR amplification of a target region,
-    allowing for introduction of specific mutations, checking primer specificity,
-    and meeting additional user-defined requirements.
+    Design forward and reverse primers for PCR amplification of a target region, allowing for the introduction of specific 
+    mutations, checking primer specificity, and meeting additional user-defined requirements. If a list of templates and 
+    targets is specified, a batch process will be executed for each template and target. In that case, the other parameters 
+    except for `adapter_mode` can also be specified as a list of appropriate class objects. However, each list should be 
+    the same length as the list of templates.
 
     Parameters
     ----------
-    template : QUEEN object
-        The QUEEN object to serve as the PCR template.
-    target : QUEEN object
-        The region of the template QUEEN object that needs to be included in the amplicon.
-    fw_primer : ssDNA QUEEN object, optional
+    template : QUEEN object of list of QUEEN objects.
+        The QUEEN object to serve as the PCR template. If a `list` of templates is specified, appropriate primer pairs 
+        will be designed for each template.
+    target : QUEEN object or list of QUEEN objects. 
+        The sub-region in the template QUEEN object that needs to be included in the amplicon. If a list of targets is specified, 
+        the lengths should be the same, and each element should correspond to the template list. 
+    fw_primer : ssDNA QUEEN object or list of ssDNA QUEEN object, optional
         If provided, this sequence will be used as the forward primer.
-    rv_primer : ssDNA QUEEN object, optional
+    rv_primer : ssDNA QUEEN object or list of ssDNA QUEEN object, optional
         If provided, this sequence will be used as the reverse primer.
-    fw_margin : int, optional
+    fw_margin : int or list of int, optional
         Additional base pairs to add to the 5' end of the target region when designing the forward primer. Default is 0.
-    rv_margin : int, optiona
+    rv_margin : int or list of int, optiona
         Additional base pairs to add to the 3' end of the target region when designing the reverse primer. Default is 0.
-    target_tm : float, optional
+    target_tm : float or list of float , optional
         Desired melting temperature (Tm) for the primers in degrees Celsius. Default is 60.0.
-    tm_func : str, function, optional
-        Function to calculate the melting temperature of the primer pair 
+    tm_func : str, function or list of str/func, optional
+        Function to calculate the melting temperature of the primer pair.   
         As `str` specfication, you can select `"Breslauer" or "br"` and `"SantaLucia" or "sa"`. 
         Default is `"SantaLucia"`. Also, as built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. 
         This function is implemented based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, 
         so the all parameters of `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, 
         can be acceptable.
-    primer_legnth : tuple of int, optional
+    primer_length : tuple of int pair or list of int pairs, optional
         A tuple (min_size, max_size) specifying the primer length. Default is (16, 25).
-    design_num : int, optional
+    design_num : int or list of int, optional
         Number of primer pairs to design. Defaults to 1.
     adapter_mode : "standard", "gibson", "infusion", "overlappcr", "RE", or "BP". Default is "standard"
-        The mode value specifies the the format of `fw_adapter` and `rv_adapter`.  
-    fw_adapter : QUEEN object, str or Cutsite
+        The mode value specifies the the format of `fw_adapter` and `rv_adapter`. In batch process mode, 
+        this value should be common for all processes 
+    fw_adapter : QUEEN object, str, Cutsite, or list of each, optional
         If mode is `"standard"`, the value must be a QUEEN object or a `str` object representing a DNA 
         sequence. The sequence will be added at the beginning of any forward primers designed.
-        If mode is `"gibson"`, `"infusion"`, or `"overlappcr"`, the value must be a dsDNA QUEEN object. 
+        If the mode is "gibson", "infusion", or "overlappcr", the value shold be a dsDNA QUEEN object or `None`.   
+        If the other value is specified in these modes, `adapter_mode` will be regarded as "standard".  
+        Also, if the value is `None` and the target is specified as a list of QUEEN objects, the QUEEN object 
+        immediately preceding the target used for the current primer design will be automatically specified.  
         The adapter sequence overlapping the specified QUEEN object will be automatically designed and 
-        prepended to the forward primers.
+        prepended to the forward primer. 
         If mode is `"RE"`, the value must be a Cutsite object or a `str` object representing a restriction 
         enzyme (RE) site. The adapter sequence including the specified RE site will be added at the beginning 
         of the forward primers.
@@ -1255,12 +1263,15 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         beginning of the forward primers. Currently, "attB1" and "attB2" are specified as follows:
         attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
         attB2: GGGGACCACTTTGTACAAGAAAGCTGGGT
-    rv_adapter : QUEEN object, str or Cutsite, optional
+    rv_adapter : QUEEN object, str, Cutsite, or list of each, optional
         If mode is `"standard"`, the value must be a QUEEN object or a `str` object representing a DNA 
         sequence. The sequence will be added at the beginning of any reverse primers designed.
-        If mode is `"gibson"`, `"infusion"`, or `"overlappcr"`, the value must be a dsDNA QUEEN object. 
+        If the mode is "gibson", "infusion", or "overlappcr", the value must be a dsDNA QUEEN object or `None`.   
+        If the other value is specified in these modes, `adapter_mode` will be regarded as "standard".  
+        Also, If the value is `None` and the target is specified as a list of QUEEN objects, the QUEEN object 
+        immediately following the target used for the current primer design will be automatically specified.  
         The adapter sequence overlapping the specified QUEEN object will be automatically designed and 
-        prepended to the revese primers.
+        prepended to the reverse primer. 
         If mode is `"RE"`, the value must be a Cutsite object or a `str` object representing a restriction 
         enzyme (RE) site. The adapter sequence including the specified RE site will be added at the beginning 
         of the reverse primers.
@@ -1268,30 +1279,34 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         beginning of the reverse primers. Currently, "attB1" and "attB2" are specified as follows:
         attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
         attB2: GGGGACCACTTTGTACAAGAAAGCTGGGT
-    homology_length : int, optional
+    homology_length : int or list of int, optional
         This parameter is active if `adapter_mode` is `"gibson"`, `"infusion"`, or `"overlappcr"`.  
         If an int value is provided, an adapter sequence including an overlapping end with the specified  
         dsDNA QUEEN object will be designed, such that the overlap is greater than or equal to the provided value.  
         Default value is 20.
-    nonspecific_limit : int, optional
+    nonspecific_limit : int or list of int, optional
         The maximum number of mismatches allowed for primer binding outside of the designated primer design region  
         within the template sequence. Primer pairs that bind to any region of the template with a number of mismatches  
         equal to or less than this limit will be excluded from the design, to increase the specificity of the PCR reaction  
         and decrease the likelihood of nonspecific amplification.  
         Defaults to 3.
-    auto_adjust : bool, optional
+    auto_adjust : bool or list of bool, optional
         If True and the adapter is dsDNA QUEEN object, the adapter sequence will be automatically adjusted to ensure  
         the reading frame of the genes in the target amplicon. 
-    requirement : lambda function, optional
+    requirement : lambda function or list of lambda function, optional
         Function that takes a dictionary representing a primer pair and returns True if the pair meets the specified conditions.
         Default requirement is as follows.
             - `x["fw"][-1] not in ("A", "T") and x["rv"][-1] not in ("A", "T")`
             - `"AAAA" not in x["fw"] and "TTTT" not in x["fw"] and "GGGG" not in x["fw"] and "CCCC" not in x["fw"]`
             - `"AAAA" not in x["rv"] and "TTTT" not in x["rv"] and "GGGG" not in x["rv"] and "CCCC" not in x["rv"]`
-    fw_name : str, optional
-        The forward primer name designed in this function. If the value is not specified, the foward primer is named as `fw_primer`. 
-    rv_name : str, optional 
-        The reverse primer name designed in this function. If the value is not specified, the foward primer is named as `rv_primer`.
+    fw_name : str, or list of str objects, optional
+        The forward primer name(s) designed in this function. If a list is specified, its length should be match with 
+        the `target` list. If the value is not specified, the forward primer is named as `fw_primer{num}`. `num` is the 
+        index of the list`.
+    rv_name : str, or list of str ojbects, optional 
+        The reverse primer name(s) designed in this function. If a list is specified, its length should be match with 
+        the `target` list. If the value is not specified, the reverse primer is named as `rv_primer{num}`. `num` is the 
+        index of the list`.
     
     Raises
     ------
@@ -1331,11 +1346,18 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         ...
     ]
     """
+
     def append_adapter(amplicon_region, filtered_primer_pairs, adapter, mode, homology_length, strand, name, auto_adjust):
+        if mode in ("gibson", "infusion", "overlappcr"):
+            if type(adapter) == QUEEN and adapter._ssdna == False:
+                pass
+            else:
+                mode = "standard"
+
         if (type(adapter) == str and adapter == "") or (adapter is None):
             for i in range(len(filtered_primer_pairs)):
                     filtered_primer_pairs[i][strand][0] = QUEEN(seq=filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
-        
+            
         elif mode == "standard":
             if type(adapter) == QUEEN or (type(adapter) == str and set(adapter.upper()) <= set("ATGCRYKMSWBDHVN")):
                 if type(adapter) == QUEEN:
@@ -1482,12 +1504,119 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             req5 = "AAAA" not in x["rv"] and "TTTT" not in x["rv"] and "GGGG" not in x["rv"] and "CCCC" not in x["rv"]
             return req1 and req4 and req5
         
-    if type(template) != QUEEN:
-        raise TypeError("`template` object must be instance of QUEEN class.") 
-    
-    if type(target) != QUEEN:
-        raise TypeError("`template` object must be instance of QUEEN class.") 
+    if type(template) != QUEEN: 
+        if type(template) == list and list(set(map(type, template)))[0] == QUEEN:
+            pass 
+        else: 
+            raise TypeError("`template` object must be instance of QUEEN class or a list of QUEEN objects")  
+    else:
+        pass 
 
+    if type(target) != QUEEN:
+        if type(target) == list and list(set(map(type, template)))[0] == QUEEN:
+            if len(template) == len(target): 
+                new_target = [] 
+                for t in target:
+                    if -1 in (t._left_end_top, t._left_end_bottom, t._right_end_top, t._right_end_bottom):
+                        t = modifyends(t, quinable=False)
+                    else:    
+                        pass
+                    new_target.append(t) 
+                target = new_target
+            else:
+                raise ValueError("The length of target should be same with the template.")
+        else: 
+            raise TypeError("`target` object must be instance of QUEEN class or a list of QUEEN objects.") 
+    else:
+        if -1 in (target._left_end_top, target._left_end_bottom, target._right_end_top, target._right_end_bottom):
+            target = modifyends(target, quinable=False) 
+     
+    if type(template) == list:
+        fw_primers         = [fw_primer] * len(template) if type(fw_primer) != list else fw_primer
+        rv_primers         = [rv_primer] * len(template) if type(rv_primer) != list else rv_primer
+        fw_margins         = [fw_margin] * len(template) if type(fw_margin) != list else fw_margin
+        rv_margins         = [rv_margin] * len(template) if type(rv_margin) != list else rv_margin
+        target_tms         = [target_tm] * len(template) if type(target_tm) != list else target_tm
+        tm_funcs           = [tm_func] * len(template) if type(tm_func) != list else tm_func
+        primer_lengths     = [primer_length] * len(template) if type(primer_length) != list else primer_length 
+        design_nums        = [design_num] * len(template) if type(design_num) != list else design_num
+
+        adapter_modes      = [adapter_mode] * len(adapter_mode) if type(adapter_mode) != list else adapter_mode
+        if adapter_mode in ("gibson", "infusion", "overlappcr"):
+            if fw_adapter is None and rv_adapter is None:
+                fw_adapters = [None]  
+                rv_adapters = [None] 
+                if adapter_mode in ("gibson", "infusion"): 
+                    for i in range(0, len(target)-1):
+                        if i < len(target) - 2:
+                            fw_adapters.append(target[i])
+                            rv_adapters.append(None) 
+                        else:
+                            fw_adapters.append(target[i])
+                            rv_adapters.append(target[0])
+
+                if adapter_mode == "overlappcr":
+                    for i in range(0, len(target)-1):
+                        fw_adapters.append(target[i])
+                        rv_adapters.append(None) 
+            
+            elif type(fw_adapter) == list and type(rv_adapter) == list: 
+                fw_adapters = [] 
+                rv_adapters = [] 
+                if adapter_mode in ("gibson", "infusion"): 
+                    for i, (fwa, rva) in enumerate(zip(fw_adapter, rv_adapter)):
+                        if i == 0:
+                            fw_adapters.append(fwa) 
+                            rv_adapters.append(rva) 
+                        elif i < len(target) - 1:
+                            if fwa is None:
+                                fw_adapters.append(target[i-1])
+                            else:
+                                fw_adapters.append(fwa) 
+                            rv_adapters.append(rva) 
+                        else:
+                            if fwa is None: 
+                                fw_adapters.append(target[i-1])
+                            else:
+                                fw_adapters.append(fwa)
+                            if rva is None:
+                                rv_adapters.append(target[0])
+                            else:
+                                rv_adapters.append(rva)
+
+                if adapter_mode == "overlappcr":
+                    for i in range(0, len(target)):
+                        if i == 0:
+                            fw_adapters.append(fwa) 
+                            rv_adapters.append(rva) 
+                        else:
+                            if fwa is None:
+                                fw_adapters.append(target[i-1])
+                            else:
+                                fw_adapters.append(fwa) 
+                            rv_adapters.append(rva) 
+
+            else:
+                fw_adapters = [fw_adapter] * len(fw_adapter) if type(fw_adapter) != list else fw_adapter
+                rv_adapters = [rv_adapter] * len(rv_adapter) if type(rv_adapter) != list else rv_adapter
+        else:
+            fw_adapters = [fw_adapter] * len(fw_adapter) if type(fw_adapter) != list else fw_adapter
+            rv_adapters = [rv_adapter] * len(rv_adapter) if type(rv_adapter) != list else rv_adapter
+
+        homology_lengths   = [homology_length] * len(template) if type(homology_length) != list else homology_length
+        nonspecific_limits = [nonspecific_limit] * len(template) if type(nonspecific_limit) != list else nonspecific_limit
+        auto_adjusts       = [auto_adjust] * len(template) if type(auto_adjust) != list else auto_adjust
+        requirements       = [requirement] * len(template) if type(requirement) != list else requirement
+        fw_names           = [fw_name] * len(template) if type(fw_name) != list else fw_name
+        rv_names           = [rv_name] * len(template) if type(rv_name) != list else rv_name 
+        arguments = list(zip(*[template, target, fw_primers, rv_primers, fw_margins, rv_margins, target_tms, tm_funcs, primer_lengths, design_nums, adapter_modes, fw_adapters, rv_adapters, homology_lengths, nonspecific_limits, auto_adjusts, requirements, fw_names, rv_names]))
+        
+        primer_pair_set = [] 
+        for argument in arguments:
+            primer_pair = primerdesign(*argument)
+            primer_pair_set.append(primer_pair)
+        return primer_pair_set 
+    
     if target.seq not in template.seq:
         raise ValueError("target sequence to be amplified is not included in template sequence.") 
     

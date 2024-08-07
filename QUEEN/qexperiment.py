@@ -76,7 +76,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
     QUEEN, cropdna, modifyends
 
     """
-    def search_binding_site(template, primer, strand=1, bindnum=15, endlength=3, flag=1, pn=None, pd=None, **kwargs): 
+    def search_binding_site(template, primer, strand=1, bindnum=15, endlength=3, mismatch=1, flag=1, pn=None, pd=None, **kwargs): 
         site = [] 
         primer_end = primer.seq[-1*endlength:]
         for i in range(bindnum-endlength, len(primer.seq)-endlength+1):
@@ -103,8 +103,17 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
             else:
                 return site 
 
-        elif len(site) > 1: 
-            raise ValueError("Multiple primer binding sites were detected. You should re-design the primer sequneces.") 
+        elif len(site) > 1:
+            if mismatch > 0:
+                premismatch = mismatch
+                site = search_binding_site(template, primer, strand, bindnum, endlength, 0, flag, pn, pd, **kwargs) 
+                if premismatch > 1:
+                    print("**Attention**: Multiple potential primer binding sites with 1-to-{} mismatches were found. It is recommended to redesign the primer sequences.".format(premismatch))
+                else:
+                    print("**Attention**: Multiple potential primer binding sites with a single mismatche were found. It is recommended to redesign the primer sequences.")
+                return site 
+            else:
+                raise ValueError("Multiple primer binding sites were detected. You should re-design the primer sequneces.") 
         
         #else:
         #    raise ValueError("Primer binded to an unexpected strand.") 
@@ -145,7 +154,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
         i = 0
         tmpsite1 = None
         while 1:
-            tmpsite1 = search_binding_site(template, fw, 1, bindnum+i, endlength, flag=0, pn=process_name, pd=process_description)
+            tmpsite1 = search_binding_site(template, fw, 1, bindnum+i, endlength, mismatch=mismatch, flag=0, pn=process_name, pd=process_description)
             if len(tmpsite1) == 0:
                 break
             site1 = tmpsite1[0]
@@ -154,7 +163,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
         i = 0
         tmpsite2 = None
         while 1:
-            tmpsite2 = search_binding_site(template, rv, -1, bindnum+i, endlength, flag=0, pn=process_name, pd=process_description)
+            tmpsite2 = search_binding_site(template, rv, -1, bindnum+i, endlength, mismatch=mismatch, flag=0, pn=process_name, pd=process_description)
             if len(tmpsite2) == 0:
                 break
             site2 = tmpsite2[0] 
@@ -617,17 +626,16 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
                     pass 
                 else:
                     fragment_set = [fragments[num] if flip == 1 else flipdna(fragments[num], pn=process_name, pd=process_description) for num, flip in zip(numset, flipset)] 
+                    for f in range(len(fragment_set)):
+                        fragment = fragment_set[f]
+                        if len(fragment.seq) <= max_homology_length: 
+                            mhl = int(len(fragment.seq)) - len(fragment._left_end) - len(fragment._right_end) - 1
+                        else:
+                            mhl = max_homology_length
+                        fragment_set[f] = modifyends(fragment, "-{{{}}}/*{{{}}}".format(mhl,mhl), "*{{{}}}/-{{{}}}".format(mhl,mhl), pn=process_name, pd=process_description)
                     try:
-                        fragment1 = fragment_set[0]
-                        for f, fragment2 in enumerate(fragment_set[1:]): 
-                            fragment1 = modifyends(fragment1, "-{{{}}}/*{{{}}}".format(len(fragment1.seq),len(fragment1.seq)), "*{{{}}}/-{{{}}}".format(len(fragment1.seq),len(fragment1.seq)), pn=process_name, pd=process_description)
-                            fragment2 = modifyends(fragment2, "-{{{}}}/*{{{}}}".format(len(fragment2.seq),len(fragment2.seq)), "*{{{}}}/-{{{}}}".format(len(fragment2.seq),len(fragment2.seq)), pn=process_name, pd=process_description)
-                            fragment1 = joindna(fragment1, fragment2, topology="linear", homology_length=homology_length, pn=process_name, pd=process_description) 
-                            if f == len(fragment_set) - 2:
-                                fragment1 = modifyends(fragment1, "*/*", "*/*", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
-                            else:
-                                fragment1 = modifyends(fragment1, "*/*", "*/*", pn=process_name, pd=process_description) 
-                        products.append(fragment1)
+                        outobj = joindna(*fragment_set, autoflip=False, homology_length=homology_length, topology="linear", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
+                        products.append(outobj) 
                     except Exception as e:
                         errors.append(e) 
                 execed.append(flipset) 
@@ -649,7 +657,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
                 if tuple([state * -1 for state in flipset]) in execed: 
                     pass 
                 else:
-                    fragment_set = [fragments[num] if flip == 1 else flipdna(fragments[num]) for num, flip in zip(numset, flipset)]  
+                    fragment_set = [fragments[num] if flip == 1 else flipdna(fragments[num], pn=process_name, pd=process_description) for num, flip in zip(numset, flipset)]  
                     for f in range(len(fragment_set)):
                         fragment = fragment_set[f]
                         if len(fragment.seq) <= max_homology_length: 
@@ -1597,11 +1605,11 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                             rv_adapters.append(rva) 
 
             else:
-                fw_adapters = [fw_adapter] * len(fw_adapter) if type(fw_adapter) != list else fw_adapter
-                rv_adapters = [rv_adapter] * len(rv_adapter) if type(rv_adapter) != list else rv_adapter
+                fw_adapters = [fw_adapter] * len(template) if type(template) != list else fw_adapter
+                rv_adapters = [rv_adapter] * len(template) if type(template) != list else rv_adapter
         else:
-            fw_adapters = [fw_adapter] * len(fw_adapter) if type(fw_adapter) != list else fw_adapter
-            rv_adapters = [rv_adapter] * len(rv_adapter) if type(rv_adapter) != list else rv_adapter
+            fw_adapters = [fw_adapter] * len(template) if type(template) != list else fw_adapter
+            rv_adapters = [rv_adapter] * len(template) if type(template) != list else rv_adapter
 
         homology_lengths   = [homology_length] * len(template) if type(homology_length) != list else homology_length
         nonspecific_limits = [nonspecific_limit] * len(template) if type(nonspecific_limit) != list else nonspecific_limit

@@ -634,7 +634,7 @@ class QUEEN():
             self._left_end_bottom   = 1
             self._right_end_top     = 1 
             self._right_end_bottom  = 1
-        
+             
         elif seq is None or "." in seq:
             if "." in str(seq):
                 record = seq
@@ -707,6 +707,19 @@ class QUEEN():
                 self._left_end_bottom   = 1
                 self._right_end_top     = 1 
                 self._right_end_bottom  = 1
+                if self._topology == "linear" and "comment" in self.record.annotations and "QUEEN end structure" in self.record.annotations["comment"]:
+                    left_ends = self.record.annotations["comment"].split(", ")[1][5:].split("|")  
+                    left_endlen, left_end_top, left_end_bottom = int(left_ends[0]), int(left_ends[1]), int(left_ends[2])
+                    self._left_end = self._seq[:left_endlen]
+                    self._left_end_top    = left_end_top 
+                    self._left_end_bottom = left_end_bottom
+
+                    right_ends = self.record.annotations["comment"].split(", ")[2][6:].split("|")
+                    right_endlen, right_end_top, right_end_bottom = int(right_ends[0]), int(right_ends[1]), int(right_ends[2]) 
+                    self._right_end        = self._seq[right_endlen*-1:]
+                    self._right_end_top    = right_end_top 
+                    self._right_end_bottom = right_end_bottom
+
             else:
                 self._right_end = self._seq
                 self._left_end  = self._seq
@@ -714,6 +727,8 @@ class QUEEN():
                 self._left_end_bottom   = -1
                 self._right_end_top     =  1 
                 self._right_end_bottom  = -1
+                left_struct  = ""
+                right_struct = ""
 
             if project is None:
                 if record.id == "" or record.id == ".":
@@ -899,6 +914,7 @@ class QUEEN():
                     self._left_end_bottom   = 1
                     self._right_end_top     = 1 
                     self._right_end_bottom  = 1
+                    
 
             else:
                 raise TypeError("An invalid nucleotide sequence pattern was found.")
@@ -971,6 +987,7 @@ class QUEEN():
         self._positions       = tuple(range(len(self.seq))) 
         self.record.feartures = self.dnafeatures
         self.seq.parental_id  = self._unique_id
+        
         if product is None:
             pass 
         else:
@@ -2216,6 +2233,11 @@ class QUEEN():
             pass 
         else:
             self.record.annotations = annotation
+        
+        #Add end structure
+        if self.topology == "linear":
+            ends = [len(self._left_end), self._left_end_top, self._left_end_bottom, len(self._right_end), self._right_end_top, self._right_end_bottom]
+            self.record.annotations["comment"] = ["QUEEN end structure, left:{}|{}|{}, right:{}|{}|{}".format(*ends)] 
 
         #Add DATE
         import datetime

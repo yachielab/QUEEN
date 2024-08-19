@@ -147,7 +147,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
 
     process_description = pd if process_description is None else process_description
     #process_description = pd_suffix if process_description is None else process_description
-    if -1 in [template._left_end_top, template._left_end_bottom, template._right_end_top, template._right_end_bottom]:
+    if -1 in [template._left_end_top, template._left_end_bottom, template._right_end_top, template._right_end_bottom] and template._ssdna == False: 
         template = modifyends(template, pn=process_name, pd=process_description)
     
     if return_tm == True or add_primerbind == True:
@@ -373,7 +373,7 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
     else:
         return _select(fragments, selection) 
 
-def ligation(*fragments, unique=True, follow_order=False, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs): 
+def ligation(*fragments, unique=True, follow_order=False, auto_select=True, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs): 
     """
     Simulates a ligation of DNA fragments, assembling them in various combinations and orientations.
     Can return either unique or multiple assembled DNA constructs.
@@ -388,6 +388,9 @@ def ligation(*fragments, unique=True, follow_order=False, product=None, process_
     follow_order : bool, optional 
         If True, a ligation reaction will be simulated along with the given order of fragments.
         Default is False. 
+    auto_select : bool, optional
+        If multiple constructs are generated, retrieve a single construct with proper gene arrangements.
+        If a proper single construct cannot be identified, raises an error. Default is True.
     product : str, optional 
         Product name of the ligation process
     process_name : str, optional
@@ -425,6 +428,50 @@ def ligation(*fragments, unique=True, follow_order=False, product=None, process_
     QUEEN, flipdna, joindna
 
     """
+    
+    def add_fragment(fragments, orders, remains, results, flip=1):
+        flag = 0 
+        fragment1 = fragments[orders[-1][0]] 
+        if orders[-1][1] == -1:
+            fragment1 = flipdna(fragment1, quinable=False) 
+        
+        for target in remains:
+            fragment2 = fragments[target] 
+            if flip == 1:
+                rl = fragment1._right_end_top * fragment2._left_end_bottom 
+                if rl == 1 and fragment1._right_end == fragment2._left_end:
+                    flag = 1
+                    orders.append((target, 1)) 
+                    break
+                elif fragment1._right_end_top == 1 and fragment1._right_end_bottom == 1 and fragment2._left_end_bottom == 1 and fragment2._left_end_bottom == 1:
+                    flag = 1 
+                    orders.append((target, 1))
+                    break
+                else:
+                    pass 
+            else:
+                rr = fragment1._right_end_top * fragment2._right_end_top
+                if rr == 1 and fragment1._right_end == fragment2._right_end.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]:
+                    flag = 1
+                    orders.append((target, -1))
+                    break
+                elif fragment1._right_end_top == 1 and fragment1._right_end_bottom == 1 and fragment2._right_end_bottom == 1 and fragment2._right_end_bottom == 1:
+                    flag = 1 
+                    orders.append((target, -1))
+                    break
+                else:
+                    pass 
+        if flag == 0:
+            pass 
+        else:
+            remains.remove(target) 
+            if len(remains) == 0:
+                results.append(orders) 
+            else:
+                add_fragment(fragments, orders[:], remains[:], results, flip=1)
+                add_fragment(fragments, orders[:], remains[:], results, flip=-1)
+        return results 
+
     for fragment in fragments:  
         if type(fragment) == list and type(fragment[0]) == QUEEN:
             raise TypeError("Each QUEEN object should be specified individually, not as a list. Perhaps you forgot to select a single fragment from the digestion results?") 
@@ -447,60 +494,58 @@ def ligation(*fragments, unique=True, follow_order=False, product=None, process_
 
     process_description = pd if process_description is None else process_description
     #process_description = pd_suffix if process_description is None else process_description #"\n" + pd_suffix
-    
+   
     if follow_order == True:
         pass
     else:
-        indexes_list = []  
-        fragment1 = fragments[0] 
-        f = 0
-        orders = [] 
-        flips  = []
-        indexes = list(range(len(fragments))) 
-        indexes.remove(f)
-        orders.append(f) 
-        flips.append(1) 
-        while len(indexes) > 0:
-            flag = 0 
-            for g in indexes:
-                fragment2 = fragments[g]
-                rl = fragment1._right_end_top * fragment2._left_end_bottom 
-                rr = fragment1._right_end_top * fragment2._right_end_top
-                if rl == 1 and fragment1._right_end == fragment2._left_end: 
-                    flag = 1
-                    orders.append(g) 
-                    flips.append(1) 
-                    fragment1 = fragment2
-                    indexes.remove(g) 
-                    break
-                elif rr == 1 and fragment1._right_end == fragment2._right_end.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]:
-                    flag = 1
-                    orders.append(g) 
-                    flips.append(-1)
-                    fragment1 = flipdna(fragment2, quinable=0) 
-                    indexes.remove(g) 
-                    break  
-            if flag == 0:
-                break
-            else:
-                pass 
-        
-        if len(indexes) == 0:
-            indexes_list.append((orders, flips))
-    
+        orders  = [(0,1)] 
+        results = [] 
+        remains = list(range(1, len(fragments)))
+        results1 = add_fragment(fragments, orders[:], remains[:], results[:], flip=1)
+        results2 = add_fragment(fragments, orders[:], remains[:], results[:], flip=-1)
+        results = results1 + results2 
+
     if follow_order == True:
         outobj = joindna(*fragments, topology="circular", autoflip=False, compatibility="complete", product=product, pn=process_name, pd=process_description, qexparam=qexd)
         return outobj
 
     elif unique == True:
-        if len(indexes_list) == 1:
-            orders, flips = indexes_list[-1]
+        if len(results) == 1:
+            orders, flips = list(zip(*results[-1])) 
             fragment_set  = [flipdna(fragments[ind], product=fragments[ind].project, pn=process_name, pd=process_description) if fl == -1 else fragments[ind] for ind, fl in zip(orders, flips)]
             outobj = joindna(*fragment_set, topology="circular", autoflip=False, compatibility="complete", product=product, pn=process_name, pd=process_description, qexparam=qexd)
-        elif len(indexes_list) == 0:
+        elif len(results) == 0:
             raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility. Maybe you need to reflect the PCR primers or restriction enzymes used to generate the fragments.") 
         else:
-            raise ValueError("Multiple different constructs will be assembled. You should review your assembly design.")
+            tf_set = [] 
+            new_results = []
+            for result in results:
+                tf_set.append([]) 
+                index1, direction1 = result[0] 
+                others = result[1:] + [result[0]]  
+                if direction1 == 1:
+                    fragment1 = fragments[index1]
+                else:
+                    fragment1 = fragments[index1][::-1]
+
+                for (index2, direction2) in others:
+                    if direction2 == 1:
+                        fragment2 = fragments[index2]
+                    else:
+                        fragment2 = fragments[index2][::-1]
+                    tf_set[-1].append(check_arrangement(fragment1, fragment2)) 
+                    fragment1 = fragment2 
+            for i, tf in enumerate(tf_set):
+                if False in tf:
+                    pass 
+                else:
+                    new_results.append(results[i]) 
+            if len(new_results) == 1:
+                orders, flips = list(zip(*new_results[-1])) 
+                fragment_set  = [flipdna(fragments[ind], product=fragments[ind].project, pn=process_name, pd=process_description) if fl == -1 else fragments[ind] for ind, fl in zip(orders, flips)]
+                outobj = joindna(*fragment_set, topology="circular", autoflip=False, compatibility="complete", product=product, pn=process_name, pd=process_description, qexparam=qexd)
+            else:
+                raise ValueError("Multiple different constructs will be assembled. You should review your assembly design.")
         return outobj
     
     else:
@@ -634,7 +679,8 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
                             mhl = max_homology_length
                         fragment_set[f] = modifyends(fragment, "-{{{}}}/*{{{}}}".format(mhl,mhl), "*{{{}}}/-{{{}}}".format(mhl,mhl), pn=process_name, pd=process_description)
                     try:
-                        outobj = joindna(*fragment_set, autoflip=False, homology_length=homology_length, topology="linear", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
+                        outobj = joindna(*fragment_set, autoflip=False, homology_length=homology_length, topology="linear", product=product, pn=process_name, pd=process_description) 
+                        outobj = modifyends(outobj, product=product, pn=process_name, pd=process_description, qexparam=qexd) 
                         products.append(outobj) 
                     except Exception as e:
                         errors.append(e) 
@@ -1208,6 +1254,33 @@ def homologous_recombination(donor, entry, left_homology=None, right_homology=No
         outobj = joindna(left_dest, insert, right_dest, autoflio=False, pn=process_name, product=prodcut, pd=process_description) 
     return outobj
 
+def check_arrangement(fragment1, fragment2):
+    features1 = [feat for feat in fragment1.dnafeatures if feat.feature_type not in ("source", "primer", "primer_bind")] 
+    features2 = [feat for feat in fragment2.dnafeatures if feat.feature_type not in ("source", "primer", "primer_bind")]
+    feat1 = features1[-1]
+    feat2 = features2[0] 
+    if feat1.feature_type == "promoter" and feat2.feature_type == "CDS":
+        if feat1.strand == 1 and feat2.strand == -1:
+            return False
+        else:
+            pass
+    
+    if feat1.feature_type == "CDS" and feat2.feature_type == "promoter":
+        if feat1.strand == -1 and feat2.strand == 1:
+            return False
+        else:
+            pass 
+    
+    if feat1.feature_type == "CDS" and feat2.feature_type == "CDS":
+        if feat1.strand == feat2.strand:
+            pass 
+        else:
+            return False
+    else:
+        pass 
+
+    return True 
+
 def Tm_NN(check=True, strict=True, nn_table=None, tmm_table=None, imm_table=None, de_table=None, dnac1=25, dnac2=25, selfcomp=False, Na=50, K=0, Tris=0, Mg=0, dNTPs=0, saltcorr=5): 
     return functools.partial(mt.Tm_NN, check=check, strict=strict, nn_table=nn_table, tmm_table=tmm_table, imm_table=imm_table, de_table=de_table, dnac1=dnac1, dnac2=dnac2, selfcomp=selfcomp, Na=Na, K=K, Tris=Tris, Mg=Mg, dNTPs=dNTPs, saltcorr=saltcorr)  
 
@@ -1412,9 +1485,9 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 s = filtered_primer_pairs[i]["fw"][1]
                 e = len(amplicon_region.seq) - filtered_primer_pairs[i]["rv"][1] 
                 pcr_amplicon = amplicon_region[s:e] 
-                amplicon_features = [feat for feat in pcr_amplicon.dnafeatures if feat.feature_type != "source"]
+                amplicon_features = [feat for feat in pcr_amplicon.dnafeatures if feat.feature_type not in ("source", "primer", "primer_bind")]
                 amplicon_features.sort(key=lambda x: x.start) 
-                
+                 
                 if strand == "fw":
                     feat1 = adapter_features[-1] 
                     feat2 = amplicon_features[0] 
@@ -1444,18 +1517,19 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                             pass 
                             
                 if feat1.feature_type == "CDS" and feat2.feature_type == "CDS":
-                    if ("broken_feature" in feat1.qualifiers or "broken_feature" in feat2.qualifiers) and (len(feat1.sequence)%3 != 0 or len(feat2.sequence)%3 != 0):
-                        req = False         
-                    else:
-                        if feat1.strand == feat2.strand:
-                            req = True
-                        elif auto_adjust == True:
-                            raise ValueError("**Attention**: The directions of the gene in the adapter and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                    if feat1.strand == feat2.strand:
+                        if ("broken_feature" in feat1.qualifiers or "broken_feature" in feat2.qualifiers) and (len(feat1.sequence)%3 != 0 or len(feat2.sequence)%3 != 0):
+                            req = False
                         else:
-                            pass 
+                            req = True
+                    elif auto_adjust == True:
+                        raise ValueError("**Attention**: The directions of the gene in the adapter and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                    else:
+                        req = False
+                        pass 
                 else:
                     req = False 
-
+ 
                 if strand == "fw": 
                     if mode == "gibson":
                         if adapter._right_end_bottom == 1 and adapter._right_end_top == -1: 

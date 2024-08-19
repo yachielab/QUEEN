@@ -633,14 +633,14 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
         end_bottom = end[1] 
         end = max(end)
 
-        if start == 0 and end == len(dna.seq) and dna._topology == "linear":
+        if (start == 0 and end == len(dna.seq)) and dna._topology == "linear":
             new_dna = copy.copy(dna)
             new_dna._topology = "linear"
             return new_dna
 
         if dna.topology == "circular":
             start = len(dna.seq) + start if start < 0 else start
-            start = start - len(dna.seq) if start > len(dna.seq) else start
+            start = start - len(dna.seq) if start >= len(dna.seq) else start
             end   = end - len(dna.seq) if end > len(dna.seq) else end
         
         if (start >= end or (start_top == end_top and start_bottom == end_bottom)) and dna.topology == "circular":
@@ -650,6 +650,10 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
             else:
                 subdna2 = extract(dna, [0,0], [end,end])
                 subdna  = joindna(subdna1, subdna2, quinable=0)
+            if start_top == end_top and start_bottom == end_bottom:
+                start, end = end, start
+            else:
+                pass 
         else:
             if start > end and dna.topology == "linear":
                 raise ValueError("'end' position must be larger than 'start' position.")
@@ -1032,7 +1036,6 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
             subdna._positions = dna._positions[start:] + dna._positions[:end]
         else:
             subdna._positions = dna._positions[start:end] 
-
         return subdna 
     
     dnas = [] 

@@ -437,13 +437,14 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
         
         for target in remains:
             fragment2 = fragments[target] 
+            
             if flip == 1:
                 rl = fragment1._right_end_top * fragment2._left_end_bottom 
                 if rl == 1 and fragment1._right_end == fragment2._left_end:
                     flag = 1
                     orders.append((target, 1)) 
                     break
-                elif fragment1._right_end_top == 1 and fragment1._right_end_bottom == 1 and fragment2._left_end_bottom == 1 and fragment2._left_end_bottom == 1:
+                elif fragment1._right_end_top == 1 and fragment1._right_end_bottom == 1 and fragment2._left_end_top == 1 and fragment2._left_end_bottom == 1:
                     flag = 1 
                     orders.append((target, 1))
                     break
@@ -455,17 +456,18 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
                     flag = 1
                     orders.append((target, -1))
                     break
-                elif fragment1._right_end_top == 1 and fragment1._right_end_bottom == 1 and fragment2._right_end_bottom == 1 and fragment2._right_end_bottom == 1:
+                elif fragment1._right_end_top == 1 and fragment1._right_end_bottom == 1 and fragment2._right_end_top == 1 and fragment2._right_end_bottom == 1:
                     flag = 1 
                     orders.append((target, -1))
                     break
                 else:
                     pass 
+        
         if flag == 0:
             pass 
         else:
             remains.remove(target) 
-            if len(remains) == 0:
+            if len(remains) == 0 and len(orders) == len(fragments):
                 results.append(orders) 
             else:
                 add_fragment(fragments, orders[:], remains[:], results, flip=1)
@@ -515,7 +517,7 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
             fragment_set  = [flipdna(fragments[ind], product=fragments[ind].project, pn=process_name, pd=process_description) if fl == -1 else fragments[ind] for ind, fl in zip(orders, flips)]
             outobj = joindna(*fragment_set, topology="circular", autoflip=False, compatibility="complete", product=product, pn=process_name, pd=process_description, qexparam=qexd)
         elif len(results) == 0:
-            raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility. Maybe you need to reflect the PCR primers or restriction enzymes used to generate the fragments.") 
+            raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility. Please double-check that you haven't forgotten to perform the restriction enzyme digestion on the input fragments, that the fragments are digested with the appropriate restriction enzymes, and that you are using the correct primers for previous PCRs.") 
         else:
             tf_set = [] 
             new_results = []

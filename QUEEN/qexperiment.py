@@ -661,7 +661,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
             flip_status_list = list(it.product(*[[1,-1] for i in range(len(fragments))]))   
         else:
             nums_orders      = [nums]  
-            flip_status_list = [[1 for i in range(len(framgents))]]    
+            flip_status_list = [[1 for i in range(len(fragments))]]    
         errors = [] 
         products = [] 
         for numset in nums_orders:
@@ -694,7 +694,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
             flip_status_list = list(it.product(*[[1,-1] for i in range(len(fragments))]))   
         else:
             nums_orders      = [nums]  
-            flip_status_list = [[1 for i in range(len(framgents))]]    
+            flip_status_list = [[1 for i in range(len(fragments))]]    
         errors = [] 
         products = [] 
         for numset in nums_orders:
@@ -1045,7 +1045,14 @@ def topo_cloning(destination, entry, mode="TA", product=None, process_name=None,
             destination = digestion(destination, "AflII", selection="max", product=destination.project, pn=process_name, pd=process_description, qexparam="")
             destination = modifyends(destination, pn=process_name, pd=process_description) 
             destination = modifyends(destination, "-/*", "*/-", pn=process_name, pd=process_description) 
-        
+        else: 
+            if destination._left_end_top == 1 and destination._left_end_bottom == 1 and destination._right_end_top == 1 and destination._right_end_bottom == 1:
+                if destination.seq[0] == "A" and  destination.seq[-1] == "T":
+                    destination = modifyends(destination, "-/*", "*/-") 
+                elif destination.seq[0] == "T" and  destination.seq[-1] == "A":
+                    destination = modifyends(destination, "*/-", "-/*") 
+                else:
+                    pass 
         entry  = modifyends(entry, "T", "A", pn=process_name, pd=process_description) 
         entry  = modifyends(entry, "-/*", "*/-", pn=process_name, pd=process_description)
         outobj = joindna(destination, entry, autoflip=False, compatibility="complete", homology_length=1, topology="circular", product=product, pn=process_name, pd=process_description, qexparam=qexd)
@@ -1062,6 +1069,15 @@ def topo_cloning(destination, entry, mode="TA", product=None, process_name=None,
             destination = modifyends(destination, pn=process_name, pd=process_description)
             destination = cropdna(destination, 1, len(destination.seq)-3, pn=process_name, pd=process_description)
             destination = modifyends(destination, "", "----/****", pn=process_name, pd=process_description)
+        else: 
+            if destination._left_end_top == 1 and destination._left_end_bottom == 1 and destination._right_end_top == 1 and destination._right_end_bottom == 1:
+                if destination.seq[-4:0] == "CACC":
+                    destination = modifyends(destination, "", "----/****") 
+                elif destination.seq[0:4] == "GGTG":
+                    destination = modifyends(destination, "****/----", "") 
+                else:
+                    pass 
+
         entry = modifyends(entry, "****/----", "", pn=process_name, pd=process_description)
         outobj = joindna(destination, entry, autoflip=False, compatibility="complete", topology="circular", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
     

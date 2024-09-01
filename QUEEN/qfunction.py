@@ -2238,10 +2238,11 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
                 tmp_right = right_origin.parent
 
             if tmp_right is not None:
-                new_dna._dnafeatures += _slide(tmp_right.dnafeatures, len(left_end.split("/")[0]) + len(dna.seq))
-        
+                if type(left_end) == new_dna.__class__:
+                    new_dna._dnafeatures += _slide(tmp_right.dnafeatures, len(left_end.seq.split("/")[0]) + len(dna.seq))
+                else:
+                    new_dna._dnafeatures += _slide(tmp_right.dnafeatures, len(left_end.split("/")[0]) + len(dna.seq))
         new_dna._history_feature = dna._history_feature         
-        
         #Recover fragmented features if complete sequence is in the construct.
         new_features = [] 
         remove_features = [] 

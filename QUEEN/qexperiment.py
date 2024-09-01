@@ -142,6 +142,10 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     else:
         raise TypeError("`fw` object must be instance of QUEEN or str class.") 
     
+    if template._ssdna == True: 
+        template = copy.deepcopy(template) 
+        template._ssdna = False
+
     process_name = pn if process_name is None else process_name
     if process_name is None:
         process_name = "PCR"

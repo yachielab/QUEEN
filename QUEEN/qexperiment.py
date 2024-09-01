@@ -157,7 +157,8 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     
     #if return_tm == True or add_primerbind == True  
     i = 0
-    tmpsite1  = None
+    site1      = None 
+    tmpsite1   = None
     bindlength = len(fw.seq) 
     while bindlength-i >= bindnum:
         tmpsite1 = search_binding_site(template, fw, 1, bindlength-i, endlength, mismatch=mismatch, flag=0, pn=process_name, pd=process_description)
@@ -167,6 +168,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
         i += 1
 
     i = 0
+    site2      = None
     tmpsite2   = None
     bindlength = len(rv.seq) 
     while bindlength-i >= bindnum:
@@ -176,6 +178,12 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
             break
         i += 1
     
+    if site1 is None:
+        raise ValueError("No forward primer binding sites were found. You should re-confirm the template-primer pair.")
+    
+    if site2 is None:
+        raise ValueError("No reverse primer binding sites were found. You should re-confirm the template-primer pair.")
+
     #else:
     #    site1 = search_binding_site(template, fw, 1, bindnum, endlength, pn=process_name, pd=process_description) 
     #    site2 = search_binding_site(template, rv, -1, bindnum, endlength, pn=process_name, pd=process_description) 

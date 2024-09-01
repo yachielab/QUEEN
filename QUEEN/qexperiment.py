@@ -9,13 +9,14 @@ from cutsite import Cutsite
 from Bio.SeqUtils import MeltingTemp as mt
 import functools
 
-def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=False, tm_func=None, return_tm=False, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
+def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=False, tm_func=None, return_tm=False, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
     """
     Simulates a PCR (Polymerase Chain Reaction) process on a given DNA template using forward and reverse primers. This function does not provide the function to check cross dimer and homo dimer in primer design as default. If you wanna add such function, set the original `requirement` equiation. 
     Parameters
     ----------
-    template : QUEEN
-        The DNA template to be amplified.
+    template : QUEEN or list of QUEEN objects 
+        The DNA template to be amplified. If list is given, overlap extension PCR is performed,
+        so each template QUEEN obejct should be ovelapped with adjacent QUEEN objects.  
     fw : QUEEN or str
         The forward primer. Can be a QUEEN object or a string representing the DNA sequence.
         If a dsDNA QUEEN object is given, its top strand sequence is used as a foward primer.
@@ -25,7 +26,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
     bindnum : int, optional
         The minimum number of binding nucleotides for a primer, by default 15.
     mismatch : int, optional
-        The maximum number of mismatches allowed in the primer binding, by default 1.
+        The maximum number of mismatches allowed in the primer binding, by default 0.
     endlength : int, optional
         The length of the end region of the primer to consider during binding, by default 3.
     add_primerbind : bool, optional
@@ -76,13 +77,14 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
     QUEEN, cropdna, modifyends
 
     """
+
     def search_binding_site(template, primer, strand=1, bindnum=15, endlength=3, mismatch=1, flag=1, pn=None, pd=None, **kwargs): 
         site = [] 
         primer_end = primer.seq[-1*endlength:]
         for i in range(bindnum-endlength, len(primer.seq)-endlength+1):
             binding_site = primer.seq[-1*i + -1*endlength:-1*endlength]
             try:
-                site = template.searchsequence(query="(?:{}){{s<={}}}{}".format(binding_site, mismatch, primer_end), quinable=False) 
+                site = template.searchsequence(query="{}(?:{}){{s<={}}}{}".format(binding_site[0], binding_site[1:], mismatch, primer_end), quinable=False) 
             except Exception as e:
                 site = [] 
             if len(primer_end) + len(binding_site) - mismatch >= bindnum:
@@ -91,7 +93,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
                 pass 
         
         if len(site) == 1: #and site[0].strand == strand:
-            site = template.searchsequence(query="(?:{}){{s<={}}}{}".format(binding_site, mismatch, primer_end), pn=pn, pd=pd)
+            site = template.searchsequence(query="{}(?:{}){{s<={}}}{}".format(binding_site[0], binding_site[1:], mismatch, primer_end), pn=pn, pd=pd)
             if flag == 1:
                 return site[0]
             else:
@@ -119,7 +121,10 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
         #    raise ValueError("Primer binded to an unexpected strand.") 
     
     if type(template) != QUEEN: 
-        raise TypeError("`template` object must be instance of QUEEN class.") 
+        if type(template) == list and False not in [type(element) == QUEEN for element in template]:
+            template = homology_based_assembly(*template, mode="overlappcr") 
+        else:
+            raise TypeError("`template` object must be instance of QUEEN class or list of QUEEN objects") 
 
     if type(fw) == Qseq or type(fw) == str:
         fw    = QUEEN(seq=fw, ssdna=True) 
@@ -150,27 +155,30 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
     if -1 in [template._left_end_top, template._left_end_bottom, template._right_end_top, template._right_end_bottom] and template._ssdna == False: 
         template = modifyends(template, pn=process_name, pd=process_description)
     
-    if return_tm == True or add_primerbind == True:
-        i = 0
-        tmpsite1 = None
-        while 1:
-            tmpsite1 = search_binding_site(template, fw, 1, bindnum+i, endlength, mismatch=mismatch, flag=0, pn=process_name, pd=process_description)
-            if len(tmpsite1) == 0:
-                break
+    #if return_tm == True or add_primerbind == True  
+    i = 0
+    tmpsite1  = None
+    bindlength = len(fw.seq) 
+    while bindlength-i >= bindnum:
+        tmpsite1 = search_binding_site(template, fw, 1, bindlength-i, endlength, mismatch=mismatch, flag=0, pn=process_name, pd=process_description)
+        if len(tmpsite1) == 1:
             site1 = tmpsite1[0]
-            i += 1
+            break
+        i += 1
 
-        i = 0
-        tmpsite2 = None
-        while 1:
-            tmpsite2 = search_binding_site(template, rv, -1, bindnum+i, endlength, mismatch=mismatch, flag=0, pn=process_name, pd=process_description)
-            if len(tmpsite2) == 0:
-                break
+    i = 0
+    tmpsite2   = None
+    bindlength = len(rv.seq) 
+    while bindlength-i >= bindnum:
+        tmpsite2 = search_binding_site(template, rv, -1, bindlength-i, endlength, mismatch=mismatch, flag=0, pn=process_name, pd=process_description)
+        if len(tmpsite2) == 1:
             site2 = tmpsite2[0] 
-            i += 1
-    else:
-        site1 = search_binding_site(template, fw, 1, bindnum, endlength, pn=process_name, pd=process_description) 
-        site2 = search_binding_site(template, rv, -1, bindnum, endlength, pn=process_name, pd=process_description) 
+            break
+        i += 1
+    
+    #else:
+    #    site1 = search_binding_site(template, fw, 1, bindnum, endlength, pn=process_name, pd=process_description) 
+    #    site2 = search_binding_site(template, rv, -1, bindnum, endlength, pn=process_name, pd=process_description) 
     
     if site1.strand == 1 and site2.strand == -1:
         fw_site = site1  
@@ -188,14 +196,11 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
     fw_feats = fw.searchfeature(key_attribute="feature_type", query="primer_bind") 
     rv_feats = rv.searchfeature(key_attribute="feature_type", query="primer_bind")
        
-    if len(fw_feats) == 0:
-        fw.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
-    
-    if len(rv_feats) == 0:
-        rv.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})
-    
-    
     if fw_site.end > rv_site.start and fw_site.end <= rv_site.end:
+        if len(fw_feats) == 0:
+            fw.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
+        if len(rv_feats) == 0:
+            rv.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})
         start = rv_site.start if rv_site.start < len(template.seq) else rv_site.start - len(template.seq)
         end   = fw_site.end if fw_site.end < len(template.seq) else fw_site.end - len(template.seq)
         extract  = cropdna(template, start,  end, pn=process_name, pd=process_description)
@@ -203,11 +208,27 @@ def pcr(template, fw, rv, bindnum=15, mismatch=1, endlength=3, add_primerbind=Fa
         rv_index = fw_site.end - rv_site.start 
         amplicon = modifyends(extract, fw.seq[:fw_index], rv.rcseq[rv_index:], product=product, pn=process_name, pd=process_description, qexparam=qexd)
     else:
-        start = fw_site.end if fw_site.end < len(template.seq) else fw_site.end - len(template.seq)
-        end   = rv_site.start if rv_site.start < len(template.seq) else rv_site.start - len(template.seq)
-        extract  = cropdna(template, start, end, pn=process_name, pd=process_description)
-        amplicon = modifyends(extract, fw.seq, rv.rcseq, product=product, pn=process_name, pd=process_description, qexparam=qexd)
-    
+        if mismatch == 0:
+            fw_bind = template.seq[fw_site.start:fw_site.end]
+            rv_bind = template.seq[rv_site.start:rv_site.end]
+            start = fw_site.start if fw_site.start < len(template.seq) else fw_site.start - len(template.seq)
+            end   = rv_site.end if rv_site.end < len(template.seq) else rv_site.end - len(template.seq)
+            extract  = cropdna(template, start, end, pn=process_name, pd=process_description) 
+            amplicon = modifyends(extract, left=fw.seq[0:len(fw.seq)-len(fw_bind)], right=rv.rcseq[len(rv_bind):], product=product, pn=process_name, pd=process_description, qexparam=qexd)   
+            if len(fw_feats) == 0:
+                amplicon.setfeature({"start":0, "end":len(fw.seq), "qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
+            if len(rv_feats) == 0:
+                amplicon.setfeature({"start":len(amplicon.seq)-len(rv.seq), "end":len(amplicon.seq), "strand":-1, "qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
+        else:
+            if len(fw_feats) == 0:
+                fw.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
+            if len(rv_feats) == 0:
+                rv.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})
+            start = fw_site.end if fw_site.end < len(template.seq) else fw_site.start - len(template.seq)
+            end   = rv_site.start if rv_site.start < len(template.seq) else rv_site.end - len(template.seq)
+            extract  = cropdna(template, start, end, pn=process_name, pd=process_description)
+            amplicon = modifyends(extract, fw.seq, rv.rcseq, product=product, pn=process_name, pd=process_description, qexparam=qexd)
+
     if add_primerbind == True:
         template.setfeature({"start": fw_site.start, "end": fw_site.end, "strand":1,  "feature_type":"primer_bind"}) 
         template.setfeature({"start": rv_site.start, "end": rv_site.end, "strand":-1, "feature_type":"primer_bind"})  
@@ -567,7 +588,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
     *fragments : QUEEN
         Variable number of QUEEN objects representing DNA fragments to be assembled.
     mode : str, optional
-        The assembly mode to be used. Valid options are "gibson", "infusion", and "overlap pcr". Default is "gibson".
+        The assembly mode to be used. Valid options are "gibson", "infusion", and "overlappcr". Default is "gibson".
     homology_length : int, optional
         The minimum length of homology required for the assembly. Default is 20.
     unique : bool, optional

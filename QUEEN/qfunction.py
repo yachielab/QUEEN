@@ -1016,7 +1016,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
             elif start_dif < 0:
                 left = "*" * abs(start_dif) + "/" +  "-" * abs(start_dif) 
             else:
-                left = ""
+                left = None
             
             end_dif = end_top - end_bottom
             if end_dif > 0:
@@ -1024,7 +1024,8 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
             elif end_dif < 0:
                 right = "-" * abs(end_dif) + "/" + "*" * abs(end_dif) 
             else:
-                right = ""
+                right = None
+
             subdna = modifyends(subdna, left, right, quinable=0)
         else:
             pass  
@@ -1292,8 +1293,20 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
 
-    if end is None or end == 0:
-        end = len(dna.seq) 
+    if dna.topology == "circular":
+        if end is None or end == 0: 
+            end = len(dna.seq) 
+        else:
+            pass 
+    else:
+        if end is None:
+            end = len(dna.seq)
+        elif end == 0:
+            raise ValueError("'end' position must be larger than 'start' position.")
+        else:
+            pass 
+        if end <= start:
+            raise ValueError("'end' position must be larger than 'start' position.")
     
     if start == 0 and end == len(dna.seq):
         subdna = cutdna(dna, start, product=project, quinable=0)[0]  
@@ -1360,7 +1373,7 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
     if product is None:
         pass 
     else:
-        product.replace(" ","") 
+        product = product.replace(" ","") 
         match = re.fullmatch(r"(.+)\[(.+)\]", product)
         if match:
             if match.group(2).isdecimal() == True:
@@ -1859,7 +1872,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
             construct.__class__._namespace[product] = construct
     return construct
 
-def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeature=False, product=None, process_name=None, 
+def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfeature=False, product=None, process_name=None, 
                process_description=None, pn=None, pd=None, quinable=True, **kwargs):
     """Modify sequence end structures of `QUEEN_object`.
 
@@ -1878,10 +1891,10 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
     dna : QUEEN.qobj.QUEEN object
     left : str ("str" or "str/str"),  default: None
         Left sequence end structure of `QUEEN_object`. Please refer to the "Notes" for the 
-        specifiction.
+        specifiction. Default is None that is regarded as "*/*".
     right : str ("str" or "str/str"),  default: None
         Right sequence end structure of `QUEEN_object`. Please refer to the "Notes" for the 
-        specifiction.
+        specifiction. Default is None that is regarded as "*/*".
     supfeature : list of dict
         For detailes, see `QUEEN.queen.qfunction.__doc__`.
     product : str
@@ -2020,13 +2033,23 @@ def modifyends(dna, left="", right="", add=0, add_right=0, add_left=0, supfeatur
             new_top    += t
             new_bottom += b
         return new_top, new_bottom
-    
-    if left == "":
+   
+    if left is None:
         left = "*/*"
-    
-    if right == "":
+    elif left == "":
+        if -1 not in [dna._left_end_top, dna._left_end_bottom]:
+            left = "*/*" 
+        else: 
+            left = ("-" if dna._left_end_top == -1 else "*") * len(dna._left_end) + "/" + ("-" if dna._left_end_bottom == -1 else "*") * len(dna._left_end)
+        
+    if right is None:
         right = "*/*"
-    
+    elif right == "":
+        if -1 not in [dna._right_end_top, dna._right_end_bottom]:
+            right = "*/*" 
+        else: 
+            right = ("-" if dna._right_end_top == -1 else "*") * len(dna._right_end) + "/" + ("-" if dna._right_end_bottom == -1 else "*") * len(dna._right_end)
+
     left_origin, right_origin = left, right
     left, right = parse(left.upper()), parse(right.upper())
     left, rihgt = str(left), str(right) 

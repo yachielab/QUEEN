@@ -150,6 +150,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     if process_name is None:
         process_name = "PCR"
     
+    product = product.replace(" ","") if product is not None else None
     kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
     kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
     qexd = "pcr(QUEEN.dna_dict['{}'], {}, {}, bindnum={}, mismatch={}, endlegth={}, add_primerbind={}{})".format(template._product_id, fwstr, rvstr, bindnum, mismatch, endlength, add_primerbind, kwargs_str)
@@ -205,10 +206,9 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     fw_bind_length = len(fw_site.sequence) 
     rv_bind_length = len(rv_site.sequence) 
     
-    fw_feats = fw.searchfeature(key_attribute="feature_type", query="primer_bind") 
-    rv_feats = rv.searchfeature(key_attribute="feature_type", query="primer_bind")
-       
-    if fw_site.end > rv_site.start and fw_site.end <= rv_site.end:
+    fw_feats = [feat for feat in fw.searchfeature(key_attribute="feature_type", query="primer_bind") if feat.end == len(fw.seq) and feat.start == 0] 
+    rv_feats = [feat for feat in rv.searchfeature(key_attribute="feature_type", query="primer_bind") if feat.end == len(rv.seq) and feat.end == 0]
+    if fw_site.end >= rv_site.start and fw_site.start < rv_site.start:
         if len(fw_feats) == 0:
             fw.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
         if len(rv_feats) == 0:
@@ -221,12 +221,12 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
         amplicon = modifyends(extract, fw.seq[:fw_index], rv.rcseq[rv_index:], product=product, pn=process_name, pd=process_description, qexparam=qexd)
     else:
         if mismatch == 0:
-            fw_bind = template.seq[fw_site.start:fw_site.end]
-            rv_bind = template.seq[rv_site.start:rv_site.end]
-            start = fw_site.start if fw_site.start < len(template.seq) else fw_site.start - len(template.seq)
-            end   = rv_site.end if rv_site.end < len(template.seq) else rv_site.end - len(template.seq)
-            extract  = cropdna(template, start, end, pn=process_name, pd=process_description) 
-            amplicon = modifyends(extract, left=fw.seq[0:len(fw.seq)-len(fw_bind)], right=rv.rcseq[len(rv_bind):], product=product, pn=process_name, pd=process_description, qexparam=qexd)   
+            fw_bind  = template.seq[fw_site.start:fw_site.end]
+            rv_bind  = template.seq[rv_site.start:rv_site.end]
+            start    = fw_site.start if fw_site.start < len(template.seq) else fw_site.start - len(template.seq)
+            end      = rv_site.end if rv_site.end < len(template.seq) else rv_site.end - len(template.seq)
+            extract  = cropdna(template, start, end, pn=process_name, pd=process_description)
+            amplicon = modifyends(extract, left=fw[0:len(fw.seq)-len(fw_bind)].seq, right=rv[0:len(rv.seq)-len(rv_bind)].rcseq, product=product, pn=process_name, pd=process_description, qexparam=qexd)   
             if len(fw_feats) == 0:
                 amplicon.setfeature({"start":0, "end":len(fw.seq), "qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
             if len(rv_feats) == 0:
@@ -236,8 +236,8 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
                 fw.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
             if len(rv_feats) == 0:
                 rv.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})
-            start = fw_site.end if fw_site.end < len(template.seq) else fw_site.start - len(template.seq)
-            end   = rv_site.start if rv_site.start < len(template.seq) else rv_site.end - len(template.seq)
+            start = fw_site.end if fw_site.end < len(template.seq) else fw_site.end - len(template.seq)
+            end   = rv_site.start if rv_site.start < len(template.seq) else rv_site.start - len(template.seq)
             extract  = cropdna(template, start, end, pn=process_name, pd=process_description)
             amplicon = modifyends(extract, fw.seq, rv.rcseq, product=product, pn=process_name, pd=process_description, qexparam=qexd)
 
@@ -377,8 +377,9 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
     process_name = pn if process_name is None else process_name
     if process_name is None:
         process_name = "Digestion"
-    
-    cs_str = ", ".join(["'{}'".format(name) for name in cutsite_names])
+   
+    product = product.replace(" ","") if product is not None else None
+    cs_str  = ", ".join(["'{}'".format(name) for name in cutsite_names])
     kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
     kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
     if type(selection) == tuple:
@@ -400,11 +401,22 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
         sites = dna.searchsequence(query=cutsite, pn=process_name, pd=process_description)        
         new_cutsites.extend(sites) 
     
-    fragments = cutdna(dna, *new_cutsites, product=product, pn=process_name, pd=process_description, qexparam=qexd)
-    if len(fragments) == 1 and selection is None: 
-        return _select(fragments, "max") 
+    if selection is None:
+        fragments = cutdna(dna, *new_cutsites, product=product, pn=process_name, pd=process_description, qexparam=qexd)
     else:
-        return _select(fragments, selection) 
+        fragments = cutdna(dna, *new_cutsites, product=None, pn=process_name, pd=process_description)
+
+    if len(fragments) == 1 and selection is None: 
+        dfragment = _select(fragments, "max") 
+    else:
+        dfragment = _select(fragments, selection)
+    
+    if type(dfragment) == list:
+        return dfragment 
+    else:
+        if product is not None:
+            dfragment = modifyends(dfragment, left="", right="", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
+        return dfragment 
 
 def ligation(*fragments, unique=True, follow_order=False, auto_select=True, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs): 
     """
@@ -517,6 +529,7 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
     if process_name is None:
         process_name = "Ligation"  
     
+    product = product.replace(" ","") if product is not None else None
     kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
     kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
     fragments_str = ", ".join(["QUEEN.dna_dict['{}']".format(fragment._product_id) for fragment in fragments])
@@ -662,6 +675,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
         else:
             process_name = "Homology based Assembly" 
     
+    product = product.replace(" ","") if product is not None else None
     kwargs_str    = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
     kwargs_str    = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
     fragments_str = ", ".join(["QUEEN.dna_dict['{}']".format(fragment._product_id) for fragment in fragments])
@@ -816,6 +830,7 @@ def annealing(ssdna1, ssdna2, homology_length=4, product=None, pn=None, pd=None,
     if process_name is None:
         process_name = "Annealing" 
     
+    product = product.replace(" ","") if product is not None else None
     kwargs_str    = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
     kwargs_str    = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
     qexd = "annealing(QUEEN.dna_dict['{}'], QUEEN.dna_dict['{}'], homology_length={}{})".format(ssdna1._product_id, ssdna2._product_id, homology_length, kwargs_str)
@@ -893,6 +908,7 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
     if process_name is None:
         process_name = "Gateway Reaction" 
     
+    product = product.replace(" ","") if product is not None else None
     kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
     kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
     qexd = "gateway_reaction(QUEEN.dna_dict['{}'], QUEEN.dna_dict['{}'], mode='{}'{})".format(destination._product_id, entry._product_id, mode, kwargs_str)
@@ -1009,6 +1025,7 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
     if process_name is None:
         process_name = "Golden Gate Assembly" 
     
+    product = product.replace(" ","") if product is not None else None
     kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
     kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
     entry_str  = ", ".join(["QUEEN.dna_dict['{}']".format(aentry._product_id) for aentry in entry])
@@ -1071,6 +1088,7 @@ def topo_cloning(destination, entry, mode="TA", product=None, process_name=None,
     QUEEN (construct)
     Returns the topo cloning construct.
     """
+    product = product.replace(" ","") if product is not None else None
     kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
     kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
     qexd = "topo_cloning(QUEEN.dna_dict['{}'], QUEEN.dna_dict['{}'], mode='{}'{})".format(destination._product_id, entry._product_id, mode, kwargs_str)
@@ -1103,17 +1121,17 @@ def topo_cloning(destination, entry, mode="TA", product=None, process_name=None,
             destination = digestion(destination, "StyI", selection="max", product=destination.project, pn=process_name, pd=process_description, qexparam="")
             destination = modifyends(destination, pn=process_name, pd=process_description)
             destination = cropdna(destination, 1, len(destination.seq)-3, pn=process_name, pd=process_description)
-            destination = modifyends(destination, "", "----/****", pn=process_name, pd=process_description)
+            destination = modifyends(destination, "*/*", "----/****", pn=process_name, pd=process_description)
         else: 
             if destination._left_end_top == 1 and destination._left_end_bottom == 1 and destination._right_end_top == 1 and destination._right_end_bottom == 1:
                 if destination.seq[-4:0] == "CACC":
-                    destination = modifyends(destination, "", "----/****") 
+                    destination = modifyends(destination, "*/*", "----/****") 
                 elif destination.seq[0:4] == "GGTG":
-                    destination = modifyends(destination, "****/----", "") 
+                    destination = modifyends(destination, "****/----", "*/*") 
                 else:
                     pass 
 
-        entry = modifyends(entry, "****/----", "", pn=process_name, pd=process_description)
+        entry = modifyends(entry, "****/----", "*/*", pn=process_name, pd=process_description)
         outobj = joindna(destination, entry, autoflip=False, compatibility="complete", topology="circular", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
     
     return outobj
@@ -1159,6 +1177,7 @@ def intra_site_specific_recombination(dna, site="loxP", product=None, process_na
     if process_name is None:
         process_name = "Intra site-specific recombination" 
     
+    product = product.replace(" ","") if product is not None else None
     kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
     kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
     qexd = "intra_site_specific_recombination({}, site={}{})".format(dna.project, site, kwargs_str)
@@ -1247,6 +1266,7 @@ def homologous_recombination(donor, entry, left_homology=None, right_homology=No
     if process_name is None:
         process_name = "Homologous Recombination" 
     
+    product = product.replace(" ","") if product is not None else None
     kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
     kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
     qexd = "homologous_recombination(QUEEN.dna_dict['{}'], QUEEN.dna_dict['{}']{})".format(destination._product_id, entry._product_id, mode, destination_selection, entry_selection, kwargs_str)

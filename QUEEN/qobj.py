@@ -1489,7 +1489,10 @@ class QUEEN():
                     subdna = cutdna(self, start, quinable=0)[0] 
                     subdna = joindna(subdna, quinable=0) 
                 else:
-                    subdna = cropdna(self, start, end, quinable=0)
+                    if start == end:
+                        subdna = QUEEN(seq="", quinable=0) 
+                    else:
+                        subdna = cropdna(self, start, end, quinable=0)
                              
             else:
                 raise TypeError("slice indices must be integers or None or have an __index__ method")

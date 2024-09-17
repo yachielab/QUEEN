@@ -230,7 +230,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
             if len(fw_feats) == 0:
                 amplicon.setfeature({"start":0, "end":len(fw.seq), "qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
             if len(rv_feats) == 0:
-                amplicon.setfeature({"start":len(amplicon.seq)-len(rv.seq), "end":len(amplicon.seq), "strand":-1, "qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
+                amplicon.setfeature({"start":len(amplicon.seq)-len(rv.seq), "end":len(amplicon.seq), "strand":-1, "qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})  
         else:
             if len(fw_feats) == 0:
                 fw.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  

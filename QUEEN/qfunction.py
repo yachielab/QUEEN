@@ -1299,12 +1299,8 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
         else:
             pass 
     else:
-        if end is None:
-            end = len(dna.seq)
-        elif end == 0:
-            raise ValueError("'end' position must be larger than 'start' position.")
-        else:
-            pass 
+        if end is None or end == 0:
+            end = len(dna.seq) 
         if end <= start:
             raise ValueError("'end' position must be larger than 'start' position.")
     

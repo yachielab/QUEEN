@@ -364,67 +364,67 @@ Simulates a Golden Gate Assembly.
 
 ## Primer Design for PCR Amplification
 
-Design forward and reverse primers for PCR amplification of a target region, allowing for introduction of specific mutations, checking primer specificity, and meeting additional user-defined requirements.
+Design forward and reverse primers for PCR amplification of a target region, allowing for the introduction of specific mutations, checking primer specificity, and meeting additional user-defined requirements. If a list of templates and targets is specified, a batch process will be executed for each template and target. In that case, the other parameters except for `adapter_mode` can also be specified as a list of appropriate class objects. However, each list should be the same length as the list of templates.
 
 #### `primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, rv_margin=0, target_tm=60.0, tm_func=None, primer_length=(16, 25), design_num=1, fw_adapter=None, rv_adapter=None, adapter_mode="standard", homology_length=20, nonspecific_limit=3, auto_adjust=1, requirement=None, fw_name="fw_primer", rv_name="rv_primer")`
 
 #### Parameters
 
-- **template** & **target**: `QUEEN object`  
-  Template and target regions for PCR.
+- **template**: `QUEEN object` of `list` of `QUEEN objects`.
+  The QUEEN object to serve as the PCR template. If a `list` of templates is specified, appropriate primer pairs will be designed for each template.  
 
-- **fw_primer**:`ssDNA QUEEN object`, optional  
+- **target**: `QUEEN object` of `list` of `QUEEN objects`.
+  The sub-region in the template QUEEN object that needs to be included in the amplicon. If a list of targets is specified, the lengths should be the same, and each element should correspond to the template list.   
+
+- **fw_primer**: `ssDNA QUEEN object` or `list` of `ssDNA QUEEN object`, optional
   A specific forward primer sequence.   
   If provided, this sequence will be used as the forward primer.
 
-- **rv_primer** :`ssDNA QUEEN`, optional  
+- **rv_primer**: `ssDNA QUEEN object` or `list` of `ssDNA QUEEN object`, optional
   A specific reverse primer sequence.   
-  If provided, this sequence will be used as the reverse primer.
+  If provided, this sequence will be used as the reverse primer.  
 
-- **fw_margin** & **rv_margin**: `int`, optional  
+- **fw_margin** & **rv_margin**: `int` or `list` of int, optional  
   Margins for primer design around the target region.  
 
-- **target_tm** `float`, optional   
+- **target_tm**: `float` or `list` of `float`, optional   
   Desired primer Tm. Default is 60.0 °C.
 
-- **tm_func**  `function`, optional  
-  Function for calculating primer Tm.  As built-in algorithms, `QUEEN.qexperiment.Tm_NN()`.   
-  This function is implemented based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, so the all parameters of  `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, can be acceptable.
+- **tm_func**: `str`, function or `list` of `str`/`func`, optional
+  Function to calculate the melting temperature of the primer pair. As `str` specfication, you can select `"Breslauer" or "br"` and `"SantaLucia" or "sa"`. Default is `"SantaLucia"`. Also, as built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. This function is implemented based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, so the all parameters of `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, can be acceptable.
 
-- **primer_length**: `tuple` of `int`, optional  
+- **primer_length**: `tuple` of `int` pair or `list` of `int` pairs, optional
   A tuple (min_size, max_size) specifying the primer length. Default is (16, 25).
 
-- **design_num**: `int`, optional   
+- **design_num**: `int` or `list` of `int`, optional
   Number of primer pairs to design. Default is 1.
 
 - **adapter_mode**: `"standard"`, `"gibson"`, `"infusion"`, `"overlappcr"`, `"RE"`, or `"BP"`. Default is `"standard"`.   
-  The mode value specifies the the format of `fw_adapter` and `rv_adapter`.  
+  The mode value specifies the the format of `fw_adapter` and `rv_adapter`. In batch process mode, this value should be common for all processes 
 
 - **fw_adapter** `ssDNA QUEEN object` or `str`, optional  
   If mode is `"standard"`, the value must be a QUEEN object or a `str` object representing a DNA sequence. The sequence will be added at the beginning of any forward primers designed.  
-  If mode is `"gibson"`, `"infusion"`, or `"overlappcr"`, the value must be a dsDNA QUEEN object.  
-  The adapter sequence overlapping the specified QUEEN object will be automatically designed and prepended to the forward primers.
+  If the mode is "gibson", "infusion", or "overlappcr", the value must be a dsDNA QUEEN object or `None`. If the value is `None` and the target is specified as a list of QUEEN objects, the QUEEN object immediately preceding the target used for the current primer design will be automatically specified. The adapter sequence overlapping the specified QUEEN object will be automatically designed and prepended to the forward primer. 
   If mode is `"RE"`, the value must be a Cutsite object or a `str` object representing a restriction enzyme (RE) site. The adapter sequence including the specified RE site will be added at the beginning of the forward primers. If mode is "BP", the value must be "attB1" or "attB2". The specified attB site will be added at the beginning of the forward primers. Currently, "attB1" and "attB2" are specified as follows:  
   - attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
   - attB2: GGGGACCACTTTGTACAAGAAAGCTGGGT
 
 - **rv_adapter**: `ssDNA QUEEN object` or `str`, optional  
   If mode is `"standard"`, the value must be a QUEEN object or a `str` object representing a DNA sequence. The sequence will be added at the beginning of any reverse primers designed.  
-  If mode is `"gibson"`, `"infusion"`, or `"overlappcr"`, the value must be a dsDNA QUEEN object.  
-  The adapter sequence overlapping the specified QUEEN object will be automatically designed and prepended to the reverse primers.
+  If the mode is "gibson", "infusion", or "overlappcr", the value must be a dsDNA QUEEN object or `None`. If the value is `None` and the target is specified as a list of QUEEN objects, the QUEEN object immediately following the target used for the current primer design will be automatically specified. The adapter sequence overlapping the specified QUEEN object will be automatically designed and prepended to the reverse primer. 
   If mode is `"RE"`, the value must be a Cutsite object or a `str` object representing a restriction enzyme (RE) site. The adapter sequence including the specified RE site will be added at the beginning of the reverse primers.  
   If mode is "BP", the value must be "attB1" or "attB2". The specified attB site will be added at the beginning of the reverse primers. Currently, "attB1" and "attB2" are specified as follows:  
   - attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
   - attB2: GGGGACCACTTTGTACAAGAAAGCTGGGT
 
-- **homology_length** `int`, optional  
+- **homology_length**: `int` or `list` of `int`, optional 
   Required homology for adapters.  
 
-- **nonspecific_limit** (`int`, optional): 
+- **nonspecific_limit**: `int` or `list` of `int`, optional 
   The maximum number of mismatches allowed for primer binding outside of the designated primer design region within the template sequence.  
   Primer pairs that bind to any region of the template with a number of mismatches equal to or less than this limit will be excluded from the design, to increase the specificity of the PCR reaction and decrease the likelihood of nonspecific amplification. Default is  3.
 
-- **requirement** (lambda function, optional):   
+- **requirement**: `function` or `list` of `func`, optional   
   Function that takes a dictionary representing a primer pair and returns True if the pair meets the specified conditions.  
   Ensures that the 3' end nucleotide of both primers is not A or T by default.   
   The detailed default function is `lambda x: x["fw"][-1] not in ("A", "T") and x["rv"][-1] not in ("A", "T")`

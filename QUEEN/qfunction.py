@@ -1256,7 +1256,7 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
         Start position of the fragment of the `QUEEN_object` sequence to be trimmed. 
         When the value is specified by `int` or `"int/int"`, the numerical values 
         should follow the zero-based indexing. 
-    end : int, str ("int/int") zero-based indexing, or QUEEN.qobj.DNAfeature, default: , additional_info0
+    end : int, str ("int/int") zero-based indexing, or QUEEN.qobj.DNAfeature, default: len(dna.seq) 
         End position of the fragment of the `QUEEN_object` sequence to be trimmed.   
         When the value is specified by `int` or `"int/int"`, the numerical values should 
         follow the zero-based indexing. If the topology is `"circular"` and the `start` 
@@ -1293,20 +1293,22 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
 
-    if dna.topology == "circular":
-        if end is None or end == 0: 
-            end = len(dna.seq) 
+    if type(start) in (int, Qint) and type(end) in (int, Qint):
+        if dna.topology == "circular":
+            if end is None or end == 0: 
+                end = len(dna.seq) 
+            else:
+                pass 
         else:
-            pass 
-    else:
-        if end is None or end == 0:
-            end = len(dna.seq) 
-        if end <= start:
-            raise ValueError("'end' position must be larger than 'start' position.")
-    
-    if start == 0 and end == len(dna.seq):
-        subdna = cutdna(dna, start, product=project, quinable=0)[0]  
-        crop_positions = ((0, 0), (len(dna.seq), len(dna.seq)))
+            if end is None or end == 0:
+                end = len(dna.seq)  
+            if end <= start:
+                raise ValueError("'end' position must be larger than 'start' position.") 
+        if start == 0 and end == len(dna.seq):
+            subdna = cutdna(dna, start, product=project, quinable=0)[0]  
+            crop_positions = ((0, 0), (len(dna.seq), len(dna.seq)))
+        else:
+            subdna, crop_positions = cutdna(dna, start, end, product=project, crop=True, quinable=0)  
     else:
         subdna, crop_positions = cutdna(dna, start, end, product=project, crop=True, quinable=0)  
     

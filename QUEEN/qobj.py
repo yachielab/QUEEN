@@ -2128,6 +2128,20 @@ class QUEEN():
             values  = [row[1:] for row in rows[1:]]
             df = pd.DataFrame(values, index=index, columns=columns) 
             return df.transpose() 
+    
+    def printprotocol(self, execution=False, output=None):
+        """
+        Print the history of the qexperiment functions.
+        If there are no qexperiment functions in the QUEEN script. It will return an empty str object.
+        
+        Parameters
+        ----------
+        dna: QUEEN.qobj.QUEEN object
+        
+        output: str ,default: STDOUT   
+            Output file name.    
+        """
+        printprotocol(self,execution=False, output=None)
 
     def outputgbk(self, output=None, format="genbank", record_id=None, annotation=None, export_history=1, describe_brokenfeature=True, qexperiment_only=True, _return=False):
         """Output `QUEEN_object` to a GenBank file. 

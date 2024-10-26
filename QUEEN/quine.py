@@ -532,7 +532,8 @@ def printprotocol(dna, execution=False, output=None):
                 pn = "" 
             
             if "process_description=" in row:
-                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+                pdmatch = re.search(r"process_description='([^']*)'", match.group(1))
+                pd = pdmatch.group(1) if pdmatch is not None else None 
             else:
                 pd = None 
             
@@ -546,9 +547,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("- Template: {}, {} bp".format(template, len(qobjects[template].seq)), file=output) 
                 print("- Forward Primer: {}, {}, {} bp".format(fw_name, qobjects[fw_name].seq, len(qobjects[fw_name].seq)), file=output)
                 print("- Reverse Primer: {}, {}, {} bp".format(rv_name, qobjects[rv_name].seq, len(qobjects[rv_name].seq)), file=output)   
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}, {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}, {}".format(product, len(qobjects[product].seq)), file=output)  
@@ -559,9 +564,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("- Template: {}".format(template), file=output)  
                 print("- Forward Primer: {}".format(fw_name), file=output)
                 print("- Reverse Primer: {}".format(rv_name), file=output)    
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}".format(product), file=output)  
@@ -580,7 +589,8 @@ def printprotocol(dna, execution=False, output=None):
                 pn = "" 
             
             if "process_description=" in row:
-                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+                pdmatch = re.search(r"process_description='([^']*)'", match.group(1))
+                pd = pdmatch.group(1) if pdmatch is not None else None 
             else:
                 pd = None 
             
@@ -593,9 +603,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("Parameters:", file=output) 
                 print("- Sample: {}, {} bp".format(sample, len(qobjects[sample].seq)), file=output) 
                 print("- Restriction enzyme(s): {}".format(cutsites), file=output) 
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}: {}".format(product, len(qobjects[product].seq)), file=output)  
@@ -605,9 +619,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("Parameters:", file=output) 
                 print("- Sample: {}".format(sample), file=output) 
                 print("- Restriction enzyme(s): {}".format(cutsites), file=output)   
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1), file=output):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}".format(product), file=output)  
@@ -623,7 +641,8 @@ def printprotocol(dna, execution=False, output=None):
                 pn = "" 
             
             if "process_description=" in row:
-                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+                pdmatch = re.search(r"process_description='([^']*)'", match.group(1))
+                pd = pdmatch.group(1) if pdmatch is not None else None 
             else:
                 pd = None 
             
@@ -635,19 +654,27 @@ def printprotocol(dna, execution=False, output=None):
             if execution  == True:
                 print("Parameters:", file=output) 
                 print("- Sample(s): {}; {}".format(sample, ", ".join([len(qobjects[asample].seq) for asample in sample])), file=output) 
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("follow_order", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}: {}".format(product, len(qobjects[product].seq)), file=output)  
-                print("", , file=output) 
+                print("", file=output) 
             else:
                 print("Parameters:", file=output) 
                 print("- Sample(s): {}".format(sample), file=output) 
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("follow_order", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}: {}".format(product, len(qobjects[product].seq)), file=output)  
@@ -663,10 +690,10 @@ def printprotocol(dna, execution=False, output=None):
                 pn = "" 
             
             if "process_description=" in row:
-                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+                pdmatch = re.search(r"process_description='([^']*)'", match.group(1))
+                pd = pdmatch.group(1) if pdmatch is not None else None 
             else:
                 pd = None 
-            
             mode = re.search(r"mode='([^']*)'",match.group(1)).group(1)
             print(">Homology based Assembly{}".format(pn), file=output)
             if pd is not None:
@@ -678,9 +705,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("Parameters:", file=output) 
                 print("- Sample(s): {}; {}".format(sample, ", ".join([str(len(qobjects[asample].seq)) + " bp" for asample in sample])), file=output) 
                 print("- Assembly method: {}".format(mode), file=output)
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("mode", "follow_order", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}: {}".format(product, len(qobjects[product].seq)), file=output)  
@@ -689,9 +720,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("Parameters:", file=output) 
                 print("- Sample(s): {}".format(sample), file=output) 
                 print("- Assembly method: {}".format(mode), file=output)
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("mode", "follow_order", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}".format(product), file=output)  
@@ -708,7 +743,8 @@ def printprotocol(dna, execution=False, output=None):
                 pn = "" 
             
             if "process_description=" in row:
-                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+                pdmatch = re.search(r"process_description='([^']*)'", match.group(1))
+                pd = pdmatch.group(1) if pdmatch is not None else None 
             else:
                 pd = None 
             
@@ -721,9 +757,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("Parameters:", file=output) 
                 print("- Top strand DNA: {}, {}".format(ssdna1, qobjects[ssdna1].seq), file=output) 
                 print("- Bottom strand DNA: {}, {}".format(ssdna2, qobjects[ssdna2].seq), file=output)
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("homology_length", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}: {} bp".format(product, len(qobjects[product].seq)), file=output)  
@@ -732,9 +772,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("Parameters:", file=output) 
                 print("- Top strand DNA: {}".format(ssdna1), file=output) 
                 print("- Bottom strand DNA: {}".format(ssdna2), file=output)
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("homology_length", "follow_order", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}".format(product), file=output)  
@@ -751,7 +795,8 @@ def printprotocol(dna, execution=False, output=None):
                 pn = "" 
             
             if "process_description=" in row:
-                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+                pdmatch = re.search(r"process_description='([^']*)'", match.group(1))
+                pd = pdmatch.group(1) if pdmatch is not None else None 
             else:
                 pd = None 
             
@@ -767,9 +812,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("- Destination sample: {}, {} bp".format(destination, len(qobjects[destination].seq)), file=output)
                 print("- Entry sample(s): {}; {}".format(", ".join(entry), ", ".join([str(len(qobjects[asample].seq)) + "bp" for asample in entry])), file=output) 
                 print("- Restriction enzyme: {}".format(cutsite), file=output) 
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("cutsite", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}: {} bp".format(product, len(qobjects[product].seq)), file=output)  
@@ -779,9 +828,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("- Destination sample: {}".format(destination), file=output)
                 print("- Entry Sample(s): {}".format(", ".join(entry)), file=output)
                 print("- Restriction enzyme: {}".format(cutsite), file=output) 
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("cutsite", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}".format(product), file=output)  
@@ -798,7 +851,8 @@ def printprotocol(dna, execution=False, output=None):
                 pn = "" 
             
             if "process_description=" in row:
-                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+                pdmatch = re.search(r"process_description='([^']*)'", match.group(1))
+                pd = pdmatch.group(1) if pdmatch is not None else None 
             else:
                 pd = None 
             
@@ -814,9 +868,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("- Destination sample: {}, {} bp".format(destination, len(qobjects[destination].seq)), file=output)
                 print("- Entry sample: {}; {} bp".format(entry, len(qobjects[entry].seq)), file=output) 
                 print("- BP/LR: {}".format(mode), file=output) 
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("mode", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}: {} bp".format(product, len(qobjects[product].seq)), file=output)  
@@ -826,9 +884,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("- Destination sample: {}".format(destination), file=output)
                 print("- Entry sample(s): {}".format(entry), file=output)
                 print("- BP/LR: {}".format(mode), file=output) 
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("mode", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}".format(product), file=output)  
@@ -845,7 +907,8 @@ def printprotocol(dna, execution=False, output=None):
                 pn = "" 
             
             if "process_description=" in row:
-                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+                pdmatch = re.search(r"process_description='([^']*)'", match.group(1))
+                pd = pdmatch.group(1) if pdmatch is not None else None 
             else:
                 pd = None 
             
@@ -861,9 +924,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("- Destination sample: {}, {} bp".format(destination, len(qobjects[destination].seq)), file=output)
                 print("- Entry sample: {}; {} bp".format(entry, len(qobjects[entry].seq)), file=output) 
                 print("- Cloning method: {}".format(mode), file=output) 
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("mode", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}: {} bp".format(product, len(qobjects[product].seq)), file=output)  
@@ -873,9 +940,13 @@ def printprotocol(dna, execution=False, output=None):
                 print("- Destination sample: {}".format(destination), file=output)
                 print("- Entry Sample(s): {}".format(entry), file=output)
                 print("- Cloning method: {}".format(mode), file=output) 
-                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
-                    key   = arg.group(1)
-                    value = arg.group(2)
+                for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
+                    if arg.group(1) is not None:
+                        key   = arg.group(1)
+                        value = arg.group(2)
+                    else:
+                        key   = arg.group(3)
+                        value = arg.group(4)
                     if key not in ("mode", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
                 print("Output:\n{}".format(product), file=output)  

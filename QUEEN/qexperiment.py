@@ -8,6 +8,33 @@ import cutsite as cs
 from cutsite import Cutsite
 from Bio.SeqUtils import MeltingTemp as mt
 import functools
+import collections
+
+def _combine_history(dna, histories):
+    combined_history = collections.defaultdict(dict) 
+    combined_history["building_history"] = {} 
+    for history in histories:
+        for key in history["building_history"]: 
+            combined_history["building_history"][key] = history["building_history"][key] 
+    return combined_history 
+
+def _convert_kwargs(arguments):
+    out = [] 
+    defaults = ["_sourcefile", "process_id", "original_ids"] 
+    for key in arguments:
+        if key in defaults:
+            pass 
+        else:
+            if type(arguments[key]) == bool: 
+                out.append('{}={}'.format(key, arguments[key]))
+            else:
+                arguments[key] = str(arguments[key]).replace('"', '\"')    
+                out.append('{}="{}"'.format(key, arguments[key]))
+    if len(out) == 0:
+        out = ""
+    else:
+        out = ", " + ", ".join(out) 
+    return out
 
 def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=False, tm_func=None, return_tm=False, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
     """
@@ -93,7 +120,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
                 pass 
         
         if len(site) == 1: #and site[0].strand == strand:
-            site = template.searchsequence(query="{}(?:{}){{s<={}}}{}".format(binding_site[0], binding_site[1:], mismatch, primer_end), pn=pn, pd=pd)
+            site = template.searchsequence(query="{}(?:{}){{s<={}}}{}".format(binding_site[0], binding_site[1:], mismatch, primer_end), qexd=True, pn=pn, pd=pd)
             if flag == 1:
                 return site[0]
             else:
@@ -130,7 +157,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
         fw    = QUEEN(seq=fw, ssdna=True) 
         fwstr = fw.seq
     elif type(fw) == QUEEN:
-        fwstr = "QUEEN.dna_dict['{}']".format(fw._product_id)
+        fwstr = 'QUEEN.dna_dict["{}"]'.format(fw._product_id)
     else:
         raise TypeError("`fw` object must be instance of QUEEN or str class.") 
 
@@ -138,7 +165,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
         rv    = QUEEN(seq=rv, ssdna=True) 
         rvstr = rv.seq
     elif type(rv) == QUEEN:
-        rvstr = "QUEEN.dna_dict['{}']".format(rv._product_id)
+        rvstr = 'QUEEN.dna_dict["{}"]'.format(rv._product_id)
     else:
         raise TypeError("`fw` object must be instance of QUEEN or str class.") 
     
@@ -150,23 +177,41 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     if process_name is None:
         process_name = "PCR"
     
-    product = product.replace(" ","") if product is not None else None
-    kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
-    kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
-    qexd = "pcr(QUEEN.dna_dict['{}'], {}, {}, bindnum={}, mismatch={}, endlegth={}, add_primerbind={}{})".format(template._product_id, fwstr, rvstr, bindnum, mismatch, endlength, add_primerbind, kwargs_str)
+    product    = product.replace(" ","") if product is not None else None
+    kwargs_str = _convert_kwargs(kwargs)
+    
+    if bindnum != 15:
+        bindnumtxt = ", bindnum={}".format(bindnum) 
+    else:
+        bindnumtxt = ""
+    
+    if mismatch != 0:
+        mismatchtxt = ", mismatch={}".format(mismatch) 
+    else:
+        mismatchtxt = ""
+    
+    if endlength != 3:
+        endlengthtxt = ", endlength={}".format(endlegnth) 
+    else:
+        endlengthtxt = ""
+    
+    if add_primerbind == True:
+        aptxt = ", add_primerbind={}".format(add_primerbind) 
+    else:
+        aptxt = ""
+    
+    qexd = 'pcr(QUEEN.dna_dict["{}"], {}, {}{}{}{}{}{})'.format(template._product_id, fwstr, rvstr, bindnumtxt, mismatchtxt, endlengthtxt, aptxt, kwargs_str)
 
     process_description = pd if process_description is None else process_description
-    #process_description = pd_suffix if process_description is None else process_description
     if -1 in [template._left_end_top, template._left_end_bottom, template._right_end_top, template._right_end_bottom] and template._ssdna == False: 
-        template = modifyends(template, pn=process_name, pd=process_description)
+        template = modifyends(template, qexd=True, pn=process_name, pd=process_description)
     
-    #if return_tm == True or add_primerbind == True  
     i = 0
     site1      = None 
     tmpsite1   = None
     bindlength = len(fw.seq) 
     while bindlength-i >= bindnum:
-        tmpsite1 = search_binding_site(template, fw, 1, bindlength-i, endlength, mismatch=mismatch, flag=0, pn=process_name, pd=process_description)
+        tmpsite1 = search_binding_site(template, fw, 1, bindlength-i, endlength, mismatch=mismatch, flag=0, qexd=True, pn=process_name, pd=process_description)
         if len(tmpsite1) == 1:
             site1 = tmpsite1[0]
             break
@@ -177,7 +222,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     tmpsite2   = None
     bindlength = len(rv.seq) 
     while bindlength-i >= bindnum:
-        tmpsite2 = search_binding_site(template, rv, -1, bindlength-i, endlength, mismatch=mismatch, flag=0, pn=process_name, pd=process_description)
+        tmpsite2 = search_binding_site(template, rv, -1, bindlength-i, endlength, mismatch=mismatch, flag=0, qexd=True, pn=process_name, pd=process_description)
         if len(tmpsite2) == 1:
             site2 = tmpsite2[0] 
             break
@@ -189,10 +234,6 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     if site2 is None:
         raise ValueError("No reverse primer binding sites were found. You should re-confirm the template-primer pair.")
 
-    #else:
-    #    site1 = search_binding_site(template, fw, 1, bindnum, endlength, pn=process_name, pd=process_description) 
-    #    site2 = search_binding_site(template, rv, -1, bindnum, endlength, pn=process_name, pd=process_description) 
-    
     if site1.strand == 1 and site2.strand == -1:
         fw_site = site1  
         rv_site = site2
@@ -206,8 +247,8 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     fw_bind_length = len(fw_site.sequence) 
     rv_bind_length = len(rv_site.sequence) 
     
-    fw_feats = [feat for feat in fw.searchfeature(key_attribute="feature_type", query="primer_bind") if feat.end == len(fw.seq) and feat.start == 0] 
-    rv_feats = [feat for feat in rv.searchfeature(key_attribute="feature_type", query="primer_bind") if feat.end == len(rv.seq) and feat.end == 0]
+    fw_feats = [feat for feat in fw.searchfeature(key_attribute="feature_type", query="primer_bind", qexd=True, pn=process_name, pd=process_description) if feat.end == len(fw.seq) and feat.start == 0] 
+    rv_feats = [feat for feat in rv.searchfeature(key_attribute="feature_type", query="primer_bind", qexd=True, pn=process_name, pd=process_description) if feat.end == len(rv.seq) and feat.end == 0]
     if fw_site.end >= rv_site.start and fw_site.start < rv_site.start:
         if len(fw_feats) == 0:
             fw.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
@@ -215,18 +256,18 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
             rv.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})
         start = rv_site.start if rv_site.start < len(template.seq) else rv_site.start - len(template.seq)
         end   = fw_site.end if fw_site.end < len(template.seq) else fw_site.end - len(template.seq)
-        extract  = cropdna(template, start,  end, pn=process_name, pd=process_description)
+        extract  = cropdna(template, start, end, qexd=True, pn=process_name, pd=process_description)
         fw_index = len(fw.seq) - (fw_site.end - rv_site.start) 
         rv_index = fw_site.end - rv_site.start 
-        amplicon = modifyends(extract, fw.seq[:fw_index], rv.rcseq[rv_index:], product=product, pn=process_name, pd=process_description, qexparam=qexd)
+        amplicon = modifyends(extract, fw.seq[:fw_index], rv.rcseq[rv_index:], qexd=qexd, product=product, pn=process_name, pd=process_description)
     else:
         if mismatch == 0:
             fw_bind  = template.seq[fw_site.start:fw_site.end]
             rv_bind  = template.seq[rv_site.start:rv_site.end]
             start    = fw_site.start if fw_site.start < len(template.seq) else fw_site.start - len(template.seq)
             end      = rv_site.end if rv_site.end < len(template.seq) else rv_site.end - len(template.seq)
-            extract  = cropdna(template, start, end, pn=process_name, pd=process_description)
-            amplicon = modifyends(extract, left=fw[0:len(fw.seq)-len(fw_bind)].seq, right=rv[0:len(rv.seq)-len(rv_bind)].rcseq, product=product, pn=process_name, pd=process_description, qexparam=qexd)   
+            extract  = cropdna(template, start, end, qexd=True, pn=process_name, pd=process_description)
+            amplicon = modifyends(extract, left=fw[0:len(fw.seq)-len(fw_bind)].seq, right=rv[0:len(rv.seq)-len(rv_bind)].rcseq, qexd=qexd, product=product, pn=process_name, pd=process_description)   
             if len(fw_feats) == 0:
                 amplicon.setfeature({"start":0, "end":len(fw.seq), "qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
             if len(rv_feats) == 0:
@@ -238,8 +279,11 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
                 rv.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})
             start = fw_site.end if fw_site.end < len(template.seq) else fw_site.end - len(template.seq)
             end   = rv_site.start if rv_site.start < len(template.seq) else rv_site.start - len(template.seq)
-            extract  = cropdna(template, start, end, pn=process_name, pd=process_description)
-            amplicon = modifyends(extract, fw.seq, rv.rcseq, product=product, pn=process_name, pd=process_description, qexparam=qexd)
+            extract  = cropdna(template, start, end, qexd=True, pn=process_name, pd=process_description)
+            amplicon = modifyends(extract, fw.seq, rv.rcseq, qexd=qexd, product=product, pn=process_name, pd=process_description)
+    histories = [amplicon._history, fw._history, rv._history]
+    combined_history  = _combine_history(amplicon, histories)
+    amplicon._history = combined_history
 
     if add_primerbind == True:
         template.setfeature({"start": fw_site.start, "end": fw_site.end, "strand":1,  "feature_type":"primer_bind"}) 
@@ -284,14 +328,14 @@ def _select(fragments, selection=None):
     
     elif selection.startswith("!") == False and ":" in selection: 
         query = ":".join(selection.split(":")[1:])
-        fragments = [fragment for fragment in fragments if len(fragment.searchfeature(key_attribute="qualifier:{}".format(selection.split(":")[0]), query=query)) > 0]
+        fragments = [fragment for fragment in fragments if len(fragment.searchfeature(key_attribute="qualifier:{}".format(selection.split(":")[0]), query=query, qexd=True, pn=process_name, pd=process_description)) > 0]
         if len(fragments) > 1:
             raise ValueError("Multiple fragments holding the specified feature were detected") 
         return fragments[0]
     
     elif selection.startswith("!") and ":" in selection: 
         query = ":".join(selection.split(":")[1:])
-        fragments = [fragment for fragment in fragments if len(fragment.searchfeature(key_attribute="qualifier:{}".format(selection.split(":")[0][1:]), query=query)) == 0]
+        fragments = [fragment for fragment in fragments if len(fragment.searchfeature(key_attribute="qualifier:{}".format(selection.split(":")[0][1:]), query=query, qexd=True, pn=process_name, pd=process_description)) == 0]
         if len(fragments) > 1:
             raise ValueError("Multiple fragments holding the specified feature were detected") 
         return fragments[0] 
@@ -379,43 +423,42 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
         process_name = "Digestion"
    
     product = product.replace(" ","") if product is not None else None
-    cs_str  = ", ".join(["'{}'".format(name) for name in cutsite_names])
-    kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
-    kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
-    if type(selection) == tuple:
-        qexd = "digestion(QUEEN.dna_dict['{}'], {}, selection=[{}]{})".format(dna.project, cs_str, ",".join(map(str, selection)), kwargs_str) 
-    else:
-        qexd = "digestion(QUEEN.dna_dict['{}'], {}, selection='{}'{})".format(dna.project, cs_str, selection, kwargs_str) 
+    cs_str  = ", ".join(['"{}"'.format(name) for name in cutsite_names])
+    kwargs_str = _convert_kwargs(kwargs) 
     
-    if "qexparam" not in kwargs:
-        pass
+    if type(selection) == tuple:
+        qexd = 'digestion(QUEEN.dna_dict["{}"], {}, selection=[{}]{})'.format(dna.project, cs_str, ",".join(map(str, selection)), kwargs_str) 
+    elif type(selection) == str:
+        qexd = 'digestion(QUEEN.dna_dict["{}"], {}, selection="{}"{})'.format(dna.project, cs_str, selection, kwargs_str) 
+    elif type(selection) == int:
+        qexd = 'digestion(QUEEN.dna_dict["{}"], {}, selection={}{})'.format(dna.project, cs_str, selection, kwargs_str) 
     else:
-        qexd = kwargs["qexparam"]  
-        del kwargs["qexparam"] 
-
+        qexd = 'digestion(QUEEN.dna_dict["{}"], {}, selection="max"{})'.format(dna.project, cs_str, kwargs_str)
     process_description = pd if process_description is None else process_description
-    #process_description = pd_suffix if process_description is None else process_description
 
     new_cutsites = [] 
     for cutsite in cutsites:
-        sites = dna.searchsequence(query=cutsite, pn=process_name, pd=process_description)        
+        sites = dna.searchsequence(query=cutsite, qexd=True, pn=process_name, pd=process_description)        
         new_cutsites.extend(sites) 
     
-    if selection is None:
-        fragments = cutdna(dna, *new_cutsites, product=product, pn=process_name, pd=process_description, qexparam=qexd)
-    else:
-        fragments = cutdna(dna, *new_cutsites, product=None, pn=process_name, pd=process_description)
-
+    fragments = cutdna(dna, *new_cutsites, qexd=True, product=None, pn=process_name, pd=process_description)
     if len(fragments) == 1 and selection is None: 
         dfragment = _select(fragments, "max") 
     else:
         dfragment = _select(fragments, selection)
     
     if type(dfragment) == list:
-        return dfragment 
+        fragments = []
+        for d, afragment in enumerate(dfragment):
+            if d == len(dfragment) - 1:
+                afragment = modifyends(afragment, left="", right="", qexd=qexd, product=product, pn=process_name, pd=process_description) 
+            else:
+                afragment = modifyends(afragment, left="", right="", qexd=True, product=product, pn=process_name, pd=process_description) 
+            fragments.append(afragment) 
+        return fragments
     else:
         if product is not None:
-            dfragment = modifyends(dfragment, left="", right="", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
+            dfragment = modifyends(dfragment, left="", right="", qexd=qexd, product=product, pn=process_name, pd=process_description) 
         return dfragment 
 
 def ligation(*fragments, unique=True, follow_order=False, auto_select=True, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs): 
@@ -530,16 +573,23 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
         process_name = "Ligation"  
     
     product = product.replace(" ","") if product is not None else None
-    kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
-    kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
-    fragments_str = ", ".join(["QUEEN.dna_dict['{}']".format(fragment._product_id) for fragment in fragments])
+    kwargs_str = _convert_kwargs(kwargs)
+    fragments_str = ", ".join(['QUEEN.dna_dict["{}"]'.format(fragment._product_id) for fragment in fragments])
     
-    if "qexparam" not in kwargs:
-        qexd = "ligation({}, unique={}, follow_order={}{})".format(fragments_str, unique, follow_order, kwargs_str)
+    if unique == True:
+        uniquetxt = ""
     else:
-        qexd = kwargs["qexparam"]  
-        del kwargs["qexparam"] 
+        uniquetxt = ", unique={},".format(unique) 
 
+    if follow_order == False or follow_order is None: 
+        fotxt = ""
+    else:
+        fotxt = ", follow_order={}".format(follow_order) 
+    
+    if follow_order == 'True':
+        follow_order = True
+
+    qexd = 'ligation({}, {}{}{})'.format(fragments_str, uniquetxt, fotxt, kwargs_str)
     process_description = pd if process_description is None else process_description
     #process_description = pd_suffix if process_description is None else process_description #"\n" + pd_suffix
    
@@ -554,14 +604,14 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
         results = results1 + results2 
 
     if follow_order == True:
-        outobj = joindna(*fragments, topology="circular", autoflip=False, compatibility="complete", product=product, pn=process_name, pd=process_description, qexparam=qexd)
+        outobj = joindna(*fragments, topology="circular", autoflip=False, compatibility="complete", qexd=qexd, product=product, pn=process_name, pd=process_description)
         return outobj
 
     elif unique == True:
         if len(results) == 1:
             orders, flips = list(zip(*results[-1])) 
-            fragment_set  = [flipdna(fragments[ind], product=fragments[ind].project, pn=process_name, pd=process_description) if fl == -1 else fragments[ind] for ind, fl in zip(orders, flips)]
-            outobj = joindna(*fragment_set, topology="circular", autoflip=False, compatibility="complete", product=product, pn=process_name, pd=process_description, qexparam=qexd)
+            fragment_set  = [flipdna(fragments[ind], product=fragments[ind].project, qexd=True, pn=process_name, pd=process_description) if fl == -1 else fragments[ind] for ind, fl in zip(orders, flips)]
+            outobj = joindna(*fragment_set, topology="circular", autoflip=False, compatibility="complete", qexd=qexd, product=product, pn=process_name, pd=process_description)
         elif len(results) == 0:
             raise ValueError("The QUEEN_objects cannot be joined due to the end structure incompatibility. Please double-check that you haven't forgotten to perform the restriction enzyme digestion on the input fragments, that the fragments are digested with the appropriate restriction enzymes, and that you are using the correct primers for previous PCRs.") 
         else:
@@ -590,8 +640,8 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
                     new_results.append(results[i]) 
             if len(new_results) == 1:
                 orders, flips = list(zip(*new_results[-1])) 
-                fragment_set  = [flipdna(fragments[ind], product=fragments[ind].project, pn=process_name, pd=process_description) if fl == -1 else fragments[ind] for ind, fl in zip(orders, flips)]
-                outobj = joindna(*fragment_set, topology="circular", autoflip=False, compatibility="complete", product=product, pn=process_name, pd=process_description, qexparam=qexd)
+                fragment_set  = [flipdna(fragments[ind], product=fragments[ind].project, qexd=True, pn=process_name, pd=process_description) if fl == -1 else fragments[ind] for ind, fl in zip(orders, flips)]
+                outobj = joindna(*fragment_set, topology="circular", autoflip=False, compatibility="complete", qexd=qexd, product=product, pn=process_name, pd=process_description)
             else:
                 raise ValueError("Multiple different constructs will be assembled. You should review your assembly design.")
         return outobj
@@ -599,8 +649,8 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
     else:
         products = [] 
         for order, flips in indexes_list:
-            fragment_set  = [flipdna(fragments[ind], product=fragments[ind].project, pn=process_name, pd=process_description) if fl == -1 else fragments[ind] for ind, fl in zip(orders, flips)]
-            outobj = joindna(*fragment_set, topology="circular", autoflip=False, compatibility="complete", product=product, pn=process_name, pd=process_description, qexparam=qexd)
+            fragment_set  = [flipdna(fragments[ind], qexd=True, product=fragments[ind].project, pn=process_name, pd=process_description) if fl == -1 else fragments[ind] for ind, fl in zip(orders, flips)]
+            outobj = joindna(*fragment_set, topology="circular", autoflip=False, compatibility="complete", qexd=qexd, product=product, pn=process_name, pd=process_description)
             products.append(outobj)
         return products 
 
@@ -676,19 +726,36 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
             process_name = "Homology based Assembly" 
     
     product = product.replace(" ","") if product is not None else None
-    kwargs_str    = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
-    kwargs_str    = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
-    fragments_str = ", ".join(["QUEEN.dna_dict['{}']".format(fragment._product_id) for fragment in fragments])
-    qexd = "homology_based_assembly({}, mode='{}', homology_length={}, unique={}, follow_order={}{})".format(fragments_str, mode, homology_length, unique, follow_order, kwargs_str)
+    kwargs_str = _convert_kwargs(kwargs)
+    fragments_str = ", ".join(['QUEEN.dna_dict["{}"]'.format(fragment._product_id) for fragment in fragments])
+    
+    if homology_length == 15:
+        hltxt = ""
+    else:
+        hltxt = ", homology_length={},".format(homology_length) 
+
+    if unique == True:
+        uniquetxt = ""
+    else:
+        uniquetxt = ", unique={},".format(unique) 
+
+    if follow_order == False or follow_order is None: 
+        fotxt = ""
+    else:
+        fotxt = ", follow_order='{}'".format(follow_order) 
+
+    if follow_order == 'True':
+        follow_order = True
+
+    qexd = 'homology_based_assembly({}, mode="{}"{}{}{}{})'.format(fragments_str, mode, hltxt, uniquetxt, fotxt, kwargs_str)
     process_description = pd if process_description is None else process_description
-    #process_description = pd_suffix if process_description is None else process_description
     
     for fragment in fragments:
         if fragment.topology != "linear": 
             raise ValueError("A 'circular' fragment was detected. All fragments to be assembled should be 'linear' topology.")
 
     if mode not in ("gibson", "infusion", "overlappcr"):
-        raise ValueError("Invalid mode value. The 'mode' variable can only take 'gibson', 'infusion' or 'overlappcr' as values.")
+        raise ValueError("Invalid mode value. The 'mode' variable can only take 'gibson' and 'infusion' values.")
     
     if mode == "overlappcr":
         for fragment in fragments:
@@ -726,10 +793,10 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
                             mhl = int(len(fragment.seq)) - len(fragment._left_end) - len(fragment._right_end) - 1
                         else:
                             mhl = max_homology_length
-                        fragment_set[f] = modifyends(fragment, "-{{{}}}/*{{{}}}".format(mhl,mhl), "*{{{}}}/-{{{}}}".format(mhl,mhl), pn=process_name, pd=process_description)
+                        fragment_set[f] = modifyends(fragment, "-{{{}}}/*{{{}}}".format(mhl,mhl), "*{{{}}}/-{{{}}}".format(mhl,mhl), qexd=True, pn=process_name, pd=process_description)
                     try:
-                        outobj = joindna(*fragment_set, autoflip=False, homology_length=homology_length, topology="linear", product=product, pn=process_name, pd=process_description) 
-                        outobj = modifyends(outobj, product=product, pn=process_name, pd=process_description, qexparam=qexd) 
+                        outobj = joindna(*fragment_set, autoflip=False, homology_length=homology_length, topology="linear", qexd=True, product=product, pn=process_name, pd=process_description) 
+                        outobj = modifyends(outobj, qexd=True, product=product, pn=process_name, pd=process_description) 
                         products.append(outobj) 
                     except Exception as e:
                         errors.append(e) 
@@ -752,7 +819,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
                 if tuple([state * -1 for state in flipset]) in execed: 
                     pass 
                 else:
-                    fragment_set = [fragments[num] if flip == 1 else flipdna(fragments[num], pn=process_name, pd=process_description) for num, flip in zip(numset, flipset)]  
+                    fragment_set = [fragments[num] if flip == 1 else flipdna(fragments[num], qexd=True, pn=process_name, pd=process_description) for num, flip in zip(numset, flipset)]  
                     for f in range(len(fragment_set)):
                         fragment = fragment_set[f]
                         if len(fragment.seq) <= max_homology_length: 
@@ -760,16 +827,14 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
                         else:
                             mhl = max_homology_length
                         if mode == "gibson":
-                            fragment_set[f] = modifyends(fragment, "-{{{}}}/*{{{}}}".format(mhl,mhl), "*{{{}}}/-{{{}}}".format(mhl,mhl), pn=process_name, pd=process_description)
+                            fragment_set[f] = modifyends(fragment, "-{{{}}}/*{{{}}}".format(mhl,mhl), "*{{{}}}/-{{{}}}".format(mhl,mhl), qexd=True, pn=process_name, pd=process_description)
                         elif mode == "infusion":
-                            fragment_set[f] = modifyends(fragment, "*{{{}}}/-{{{}}}".format(mhl,mhl), "-{{{}}}/*{{{}}}".format(mhl,mhl), pn=process_name, pd=process_description)
+                            fragment_set[f] = modifyends(fragment, "*{{{}}}/-{{{}}}".format(mhl,mhl), "-{{{}}}/*{{{}}}".format(mhl,mhl), qexd=True, pn=process_name, pd=process_description)
                     try:
-                        outobj = joindna(*fragment_set, autoflip=False, homology_length=homology_length, topology="circular", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
+                        outobj = joindna(*fragment_set, autoflip=False, homology_length=homology_length, topology="circular", qexd=qexd, product=product, pn=process_name, pd=process_description) 
                         products.append(outobj) 
                     except Exception as e:
                         errors.append(e) 
-                        #fragment_set[0].printsequence(display=True, hide_middle=30) 
-                        #fragment_set[1].printsequence(display=True, hide_middle=30)
                         pass 
                 execed.append(flipset) 
 
@@ -826,23 +891,26 @@ def annealing(ssdna1, ssdna2, homology_length=4, product=None, pn=None, pd=None,
     QUEEN, joindna
 
     """
-    process_name = pn if process_name is None else process_name
-    if process_name is None:
-        process_name = "Annealing" 
-    
-    product = product.replace(" ","") if product is not None else None
-    kwargs_str    = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
-    kwargs_str    = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
-    qexd = "annealing(QUEEN.dna_dict['{}'], QUEEN.dna_dict['{}'], homology_length={}{})".format(ssdna1._product_id, ssdna2._product_id, homology_length, kwargs_str)
-    process_description = pd if process_description is None else process_description
-    #process_description = pd_suffix if process_description is None else process_description #+ "\n" + pd_suffix
-
     if type(ssdna1) == str:
         ssdna1 = QUEEN(seq=ssdna1, ssdna=True)
     
     if type(ssdna2) == str:
         ssdna2 = QUEEN(seq=ssdna2, ssdna=True)
 
+    process_name = pn if process_name is None else process_name
+    if process_name is None:
+        process_name = "Annealing" 
+    
+    product    = product.replace(" ","") if product is not None else None
+    kwargs_str = _convert_kwargs(kwargs)
+    if homology_length == 4:
+        hltxt = ""
+    else:
+        hltxt = ", homology_length={}".format(homology_length) 
+
+    qexd = 'annealing(QUEEN.dna_dict["{}"], QUEEN.dna_dict["{}"]{}{})'.format(ssdna1._product_id, ssdna2._product_id, hltxt, kwargs_str)
+    process_description = pd if process_description is None else process_description
+ 
     flag1 = 0
     if ssdna1._ssdna == False: 
         flag1 = 1
@@ -859,10 +927,10 @@ def annealing(ssdna1, ssdna2, homology_length=4, product=None, pn=None, pd=None,
     if type(ssdna2) != QUEEN:
         raise TypeError("`ssdna_down` object must be a QUEEN or str object") 
     
-    annealed_dna  = joindna(ssdna1, ssdna2, homology_length=homology_length, product=product, pn=process_name, pd=process_description, qexparam=qexd)
+    annealed_dna = joindna(ssdna1, ssdna2, homology_length=homology_length, qexd=qexd, product=product, pn=process_name, pd=process_description)
     
-    ssdna1._ssdna       = False if flag1 == 1 else True 
-    ssdna2._ssdna       = False if flag2 == 1 else True
+    ssdna1._ssdna = False if flag1 == 1 else True 
+    ssdna2._ssdna = False if flag2 == 1 else True
 
     return annealed_dna 
 
@@ -908,12 +976,10 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
     if process_name is None:
         process_name = "Gateway Reaction" 
     
-    product = product.replace(" ","") if product is not None else None
-    kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
-    kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
-    qexd = "gateway_reaction(QUEEN.dna_dict['{}'], QUEEN.dna_dict['{}'], mode='{}'{})".format(destination._product_id, entry._product_id, mode, kwargs_str)
+    product    = product.replace(" ","") if product is not None else None
+    kwargs_str = _convert_kwargs(kwargs)
+    qexd = 'gateway_reaction(QUEEN.dna_dict["{}"], QUEEN.dna_dict["{}"], mode="{}"{})'.format(destination._product_id, entry._product_id, mode, kwargs_str)
     process_description = pd if process_description is None else process_description
-    #process_description = pd_suffix if process_description is None else process_description #+ "\n" + pd_suffix
 
     if mode == "BP":
         cs.lib["attX1"] = "ACAAGTTT^GTACAAA_AAAGCAGGCT" #attB1
@@ -937,10 +1003,10 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
     else:
         ValueError("Basically,'mode' value can take only 'BP' or 'LR' reaction at present. For executing a custom BP or LR reaction, please speicy [B1 or L1_sequence, B1 or L2_sequence, P1 or R1 sequnce, P2 or R2 sequnece] along with the QUEEN's cutsite format.") 
 
-    attx1 = entry.searchsequence(cs.lib["attX1"], product="att{}1_site".format(mode[0]), pn=process_name, pd=process_description) 
-    attx2 = entry.searchsequence(cs.lib["attX2"], product="att{}2_site".format(mode[0]), pn=process_name, pd=process_description)
-    atty1 = destination.searchsequence(cs.lib["attY1"], product="att{}1_site".format(mode[1]), pn=process_name, pd=process_description)
-    atty2 = destination.searchsequence(cs.lib["attY2"], product="att{}1_site".format(mode[1]), pn=process_name, pd=process_description) 
+    attx1 = entry.searchsequence(cs.lib["attX1"], product="att{}1_site".format(mode[0]), qexd=True, pn=process_name, pd=process_description) 
+    attx2 = entry.searchsequence(cs.lib["attX2"], product="att{}2_site".format(mode[0]), qexd=True, pn=process_name, pd=process_description)
+    atty1 = destination.searchsequence(cs.lib["attY1"], product="att{}1_site".format(mode[1]), qexd=True, pn=process_name, pd=process_description)
+    atty2 = destination.searchsequence(cs.lib["attY2"], product="att{}1_site".format(mode[1]), qexd=True, pn=process_name, pd=process_description) 
     if len(attx1) > 1:
         raise ValueError("Multiple att{}1 sites were detected.".format(mode[0]))
     else:
@@ -961,28 +1027,24 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
     else:
         atty2 = atty2[0] 
     
-    #entry_fragments = cutdna(entry, attx1, attx2, pn=process_name, pd=process_description) 
-    #entry_fragments.sort(key=lambda x:len(x.seq))
-    #insert = _select(entry_fragments, entry_selection)
     if attx1.strand == 1 and attx2.strand == 1:
-        insert = cropdna(entry, attx1, attx2, pn=process_name, pd=process_description) 
+        insert = cropdna(entry, attx1, attx2, qexd=True, pn=process_name, pd=process_description) 
     
     elif attx1.strand == -1 and attx2.strand == -1:
-        insert = cropdna(entry, attx2, attx1, pn=process_name, pd=process_description)
+        insert = cropdna(entry, attx2, attx1, qexd=True, pn=process_name, pd=process_description)
 
-    #destination_fragments = cutdna(destination, atty1, atty2, pn=process_name, pd=process_description, qexparam=qexd)      
-    #destination_fragments._fragments.sort(key=lambda x:len(x.seq)) 
-    #_select(destination_fragments, destination_selection)
     if atty1.strand == 1 and atty2.strand == 1:
-        destination = cropdna(destination, atty2, atty1, pn=process_name, pd=process_description) 
+        destination = cropdna(destination, atty2, atty1, qexd=True, pn=process_name, pd=process_description) 
     elif atty1.strand == -1 and atty2.strand == -1:
-        destination = cropdna(destination, atty1, atty2, pn=process_name, pd=process_description) 
+        destination = cropdna(destination, atty1, atty2, qexd=True, pn=process_name, pd=process_description) 
 
-    return ligation(insert, destination, product=product, pn=process_name, pd=process_description, qexparam=qexd) 
+    outobj = ligation(insert, destination, qexd=True, pn=process_name, pd=process_description) 
+    outobj = modifyends(outobj, left="", right="", qexd=qexd, product=product, pn=process_name, pd=process_description)
+    return outobj
 
 def goldengate_assembly(destination, entry, cutsite=None, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
     """
-    Simulates a Golden Gate Assembly
+    Simulates a Golden Gate Assembly.
 
     Parameters
     ----------
@@ -1026,13 +1088,11 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
         process_name = "Golden Gate Assembly" 
     
     product = product.replace(" ","") if product is not None else None
-    kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
-    kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
-    entry_str  = ", ".join(["QUEEN.dna_dict['{}']".format(aentry._product_id) for aentry in entry])
+    kwargs_str = _convert_kwargs(kwargs)
+    entry_str  = ", ".join(['QUEEN.dna_dict["{}"]'.format(aentry._product_id) for aentry in entry])
     entry_str  = "[{}]".format(entry_str)
-    qexd = "golden_gate_assembly(QUEEN.dna_dict['{}'], {}, cutsite='{}'{})".format(destination._product_id, entry_str, cutsite.name, kwargs_str)
+    qexd = 'golden_gate_assembly(QUEEN.dna_dict["{}"], {}, cutsite="{}"{})'.format(destination._product_id, entry_str, cutsite.name, kwargs_str)
     process_description = pd if process_description is None else process_description
-    #process_description = pd_suffix if process_description is None else process_description #+ "\n" + pd_suffix
 
     if type(entry) == QUEEN:
         entry = [entry]
@@ -1042,7 +1102,7 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
         if aentry.topology == "linear" and len(aentry.searchsequence(query=cutsite, quinable=0)) == 0:
             insert = aentry
         else: 
-            inserts = digestion(aentry, cutsite, product=aentry.project, pn=process_name, pd=process_description, qexparam="")
+            inserts = digestion(aentry, cutsite, qexd=True, product=aentry.project, pn=process_name, pd=process_description)
             for insert in inserts:
                 if cutsite.seq in insert.seq or cutsite.rcseq in insert.seq:
                     pass
@@ -1051,7 +1111,7 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
         
         fragments.append(insert) 
 
-    backbones =  digestion(destination, cutsite, product=destination.project, pn=process_name, pd=process_description, qexparam="") 
+    backbones =  digestion(destination, cutsite, qexd=True, product=destination.project, pn=process_name, pd=process_description) 
     for backbone in backbones:
         if cutsite.seq in backbone.seq or cutsite.rcseq in backbone.seq:
             pass
@@ -1059,12 +1119,13 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
             break
     
     fragments.append(backbone)
-    outobj = ligation(*fragments, product=product, pn=process_name, pd=process_description, qexparam=qexd) 
+    outobj = ligation(*fragments, qexd=True, pn=process_name, pd=process_description) 
+    outobj = modifyends(outobj, left="", right="", qexd=qexd, product=product, pn=process_name, pd=process_description)
     return outobj
 
 def topo_cloning(destination, entry, mode="TA", product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
     """
-    Simulate TOPO cloning 
+    Simulates TOPO cloning. 
     
     Parameters
     ----------
@@ -1089,15 +1150,14 @@ def topo_cloning(destination, entry, mode="TA", product=None, process_name=None,
     Returns the topo cloning construct.
     """
     product = product.replace(" ","") if product is not None else None
-    kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
-    kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
-    qexd = "topo_cloning(QUEEN.dna_dict['{}'], QUEEN.dna_dict['{}'], mode='{}'{})".format(destination._product_id, entry._product_id, mode, kwargs_str)
+    kwargs_str = _convert_kwargs(kwargs)
+    qexd = 'topo_cloning(QUEEN.dna_dict["{}"], QUEEN.dna_dict["{}"], mode="{}"{})'.format(destination._product_id, entry._product_id, mode, kwargs_str)
 
     if mode == "TA":
         if destination.topology == "circular":
-            destination = digestion(destination, "AflII", selection="max", product=destination.project, pn=process_name, pd=process_description, qexparam="")
-            destination = modifyends(destination, pn=process_name, pd=process_description) 
-            destination = modifyends(destination, "-/*", "*/-", pn=process_name, pd=process_description) 
+            destination = digestion(destination, "AflII", selection="max", qexd=True, product=destination.project, pn=process_name, pd=process_description)
+            destination = modifyends(destination, qexd=True, pn=process_name, pd=process_description) 
+            destination = modifyends(destination, "-/*", "*/-", qexd=True, pn=process_name, pd=process_description) 
         else: 
             if destination._left_end_top == 1 and destination._left_end_bottom == 1 and destination._right_end_top == 1 and destination._right_end_bottom == 1:
                 if destination.seq[0] == "A" and  destination.seq[-1] == "T":
@@ -1106,33 +1166,33 @@ def topo_cloning(destination, entry, mode="TA", product=None, process_name=None,
                     destination = modifyends(destination, "*/-", "-/*") 
                 else:
                     pass 
-        entry  = modifyends(entry, "T", "A", pn=process_name, pd=process_description) 
-        entry  = modifyends(entry, "-/*", "*/-", pn=process_name, pd=process_description)
-        outobj = joindna(destination, entry, autoflip=False, compatibility="complete", homology_length=1, topology="circular", product=product, pn=process_name, pd=process_description, qexparam=qexd)
+        entry  = modifyends(entry, "T", "A", qexd=True, pn=process_name, pd=process_description) 
+        entry  = modifyends(entry, "-/*", "*/-", qexd=True, pn=process_name, pd=process_description)
+        outobj = joindna(destination, entry, autoflip=False, compatibility="complete", homology_length=1, topology="circular", qexd=qexd, product=product, pn=process_name, pd=process_description)
 
     elif mode == "blunt": 
         if destination.topology == "circular":
-            destination = digestion(destination, "AflII", selection="max", product=destination.project, pn=process_name, pd=process_description, qexparam="")
-            destination = modifyends(destination, pn=process_name, pd=process_description) 
-        outobj = joindna(destination, entry, autoflip=False, compatibility="complete", topology="circular", product=product, pn=process_name, pd=process_description, qexparam=qexd)
+            destination = digestion(destination, "AflII", selection="max", qexd=True, product=destination.project, pn=process_name, pd=process_description)
+            destination = modifyends(destination, qexd=True, pn=process_name, pd=process_description) 
+        outobj = joindna(destination, entry, autoflip=False, compatibility="complete", topology="circular", qexd=qexd, product=product, pn=process_name, pd=process_description)
 
     elif mode == "directional":
         if destination.topology == "circular":
-            destination = digestion(destination, "StyI", selection="max", product=destination.project, pn=process_name, pd=process_description, qexparam="")
-            destination = modifyends(destination, pn=process_name, pd=process_description)
-            destination = cropdna(destination, 1, len(destination.seq)-3, pn=process_name, pd=process_description)
-            destination = modifyends(destination, "*/*", "----/****", pn=process_name, pd=process_description)
+            destination = digestion(destination, "StyI", selection="max", qexd=True, product=destination.project, pn=process_name, pd=process_description)
+            destination = modifyends(destination, qexd=True, pn=process_name, pd=process_description)
+            destination = cropdna(destination, 1, len(destination.seq)-3, qexd=True, pn=process_name, pd=process_description)
+            destination = modifyends(destination, "*/*", "----/****", qexd=True, pn=process_name, pd=process_description)
         else: 
             if destination._left_end_top == 1 and destination._left_end_bottom == 1 and destination._right_end_top == 1 and destination._right_end_bottom == 1:
                 if destination.seq[-4:0] == "CACC":
-                    destination = modifyends(destination, "*/*", "----/****") 
+                    destination = modifyends(destination, "*/*", "----/****", qexd=True) 
                 elif destination.seq[0:4] == "GGTG":
-                    destination = modifyends(destination, "****/----", "*/*") 
+                    destination = modifyends(destination, "****/----", "*/*", qexd=True) 
                 else:
                     pass 
 
-        entry = modifyends(entry, "****/----", "*/*", pn=process_name, pd=process_description)
-        outobj = joindna(destination, entry, autoflip=False, compatibility="complete", topology="circular", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
+        entry = modifyends(entry, "****/----", "*/*", qexd=True, pn=process_name, pd=process_description)
+        outobj = joindna(destination, entry, autoflip=False, compatibility="complete", topology="circular", qexd=qexd, product=product, pn=process_name, pd=process_description) 
     
     return outobj
 
@@ -1178,8 +1238,7 @@ def intra_site_specific_recombination(dna, site="loxP", product=None, process_na
         process_name = "Intra site-specific recombination" 
     
     product = product.replace(" ","") if product is not None else None
-    kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
-    kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
+    kwargs_str = _convert_kwargs(kwargs)
     qexd = "intra_site_specific_recombination({}, site={}{})".format(dna.project, site, kwargs_str)
     process_description = pd if process_description is None else process_description
     #process_description = pd_suffix if process_description is None else process_description #+ "\n" + pd_suffix
@@ -1196,29 +1255,29 @@ def intra_site_specific_recombination(dna, site="loxP", product=None, process_na
         cs.lib["recsite"] = site 
         site = "custom_site"
 
-    recsites    = dna.searchsequence(cs.lib["recsite"], product=site, pn=process_name, pd=process_description)
+    recsites    = dna.searchsequence(cs.lib["recsite"], qexd=True, product=site, pn=process_name, pd=process_description)
     outobj_list = [] 
     for combi in it.combinations(recsites, 2):
         recsite1 = combi[0]
         recsite2 = combi[1]
-        fragments = cutdna(dna, recsite1, recsite2, pn=process_name, pd=proces_description)
+        fragments = cutdna(dna, recsite1, recsite2, qexd=True, pn=process_name, pd=proces_description)
         
         if recsite1.strand == recsite2.strand:
             if dna.topology == "circular":
                 fragment = _select(fragments, selection="max") 
-                outobj = joindna(fragment, autoflip=False, compatibility="complete", topology="circular", product=product, pn=process_name, pd=process_description, qexparam=qexd)
+                outobj = joindna(fragment, autoflip=False, compatibility="complete", topology="circular", qexd=qexd, product=product, pn=process_name, pd=process_description)
             else:
-                outobj = joindna(fragment[0], fragment[2], autoflip=False, compatibility="complete", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
+                outobj = joindna(fragment[0], fragment[2], autoflip=False, compatibility="complete", qexd=qexd, product=product, pn=process_name, pd=process_description) 
 
         else:
             if dna.topology == "circular":
                 fragment1 = _select(fragments, selection="max") 
                 fragment2 = _select(fragments, selection="min") 
                 fragment2 = flipdna(fragment2, pn=process_name, pd=process_description)
-                outobj = joindna(fragment1, fragment2, autoflip=False, compatibility="complete", topology="circular", product=product, pn=process_name, pd=process_description, qexparam=qexd)
+                outobj = joindna(fragment1, fragment2, autoflip=False, compatibility="complete", topology="circular", qexd=qexd, product=product, pn=process_name, pd=process_description)
             else:
                 reversed_fragment = flipdna(fragment[1], pn=process_name, pd=process_description) 
-                outobj = joindna(fragment[0], reversed_fragment, fragment[2], autoflip=False, compatibility="complete", product=product, pn=process_name, pd=process_description, qexparam=qexd) 
+                outobj = joindna(fragment[0], reversed_fragment, fragment[2], autoflip=False, compatibility="complete", qexd=qexd, product=product, pn=process_name, pd=process_description) 
         outobj_list.append(outobj)
     
     if len(outobj_list) == 1:
@@ -1267,9 +1326,8 @@ def homologous_recombination(donor, entry, left_homology=None, right_homology=No
         process_name = "Homologous Recombination" 
     
     product = product.replace(" ","") if product is not None else None
-    kwargs_str = ", ".join(["{}".format(str(key)) + "=" + "'{}'".format(str(kwargs[key])) for key in kwargs])
-    kwargs_str = kwargs_str if kwargs_str == "" else ", " +  kwargs_str
-    qexd = "homologous_recombination(QUEEN.dna_dict['{}'], QUEEN.dna_dict['{}']{})".format(destination._product_id, entry._product_id, mode, destination_selection, entry_selection, kwargs_str)
+    kwargs_str = _convert_kwargs(kwargs)
+    qexd = 'homologous_recombination(QUEEN.dna_dict["{}"], QUEEN.dna_dict["{}"]{})'.format(destination._product_id, entry._product_id, mode, destination_selection, entry_selection, kwargs_str)
     process_description = pd if process_description is None else process_description
 
     if left_homology is None or right_homology is None:
@@ -1291,14 +1349,14 @@ def homologous_recombination(donor, entry, left_homology=None, right_homology=No
             else:
                 pass 
     else:
-        dresultl = destination.searchseqeunce(query=left_homology, unique=True, pn=process_name, pd=process_description)[0] 
-        dresultr = destination.searchseqeunce(query=right_homology, unique=True, pn=process_name, pd=process_description)[0] 
+        dresultl = destination.searchseqeunce(query=left_homology, unique=True, qexd=True, pn=process_name, pd=process_description)[0] 
+        dresultr = destination.searchseqeunce(query=right_homology, unique=True, qexd=True, pn=process_name, pd=process_description)[0] 
         if dresultl.strand == -1 or dresultr.strand == -1:
             raise ValueError("`left_homology` and `right_homology` sequeneces should be on the top strand.") 
         dstrand = dresultl.strand 
         dtarget = dresultl.end
 
-        results  = entry.searchsequence(query=left_homology + ".+" + right_homology)
+        results  = entry.searchsequence(query=left_homology + ".+" + right_homology, qexd=True, pn=process_name, pd=process_description)
         if len(results) == 1:
             flag = 1
 
@@ -1308,21 +1366,21 @@ def homologous_recombination(donor, entry, left_homology=None, right_homology=No
     eresult = results[0]
     estrand = eresult.strand 
         
-    left_dest  = cropdna(destination, 0, dtarget, pn=process_name, pd=process_description)
-    right_dest = cropdna(destination, dtarget, len(destination.seq), pn=process_name, pd=process_description) 
+    left_dest  = cropdna(destination, 0, dtarget, qexd=True, pn=process_name, pd=process_description)
+    right_dest = cropdna(destination, dtarget, len(destination.seq), qexd=True, pn=process_name, pd=process_description) 
     if estrand == dstrand:
         estart  = eresult.start + len(left_homology)
         eend    = eresult.end - len(right_homology) 
-        insert = cropdna(entry, estart, eend, pn=process_name, pd=process_description) 
+        insert = cropdna(entry, estart, eend, qexd=True, pn=process_name, pd=process_description) 
     else:
         estart  = eresult.start + len(right_homology)
         eend    = eresult.end - len(left_homology) 
-        insert = flipdna(cropdna(entry, estart, eend, pn=process_name, pd=process_description), pn=process_name, pd=process_description)
+        insert = flipdna(cropdna(entry, estart, eend, qexd=True, pn=process_name, pd=process_description), qexd=True, pn=process_name, pd=process_description)
 
     if destination.topology == "circular":
-        outobj = joindna(left_dest, insert, right_dest, topology="circular", autoflip=False, product=product, pn=process_name, pd=process_description)
+        outobj = joindna(left_dest, insert, right_dest, topology="circular", autoflip=False, qexd=qexd, product=product, pn=process_name, pd=process_description)
     else:
-        outobj = joindna(left_dest, insert, right_dest, autoflio=False, pn=process_name, product=prodcut, pd=process_description) 
+        outobj = joindna(left_dest, insert, right_dest, autoflio=False, qexd=qexd, product=product, pn=process_name, pd=process_description) 
     return outobj
 
 def check_arrangement(fragment1, fragment2):

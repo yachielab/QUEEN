@@ -27,7 +27,7 @@ def check_processids(dna):
         else:
             False
     
-def export(names, descriptions, histories, o=None, do=False):
+def export(names, descriptions, histories, o=None, do=False, qexp_only=False):
     num = -1
     pre_process_name = None
     pre_process_description = None
@@ -48,34 +48,36 @@ def export(names, descriptions, histories, o=None, do=False):
                 
                 if process_name != None and process_description != None:
                     num += 1
-                    print("process{}={{'name':{}, 'description':{}}}".format(num+1, str(process_name), str(process_description)), file=o) 
+                    if qexp_only == False:
+                        print("process{}={{'name':{}, 'description':{}}}".format(num+1, str(process_name), str(process_description)), file=o) 
 
             if "QUEEN.queried_feature_dict" in history[1][0:len("QUEEN.queried_feature_dict")]:
                 print(history[1], file=o)
             elif (process_name is None and process_description is None) or num == -1:
                 print(history[1], file=o)
             else:
-                print(history[1][:-1] + ", process_name=process{}['name'], process_description=process{}['description'])".format(num+1, num+1), file=o)
-
+                if qexp_only == False:
+                    print(history[1][:-1] + ", process_name=process{}['name'], process_description=process{}['description'])".format(num+1, num+1), file=o)
+                else:
+                    print(history[1][:-1] + ", process_name={}, process_description={})".format(process_name, process_description), file=o)
         pre_process_name = process_name 
         pre_process_description = process_description
     return o 
 
-def quine(*dnas, output=None, author=None, project=None, process_description=False, execution=False, _check=False, _return=False, _io=False): 
+def quine(*dnas, output=None, author=None, project=None, process_description=False, qexperiment_only=True, execution=False, _return_histories=False, _return_script=False, _io=False): 
     """Generate "quine code" of `QUEEN_object` that produces the same `QUEEN_object`. A quine code can be executed as a Python script.
     
     Parameters
     ----------
     *dnas: QUEEN.qobj.QUEEN object
-    
     output: str ,default: STDOUT   
         Output file name.
-    
-    process_description: bool (default: False)
+    process_description: bool, default: False)
         If True, this will output the process_descriptions registered to quinable operations along with the process flows. 
         The output can be used for the "Material and methods" of the `QUEEN_object` construction process.
-    
-    execution: bool (default: False)  
+    qexperiment_only: bool, default: True) 
+        If True, this will output only the qexperiment commands and not output the internal quine commmands used in the qexperiment commands. 
+    execution: bool, default: False  
         If True, this will reconstruct the `QUEEN_object` by generating and executing its quine code and confirm if the reconstructed 
         `QUEEN_object` is identical to the original one. If `execution` is `True` and `output` is `None`, the quine code will be output 
         into a temporary file instead of `STDOUT`; the temporary file will be removed after the operation. 
@@ -87,7 +89,37 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     If `execution` is `True`, `True` if the reconstructed `QUEEN_object` is identical to the original one. Otherwise, `False`.
 
     """
-    
+    def extract_qexd(rows): 
+        extracted_rows = [] 
+        for row in rows:
+            if "qexd =" not in row and "qexd=" not in row:
+                extracted_rows.append(row) 
+            else:
+                pattern1 = r"qexd='(.*?)'"
+                pattern2 = r"qexd = '(.*?)'"
+                match1 = re.search(pattern1, row) 
+                match2 = re.search(pattern2, row)
+                if match1 is not None:
+                    txt = match1.group(1)
+                elif match2 is not None:
+                    txt = match2.group(1)
+                else:
+                    txt = None
+                if txt is None or "qexd=True" in txt:
+                    pass 
+                else:
+                    outdna = row.split("=")[0] 
+                    if "product=" in row:
+                        index_start = row.find("product=") 
+                    elif "process_name=" in row:
+                        index_start = row.find("process_name=") 
+                    elif "process_description" in row:
+                        index_start = row.find("process_description=") 
+                    elif "process_id=" in row:
+                        index_start = row.find("process_id=")
+                    txt = outdna.rstrip() + " = " +  txt[:-1].replace('"',"'") + ", " + row[index_start:]
+                    extracted_rows.append(txt)
+        return extracted_rows
 
     if execution == True and output is None:
         output  = tempfile.NamedTemporaryFile(mode="w+", delete=False) 
@@ -100,24 +132,35 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     
     description_only = process_description
 
-    commands  = []
-    histories = [] 
+    commands     = []
+    history_dict = collections.defaultdict(dict) 
     for dna in dnas:
-        for history in dna.history:
-            command =  history[1].replace(" ","").replace("–"," ")
-            if command in commands:
-                pass 
-            else:
-                histories.append(history) 
-                commands.append(command) 
+        for key in dna.history:
+            if "_script" in key:
+                command = dna.history[key] 
+                if command in commands:
+                    pass 
+                else:
+                    commands.append(command) 
+            key1 = int(key.split("_")[0]) 
+            key2 = key.split("_")[1]
+            history_dict[key1][key2] = dna.history[key] 
+    
+    histories = [] 
+    for key in history_dict:
+        histories.append([key, history_dict[key]["script"], history_dict[key]["args"], history_dict[key]["id"]])
+
     hindex = 0
     histories.sort() 
     for index, history in enumerate(histories):
-        if "QUEEN.dna_dict" in history[1].replace(" ","").replace("–"," "):
+        history1 = history[1].replace(" ","").replace("–"," ") if ",–" in history[1] else history[1]
+        if "QUEEN.dna_dict" in history1:
             hindex = index
         else:
             pass 
-    result     = re.findall(r"QUEEN.dna_dict\['[^\[\]]+'\]",histories[hindex][1].replace(" ","").replace("–"," "))[0] 
+
+    history1 = histories[hindex][1].replace(" ","").replace("–"," ") if ",–" in histories[hindex][1] else histories[hindex][1]
+    result   = re.findall(r"QUEEN.dna_dict\['[^\[\]]+'\]", history1.replace(" ","").replace("–"," "))[0] 
     _unique_id = result.split("['")[1][:-2]
     
     pre_pd = None
@@ -129,12 +172,13 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     processid_originalids_dict = {}  
     for history in histories:
         history = list(history)
-        if re.search(r"process_description=None",history[1].replace(" ","").replace("–"," ")) is None:
-            process_description = re.search(r"process_description='[^']*'",history[1].replace(" ","").replace("–"," "))
+        history1 = history[1].replace(" ","").replace("–"," ") if ",–" in history[1] else history[1]
+        if re.search(r"process_description=None",history1) is None:
+            process_description = re.search(r"process_description='[^']*'",history1)
             if process_description is None:
                 pd = None                
             else: 
-                process_description = history[1].replace(" ","").replace("–"," ")[process_description.start():process_description.end()] 
+                process_description = history1[process_description.start():process_description.end()] 
                 pd = process_description.split("=")[1]    
                 if pd == "''" or pd == '""':
                     pd = None   
@@ -144,13 +188,12 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             process_description = "process_description=None"
             descriptions.append(pd)
         
-        if re.search(r"process_name=None",history[1].replace(" ","").replace("–"," ")) is None:
-            process_name = re.search(r"process_name='[^']*'",history[1].replace(" ","").replace("–"," "))
-            #print(process_name) 
+        if re.search(r"process_name=None",history1) is None:
+            process_name = re.search(r"process_name='[^']*'",history1)
             if process_name is None:
                 pn = pre_pn            
             else: 
-                process_name = history[1].replace(" ","").replace("–"," ")[process_name.start():process_name.end()] 
+                process_name = history1[process_name.start():process_name.end()] 
                 pn = process_name.split("=")[1]    
                 if pn == "''" or pn == '""':
                     pn = None    
@@ -160,14 +203,15 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             process_name = "process_name=None"
             names.append(pn)
         
+         
+
         pnflag = 0 
-        if process_name is not None and _return == False:
+        if process_name is not None and _return_histories == False:
             pnflag = 1
-            history[1] = history[1].replace(" ","").replace("–"," ").replace(process_name,"")
-            history[1] = history[1].replace(", )",")")
+            history1 = history1.replace(process_name+", ","").replace(process_name+",","").replace(process_name,"")
+            history1 = history1.replace(", )",")").replace(",)",")")
         else:
             pass 
-        
         original_id = history[3].split(",")[0]
         if "-" not in original_id:
             process_id = original_id 
@@ -181,40 +225,20 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
                 original_ids = "[" + ",".join(list(map(lambda x:"'{}'".format(x), history[3].split(",")[1:]))) + "]"
             else:
                 original_ids = []
-
-        #else:
-            #process_id = original_id.split("-")[1]   
-            #original_project = original_id.split("-")[0]  
-            #process_id = project + "-" + process_id 
-            #if original_project != project:
-            #original_ids = "[" + ",".join(list(map(lambda x:"'{}'".format(x), history[3].split(",")))) + "]"
-            #else: 
-            #    _ids = history[3].split(",") 
-            #    if len(_ids) == 1:
-            #        original_ids = "[]"
-            #    else:
-            #        original_ids = "[" + ",".join(list(map(lambda x:"'{}'".format(x), _ids[1:]))) + "]"
         
         processid_originalids_dict[process_id] = original_ids
-        if process_description is not None and _return == False:
-            if pnflag == 1: 
-                history[1] = history[1].replace(process_description,"")
-                history[1] = history[1].replace(", )",")")          
-                history[1] = history[1][:-1] + "process_id='" + process_id + "')"
-            else:
-                history[1] = history[1].replace(" ","").replace("–"," ").replace(process_description,"")
-                history[1] = history[1].replace(", )",")")
-                history[1] = history[1][:-1] + ", process_id='" + process_id + "')"
+        if process_description is not None and _return_histories == False:
+            history1 = history1.replace(process_description+", ","").replace(process_description+",","").replace(process_description,"")
+            history1 = history1.replace(", )",")").replace(",)",")")         
+            history[1] = history1[:-1] + ", process_id='" + process_id + "')"
         else:
-            history[1] = history[1].replace(" ","").replace("–"," ")
-            history[1] = history[1][:-1] + ", process_id='" + process_id + "')"
-
+            history[1] = history1[:-1] + ", process_id='" + process_id + "')"
         new_histories.append(history) 
         pre_pd = pd
     histories = new_histories
 
     #Remove non-used variables 
-    outtext = export(names, descriptions, histories, io.StringIO())
+    outtext = export(names, descriptions, histories, io.StringIO(), qexp_only=qexperiment_only)
     text    = outtext.getvalue().rstrip()
     var_num_dict = collections.defaultdict(int) 
     for row in text.split("\n"):
@@ -298,12 +322,12 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     
     now = datetime.datetime.now()
     pre_process_description = "''"
-    if description_only == False and _return == False: 
-        outtext = export(new_names, new_descriptions, new_histories, io.StringIO(), do=description_only)
+    if description_only == False and _return_histories == False: 
+        outtext = export(new_names, new_descriptions, new_histories, io.StringIO(), do=description_only, qexp_only=qexperiment_only)
     outtext = outtext.getvalue().rstrip()
     texts   = outtext.split("\n") 
     
-    if _return == True:
+    if _return_histories == True:
         return new_histories
 
     if description_only == False:
@@ -331,48 +355,8 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
                     for m, match in enumerate(match3):
                         name_dict[match] = match2.group(1) + "[{}]".format(m)
     
-    #new_rows = []
-    #Replace QUEEN_dict["xxx"] =  -> xxx = 
-    #for row in texts:
-    #    if dna.__class__._namespaceflag == 1 and execution == False:
-    #        product = re.search(r"product=([^=]+)[,\)]",row)
-    #        if product is None:
-    #            pass 
-    #        elif product.group(1) == "None":
-    #            pass 
-    #        else:
-    #            matches = re.findall(r"QUEEN.queried_features_dict\['[^\[\]]+'\] = ",row)
-    #            if len(matches) > 0:
-    #                for match in matches:
-    #                    row  = row.replace(match, "")
-    #        
-    #            match = re.search(r"(.*QUEEN.dna_dict\['[^\[\]]+'\]) = ",row)
-    #            if match is not None:
-    #                row  = row.replace(match.group(0), "")
-    #    
-    #    matches = re.findall(r"QUEEN.queried_features_dict\['[^\[\]]+'\]",row)
-    #    if len(matches) > 0:
-    #        for match in matches:
-    #            name = match
-    #            if name in name_dict:
-    #                row = row.replace(match, name_dict[name]) 
-    #    
-    #    match = re.search(r"QUEEN.dna_dict\['[^\[\]]+'\], QUEEN.dna_dict\['[^\[\]]+'\]", row)
-    #    if match is not None:
-    #        for name in name_dict:
-    #            if name in row and match.group(0) in name:
-    #                row = row.replace(name, name_dict[name])
-    #
-    #    matches = re.findall(r"QUEEN.dna_dict\['[^\[\]]+'\]",row)
-    #    if len(matches) > 0:
-    #        for match in matches:
-    #            name = match
-    #            if name in name_dict:
-    #                row = row.replace(match, name_dict[name])
-    #    new_rows.append(row) 
-    #
-    
-    new_rows = texts
+        
+    new_rows = texts 
     #Check quine code is identical with original file.
     identical    = 1
     new_new_rows = [] 
@@ -390,41 +374,14 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         else:
             new_new_rows.append(row) 
     
-    new_rows      = new_new_rows
-    project_names = [] 
-    if _check == True and sys.argv[0] != "":
-        check_flag = 0 
-        with open(sys.argv[0]) as f:
-            lnum = 0
-            for line in f:
-                line = line.rstrip()
-                if check_flag == 1:
-                    match = re.search(r"process_id='([^=]*)-([^=]*)'", line)
-                    query = new_rows[lnum]
-                    if match is not None:
-                        project_names.append(match.group(1))
-                        query = re.sub(r", _sourcefile=.*\)", ")".format(project), query)
-                        line  = re.sub(r", _sourcefile=.*\)", ")".format(project), line)
-                        if line == query:
-                            pass 
-                        else: 
-                            identical = 0 
-                    else:
-                        if line == query:
-                            pass 
-                        else:
-                            identical = 0 
-                    lnum += 1 
-                
-                if line == "":
-                    check_flag = 1 
-        
-        if identical == 1: 
-            return True
-                
-    if _check == False or identical == 0:            
-        if description_only == False:
-            now = datetime.datetime.now()
+    new_rows = new_new_rows
+    if qexperiment_only == True:
+        new_rows = extract_qexd(new_rows) 
+
+    project_names = []
+    if description_only == False:
+        now = datetime.datetime.now()
+        if _return_script == False:
             print("project='{}'".format(project), file=o)
             print("import sys", file=o)  
             print("sys.path = [\"{}] + sys.path".format("/".join(__file__.split("/")[:-2])  + "\""), file=o)
@@ -435,37 +392,48 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             if dna.__class__._namespaceflag == 1 and execution == False:
                 print("set_namespace(globals())", file=o)
             print("", file=o) 
-            for row in new_rows:
-                match = re.search(r"process_id='([^=]*)'", row)
-                if match is not None:
-                    if "-" in match.group(1):
-                        if outname is not None:
-                            row = row[:-1] + ", _sourcefile='{}')".format(outname.split("/")[-1].rstrip(".py")) 
-                        else:
-                            row = row[:-1] + ", _sourcefile='{}')".format(dnas[0].project + "_construction")  
+        
+        scripts = [] 
+        for row in new_rows:
+            match = re.search(r"process_id='([^=]*)'", row)
+            if match is not None:
+                if "-" in match.group(1):
+                    if outname is not None:
+                        row = row[:-1] + ", _sourcefile='{}')".format(outname.split("/")[-1].rstrip(".py")) 
                     else:
-                        if dnas[0].project in project_names:
-                            row = re.sub(r"process_id='([^=]*)'", "process_id='{}_modified-\\1'".format(project), row)
-                            if outname is not None:
-                                row = row[:-1] + ", _sourcefile='{}')".format(outname.split("/")[-1].rstrip(".py"))
-                        else:
-                            row = re.sub(r"process_id='([^=]*)'", "process_id='{}-\\1'".format(project), row)
-                            if outname is not None:
-                                row = row[:-1] + ", _sourcefile='{}')".format(outname.split("/")[-1].rstrip(".py"))
+                        process_id  = match.group(1).split("-")[-1] 
+                        productname = "-".join(match.group(1).split("-")[:-1]) 
+                        process_id.split("-")[-1] 
+                        row = row[:-1] + ", _sourcefile='{}')".format(productname + "_construction")  
+                else:
+                    if dnas[0].project in project_names:
+                        row = re.sub(r"process_id='([^=]*)'", "process_id='{}_modified-\\1'".format(project), row)
+                        if outname is not None:
+                            row = row[:-1] + ", _sourcefile='{}')".format(outname.split("/")[-1].rstrip(".py"))
+                    else:
+                        row = re.sub(r"process_id='([^=]*)'", "process_id='{}-\\1'".format(project), row)
+                        if outname is not None:
+                            row = row[:-1] + ", _sourcefile='{}')".format(outname.split("/")[-1].rstrip(".py"))
+            scripts.append(row) 
+            if _return_script == False:
                 print(row, file=o)
+    
+    else:
+        if len(source_descriptions_dict) == 1:
+            for key in source_descriptions_dict:
+                for value in source_descriptions_dict[key]:
+                    print(value[1:-1], file=o) 
         else:
-            if len(source_descriptions_dict) == 1:
-                for key in source_descriptions_dict:
-                    for value in source_descriptions_dict[key]:
-                        print(value[1:-1], file=o) 
-            else:
-                for key in source_descriptions_dict:
-                    print("{}{}".format(key.rstrip("_construction").rstrip(), " construction" if "construction" not in key.rstrip("_construction") else "")) 
-                    for value in source_descriptions_dict[key]:
-                        print("    " + value[1:-1], file=o) 
+            for key in source_descriptions_dict:
+                print("{}{}".format(key.rstrip("_construction").rstrip(), " construction" if "construction" not in key.rstrip("_construction") else "")) 
+                for value in source_descriptions_dict[key]:
+                    print("    " + value[1:-1], file=o) 
 
-        if output is not None:
-            o.close()
+    if output is not None:
+        o.close()
+    
+    if _return_script == True:
+        return scripts 
 
     if execution == True:
         intermediate_products = {} 
@@ -488,9 +456,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         dnas[0].__class__._source = fname
         
         exec("import {}".format(fname), locals(), vardict)
-        exec("varnames = dir({})".format(fname), locals(), vardict) 
         exec("queen_objects = {}.QUEEN._products".format(fname), locals(), vardict) 
-        
         if flag == 1:
             dnas[0].__class__._namespaceflag = 1
             dnas[0].__class__._namespace = _globalspace
@@ -499,23 +465,18 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             os.remove(outname + ".py") 
         
         dnas[0].__class__._source = None 
-        for name, obj in vardict["queen_objects"].items():
-            for key in obj._history_feature.qualifiers:
-                if "building_history" in key[0:18]:
-                    obj._history_feature.qualifiers[key][1] = obj._history_feature.qualifiers[key][1].replace(fname, dnas[0].project + " construction")
         keys = list(vardict["queen_objects"].keys())
-        
         if dnas[0] == vardict["queen_objects"][keys[-1]]:
             if _io == True:
                 print("QUEEN object reconstructed from the quine code and the original QUEEN object are identical.".format(dnas[0].project))
             dnas[0]._productids = keys[:-1]   
-            return True
+            return True, vardict["queen_objects"] 
         else:
             if _io == True:
                 raise ValueError("The {} QUEEN object could not be reconstructed using its quine code. There may be bugs in QUEEN implementation. It would be helpful if you could tell us the details about your code on the Github issue (https://github.com/yachielab/QUEEN/issues).".format(dnas[0].project)) 
             return False
 
-def printprotocol(dna, output=None, display=None):
+def printprotocol(dna, execution=False, output=None):
     """
     This function retrieve and return the history of only the qexperiment functions.
     If there are no qexperiment functions in the QUEEN script. It will return an empty str object.
@@ -527,34 +488,398 @@ def printprotocol(dna, output=None, display=None):
     output: str ,default: STDOUT   
         Output file name.    
     """
-    pattern    = r'qexparam="([^"]+)"'
-    pn_pattern = r"process_name='([^']*)'"
-    pd_pattern = r"process_description='([^']*)'"
-    pt_pattern = r"product='([^']*)'"
-    histories     = quine(dna, _return=True)
-    qex_histories = [] 
-    for history in histories:
-        match = re.search(pattern, history[1])
-        if match:
-            qex_process = match.group(1)
-            pn_match = re.search(pn_pattern, history[1])
-            pd_match = re.search(pd_pattern, history[1]) 
-            pt_match = re.search(pt_pattern, history[1]) 
-            pn = pn_match.group(1) if pn_match else None
-            pd = pd_match.group(1) if pd_match else None
-            pt = pt_match.group(1) if pt_match else None
-            pn = pn.replace("\n","")
-            pd = pd.replace("\n","") 
-            pt = pt.replace("\n","")
-            qex_histories.append([pn, qex_process, pd, pt])     
-        else: 
-            pass
-    #qex_description = "\n\n".join(["Process: "+row[0]+"\n"+"Description: "+row[2]+"\n"+"Construct: "+row[3] for row in qex_histories]) 
-    qex_description = "\n\n".join(["Process: "+row[0]+", "+row[1]+"\n"+"Description: "+row[2]+"\n"+"Construct: "+row[3] for row in qex_histories]) 
+    print("#{} Construction".format(dna.project), file=output)
+    pattern_dict = {
+                    "pcr":       r"pcr\((.*)\)",
+                    "digestion": r"digestion\((.*)\)",
+                    "ligation":  r"ligation\((.*)\)",
+                    "hba":       r"homology_based_assembly\((.*)\)",
+                    "anneal":    r"annealing\((.*)\)",
+                    "gga":       r"golden_gate_assembly\((.*)\)",
+                    "gateway":   r"gateway_reaction\((.*)\)",
+                    "topo":      r"topo_cloning\((.*)\)"
+                    }
     
-    if display is None or display == False:
-        pass 
-    else:
-        print(qex_description) 
+    if execution == True: 
+        qobjects = quine(dna, execution=True)[1]  
     
-    return qex_histories
+    for row in quine(dna, _return_script=True):
+        row = row.replace(" = ","=")
+        pro_names = [] 
+        for match in re.finditer(r"QUEEN.dna_dict\['([^\[\]]+)'\]", row): 
+            qpro_name = match.group(0)
+            pro_name  = match.group(1)
+            pro_names.append(pro_name) 
+       
+        if (match := re.search(pattern_dict["pcr"], row)):
+            product  = pro_names[0] 
+            template = pro_names[1]
+            row    = "=".join(row.split("=")[1:]) 
+            row_sp = row.split(",")
+            if "QUEEN" in row_sp[1]:
+                fw_name = re.search(r"QUEEN.dna_dict\['([^\[\]]+)'\]", row_sp[1]).group(1) 
+            else:
+                fw_name = row_sp[1]
+
+            if "QUEEN" in row_sp[2]:
+                rv_name = re.search(r"QUEEN.dna_dict\['([^\[\]]+)'\]", row_sp[2]).group(1) 
+            else:
+                rv_name = row_sp[2]
+            
+            if "process_name=" in row:
+                pn = ": " + re.search(r"process_name='([^']*)'", match.group(1)).group(1) 
+            else:
+                pn = "" 
+            
+            if "process_description=" in row:
+                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+            else:
+                pd = None 
+            
+            print(">PCR{}".format(pn), file=output)
+            if pd is not None:
+                print("Description:\n{}".format(pd), file=output) 
+            else:
+                pass
+            if execution  == True:
+                print("Parameters:", file=output) 
+                print("- Template: {}, {} bp".format(template, len(qobjects[template].seq)), file=output) 
+                print("- Forward Primer: {}, {}, {} bp".format(fw_name, qobjects[fw_name].seq, len(qobjects[fw_name].seq)), file=output)
+                print("- Reverse Primer: {}, {}, {} bp".format(rv_name, qobjects[rv_name].seq, len(qobjects[rv_name].seq)), file=output)   
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}, {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}, {}".format(product, len(qobjects[product].seq)), file=output)  
+                print("", file=output) 
+            
+            else:
+                print("Parameters:", file=output) 
+                print("- Template: {}".format(template), file=output)  
+                print("- Forward Primer: {}".format(fw_name), file=output)
+                print("- Reverse Primer: {}".format(rv_name), file=output)    
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}".format(product), file=output)  
+                print("", file=output) 
+
+        elif (match := re.search(pattern_dict["digestion"], row)):
+            product  = pro_names[0] 
+            sample   = pro_names[1]
+            row      = "=".join(row.split("=")[1:]) 
+            row_sp   = row[:row.find(", selection=")].split(",")
+            cutsites = ",".join(list([cutsite.replace(" ","").replace("'","") for cutsite in row_sp[1:]])) 
+
+            if "process_name=" in row:
+                pn = ": " + re.search(r"process_name='([^']*)'", match.group(1)).group(1) 
+            else:
+                pn = "" 
+            
+            if "process_description=" in row:
+                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+            else:
+                pd = None 
+            
+            print(">Digestion{}".format(pn), file=output)
+            if pd is not None:
+                print("Description:\n{}".format(pd), file=output) 
+            else:
+                pass
+            if execution  == True:
+                print("Parameters:", file=output) 
+                print("- Sample: {}, {} bp".format(sample, len(qobjects[sample].seq)), file=output) 
+                print("- Restriction enzyme(s): {}".format(cutsites), file=output) 
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}: {}".format(product, len(qobjects[product].seq)), file=output)  
+                print("", file=output) 
+            
+            else:
+                print("Parameters:", file=output) 
+                print("- Sample: {}".format(sample), file=output) 
+                print("- Restriction enzyme(s): {}".format(cutsites), file=output)   
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1), file=output):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}".format(product), file=output)  
+                print("", file=output)
+        
+        elif (match := re.search(pattern_dict["ligation"], row)):
+            product  = pro_names[0] 
+            sample   = ", ".join(pro_names[1:])
+
+            if "process_name=" in row:
+                pn = ": " + re.search(r"process_name='([^']*)'", match.group(1)).group(1) 
+            else:
+                pn = "" 
+            
+            if "process_description=" in row:
+                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+            else:
+                pd = None 
+            
+            print(">Ligation{}".format(pn), file=output)
+            if pd is not None:
+                print("Description:\n{}".format(pd), file=output) 
+            else:
+                pass
+            if execution  == True:
+                print("Parameters:", file=output) 
+                print("- Sample(s): {}; {}".format(sample, ", ".join([len(qobjects[asample].seq) for asample in sample])), file=output) 
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("follow_order", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}: {}".format(product, len(qobjects[product].seq)), file=output)  
+                print("", , file=output) 
+            else:
+                print("Parameters:", file=output) 
+                print("- Sample(s): {}".format(sample), file=output) 
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("follow_order", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}: {}".format(product, len(qobjects[product].seq)), file=output)  
+                print("", file=output) 
+ 
+        elif (match := re.search(pattern_dict["hba"], row)):
+            product  = pro_names[0] 
+            sample   = ", ".join(pro_names[1:])
+
+            if "process_name=" in row:
+                pn = ": " + re.search(r"process_name='([^']*)'", match.group(1)).group(1) 
+            else:
+                pn = "" 
+            
+            if "process_description=" in row:
+                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+            else:
+                pd = None 
+            
+            mode = re.search(r"mode='([^']*)'",match.group(1)).group(1)
+            print(">Homology based Assembly{}".format(pn), file=output)
+            if pd is not None:
+                print("Description:\n{}".format(pd), file=output) 
+            else:
+                pass
+            
+            if execution  == True:
+                print("Parameters:", file=output) 
+                print("- Sample(s): {}; {}".format(sample, ", ".join([str(len(qobjects[asample].seq)) + " bp" for asample in sample])), file=output) 
+                print("- Assembly method: {}".format(mode), file=output)
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("mode", "follow_order", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}: {}".format(product, len(qobjects[product].seq)), file=output)  
+                print("", file=output) 
+            else:
+                print("Parameters:", file=output) 
+                print("- Sample(s): {}".format(sample), file=output) 
+                print("- Assembly method: {}".format(mode), file=output)
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("mode", "follow_order", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}".format(product), file=output)  
+                print("", file=output) 
+
+        elif (match := re.search(pattern_dict["anneal"], row)):
+            product  = pro_names[0] 
+            ssdna1   = pro_names[1] 
+            ssdna2   = pro_names[2]
+
+            if "process_name=" in row:
+                pn = ": " + re.search(r"process_name='([^']*)'", match.group(1)).group(1) 
+            else:
+                pn = "" 
+            
+            if "process_description=" in row:
+                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+            else:
+                pd = None 
+            
+            print(">Annealing{}".format(pn), file=output)
+            if pd is not None:
+                print("Description:\n{}".format(pd), file=output) 
+            else:
+                pass
+            if execution  == True:
+                print("Parameters:", file=output) 
+                print("- Top strand DNA: {}, {}".format(ssdna1, qobjects[ssdna1].seq), file=output) 
+                print("- Bottom strand DNA: {}, {}".format(ssdna2, qobjects[ssdna2].seq), file=output)
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("homology_length", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}: {} bp".format(product, len(qobjects[product].seq)), file=output)  
+                print("", file=output) 
+            else:
+                print("Parameters:", file=output) 
+                print("- Top strand DNA: {}".format(ssdna1), file=output) 
+                print("- Bottom strand DNA: {}".format(ssdna2), file=output)
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("homology_length", "follow_order", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}".format(product), file=output)  
+                print("", file=output) 
+
+        elif (match := re.search(pattern_dict["gga"], row)):
+            product     = pro_names[0] 
+            destination = pro_names[1] 
+            entry       = pro_names[2:]
+
+            if "process_name=" in row:
+                pn = ": " + re.search(r"process_name='([^']*)'", match.group(1)).group(1) 
+            else:
+                pn = "" 
+            
+            if "process_description=" in row:
+                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+            else:
+                pd = None 
+            
+            print(">Goden Gate Assembly{}".format(pn), file=output)
+            if pd is not None:
+                print("Description:\n{}".format(pd), file=output) 
+            else:
+                pass
+            
+            cutsite = re.search(r", cutsite='([^']*)'", match.group(1)).group(1) 
+            if execution  == True:
+                print("Parameters:", file=output) 
+                print("- Destination sample: {}, {} bp".format(destination, len(qobjects[destination].seq)), file=output)
+                print("- Entry sample(s): {}; {}".format(", ".join(entry), ", ".join([str(len(qobjects[asample].seq)) + "bp" for asample in entry])), file=output) 
+                print("- Restriction enzyme: {}".format(cutsite), file=output) 
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("cutsite", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}: {} bp".format(product, len(qobjects[product].seq)), file=output)  
+                print("", file=output) 
+            else:
+                print("Parameters:", file=output) 
+                print("- Destination sample: {}".format(destination), file=output)
+                print("- Entry Sample(s): {}".format(", ".join(entry)), file=output)
+                print("- Restriction enzyme: {}".format(cutsite), file=output) 
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("cutsite", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}".format(product), file=output)  
+                print("", file=output)
+        
+        elif (match := re.search(pattern_dict["gateway"], row)):
+            product     = pro_names[0] 
+            destination = pro_names[1] 
+            entry       = pro_names[2]
+
+            if "process_name=" in row:
+                pn = ": " + re.search(r"process_name='([^']*)'", match.group(1)).group(1) 
+            else:
+                pn = "" 
+            
+            if "process_description=" in row:
+                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+            else:
+                pd = None 
+            
+            print(">Gateway Cloning{}".format(pn), file=output)
+            if pd is not None:
+                print("Description:\n{}".format(pd), file=output) 
+            else:
+                pass
+            
+            mode = re.search(r"mode='([^']*)'",match.group(1)).group(1)
+            if execution  == True:
+                print("Parameters:", file=output) 
+                print("- Destination sample: {}, {} bp".format(destination, len(qobjects[destination].seq)), file=output)
+                print("- Entry sample: {}; {} bp".format(entry, len(qobjects[entry].seq)), file=output) 
+                print("- BP/LR: {}".format(mode), file=output) 
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("mode", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}: {} bp".format(product, len(qobjects[product].seq)), file=output)  
+                print("", file=output) 
+            else:
+                print("Parameters:", file=output) 
+                print("- Destination sample: {}".format(destination), file=output)
+                print("- Entry sample(s): {}".format(entry), file=output)
+                print("- BP/LR: {}".format(mode), file=output) 
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("mode", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}".format(product), file=output)  
+                print("", file=output)
+        
+        elif (match := re.search(pattern_dict["topo"], row)):
+            product     = pro_names[0] 
+            destination = pro_names[1] 
+            entry       = pro_names[2]
+
+            if "process_name=" in row:
+                pn = ": " + re.search(r"process_name='([^']*)'", match.group(1)).group(1) 
+            else:
+                pn = "" 
+            
+            if "process_description=" in row:
+                pd = re.search(r"process_description='([^']*)'", match.group(1)).group(1) 
+            else:
+                pd = None 
+            
+            print(">TOPO Cloning{}".format(pn), file=output)
+            if pd is not None:
+                print("Description:\n{}".format(pd), file=output) 
+            else:
+                pass
+            
+            mode = re.search(r"mode='([^']*)'",match.group(1)).group(1)
+            if execution  == True:
+                print("Parameters:", file=output) 
+                print("- Destination sample: {}, {} bp".format(destination, len(qobjects[destination].seq)), file=output)
+                print("- Entry sample: {}; {} bp".format(entry, len(qobjects[entry].seq)), file=output) 
+                print("- Cloning method: {}".format(mode), file=output) 
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("mode", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}: {} bp".format(product, len(qobjects[product].seq)), file=output)  
+                print("", file=output) 
+            else:
+                print("Parameters:", file=output) 
+                print("- Destination sample: {}".format(destination), file=output)
+                print("- Entry Sample(s): {}".format(entry), file=output)
+                print("- Cloning method: {}".format(mode), file=output) 
+                for arg in re.finditer(r", ([^']*)='([^']*)'", match.group(1)):
+                    key   = arg.group(1)
+                    value = arg.group(2)
+                    if key not in ("mode", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
+                        print("- {}: {}".format(key.capitalize(), value), file=output) 
+                print("Output:\n{}".format(product), file=output)  
+                print("", file=output)
+        
+        #print(row) 
+

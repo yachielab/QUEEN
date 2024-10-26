@@ -114,12 +114,15 @@ def _convert_kwargs(arguments):
         if key in defaults:
             pass 
         else:
-            arguments[key] = str(arguments[key]).replace("'", "\'") 
-            out.append('{}="{}"'.format(key, arguments[key]))
+            if type(arguments[key]) in (int, bool, float): 
+                out.append("{}={}".format(key, arguments[key]))
+            else:
+                arguments[key] = str(arguments[key]).replace("'", "\'")    
+                out.append("{}='{}'".format(key, arguments[key]))
     if len(out) == 0:
         out = ""
     else:
-        out = "," + ", ".join(out) 
+        out = ", " + ", ".join(out) 
     return out
 
 def _assigndnafeatures(dnafeatures):
@@ -143,14 +146,13 @@ def _slide(feats,slide):
         new_feats.append(feat.__class__(feat))
     return new_feats 
 
-def _combine_history(dna, history_features):
-    history_feature = SeqFeature(FeatureLocation(0, len(dna.seq), strand=0), type="source")
-    history_feature = history_features[0].__class__(history_feature, subject=dna.seq)
-    for feat in history_features:
-        for key in feat.qualifiers:
-            if "building_history" in key and feat.qualifiers[key] not in history_feature.qualifiers.values():
-                history_feature.qualifiers[key] = feat.qualifiers[key]  
-    return history_feature
+def _combine_history(dna, histories):
+    combined_history = collections.defaultdict(dict) 
+    combined_history["building_history"] = {} 
+    for history in histories:
+        for key in history["building_history"]: 
+            combined_history["building_history"][key] = history["building_history"][key] 
+    return combined_history 
 
 def _search(dna, source, query, attribute=None, strand=None): 
     #attributes = "feature ID", "feature type", "start", "end", "sequence", "query:" 
@@ -462,33 +464,16 @@ def addhistory(dna, histories, _sourcefile):
 
     elif dna.__class__._source is not None and dna.__class__._source != "__main__":
         histories[1] = histories[1] + "; _source: {}".format(dna.__class__._source) 
-
-    dna.__class__._num_history += 1 
-    dna._history_feature.qualifiers["building_history_{}".format(dna.__class__._num_history)] = [] 
-    for h, history in enumerate(histories):
-        if h == 0:
-            dna._history_feature.qualifiers["building_history_{}".format(dna.__class__._num_history)].append(history.replace(" ","–")) 
-        else:
-            dna._history_feature.qualifiers["building_history_{}".format(dna.__class__._num_history)].append(history)
+    
+    dna.__class__._num_history += 1
+    dna._history["building_history"][str(dna.__class__._num_history) + "_script"] = histories[0] 
+    dna._history["building_history"][str(dna.__class__._num_history) + "_args"] = histories[1] 
+    dna._history["building_history"][str(dna.__class__._num_history) + "_id"] = histories[2] 
     
     dna.record.features = dna.dnafeatures
     if dna.__class__._keep == 1 and "_product_id" in dna.__dict__: 
         dna.__class__._products[dna._product_id] = dna
         dna._productids.append(dna._product_id) 
-
-def archivehistory(dna):
-    for feat in dna.dnafeatures:
-        if feat.type == "source":
-            old_keys = [] 
-            qualifier_keys = list(feat.qualifiers.keys()) 
-            for key in qualifier_keys:
-                if "building_history" in key:
-                    old_keys.append(key) 
-                    history = feat.qualifiers[key]
-                    new_key = "archived_" + key
-                    feat.qualifiers[new_key] = history
-            for key in old_keys:
-                del feat.qualifiers[key] 
 
 def deletehistory(dna):
     for feat in dna.dnafeatures:
@@ -501,7 +486,7 @@ def deletehistory(dna):
                     old_keys.append(key)   
             for key in old_keys:
                 del feat.qualifiers[key] 
-    
+
 def compile_cutsite(query):  
     cutsite = query.upper() 
     re_format1 = re.compile(r"([ATGCRYKMSWBDHVN]+)(\([\-0-9]+/[\-0-9]+\))")
@@ -983,7 +968,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
         
             feats.sort(key=lambda x:(int(x.location.parts[0].start), int(x.location.parts[-1].end)))
             subdna = dna.__class__(seq=str(dna.seq[start:end]), quinable=0)
-            subdna._history_feature = copy.deepcopy(dna._history_feature) 
+            subdna._history = copy.deepcopy(dna._history) 
             subdna._dnafeatures = feats
             subdna._topology = "linear"
             
@@ -1161,7 +1146,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
             products.append("QUEEN.dna_dict['{}']".format(dnas[i]._product_id))
 
         args = [] 
-        history_features = [dnas[0]._history_feature] 
+        histories = [dnas[0]._history] 
         for pos in cutsites:
             if "__dict__" in dir(pos) and "_dnafeature" in pos.__dict__:
                 qkey = pos._qkey
@@ -1169,7 +1154,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                     if qfeat._second_id == pos._second_id:
                         break
                 args.append("QUEEN.queried_features_dict['{}'][{}]".format(qkey, qindex))
-                history_features.append(pos.subject._history_feature) 
+                histories.append(pos.subject._history) 
 
             elif type(pos) == Qint:
                 qkey = pos.qkey
@@ -1177,7 +1162,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                     if qfeat._second_id == pos.parental_id:
                         break
                 args.append("QUEEN.queried_features_dict['{}'][{}].{}".format(pos.qkey, qindex, pos.name))
-                history_features.append(pos.parent.subject._history_feature) 
+                histories.append(pos.parent.subject._history) 
 
             else:
                 if type(pos) is int:
@@ -1217,8 +1202,8 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
             building_history = "{}, = cutdna(QUEEN.dna_dict['{}'], {}{}{}{}{}{}{}{})".format(", ".join(products), dna._product_id, ", ".join(args), fcrop, project, fsupfeature, additional_info, fproduct, process_name, process_description)
         
         for subdna in dnas:
-            history_feature = _combine_history(subdna, history_features)
-            subdna._history_feature = history_feature
+            combined_history = _combine_history(subdna, histories)
+            subdna._history  = combined_history
             process_id, original_ids = make_processid(subdna, building_history, process_id, original_ids)
             subdna._check_uniqueness() 
             addhistory(subdna, [building_history, "positions: {}".format(",".join(list(map(str, new_positions_original)))) + "; num_products: {}".format(len(dnas)), ",".join([process_id] + original_ids)], _sourcefile)
@@ -1315,7 +1300,7 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
     if quinable == 1 and quinable == True:   
         args = []
         new_positions = [] 
-        history_features = [subdna._history_feature] 
+        histories = [subdna._history] 
         for new_pos, pos in zip(crop_positions, (start, end)):
             new_pos = "/".join(list(map(str,new_pos)))
             new_pos = "'" + new_pos + "'"
@@ -1325,7 +1310,7 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
                     if qfeat._second_id == pos._second_id:
                         break
                 args.append("QUEEN.queried_features_dict['{}'][{}]".format(qkey, qindex))
-                history_features.append(pos.subject._history_feature) 
+                histories.append(pos.subject._history) 
             
             elif type(pos) == Qint:
                 qkey = pos.qkey
@@ -1333,7 +1318,7 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
                     if qfeat._second_id == pos.parental_id:
                         break
                 args.append("QUEEN.queried_features_dict['{}'][{}].{}".format(pos.qkey, qindex, pos.name))
-                history_features.append(pos.parent.subject._history_feature) 
+                histories.append(pos.parent.subject._history) 
         
             else:
                 args.append(new_pos)
@@ -1360,8 +1345,8 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
         subdna._product_id = subdna._unique_id if product is None else product 
         building_history = "QUEEN.dna_dict['{}'] = cropdna(QUEEN.dna_dict['{}'], start={}, end={}{}{}{}{}{}{})".format(subdna._product_id, dna._product_id, args[0], args[1], fsupfeature, additional_info, project, fproduct, process_name, process_description)
         
-        history_feature = _combine_history(subdna, history_features)
-        subdna._history_feature = history_feature
+        combined_history = _combine_history(subdna, histories)
+        subdna._history  = combined_history
         process_id, original_ids = make_processid(subdna, building_history, process_id, original_ids)
         addhistory(subdna, [building_history, "start: {}; end: {}".format(*new_positions), ",".join([process_id] + original_ids)], _sourcefile) 
         subdna._check_uniqueness()
@@ -1497,9 +1482,9 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
     dnas = new_dnas
     
     #Extract history information
-    history_features = [] 
+    histories = [] 
     for dna in dnas:
-        history_features.append(dna._history_feature)
+        histories.append(dna._history)
     
     construct = copy.deepcopy(dnas[0])
     positions_list = [construct._positions] 
@@ -1848,8 +1833,8 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
         construct.record.id        = construct.project
         dna_elements               = "[" + ", ".join(["QUEEN.dna_dict['{}']".format(dna._product_id) for dna in dnas]) + "]"
         building_history           = "QUEEN.dna_dict['{}'] = joindna(*{}, topology='{}'{}{}{}{}{}{}{}{})".format(construct._product_id, dna_elements, topology, fcompatibility, fhomology_length, fautoflip, additional_info, fproject, fproduct, process_name, process_description)
-        history_feature            = _combine_history(construct, history_features)         
-        construct._history_feature = history_feature 
+        combined_history   = _combine_history(construct, histories)         
+        construct._history = combined_history
         process_id, original_ids   = make_processid(construct, building_history, process_id, original_ids)
         addhistory(construct, [building_history, "topology: {}".format(topology), ",".join([process_id] + original_ids)], _sourcefile) 
         construct._check_uniqueness()
@@ -1927,7 +1912,7 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
     process_name        = pn if process_name is None else process_name
     process_description = pd if process_description is None else process_description
 
-    if dna.topology == "circular":
+    if dna.topology == "circular" and (left != "" or right != ""):
         raise ValueError("End sequence structures cannot be modified. The topology of the given QUEEN_object is circular.") 
     else:
         pass
@@ -2263,7 +2248,7 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                     new_dna._dnafeatures += _slide(tmp_right.dnafeatures, len(left_end.seq.split("/")[0]) + len(dna.seq))
                 else:
                     new_dna._dnafeatures += _slide(tmp_right.dnafeatures, len(left_end.split("/")[0]) + len(dna.seq))
-        new_dna._history_feature = dna._history_feature         
+        new_dna._history = dna._history          
         #Recover fragmented features if complete sequence is in the construct.
         new_features = [] 
         remove_features = [] 
@@ -2431,7 +2416,7 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
     
     if quinable == True:
         args = [] 
-        history_features = [new_dna._history_feature] 
+        histories = [new_dna._history] 
         args.append("'{}'".format(new_dna._unique_id))
         args.append("'{}'".format(dna._unique_id)) 
         ends = [] 
@@ -2455,7 +2440,7 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                         args.append("QUEEN.queried_features_dict['{}'][{}].seq[{}:{}:{}]".format(qkey, qindex, sl_start, sl_stop, sl_step))
                 else:
                     args.append("QUEEN.queried_features_dict['{}'][{}].seq".format(qkey, qindex))
-                history_features.append(left_origin.parent.subject._history_feature) 
+                histories.append(left_origin.parent.subject._history) 
 
             elif left_origin.parental_class == "QUEEN": 
                 parental_id = left_origin.parental_id
@@ -2485,7 +2470,7 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                         args.append("{}[{}:{}:{}]".format(seqname, sl_start, sl_stop, sl_step))
                 else:
                     args.append("{}".format(seqname))
-                history_features.append(left_origin.parent._history_feature) 
+                histories.append(left_origin.parent._history) 
             
             elif left_origin.parental_class == "Cutsite":
                 if left_origin.parent.name not in cs.defaultkeys:
@@ -2518,7 +2503,7 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                         args.append("QUEEN.queried_features_dict['{}'][{}].seq[{}:{}:{}]".format(qkey, qindex, sl_start, sl_stop, sl_step))
                 else:
                     args.append("QUEEN.queried_features_dict['{}'][{}].seq".format(qkey, qindex))
-                history_features.append(right_origin.parent.subject._history_feature) 
+                histories.append(right_origin.parent.subject._history) 
 
             elif right_origin.parental_class == "QUEEN": 
                 parental_id = right_origin.parental_id
@@ -2549,7 +2534,7 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                         args.append("{}[{}:{}:{}]".format(seqname, sl_start, sl_stop, sl_step))
                 else:
                     args.append("{}".format(seqname))
-                history_features.append(right_origin.parent._history_feature) 
+                histories.append(right_origin.parent._history) 
             
             elif right_origin.parental_class == "Cutsite":
                 if right_origin.parent.name not in cs.defaultkeys:
@@ -2572,8 +2557,8 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
 
         new_dna._product_id = new_dna._unique_id if product is None else product 
         building_history    = "QUEEN.dna_dict['{}'] = modifyends(QUEEN.dna_dict['{}'], left={}, right={}{}{}{}{}{}{})".format(new_dna._product_id, dna._product_id, args[2], args[3], fsupfeature, additional_info, project, fproduct, process_name, process_description)  
-        history_feature     = _combine_history(new_dna, history_features) 
-        new_dna._history_feature = history_feature
+        combined_history = _combine_history(new_dna, histories) 
+        new_dna._history = combined_history
         process_id, original_ids = make_processid(new_dna, building_history, process_id, original_ids)
         addhistory(new_dna, [building_history, "left: {}; right: {}; leftobj: {}; rightobj: {}".format(*ends, args[2], args[3]), ",".join([process_id] + original_ids)], _sourcefile) 
         new_dna._check_uniqueness()
@@ -2694,7 +2679,7 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
     comp = dna.__class__(seq=seq, topology = dna.topology, quinable=0) 
     feats.sort(key=lambda x:int(x.location.parts[0].start)) 
     comp._dnafeatures = feats
-    comp._history_feature = dna._history_feature
+    comp._history = dna._history 
     comp._supfeatureids()
     comp.record.features = comp.dnafeatures
     comp._right_end, comp._left_end = dna._left_end.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1], dna._right_end.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
@@ -2942,7 +2927,7 @@ def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=N
             ValueError("When edit the sequence, the sequence strand to be edit should be '-1' or '+1.'")
     
     if _mode == "edit":
-        segment._history_feature = dna._history_feature
+        segment._history = dna._history 
         if start == 0 and end == len(dna.seq):
             new_dna = segment
         elif start == 0:
@@ -2963,7 +2948,7 @@ def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=N
         else:
             new_dna._unique_id = project
        
-    history_features = [new_dna._history_feature] 
+    histories = [new_dna._history] 
     if type(source_sequence) == new_dna.seq.__class__:
         if source_sequence.parental_class == "DNAFeature":
             qkey = source_sequence.qkey
@@ -2987,7 +2972,7 @@ def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=N
             
             else:
                 fsource = "QUEEN.queried_features_dict['{}'][{}].seq".format(qkey, qindex)
-            history_features.append(source_sequence.parent.subject._history_feature) 
+            histories.append(source_sequence.parent.subject._history) 
 
         elif source_sequence.parental_class == "QUEEN": 
             parental_id = source_sequence.parental_id
@@ -3017,7 +3002,7 @@ def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=N
                     fsource = "{}[{}:{}:{}]".format(seqname, sl_start, sl_stop, sl_step)
             else:
                 fsource = "{}".format(seqname)
-            history_features.append(source_sequence.parent._history_feature) 
+            histories.append(source_sequence.parent._history) 
         
         elif source_sequence.parental_class == "Cutsite":
             if source_sequence.parent.name not in cs.defaultkeys:
@@ -3041,9 +3026,9 @@ def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=N
             building_history     = "QUEEN.dna_dict['{}'] = editsequence(QUEEN.dna_dict['{}'], source_sequence={}, destination_sequence={}, strand={}{}{}{}{}{})".format(new_dna._product_id, original_id, fsource, destination_sequence, strand, additional_info, project, fproduct, process_name, process_description)
         else:  
             building_history     = "QUEEN.dna_dict['{}'] = editsequence(QUEEN.dna_dict['{}'], source_sequence={}, destination_sequence={}, start={}, end={}, strand={}{}{}{}{}{})".format(new_dna._product_id, original_id, fsource, destination_sequence, start, end, strand, additional_info, project, fproduct, process_name, process_description)
-        if len(history_features) > 1:
-            history_feature = _combine_history(new_dna, history_features) 
-            new_dna._history_feature = history_feature
+        if len(histories) > 1:
+            combined_history = _combine_history(new_dna, histories) 
+            new_dna._history = combined_history
         process_id, original_ids = make_processid(new_dna, building_history, process_id, original_ids)
         addhistory(new_dna, [building_history, "source: {}; destination: {}; start: {}; end: {}; strand: {}".format(source_sequence, destination_sequence, start, end, strand), ",".join([process_id] + original_ids)], _sourcefile)  
         new_dna._check_uniqueness()
@@ -3540,7 +3525,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
         
         if type(query) == dna.seq.__class__:
             if query.parental_class == "DNAFeature":
-                history_features = [dna._history_feature] 
+                histories = [dna._history] 
                 qkey = left_origin.qkey
                 for qindex, qfeat in enumerate(dna.__class__.queried_features_dict[qkey]):
                     if qfeat._second_id == query.parental_id:
@@ -3559,10 +3544,10 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
                         fquery = "QUEEN.queried_features_dict['{}'][{}].seq[{}:{}:{}]".format(qkey, qindex, sl_start, sl_stop, sl_step)
                 else:
                     fquery = "QUEEN.queried_features_dict['{}'][{}].seq".format(qkey, qindex)
-                history_features.append(query.parent.subject._history_feature) 
+                histories.append(query.parent.subject._history) 
             
             elif query.parental_class == "QUEEN": 
-                history_features = [dna._history_feature] 
+                histories = [dna._history] 
                 parental_id = query.parental_id 
                 if query.name != None: 
                     if "printsequence" in query.name:
@@ -3588,7 +3573,7 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
                         fquery = "{}[{}:{}:{}]".format(seqname, sl_start, sl_stop, sl_step)
                 else:
                     fquery = "{}".format(seqname)
-                history_features.append(query.parent._history_feature) 
+                histories.append(query.parent._history) 
             
             elif query.parental_class == "Cutsite":
                 if query.parent.name not in cs.defaultkeys:

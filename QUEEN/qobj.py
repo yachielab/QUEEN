@@ -17,28 +17,30 @@ from qint import Qint
 from qseq import Qseq
 
 def _convert_kwargs(arguments):
-    out = [] 
+    out = []
     defaults = ["_sourcefile", "process_id", "original_ids"] 
     for key in arguments:
         if key in defaults:
             pass 
         else:
-            arguments[key] = arguments[key].replace("'", "\'") 
-            out.append("{}='{}'".format(key, arguments[key]))
+            if type(arguments[key]) in (int, bool, float): 
+                out.append("{}={}".format(key, arguments[key]))
+            else:
+                arguments[key] = str(arguments[key]).replace("'", "\'")    
+                out.append("{}='{}'".format(key, arguments[key]))
     if len(out) == 0:
         out = ""
     else:
         out = ", " + ", ".join(out) 
     return out
 
-def _combine_history(dna, history_features):
-    history_feature = SeqFeature(FeatureLocation(0, len(dna.seq), strand=0), type="source")
-    history_feature = history_features[0].__class__(history_feature, subject=dna.seq)
-    for feat in history_features:
-        for key in feat.qualifiers:
-            if "building_history" in key and feat.qualifiers[key] not in history_feature.qualifiers.values():
-                history_feature.qualifiers[key] = feat.qualifiers[key]  
-    return history_feature
+def _combine_history(dna, histories):
+    combined_history = collections.defaultdict(dict) 
+    combined_history["building_history"] = {} 
+    for history in histories:
+        for key in history["building_history"]: 
+            combined_history["building_history"][key] = history["building_history"][key] 
+    return combined_history 
 
 @total_ordering
 class DNAfeature(SeqFeature):
@@ -326,11 +328,13 @@ class QUEEN():
         for key in self.__dict__:
             if key == "seq":
                 pass 
-            elif key == "_history_feature":
-                if self._history_feature is None:
-                    obj._history_feature = None
-                else:
-                    obj._history_feature = DNAfeature(self._history_feature, subject=obj)      
+            elif key == "_history":
+                obj._history = copy.deepcopy(self._history) 
+            #elif key == "_history_feature":
+            #    if self._history_feature is None:
+            #        obj._history_feature = None
+            #    else:
+            #        obj._history_feature = DNAfeature(self._history_feature, subject=obj)      
             elif key == "_dnafeatures": 
                 feats = [] 
                 for feat in self.dnafeatures:
@@ -454,13 +458,7 @@ class QUEEN():
     
     def __getattr__(self, name): 
         if name == "history":
-            histories = [] 
-            for key in self._history_feature.qualifiers:
-                if "building_history" in key[0:18]:
-                    history = self._history_feature.qualifiers[key]
-                    histories.append((int(key.split("_")[-1]), history[0], history[1], history[2])) 
-            histories.sort()
-            return histories
+            return self._history["building_history"] 
         
         elif name == "seq":
             return self._seq
@@ -620,6 +618,8 @@ class QUEEN():
         self._dnafeatures       = None
         self._right_end         = None 
         self._left_end          = None
+        self._history           = collections.defaultdict(dict)
+        self._history["building_history"] = {} 
         self._history_feature   = None
         self._ssdna             = ssdna
         self._productids        = []
@@ -746,7 +746,7 @@ class QUEEN():
             if len(record.features) > 0:
                 for feat in record.features:
                     self._dnafeatures.append(DNAfeature(feature=feat, subject=self))
-               
+                
                 pairs = [] 
                 history_feature = None
                 history_nums = [QUEEN._num_history] 
@@ -772,26 +772,40 @@ class QUEEN():
                                 note = feat.qualifiers["broken_feature"][0]
                                 original = note.split(":")[-3]
                                 feat._original = original
-               
-                if len(pairs) == 0:
+                
+                if len(pairs) == 0 and ("structured_comment" not in record.annotations or "building_history" not in record.annotations['structured_comment']):
                     import_history = False
-
+                
                 if import_history == True:
+                    if "structured_comment" in record.annotations and "building_history" in record.annotations['structured_comment']:
+                        self._history["building_history"] = record.annotations['structured_comment']["building_history"] 
+                        for key in self._history["building_history"]:
+                            new_history_num = int(key.split("_")[0]) + QUEEN._num_history  
+                            history_nums.append(new_history_num)
+                        
+                        for key in list(self._history["building_history"].keys()):
+                            if key.replace("script","args") not in self._history["building_history"]:
+                                self._history["building_history"][key.replace("script","args")] = ""
+                            else:
+                                pass
+
+                    #For barckword compatibility
                     for pair in pairs:
                         del history_feature.qualifiers["building_history_{}".format(pair[1])]
+                    
                     for pair in pairs:
-                        feat = pair[0]
                         new_history_num = pair[1] + QUEEN._num_history
-                        history_feature.qualifiers["building_history_{}".format(new_history_num)] = pair[2]
+                        self._history["building_history"]["{}_script".format(new_history_num)] = pair[2][0]
+                        self._history["building_history"]["{}_args".format(new_history_num)]   = pair[2][1]
+                        self._history["building_history"]["{}_id".format(new_history_num)]     = pair[2][2]
                         history_nums.append(new_history_num) 
-                     
+                        
                 else:
-                    #QUEEN.process_description = process_description
+                    #For barckword compatibility
                     deletehistory(self)    
                 
                 QUEEN._num_history = max(history_nums)   
                 if history_feature is not None:
-                    self._history_feature = history_feature
                     self._dnafeatures.remove(pairs[0][0]) 
             
             if len(self.dnafeatures) == 0:
@@ -936,7 +950,7 @@ class QUEEN():
                     frecord  = "record=SeqRecord" if fseq == "" else ", record=SeqRecord"
                 fdbtype      = "" if fdbtype == "local" else ", dbtype='{}'".format(fdbtype)
                 fproject     = "" if fproject is None else ", project='{}'".format(fproject)
-                fssdna       = "" if ssdna == False else ", ssdna='{}'".format(ssdna)
+                fssdna       = "" if ssdna == False else ", ssdna={}".format(ssdna)
                 ftopology    = "" if topology == "linear" else ", topology='{}'".format(topology)
                 fproduct     = "" if fproduct is None else ", product='{}'".format(fproduct)
                 fileformat   = "" if fileformat is None else ", fileformat='{}'".format(fileformat) 
@@ -949,33 +963,46 @@ class QUEEN():
                 process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
                 QUEEN._num_history += 1 
                 
-                feat = SeqFeature(FeatureLocation(0, len(self.seq), strand=1), type="source") 
-                feat._id = "0"
-                feat.qualifiers["label"]       = [self.project] 
-                feat.qualifiers["description"] = ["Record of building history"]
-                feat.qualifiers["building_history_{}".format(QUEEN._num_history)] = [building_history.replace(" ","–"), "", ",".join([process_id] + original_ids)] 
-                feat = DNAfeature(feature=feat, subject=self)         
-                self._history_feature = feat
+                self._history["building_history"][str(QUEEN._num_history) + "_script"] = building_history 
+                self._history["building_history"][str(QUEEN._num_history) + "_args"] = "" 
+                self._history["building_history"][str(QUEEN._num_history) + "_id"] = ",".join([process_id] + original_ids)
+            
             else:
-                nums = []
-                for key in self._history_feature.qualifiers: 
-                    if "building_history" in key[0:18]:
-                        nums.append(int(key.split("_")[-1])) 
-                nums.sort() 
-                for key in self._history_feature.qualifiers:
-                    if "building_history" in key[0:18]:
-                        num = int(key.split("_")[-1]) 
-                        if num != nums[-1]:
-                            if self._history_feature.qualifiers[key][1] == "":
-                                self._history_feature.qualifiers[key][1] = "_source: " + self.project + " construction"
+                if len(self._history["building_history"]) > 0:
+                    keys = [key for key in self._history["building_history"] if "_args" in key] 
+                    keys.sort(key=lambda x: int(x.split("_")[0])) 
+                    for k, key in enumerate(keys):
+                        if k < len(keys) - 1:
+                            if self._history["building_history"][key] == "":
+                                self._history["building_history"][key] = "_source: " + self.project + " construction"
                             else:
-                                self._history_feature.qualifiers[key][1] += "; _source: " + self.project + " construction"
+                                self._history["building_history"][key] += "; _source: " + self.project + " construction"
                         else:
-                            if self._history_feature.qualifiers[key][1] == "":
-                                self._history_feature.qualifiers[key][1] = "_source: " + self.project + " construction" + "; _load: " + self.project
+                            if self._history["building_history"][key] == "":
+                                self._history["building_history"][key] = "_source: " + self.project + " construction" + "; _load: " + self.project
                             else:
-                                self._history_feature.qualifiers[key][1] += "; _source: " + self.project + " construction" + "; _load: " + self.project
-        
+                                self._history["building_history"][key] += "; _source: " + self.project + " construction" + "; _load: " + self.project
+                
+                else: #For backward compatibility
+                    nums = [] 
+                    for key in self._history_feature.qualifiers: 
+                        if "building_history" in key[0:18]:
+                            nums.append(int(key.split("_")[-1])) 
+                    nums.sort() 
+                    for key in self._history_feature.qualifiers:
+                        if "building_history" in key[0:18]:
+                            num = int(key.split("_")[-1]) 
+                            if num != nums[-1]:
+                                if self._history_feature.qualifiers[key][1] == "":
+                                    self._history["building_history"][str(num) + "_args"] = "_source: " + self.project + " construction"
+                                else:
+                                    self._history["building_history"][str(num) + "_args"] += "; _source: " + self.project + " construction"
+                            else:
+                                if self._history_feature.qualifiers[key][1] == "":
+                                    self._history["building_history"][str(num) + "_args"] = "_source: " + self.project + " construction" + "; _load: " + self.project
+                                else:
+                                    self._history["building_history"][str(num) + "_args"] += "; _source: " + self.project + " construction" + "; _load: " + self.project
+           
         if QUEEN._keep == 1 and quinable == True: 
             QUEEN._products[self._product_id] = self
         
@@ -1050,7 +1077,7 @@ class QUEEN():
         process_name        = pn if process_name is None else process_name
         process_description = pd if process_description is None else process_description
         
-        history_features = [self._history_feature] 
+        histories = [self._history] 
         if "__dict__" in dir(query) and "cutsite" in query.__dict__:
             query = query.cutsite
         qorigin = query
@@ -1165,7 +1192,7 @@ class QUEEN():
         if quinable == True:
             if type(qorigin) == Qseq:
                 if qorigin.parental_class == "DNAfeature":
-                    history_features.append(qorigin.parent.subject._history_feature)
+                    histories.append(qorigin.parent.subject._history)
                     qkey = qorigin.qkey
                     for qindex, qfeat in enumerate(QUEEN.queried_features_dict[qkey]):
                         if qfeat._second_id == qorigin.parental_id:
@@ -1186,7 +1213,7 @@ class QUEEN():
                         qorigin = "QUEEN.queried_features_dict['{}'][{}].seq".format(qkey, qindex)
                 
                 elif qorigin.parental_class == "QUEEN": 
-                    history_features.append(qorigin.parent._history_feature)
+                    histories.append(qorigin.parent._history)
                     parental_id = qorigin.parental_id 
                     if qorigin.name != None: 
                         if "printsequence" in qorigin.name:
@@ -1225,9 +1252,9 @@ class QUEEN():
             else:
                 qorigin = "{}".format(repr(qorigin)) 
             
-            if len(history_features) > 1:
-                history_feature = _combine_history(self, history_features) 
-                self._history_feature = history_feature
+            if len(histories) > 1:
+                combined_history = _combine_history(self, histories) 
+                self._history_feature = combined_history
             
             funique  = "" if unique == False else ", unique=True"
             fproduct = "" if product is None else ", product='{}'".format(product)
@@ -1312,7 +1339,7 @@ class QUEEN():
         process_name        = pn if process_name is None else process_name
         process_description = pd if process_description is None else process_description
         
-        history_features = [self._history_feature] 
+        histories = [self._history] 
         start   = 0 if start == len(self.seq) else start
         end     = len(self.seq) if end is None else end
         qkey = self._unique_id + "_f" + str(QUEEN._qnum)
@@ -1343,7 +1370,7 @@ class QUEEN():
         if quinable == 1:
             if type(query) == Qseq:
                 if query.parental_class == "DNAfeature":
-                    history_features.append(query.parent.subject._history_feature)
+                    histories.append(query.parent.subject._history)
                     qkey = left_origin.qkey
                     for qindex, qfeat in enumerate(QUEEN.queried_features_dict[qkey]):
                         if qfeat._second_id == query.parental_id:
@@ -1364,7 +1391,7 @@ class QUEEN():
                         query = "QUEEN.queried_features_dict['{}'][{}].seq".format(qkey, qindex)
                 
                 elif query.parental_class == "QUEEN": 
-                    history_features.append(query.parent._history_feature)
+                    histories.append(query.parent._history)
                     parental_id = query.parental_id 
                     if query.name != None:
                         if "printsequence" in query.name:
@@ -1416,9 +1443,9 @@ class QUEEN():
             process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
             additional_info = _convert_kwargs(kwargs) 
 
-            if len(history_features) > 1:
-                history_feature = _combine_history(self, history_features) 
-                self._history_feature = history_feature
+            if len(histories) > 1:
+                combined_history = _combine_history(self, histories) 
+                self._history_feature = combined_history
 
             if start == 0 and end == len(self.seq):
                 if strand == 2 and source is None:
@@ -2102,7 +2129,7 @@ class QUEEN():
             df = pd.DataFrame(values, index=index, columns=columns) 
             return df.transpose() 
 
-    def outputgbk(self, output=None, format="genbank", record_id=None, annotation=None, export_history=1, describe_brokenfeature=True, _return=False):
+    def outputgbk(self, output=None, format="genbank", record_id=None, annotation=None, export_history=1, describe_brokenfeature=True, qexperiment_only=True, _return=False):
         """Output `QUEEN_object` to a GenBank file. 
 
         In addition to all of the `DNAfeature_objects` in the input `QUEEN_object`, 
@@ -2123,6 +2150,8 @@ class QUEEN():
             For details, please see https://biopython.org/docs/latest/api/Bio.SeqRecord.html.
         describe_brokenfeature : bool, default: True
             If False, alll "brokenfeature" qualifiers in the features will be removed from the GenBank output.
+        qexperiment_only: bool, default: True
+            If True, this will output only the qexperiment commands and not output the internal quine commmands used in the qexperiment commands. 
         export_history : bool, default: True
             If False, A construnction history of the `QUEEN_object` will not be output.  
             Otherwise, All construction histoires of the present `QUEEN_object` and the input QUEEN objects will be output.
@@ -2134,9 +2163,47 @@ class QUEEN():
         None
         
         """
+
+        def extract_qexd(history): 
+            new_history = copy.deepcopy(history)
+            for key in history: 
+                if "_script" in key: 
+                    if "qexd =" not in history[key] and "qexd=" not in history[key]:
+                        pass 
+                    else:
+                        if "qexd = True" in history[key] or "qexd=True" in history[key]:
+                            del new_history[key]
+                            del new_history[key.replace("script","args")]
+                            del new_history[key.replace("script","id")]
+                        else:
+                            pattern1 = r"qexd='(.*?)'"
+                            pattern2 = r"qexd = '(.*?)'"
+                            match1 = re.search(pattern1, history[key]) 
+                            match2 = re.search(pattern2, history[key])
+                            if match1 is not None:
+                                txt = match1.group(1)
+                            elif match2 is not None:
+                                txt = match2.group(1)
+                            else:
+                                txt = None
+                            if txt is None:
+                                pass 
+                            else:
+                                outdna = history[key].split("=")[0] 
+                                if "product=" in history[key]:
+                                    index_start = history[key].find("product=") 
+                                elif "process_name=" in history[key]:
+                                    index_start = history[key].find("process_name=") 
+                                elif "process_description" in history[key]:
+                                    index_start = history[key].find("process_description=") 
+                                new_history[key] = outdna.rstrip() + " = " + txt[:-1].replace('"',"'") + "," + history[key][index_start:]
+
+                                new_history[key.replace("script","args")] = ""
+            return new_history
+
         if export_history not in (0, 1, 2):
             raise ValueError("Invalid value provided. Expected value of `export_history` must be one of the following: 0, 1, or 2.")
-        
+
         handle = output
         separate_history = False
         stdIOflag = 0 
@@ -2144,31 +2211,7 @@ class QUEEN():
             stdIOflag = 1
             handle    = io.StringIO()
        
-        histories       = quine(self, _return=True) 
-        history_nums    = [history[0] for history in histories]
-        history_feature = copy.deepcopy(self._history_feature)
-        
-        remove_keys = [] 
-        for key in history_feature.qualifiers:
-            if "building_history" in key[0:18]:
-                num = int(key.split("_")[-1]) 
-                if num in history_nums:
-                    process_id = history_feature.qualifiers[key][2].split(",")[0].replace(" ", "")
-                    if "-" in process_id:
-                        if 0:
-                            remove_keys.append(key)
-                    else:
-                        history_feature.qualifiers[key][2] = self.project + "-" + self._history_feature.qualifiers[key][2]
-                else:
-                    remove_keys.append(key) 
-        
-        for key in remove_keys:
-            del history_feature.qualifiers[key] 
-
         features = copy.deepcopy(self.dnafeatures)
-        if export_history > 0:
-            features.append(history_feature) 
-        
         for feat in features:
             if "broken_feature" in feat.qualifiers:
                 note   = feat.qualifiers["broken_feature"][0]
@@ -2200,22 +2243,6 @@ class QUEEN():
                         print(pair[1], pair[2], sep=",", file=o)
                 self.record.annotations["source"] = os.getcwd() + "/" + separate_history
             
-            #if export_history == 2:
-            #    product_dict = {} 
-            #    for hisoty in histories:
-            #        if "QUEEN(record=" in history[1] and ("dbtype='local'" in history or "dbtype" not in history[1]):
-            #            match = re.search("QUEEN.dna_dict\['([^\[\]]+)'\]", history[1])
-            #            if match is not None:
-            #                key = match.group(1)
-            #                if dans[0].productdict[key] is not None:
-            #                    product_dict[key] = dnas[0].prodcutdict[key]
-            #                    product_dict[key].record.annotations["keyword"]    = "QUEEN input"
-            #                    product_dict[key].record.annotations["accession"] = re.search("record='([^=]+)'[,\)]", history[1]).group(1) 
-            #            else:
-            #                pass 
-            #        else:
-            #            pass 
-
         if type(handle) is str:
             handle = open(handle, "w") 
         
@@ -2246,6 +2273,38 @@ class QUEEN():
         import datetime
         dt = datetime.datetime.now() 
         self.record.annotations["date"] = dt
+        
+        #Add history info
+        if export_history != 0:
+            if "structured_comment" not in self.record.annotations:
+                 self.record.annotations["structured_comment"] = collections.defaultdict(dict) 
+            
+            ordered_dict = {} 
+            history = self._history["building_history"] 
+            if qexperiment_only == True:
+                new_history = extract_qexd(history)
+                self._history["building_history"] = new_history
+            else:
+                self._history["building_history"] = history
+            keys = self._history["building_history"] 
+            keys_script = [key for key in keys if "_script" in key]
+            keys_args   = [key for key in keys if "_args" in key]
+            keys_id     = [key for key in keys if "_id" in key]
+            keys_script.sort(key=lambda x:int(x.split("_")[0]))
+            keys_args.sort(key=lambda x:int(x.split("_")[0]))
+            keys_id.sort(key=lambda x:int(x.split("_")[0]))
+            for key in keys_id:
+                self._history["building_history"][key] = self.project + "-" + self._history["building_history"][key]
+
+            keys = keys_script + keys_args + keys_id 
+            for key in keys:
+                if self._history["building_history"][key] == "":
+                    pass
+                else:
+                    ordered_dict[key] = self._history["building_history"][key]
+            self.record.annotations["structured_comment"]["building_history"] = ordered_dict
+            self._history["building_history"] = history
+
         SeqIO.write(self.record, handle, format)
         self.record.features = self.dnafeatures
         if stdIOflag == 1:
@@ -2253,16 +2312,6 @@ class QUEEN():
                 return(handle.getvalue()) 
             else:
                 print(handle.getvalue(), end="") 
-
-        #if export_history == 2 and len(product_dict) > 0:
-        #    for key in product_dict:
-        #        value = outputgbk(product_dict[key], export_history=2, _return=True)
-        #        if stdIOflag == 1:
-        #            #print("//") 
-        #            print(value, end="") 
-        #        else:
-        #            #handle.write("//\n") 
-        #            handle.write(value) 
 
         if stdIOflag == 0:
             handle.close() 

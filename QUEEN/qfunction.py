@@ -1214,7 +1214,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
     if product is None:
         pass 
     else:
-        product = product.replace(" ","") 
+        #product = product.replace(" ","_") 
         if "," in product:
             for name, subdna in zip(product.split(","), dnas):
                 dnas[0].__class__._namespace[name] = subdna
@@ -1356,7 +1356,7 @@ def cropdna(dna, start=0, end=None, supfeature=False, product=None, process_desc
     if product is None:
         pass 
     else:
-        product = product.replace(" ","") 
+        #product = product.replace(" ","") 
         match = re.fullmatch(r"(.+)\[(.+)\]", product)
         if match:
             if match.group(2).isdecimal() == True:
@@ -1844,7 +1844,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
     if product is None:
         pass 
     else:
-        product = product.replace(" ","") 
+        #product = product.replace(" ","") 
         match   = re.fullmatch(r"(.+)\[(.+)\]", product) 
         if match:
             if match.group(2).isdecimal() == True:
@@ -2571,7 +2571,7 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
     if product is None:
         pass 
     else:
-        product = product.replace(" ","")
+        #product = product.replace(" ","")
         match   = re.fullmatch(r"(.+)\[(.+)\]", product)
         if match:
             if match.group(2).isdecimal() == True:
@@ -2720,7 +2720,7 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
     if product is None:
         pass 
     else:
-        product = product.replace(" ","")
+        #product = product.replace(" ","")
         match   = re.fullmatch(r"(.+)\[(.+)\]", product)
         if match:
             if match.group(2).isdecimal() == True:
@@ -3036,7 +3036,7 @@ def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=N
         pass  
     else:
         if _mode == "edit":
-            product = product.replace(" ","")
+            #product = product.replace(" ","")
             match   = re.fullmatch(r"(.+)\[(.+)\]", product) 
             if match:
                 if match.group(2).isdecimal() == True:

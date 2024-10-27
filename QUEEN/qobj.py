@@ -2141,7 +2141,7 @@ class QUEEN():
         output: str ,default: STDOUT   
             Output file name.    
         """
-        printprotocol(self,execution=False, output=None)
+        printprotocol(self,execution=False, output=output)
 
     def outputgbk(self, output=None, format="genbank", record_id=None, annotation=None, export_history=1, describe_brokenfeature=True, qexperiment_only=True, _return=False):
         """Output `QUEEN_object` to a GenBank file. 

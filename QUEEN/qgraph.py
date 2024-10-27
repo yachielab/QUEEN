@@ -133,7 +133,7 @@ def visualizeflow(*dnas, search_function=None, grouping=True, inherited_process=
     if alias_dict is None:
         alias_dict = {}
 
-    histories     = quine.quine(*dnas, _return=True)
+    histories     = quine.quine(*dnas, _return_histories=True)
     sdgs          = {} 
     sdgs_nodes    = collections.defaultdict(set) 
     clusters      = {} 
@@ -1129,7 +1129,7 @@ def get_depth(adict, target, depth=0):
     return max(depth_list)
 
 def generate_processflow(*dnas):
-    histories = quine.quine(*dnas, _return=True)
+    histories = quine.quine(*dnas, _return_histories=True)
     new_histories, process_notes, name_dict, unique_name_dict, unique_name_name_dict = make_newhistories(histories) 
     
     process_tree = {}

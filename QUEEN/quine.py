@@ -158,7 +158,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             hindex = index
         else:
             pass 
-
+    
     history1 = histories[hindex][1].replace(" ","").replace("–"," ") if ",–" in histories[hindex][1] else histories[hindex][1]
     result   = re.findall(r"QUEEN.dna_dict\['[^\[\]]+'\]", history1.replace(" ","").replace("–"," "))[0] 
     _unique_id = result.split("['")[1][:-2]
@@ -717,7 +717,7 @@ def printprotocol(dna, execution=False, output=None):
                 print("Output:\n{}: {}".format(product, len(qobjects[product].seq)), file=output)  
                 print("", file=output) 
             else:
-                print("Parameters:", file=output) 
+                print("Parameters:", file=output)
                 print("- Sample(s): {}".format(sample), file=output) 
                 print("- Assembly method: {}".format(mode), file=output)
                 for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):

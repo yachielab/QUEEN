@@ -177,7 +177,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     if process_name is None:
         process_name = "PCR"
     
-    product    = product.replace(" ","") if product is not None else None
+    #product = product.replace(" ","") if product is not None else None
     kwargs_str = _convert_kwargs(kwargs)
     
     if bindnum != 15:
@@ -422,7 +422,7 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
     if process_name is None:
         process_name = "Digestion"
    
-    product = product.replace(" ","") if product is not None else None
+    #product = product.replace(" ","") if product is not None else None
     cs_str  = ", ".join(['"{}"'.format(name) for name in cutsite_names])
     kwargs_str = _convert_kwargs(kwargs) 
     
@@ -572,7 +572,7 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
     if process_name is None:
         process_name = "Ligation"  
     
-    product = product.replace(" ","") if product is not None else None
+    #product = product.replace(" ","") if product is not None else None
     kwargs_str = _convert_kwargs(kwargs)
     fragments_str = ", ".join(['QUEEN.dna_dict["{}"]'.format(fragment._product_id) for fragment in fragments])
     
@@ -725,7 +725,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
         else:
             process_name = "Homology based Assembly" 
     
-    product = product.replace(" ","") if product is not None else None
+    #product = product.replace(" ","") if product is not None else None
     kwargs_str = _convert_kwargs(kwargs)
     fragments_str = ", ".join(['QUEEN.dna_dict["{}"]'.format(fragment._product_id) for fragment in fragments])
     
@@ -901,7 +901,7 @@ def annealing(ssdna1, ssdna2, homology_length=4, product=None, pn=None, pd=None,
     if process_name is None:
         process_name = "Annealing" 
     
-    product    = product.replace(" ","") if product is not None else None
+    #product = product.replace(" ","") if product is not None else None
     kwargs_str = _convert_kwargs(kwargs)
     if homology_length == 4:
         hltxt = ""
@@ -976,7 +976,7 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
     if process_name is None:
         process_name = "Gateway Reaction" 
     
-    product    = product.replace(" ","") if product is not None else None
+    #product = product.replace(" ","") if product is not None else None
     kwargs_str = _convert_kwargs(kwargs)
     qexd = 'gateway_reaction(QUEEN.dna_dict["{}"], QUEEN.dna_dict["{}"], mode="{}"{})'.format(destination._product_id, entry._product_id, mode, kwargs_str)
     process_description = pd if process_description is None else process_description
@@ -1087,7 +1087,7 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
     if process_name is None:
         process_name = "Golden Gate Assembly" 
     
-    product = product.replace(" ","") if product is not None else None
+    #product = product.replace(" ","") if product is not None else None
     kwargs_str = _convert_kwargs(kwargs)
     entry_str  = ", ".join(['QUEEN.dna_dict["{}"]'.format(aentry._product_id) for aentry in entry])
     entry_str  = "[{}]".format(entry_str)
@@ -1149,7 +1149,7 @@ def topo_cloning(destination, entry, mode="TA", product=None, process_name=None,
     QUEEN (construct)
     Returns the topo cloning construct.
     """
-    product = product.replace(" ","") if product is not None else None
+    #product = product.replace(" ","") if product is not None else None
     kwargs_str = _convert_kwargs(kwargs)
     qexd = 'topo_cloning(QUEEN.dna_dict["{}"], QUEEN.dna_dict["{}"], mode="{}"{})'.format(destination._product_id, entry._product_id, mode, kwargs_str)
 
@@ -1237,7 +1237,7 @@ def intra_site_specific_recombination(dna, site="loxP", product=None, process_na
     if process_name is None:
         process_name = "Intra site-specific recombination" 
     
-    product = product.replace(" ","") if product is not None else None
+    #product = product.replace(" ","") if product is not None else None
     kwargs_str = _convert_kwargs(kwargs)
     qexd = "intra_site_specific_recombination({}, site={}{})".format(dna.project, site, kwargs_str)
     process_description = pd if process_description is None else process_description
@@ -1325,7 +1325,7 @@ def homologous_recombination(donor, entry, left_homology=None, right_homology=No
     if process_name is None:
         process_name = "Homologous Recombination" 
     
-    product = product.replace(" ","") if product is not None else None
+    #product = product.replace(" ","") if product is not None else None
     kwargs_str = _convert_kwargs(kwargs)
     qexd = 'homologous_recombination(QUEEN.dna_dict["{}"], QUEEN.dna_dict["{}"]{})'.format(destination._product_id, entry._product_id, mode, destination_selection, entry_selection, kwargs_str)
     process_description = pd if process_description is None else process_description

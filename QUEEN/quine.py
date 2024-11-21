@@ -653,7 +653,7 @@ def printprotocol(dna, execution=False, output=None):
                 pass
             if execution  == True:
                 print("Parameters:", file=output) 
-                print("- Sample(s): {}; {}".format(sample, ", ".join([len(qobjects[asample].seq) for asample in sample])), file=output) 
+                print("- Sample(s): {}; {}".format(sample, ", ".join([len(qobjects[asample].seq) for asample in pro_names[1:]])), file=output) 
                 for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
                     if arg.group(1) is not None:
                         key   = arg.group(1)
@@ -703,7 +703,7 @@ def printprotocol(dna, execution=False, output=None):
             
             if execution  == True:
                 print("Parameters:", file=output) 
-                print("- Sample(s): {}; {}".format(sample, ", ".join([str(len(qobjects[asample].seq)) + " bp" for asample in sample])), file=output) 
+                print("- Sample(s): {}; {}".format(sample, ", ".join([str(len(qobjects[asample].seq)) + " bp" for asample in pro_names[1:]])), file=output) 
                 print("- Assembly method: {}".format(mode), file=output)
                 for arg in re.finditer(r", ([^'=]*)='([^']*)'|, ([^'=]*)=(None)", match.group(1)):
                     if arg.group(1) is not None:

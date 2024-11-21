@@ -393,10 +393,10 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.03, enlarge=1.0,
             tflag = 0 
             t_width = (new_pos_list[-1][0] - new_pos_list[0][0]) 
             if t_width < w-1.5*head_length or display_label <= 1:
-                if t_width < w-1.5*head_length:
+                if t_width >= w-1.5*head_length:
                     tflag = 0
                 else:
-                    pass 
+                    tflag = 1
             else:
                 shifted_pos_list = [] 
                 if feat.location.strand == -1:
@@ -440,7 +440,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.03, enlarge=1.0,
             
             gs_origin, ge_origin = int(new_gs_origin), int(new_ge_origin) 
             for char, (theta, height, y, pos, x, btw) in zip(label, new_pos_list):
-                if tflag == 1 or display_label>=1:
+                if tflag == 1 or display_label==2:
                     ax.text(theta, height, char, ha="center", va="center", rotation=rotation(theta), zorder=10, fontsize=fontsize, color=labelcolor)
           
             if width > head_length * 350/(y*lane_h+bottom_h):
@@ -771,7 +771,7 @@ def map_feat(fig, ax, ax2, feats, length, head_length=np.pi * 0.03, enlarge=1.0,
         else:
             space = tick_space
         
-        ax.bar([gs], [8], bottom=ylim-lane_h*0.80-4, width=2*np.pi, align="edge", fc="#606060", ec=edgecolor, lw=0.0, zorder=0)
+        ax.bar([0], [10], bottom=ylim-lane_h*0.80-4, width=2*np.pi, align="edge", fc="#606060", ec=edgecolor, lw=0.0, zorder=0)
         if space > 0:
             for pos in range(0, length, space):
                 ax.plot([2*np.pi*(pos/length), 2*np.pi*(pos/length)], [(ylim-lane_h*0.80-4), (ylim-lane_h*0.80-4)-0.025*(normal_w-lane_h)], color="k", lw=1)

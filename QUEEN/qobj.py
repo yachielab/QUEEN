@@ -778,9 +778,11 @@ class QUEEN():
                 
                 if import_history == True:
                     if "structured_comment" in record.annotations and "building_history" in record.annotations['structured_comment']:
-                        self._history["building_history"] = record.annotations['structured_comment']["building_history"] 
-                        for key in self._history["building_history"]:
+                        #self._history["building_history"] = record.annotations['structured_comment']["building_history"] 
+                        for key in record.annotations['structured_comment']["building_history"]:
                             new_history_num = int(key.split("_")[0]) + QUEEN._num_history  
+                            new_key = str(new_history_num) + "_" + key.split("_")[1]
+                            self._history["building_history"][new_key] = record.annotations['structured_comment']["building_history"][key]
                             history_nums.append(new_history_num)
                         
                         for key in list(self._history["building_history"].keys()):
@@ -807,7 +809,6 @@ class QUEEN():
                 QUEEN._num_history = max(history_nums)   
                 if history_feature is not None:
                     self._dnafeatures.remove(pairs[0][0]) 
-            
             if len(self.dnafeatures) == 0:
                 import_history = False
                 self._dnafeatures = []
@@ -2141,7 +2142,7 @@ class QUEEN():
         output: str ,default: STDOUT   
             Output file name.    
         """
-        printprotocol(self,execution=False, output=output)
+        printprotocol(self,execution=execution, output=output)
 
     def outputgbk(self, output=None, format="genbank", record_id=None, annotation=None, export_history=1, describe_brokenfeature=True, qexperiment_only=True, _return=False):
         """Output `QUEEN_object` to a GenBank file. 

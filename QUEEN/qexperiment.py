@@ -305,7 +305,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     else:
         return amplicon
 
-def _select(fragments, selection=None): 
+def _select(fragments, selection=None, process_name=None, process_description=None): 
     if selection is None:
         return fragments  
     

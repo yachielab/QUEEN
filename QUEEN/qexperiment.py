@@ -36,6 +36,23 @@ def _convert_kwargs(arguments):
         out = ", " + ", ".join(out) 
     return out
 
+def sanger(template, primer, length=1000):
+    """
+    Return the template for sanger sequencing. Default length is 1000.
+    This is not a quinable function.
+    """
+    if type(fw) == Qseq or type(fw) == str:
+        fw    = QUEEN(seq=fw, ssdna=True) 
+        fwstr = fw.seq
+    elif type(fw) == QUEEN:
+        fwstr = 'QUEEN.dna_dict["{}"]'.format(fw._product_id)
+    site = template.searchsequence(query=primer.seq, quinable=False)
+    
+    if len(site) > 1:
+        raise ValueError("Multiple primer binding sites were detected. You should re-design the primer sequneces.") 
+    return template[site[0].start:site[0].start + length]
+
+
 def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=False, tm_func=None, return_tm=False, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
     """
     Simulates a PCR (Polymerase Chain Reaction) process on a given DNA template using forward and reverse primers. This function does not provide the function to check cross dimer and homo dimer in primer design as default. If you wanna add such function, set the original `requirement` equiation. 
@@ -104,7 +121,6 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     QUEEN, cropdna, modifyends
 
     """
-
     def search_binding_site(template, primer, strand=1, bindnum=15, endlength=3, mismatch=1, flag=1, pn=None, pd=None, **kwargs): 
         site = [] 
         primer_end = primer.seq[-1*endlength:]
@@ -233,7 +249,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     
     if site2 is None:
         raise ValueError("No reverse primer binding sites were found. You should re-confirm the template-primer pair.")
-
+    
     if site1.strand == 1 and site2.strand == -1:
         fw_site = site1  
         rv_site = site2
@@ -249,11 +265,13 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     
     fw_feats = [feat for feat in fw.searchfeature(key_attribute="feature_type", query="primer_bind", qexd=True, pn=process_name, pd=process_description) if feat.end == len(fw.seq) and feat.start == 0] 
     rv_feats = [feat for feat in rv.searchfeature(key_attribute="feature_type", query="primer_bind", qexd=True, pn=process_name, pd=process_description) if feat.end == len(rv.seq) and feat.end == 0]
+    
     if fw_site.end >= rv_site.start and fw_site.start < rv_site.start:
         if len(fw_feats) == 0:
             fw.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
         if len(rv_feats) == 0:
             rv.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})
+        
         start = rv_site.start if rv_site.start < len(template.seq) else rv_site.start - len(template.seq)
         end   = fw_site.end if fw_site.end < len(template.seq) else fw_site.end - len(template.seq)
         extract  = cropdna(template, start, end, qexd=True, pn=process_name, pd=process_description)
@@ -261,7 +279,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
         rv_index = fw_site.end - rv_site.start 
         amplicon = modifyends(extract, fw.seq[:fw_index], rv.rcseq[rv_index:], qexd=qexd, product=product, pn=process_name, pd=process_description)
     else:
-        if mismatch == 0:
+        if mismatch == 0 and ((fw_site.start <= rv_site.end and fw_site.start >= rv_site.start) == False):
             fw_bind  = template.seq[fw_site.start:fw_site.end]
             rv_bind  = template.seq[rv_site.start:rv_site.end]
             start    = fw_site.start if fw_site.start < len(template.seq) else fw_site.start - len(template.seq)
@@ -281,6 +299,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
             end   = rv_site.start if rv_site.start < len(template.seq) else rv_site.start - len(template.seq)
             extract  = cropdna(template, start, end, qexd=True, pn=process_name, pd=process_description)
             amplicon = modifyends(extract, fw.seq, rv.rcseq, qexd=qexd, product=product, pn=process_name, pd=process_description)
+    
     histories = [amplicon._history, fw._history, rv._history]
     combined_history  = _combine_history(amplicon, histories)
     amplicon._history = combined_history

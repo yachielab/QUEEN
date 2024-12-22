@@ -1,0 +1,933 @@
+LOCUS       construct               6980 bp    DNA     circular UNK 10-AUG-2024
+DEFINITION  .
+ACCESSION   construct
+VERSION     construct
+KEYWORDS    .
+SOURCE      .
+  ORGANISM  .
+            .
+FEATURES             Location/Qualifiers
+     source          1..6980
+                     /building_history_17="QUEEN.dna_dict['195729']–=–QUEEN(reco
+                     rd='195729',–dbtype='addgene',–project='195729')"
+                     /building_history_17="_source: 195729 construction; _load:
+                     195729"
+                     /building_history_17="195729-2FTGUCNL4QQ27L0V33HUVBZL"
+                     /building_history_362="QUEEN.queried_features_dict['195729_
+                     f0']–=–QUEEN.dna_dict['195729'].searchsequence(query=cs.lib
+                     ['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_362="query: cs.lib['BsaI'].cutsite"
+                     /building_history_362="construct-34DROF1KOZZ14ZL6PUQ9JBJG"
+                     /building_history_363="QUEEN.dna_dict['195729_0'],–QUEEN.dn
+                     a_dict['195729_1']–=–cutdna(QUEEN.dna_dict['195729'],–QUEEN
+                     .queried_features_dict['195729_f0'][0],–QUEEN.queried_featu
+                     res_dict['195729_f0'][1],qexparam="""",–product='195729',–p
+                     rocess_name='Golden–Gate–Assembly')"
+                     /building_history_363="positions: 15/19,306/310;
+                     num_products: 2"
+                     /building_history_363="construct-SKXV05DIULI3CZ0GHG7LJFWL"
+                     /building_history_267="QUEEN.dna_dict['195730']–=–QUEEN(rec
+                     ord='195730',–dbtype='addgene',–project='195730')"
+                     /building_history_267="_source: 195730 construction; _load:
+                     195730"
+                     /building_history_267="195730-5647R2HTTZN31N0FL6NZ1OPB"
+                     /building_history_416="QUEEN.queried_features_dict['195730_
+                     f18']–=–QUEEN.dna_dict['195730'].searchsequence(query=cs.li
+                     b['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_416="query: cs.lib['BsaI'].cutsite"
+                     /building_history_416="construct-EVOVRPT5G7F24ZL6PUQ9JBJG"
+                     /building_history_417="QUEEN.dna_dict['195730_0'],–QUEEN.dn
+                     a_dict['195730_1']–=–cutdna(QUEEN.dna_dict['195730'],–QUEEN
+                     .queried_features_dict['195730_f18'][0],–QUEEN.queried_feat
+                     ures_dict['195730_f18'][1],qexparam="""",–product='195730',
+                     –process_name='Golden–Gate–Assembly')"
+                     /building_history_417="positions: 15/19,274/278;
+                     num_products: 2"
+                     /building_history_417="construct-ANH33LE9735J79C7LSUZE5QN"
+                     /building_history_287="QUEEN.dna_dict['195731']–=–QUEEN(rec
+                     ord='195731',–dbtype='addgene',–project='195731')"
+                     /building_history_287="_source: 195731 construction; _load:
+                     195731"
+                     /building_history_287="195731-CQNJ9ME4QESG1H07VS831TS6"
+                     /building_history_288="QUEEN.dna_dict['dna_6']–=–flipdna(QU
+                     EEN.dna_dict['195731'],quinalbe=""False"")"
+                     /building_history_288=""
+                     /building_history_288="construct-DD7NLISV1FNN4FQE1PIEZ16K"
+                     /building_history_419="QUEEN.queried_features_dict['dna_f19
+                     ']–=–QUEEN.dna_dict['dna_6'].searchsequence(query=cs.lib['B
+                     saI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_419="query: cs.lib['BsaI'].cutsite"
+                     /building_history_419="construct-4D3JEQ5OJZP44ZL6PUQ9JBJG"
+                     /building_history_420="QUEEN.dna_dict['dna_24'],–QUEEN.dna_
+                     dict['dna_25']–=–cutdna(QUEEN.dna_dict['dna_6'],–QUEEN.quer
+                     ied_features_dict['dna_f19'][0],–QUEEN.queried_features_dic
+                     t['dna_f19'][1],qexparam="""",–product='dna_6',–process_nam
+                     e='Golden–Gate–Assembly')"
+                     /building_history_420="positions: 1834/1838,2010/2014;
+                     num_products: 2"
+                     /building_history_420="construct-1G5L64TP80VL5WVCCSXRMG0T"
+                     /building_history_437="QUEEN.dna_dict['dna_32']–=–flipdna(Q
+                     UEEN.dna_dict['dna_24'],–product='dna_24',–process_name='Go
+                     lden–Gate–Assembly')"
+                     /building_history_437=""
+                     /building_history_437="construct-1YZJHZ7GE34I9QQF9UZBOU41"
+                     /building_history_44="QUEEN.dna_dict['195732']–=–QUEEN(reco
+                     rd='195732',–dbtype='addgene',–project='195732')"
+                     /building_history_44="_source: 195732 construction; _load:
+                     195732"
+                     /building_history_44="195732-DKHDI52P8P0BEG5LX8HIFI7E"
+                     /building_history_368="QUEEN.queried_features_dict['195732_
+                     f2']–=–QUEEN.dna_dict['195732'].searchsequence(query=cs.lib
+                     ['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_368="query: cs.lib['BsaI'].cutsite"
+                     /building_history_368="construct-ELCD5ZF9YYDV4ZL6PUQ9JBJG"
+                     /building_history_369="QUEEN.dna_dict['195732_0'],–QUEEN.dn
+                     a_dict['195732_1']–=–cutdna(QUEEN.dna_dict['195732'],–QUEEN
+                     .queried_features_dict['195732_f2'][0],–QUEEN.queried_featu
+                     res_dict['195732_f2'][1],qexparam="""",–product='195732',–p
+                     rocess_name='Golden–Gate–Assembly')"
+                     /building_history_369="positions: 15/19,232/236;
+                     num_products: 2"
+                     /building_history_369="construct-MM86SZC7IRI17272NFGPXPH5"
+                     /building_history_220="QUEEN.dna_dict['195733']–=–QUEEN(rec
+                     ord='195733',–dbtype='addgene',–project='195733')"
+                     /building_history_220="_source: 195733 construction; _load:
+                     195733"
+                     /building_history_220="195733-5YQ3XKMRJ1DSI45M9KE4A2IJ"
+                     /building_history_407="QUEEN.queried_features_dict['195733_
+                     f15']–=–QUEEN.dna_dict['195733'].searchsequence(query=cs.li
+                     b['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_407="query: cs.lib['BsaI'].cutsite"
+                     /building_history_407="construct-DBUSKG8TIE0P4ZL6PUQ9JBJG"
+                     /building_history_408="QUEEN.dna_dict['195733_0'],–QUEEN.dn
+                     a_dict['195733_1']–=–cutdna(QUEEN.dna_dict['195733'],–QUEEN
+                     .queried_features_dict['195733_f15'][0],–QUEEN.queried_feat
+                     ures_dict['195733_f15'][1],qexparam="""",–product='195733',
+                     –process_name='Golden–Gate–Assembly')"
+                     /building_history_408="positions: 15/19,150/154;
+                     num_products: 2"
+                     /building_history_408="construct-5OE873ER7Z23C3JZG1PDP5I5"
+                     /building_history_191="QUEEN.dna_dict['195734']–=–QUEEN(rec
+                     ord='195734',–dbtype='addgene',–project='195734')"
+                     /building_history_191="_source: 195734 construction; _load:
+                     195734"
+                     /building_history_191="195734-5RCNZV5OZBVK5PZJ6CLA2K45"
+                     /building_history_401="QUEEN.queried_features_dict['195734_
+                     f13']–=–QUEEN.dna_dict['195734'].searchsequence(query=cs.li
+                     b['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_401="query: cs.lib['BsaI'].cutsite"
+                     /building_history_401="construct-EB1GAB3XWA374ZL6PUQ9JBJG"
+                     /building_history_402="QUEEN.dna_dict['195734_0'],–QUEEN.dn
+                     a_dict['195734_1']–=–cutdna(QUEEN.dna_dict['195734'],–QUEEN
+                     .queried_features_dict['195734_f13'][0],–QUEEN.queried_feat
+                     ures_dict['195734_f13'][1],qexparam="""",–product='195734',
+                     –process_name='Golden–Gate–Assembly')"
+                     /building_history_402="positions: 15/19,191/195;
+                     num_products: 2"
+                     /building_history_402="construct-8URNSA9F6T1O20DBXA6A8WWQ"
+                     /building_history_177="QUEEN.dna_dict['195735']–=–QUEEN(rec
+                     ord='195735',–dbtype='addgene',–project='195735')"
+                     /building_history_177="_source: 195735 construction; _load:
+                     195735"
+                     /building_history_177="195735-11ZBQL2JGT4T3DLRDBL8S0VL"
+                     /building_history_178="QUEEN.dna_dict['dna_3']–=–flipdna(QU
+                     EEN.dna_dict['195735'],quinalbe=""False"")"
+                     /building_history_178=""
+                     /building_history_178="construct-3MDO8UQ3LLA54FQE1PIEZ16K"
+                     /building_history_395="QUEEN.queried_features_dict['dna_f11
+                     ']–=–QUEEN.dna_dict['dna_3'].searchsequence(query=cs.lib['B
+                     saI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_395="query: cs.lib['BsaI'].cutsite"
+                     /building_history_395="construct-4NDFTK16MIL44ZL6PUQ9JBJG"
+                     /building_history_396="QUEEN.dna_dict['dna_18'],–QUEEN.dna_
+                     dict['dna_19']–=–cutdna(QUEEN.dna_dict['dna_3'],–QUEEN.quer
+                     ied_features_dict['dna_f11'][0],–QUEEN.queried_features_dic
+                     t['dna_f11'][1],qexparam="""",–product='dna_3',–process_nam
+                     e='Golden–Gate–Assembly')"
+                     /building_history_396="positions: 1834/1838,2018/2022;
+                     num_products: 2"
+                     /building_history_396="construct-A5YAGDW7DMXO55OJ48M0DA4A"
+                     /building_history_438="QUEEN.dna_dict['dna_33']–=–flipdna(Q
+                     UEEN.dna_dict['dna_18'],–product='dna_18',–process_name='Go
+                     lden–Gate–Assembly')"
+                     /building_history_438=""
+                     /building_history_438="construct-CWUXBP0VSMVW4JRDKPV2R0V4"
+                     /building_history_123="QUEEN.dna_dict['195736']–=–QUEEN(rec
+                     ord='195736',–dbtype='addgene',–project='195736')"
+                     /building_history_123="_source: 195736 construction; _load:
+                     195736"
+                     /building_history_123="195736-CD8K8JEL19NWE2QSPZRVY852"
+                     /building_history_383="QUEEN.queried_features_dict['195736_
+                     f7']–=–QUEEN.dna_dict['195736'].searchsequence(query=cs.lib
+                     ['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_383="query: cs.lib['BsaI'].cutsite"
+                     /building_history_383="construct-EJ5F5UZQO4K64ZL6PUQ9JBJG"
+                     /building_history_384="QUEEN.dna_dict['195736_0'],–QUEEN.dn
+                     a_dict['195736_1']–=–cutdna(QUEEN.dna_dict['195736'],–QUEEN
+                     .queried_features_dict['195736_f7'][0],–QUEEN.queried_featu
+                     res_dict['195736_f7'][1],qexparam="""",–product='195736',–p
+                     rocess_name='Golden–Gate–Assembly')"
+                     /building_history_384="positions: 15/19,148/152;
+                     num_products: 2"
+                     /building_history_384="construct-4WV061GTZ3JS3YMEGVLR5D09"
+                     /building_history_115="QUEEN.dna_dict['195737']–=–QUEEN(rec
+                     ord='195737',–dbtype='addgene',–project='195737')"
+                     /building_history_115="_source: 195737 construction; _load:
+                     195737"
+                     /building_history_115="195737-4B10NAJ49381F5COT23TL38H"
+                     /building_history_380="QUEEN.queried_features_dict['195737_
+                     f6']–=–QUEEN.dna_dict['195737'].searchsequence(query=cs.lib
+                     ['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_380="query: cs.lib['BsaI'].cutsite"
+                     /building_history_380="construct-2XZWDSH8HNH04ZL6PUQ9JBJG"
+                     /building_history_381="QUEEN.dna_dict['195737_0'],–QUEEN.dn
+                     a_dict['195737_1']–=–cutdna(QUEEN.dna_dict['195737'],–QUEEN
+                     .queried_features_dict['195737_f6'][0],–QUEEN.queried_featu
+                     res_dict['195737_f6'][1],qexparam="""",–product='195737',–p
+                     rocess_name='Golden–Gate–Assembly')"
+                     /building_history_381="positions: 15/19,218/222;
+                     num_products: 2"
+                     /building_history_381="construct-D22EQMSE09D1N9U3FVK8BNZY"
+                     /building_history_251="QUEEN.dna_dict['195738']–=–QUEEN(rec
+                     ord='195738',–dbtype='addgene',–project='195738')"
+                     /building_history_251="_source: 195738 construction; _load:
+                     195738"
+                     /building_history_251="195738-6Y5TZIHGHOG5ECAVP5958OCS"
+                     /building_history_413="QUEEN.queried_features_dict['195738_
+                     f17']–=–QUEEN.dna_dict['195738'].searchsequence(query=cs.li
+                     b['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_413="query: cs.lib['BsaI'].cutsite"
+                     /building_history_413="construct-431AUIDP7KWS4ZL6PUQ9JBJG"
+                     /building_history_414="QUEEN.dna_dict['195738_0'],–QUEEN.dn
+                     a_dict['195738_1']–=–cutdna(QUEEN.dna_dict['195738'],–QUEEN
+                     .queried_features_dict['195738_f17'][0],–QUEEN.queried_feat
+                     ures_dict['195738_f17'][1],qexparam="""",–product='195738',
+                     –process_name='Golden–Gate–Assembly')"
+                     /building_history_414="positions: 15/19,134/138;
+                     num_products: 2"
+                     /building_history_414="construct-7T4KB3PD5EVMDUHUPNAMNGM2"
+                     /building_history_2="QUEEN.dna_dict['195714']–=–QUEEN(recor
+                     d='195714',–dbtype='addgene')"
+                     /building_history_2=""
+                     /building_history_2="construct-30Q6LEY2AVYA1K3RIS5DAKFZ"
+                     /building_history_434="QUEEN.queried_features_dict['195714_
+                     f24']–=–QUEEN.dna_dict['195714'].searchsequence(query=cs.li
+                     b['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_434="query: cs.lib['BsaI'].cutsite"
+                     /building_history_434="construct-M68LRGZOHQE14ZL6PUQ9JBJG"
+                     /building_history_435="QUEEN.dna_dict['195714_0'],–QUEEN.dn
+                     a_dict['195714_1']–=–cutdna(QUEEN.dna_dict['195714'],–QUEEN
+                     .queried_features_dict['195714_f24'][0],–QUEEN.queried_feat
+                     ures_dict['195714_f24'][1],qexparam="""",–product='195714',
+                     –process_name='Golden–Gate–Assembly')"
+                     /building_history_435="positions: 401/405,314/318;
+                     num_products: 2"
+                     /building_history_435="construct-6NZAGI1207AHAAY1ZTZ00T3F"
+                     /building_history_23="QUEEN.dna_dict['195715']–=–QUEEN(reco
+                     rd='195715',–dbtype='addgene',–project='195715')"
+                     /building_history_23="_source: 195715 construction; _load:
+                     195715"
+                     /building_history_23="195715-DCRWOV693Z1KAQZN98EGDN2Z"
+                     /building_history_365="QUEEN.queried_features_dict['195715_
+                     f1']–=–QUEEN.dna_dict['195715'].searchsequence(query=cs.lib
+                     ['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_365="query: cs.lib['BsaI'].cutsite"
+                     /building_history_365="construct-EMO40Z1BUD964ZL6PUQ9JBJG"
+                     /building_history_366="QUEEN.dna_dict['195715_0'],–QUEEN.dn
+                     a_dict['195715_1']–=–cutdna(QUEEN.dna_dict['195715'],–QUEEN
+                     .queried_features_dict['195715_f1'][0],–QUEEN.queried_featu
+                     res_dict['195715_f1'][1],qexparam="""",–product='195715',–p
+                     rocess_name='Golden–Gate–Assembly')"
+                     /building_history_366="positions: 15/19,133/137;
+                     num_products: 2"
+                     /building_history_366="construct-CB69WRDLIYODEC8W7UQXJZ21"
+                     /building_history_325="QUEEN.dna_dict['195716']–=–QUEEN(rec
+                     ord='195716',–dbtype='addgene',–project='195716')"
+                     /building_history_325="_source: 195716 construction; _load:
+                     195716"
+                     /building_history_325="195716-DNFRMK3RRRSX2QJCWV577262"
+                     /building_history_425="QUEEN.queried_features_dict['195716_
+                     f21']–=–QUEEN.dna_dict['195716'].searchsequence(query=cs.li
+                     b['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_425="query: cs.lib['BsaI'].cutsite"
+                     /building_history_425="construct-DI37V2FQ7ZE74ZL6PUQ9JBJG"
+                     /building_history_426="QUEEN.dna_dict['195716_0'],–QUEEN.dn
+                     a_dict['195716_1']–=–cutdna(QUEEN.dna_dict['195716'],–QUEEN
+                     .queried_features_dict['195716_f21'][0],–QUEEN.queried_feat
+                     ures_dict['195716_f21'][1],qexparam="""",–product='195716',
+                     –process_name='Golden–Gate–Assembly')"
+                     /building_history_426="positions: 15/19,237/241;
+                     num_products: 2"
+                     /building_history_426="construct-2J8EDRJR0Q56OOREOQI9J8OH"
+                     /building_history_163="QUEEN.dna_dict['195717']–=–QUEEN(rec
+                     ord='195717',–dbtype='addgene',–project='195717')"
+                     /building_history_163="_source: 195717 construction; _load:
+                     195717"
+                     /building_history_163="195717-11G85PIP1RPW4HZCR1TYMJC2"
+                     /building_history_392="QUEEN.queried_features_dict['195717_
+                     f10']–=–QUEEN.dna_dict['195717'].searchsequence(query=cs.li
+                     b['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_392="query: cs.lib['BsaI'].cutsite"
+                     /building_history_392="construct-9P0Q0GT55TZS4ZL6PUQ9JBJG"
+                     /building_history_393="QUEEN.dna_dict['195717_0'],–QUEEN.dn
+                     a_dict['195717_1']–=–cutdna(QUEEN.dna_dict['195717'],–QUEEN
+                     .queried_features_dict['195717_f10'][0],–QUEEN.queried_feat
+                     ures_dict['195717_f10'][1],qexparam="""",–product='195717',
+                     –process_name='Golden–Gate–Assembly')"
+                     /building_history_393="positions: 15/19,237/241;
+                     num_products: 2"
+                     /building_history_393="construct-D06KDZVWXO0I5F3I0JHNYOLP"
+                     /building_history_182="QUEEN.dna_dict['195718']–=–QUEEN(rec
+                     ord='195718',–dbtype='addgene',–project='195718')"
+                     /building_history_182="_source: 195718 construction; _load:
+                     195718"
+                     /building_history_182="195718-1E4M14196P543H4X53GAP9XF"
+                     /building_history_398="QUEEN.queried_features_dict['195718_
+                     f12']–=–QUEEN.dna_dict['195718'].searchsequence(query=cs.li
+                     b['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_398="query: cs.lib['BsaI'].cutsite"
+                     /building_history_398="construct-3PFLV9TW3LZD4ZL6PUQ9JBJG"
+                     /building_history_399="QUEEN.dna_dict['195718_0'],–QUEEN.dn
+                     a_dict['195718_1']–=–cutdna(QUEEN.dna_dict['195718'],–QUEEN
+                     .queried_features_dict['195718_f12'][0],–QUEEN.queried_feat
+                     ures_dict['195718_f12'][1],qexparam="""",–product='195718',
+                     –process_name='Golden–Gate–Assembly')"
+                     /building_history_399="positions: 15/19,214/218;
+                     num_products: 2"
+                     /building_history_399="construct-E2MIRKQJC073D2B25YQEAY9N"
+                     /building_history_155="QUEEN.dna_dict['195719']–=–QUEEN(rec
+                     ord='195719',–dbtype='addgene',–project='195719')"
+                     /building_history_155="_source: 195719 construction; _load:
+                     195719"
+                     /building_history_155="195719-44OX69HWT2HS494QVMVTGH3J"
+                     /building_history_156="QUEEN.dna_dict['dna_2']–=–flipdna(QU
+                     EEN.dna_dict['195719'],quinalbe=""False"")"
+                     /building_history_156=""
+                     /building_history_156="construct-3654X8MVGNQ44FQE1PIEZ16K"
+                     /building_history_389="QUEEN.queried_features_dict['dna_f9'
+                     ]–=–QUEEN.dna_dict['dna_2'].searchsequence(query=cs.lib['Bs
+                     aI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_389="query: cs.lib['BsaI'].cutsite"
+                     /building_history_389="construct-6NUD5EVJB5314ZL6PUQ9JBJG"
+                     /building_history_390="QUEEN.dna_dict['dna_16'],–QUEEN.dna_
+                     dict['dna_17']–=–cutdna(QUEEN.dna_dict['dna_2'],–QUEEN.quer
+                     ied_features_dict['dna_f9'][0],–QUEEN.queried_features_dict
+                     ['dna_f9'][1],qexparam="""",–product='dna_2',–process_name=
+                     'Golden–Gate–Assembly')"
+                     /building_history_390="positions: 1834/1838,1971/1975;
+                     num_products: 2"
+                     /building_history_390="construct-2VFOQG4ERMYLEWEXKKX24AGW"
+                     /building_history_439="QUEEN.dna_dict['dna_34']–=–flipdna(Q
+                     UEEN.dna_dict['dna_16'],–product='dna_16',–process_name='Go
+                     lden–Gate–Assembly')"
+                     /building_history_439=""
+                     /building_history_439="construct-60A2Q5DMUSUHDP8OWAPNLUP5"
+                     /building_history_196="QUEEN.dna_dict['195720']–=–QUEEN(rec
+                     ord='195720',–dbtype='addgene',–project='195720')"
+                     /building_history_196="_source: 195720 construction; _load:
+                     195720"
+                     /building_history_196="195720-3AJ2TZKVBM6WXSDEV0XQARR4"
+                     /building_history_197="QUEEN.dna_dict['dna_4']–=–flipdna(QU
+                     EEN.dna_dict['195720'],quinalbe=""False"")"
+                     /building_history_197=""
+                     /building_history_197="construct-ALB6SRTP0K904FQE1PIEZ16K"
+                     /building_history_404="QUEEN.queried_features_dict['dna_f14
+                     ']–=–QUEEN.dna_dict['dna_4'].searchsequence(query=cs.lib['B
+                     saI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_404="query: cs.lib['BsaI'].cutsite"
+                     /building_history_404="construct-2ZLP1ERFOG8E4ZL6PUQ9JBJG"
+                     /building_history_405="QUEEN.dna_dict['dna_20'],–QUEEN.dna_
+                     dict['dna_21']–=–cutdna(QUEEN.dna_dict['dna_4'],–QUEEN.quer
+                     ied_features_dict['dna_f14'][0],–QUEEN.queried_features_dic
+                     t['dna_f14'][1],qexparam="""",–product='dna_4',–process_nam
+                     e='Golden–Gate–Assembly')"
+                     /building_history_405="positions: 1834/1838,2051/2055;
+                     num_products: 2"
+                     /building_history_405="construct-C64FKP4WOJ7720CVZ5AQO81A"
+                     /building_history_440="QUEEN.dna_dict['dna_35']–=–flipdna(Q
+                     UEEN.dna_dict['dna_20'],–product='dna_20',–process_name='Go
+                     lden–Gate–Assembly')"
+                     /building_history_440=""
+                     /building_history_440="construct-4GARPK3473CSLX25CNXHWCEZ"
+                     /building_history_74="QUEEN.dna_dict['195721']–=–QUEEN(reco
+                     rd='195721',–dbtype='addgene',–project='195721')"
+                     /building_history_74="_source: 195721 construction; _load:
+                     195721"
+                     /building_history_74="195721-5FUO8WQTI9P91XXARU5JG2ZB"
+                     /building_history_75="QUEEN.dna_dict['dna_0']–=–flipdna(QUE
+                     EN.dna_dict['195721'],quinalbe=""False"")"
+                     /building_history_75=""
+                     /building_history_75="construct-4EWGCMVXTJ4R4FQE1PIEZ16K"
+                     /building_history_374="QUEEN.queried_features_dict['dna_f4'
+                     ]–=–QUEEN.dna_dict['dna_0'].searchsequence(query=cs.lib['Bs
+                     aI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_374="query: cs.lib['BsaI'].cutsite"
+                     /building_history_374="construct-9WVQNXZDVXD34ZL6PUQ9JBJG"
+                     /building_history_375="QUEEN.dna_dict['dna_12'],–QUEEN.dna_
+                     dict['dna_13']–=–cutdna(QUEEN.dna_dict['dna_0'],–QUEEN.quer
+                     ied_features_dict['dna_f4'][0],–QUEEN.queried_features_dict
+                     ['dna_f4'][1],qexparam="""",–product='dna_0',–process_name=
+                     'Golden–Gate–Assembly')"
+                     /building_history_375="positions: 1834/1838,2031/2035;
+                     num_products: 2"
+                     /building_history_375="construct-7845GT8ZSOMQDRF8SSKCU183"
+                     /building_history_441="QUEEN.dna_dict['dna_36']–=–flipdna(Q
+                     UEEN.dna_dict['dna_12'],–product='dna_12',–process_name='Go
+                     lden–Gate–Assembly')"
+                     /building_history_441=""
+                     /building_history_441="construct-AZAH7UR1QZSZAYPYKHNT05WQ"
+                     /building_history_70="QUEEN.dna_dict['195722']–=–QUEEN(reco
+                     rd='195722',–dbtype='addgene',–project='195722')"
+                     /building_history_70="_source: 195722 construction; _load:
+                     195722"
+                     /building_history_70="195722-4JO99XL25AKI7OIGKM2ZE21U"
+                     /building_history_71="QUEEN.dna_dict['dna']–=–flipdna(QUEEN
+                     .dna_dict['195722'],quinalbe=""False"")"
+                     /building_history_71=""
+                     /building_history_71="construct-6WBN7OO4OM0E4FQE1PIEZ16K"
+                     /building_history_371="QUEEN.queried_features_dict['dna_f3'
+                     ]–=–QUEEN.dna_dict['dna'].searchsequence(query=cs.lib['BsaI
+                     '].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_371="query: cs.lib['BsaI'].cutsite"
+                     /building_history_371="construct-DK752BA6733C4ZL6PUQ9JBJG"
+                     /building_history_372="QUEEN.dna_dict['dna_10'],–QUEEN.dna_
+                     dict['dna_11']–=–cutdna(QUEEN.dna_dict['dna'],–QUEEN.querie
+                     d_features_dict['dna_f3'][0],–QUEEN.queried_features_dict['
+                     dna_f3'][1],qexparam="""",–product='dna',–process_name='Gol
+                     den–Gate–Assembly')"
+                     /building_history_372="positions: 1834/1838,2078/2082;
+                     num_products: 2"
+                     /building_history_372="construct-DSLKF6TSOWV92SWRH7E67395"
+                     /building_history_442="QUEEN.dna_dict['dna_37']–=–flipdna(Q
+                     UEEN.dna_dict['dna_10'],–product='dna_10',–process_name='Go
+                     lden–Gate–Assembly')"
+                     /building_history_442=""
+                     /building_history_442="construct-64AH1TKKNDZUE99CCK5BTH80"
+                     /building_history_313="QUEEN.dna_dict['195723']–=–QUEEN(rec
+                     ord='195723',–dbtype='addgene',–project='195723')"
+                     /building_history_313="_source: 195723 construction; _load:
+                     195723"
+                     /building_history_313="195723-ADHPP5H21PVV472OBCC0WSFI"
+                     /building_history_314="QUEEN.dna_dict['dna_7']–=–flipdna(QU
+                     EEN.dna_dict['195723'],quinalbe=""False"")"
+                     /building_history_314=""
+                     /building_history_314="construct-D9OLE47W68XP4FQE1PIEZ16K"
+                     /building_history_422="QUEEN.queried_features_dict['dna_f20
+                     ']–=–QUEEN.dna_dict['dna_7'].searchsequence(query=cs.lib['B
+                     saI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_422="query: cs.lib['BsaI'].cutsite"
+                     /building_history_422="construct-3WA8QWEL54H84ZL6PUQ9JBJG"
+                     /building_history_423="QUEEN.dna_dict['dna_26'],–QUEEN.dna_
+                     dict['dna_27']–=–cutdna(QUEEN.dna_dict['dna_7'],–QUEEN.quer
+                     ied_features_dict['dna_f20'][0],–QUEEN.queried_features_dic
+                     t['dna_f20'][1],qexparam="""",–product='dna_7',–process_nam
+                     e='Golden–Gate–Assembly')"
+                     /building_history_423="positions: 1834/1838,2127/2131;
+                     num_products: 2"
+                     /building_history_423="construct-BAFLSEYR4M1430QJ7BI3VK9C"
+                     /building_history_443="QUEEN.dna_dict['dna_38']–=–flipdna(Q
+                     UEEN.dna_dict['dna_26'],–product='dna_26',–process_name='Go
+                     lden–Gate–Assembly')"
+                     /building_history_443=""
+                     /building_history_443="construct-1ZMKWU8JTKWE9KPWPAO7097S"
+                     /building_history_238="QUEEN.dna_dict['195724']–=–QUEEN(rec
+                     ord='195724',–dbtype='addgene',–project='195724')"
+                     /building_history_238="_source: 195724 construction; _load:
+                     195724"
+                     /building_history_238="195724-87N2T59EN6POEZOJVTAVPB7E"
+                     /building_history_239="QUEEN.dna_dict['dna_5']–=–flipdna(QU
+                     EEN.dna_dict['195724'],quinalbe=""False"")"
+                     /building_history_239=""
+                     /building_history_239="construct-BFPR9HQ3SDEI4FQE1PIEZ16K"
+                     /building_history_410="QUEEN.queried_features_dict['dna_f16
+                     ']–=–QUEEN.dna_dict['dna_5'].searchsequence(query=cs.lib['B
+                     saI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_410="query: cs.lib['BsaI'].cutsite"
+                     /building_history_410="construct-58358IOK6C2A4ZL6PUQ9JBJG"
+                     /building_history_411="QUEEN.dna_dict['dna_22'],–QUEEN.dna_
+                     dict['dna_23']–=–cutdna(QUEEN.dna_dict['dna_5'],–QUEEN.quer
+                     ied_features_dict['dna_f16'][0],–QUEEN.queried_features_dic
+                     t['dna_f16'][1],qexparam="""",–product='dna_5',–process_nam
+                     e='Golden–Gate–Assembly')"
+                     /building_history_411="positions: 1834/1838,2007/2011;
+                     num_products: 2"
+                     /building_history_411="construct-91U8GCW3928NCSYFOXW958GH"
+                     /building_history_444="QUEEN.dna_dict['dna_39']–=–flipdna(Q
+                     UEEN.dna_dict['dna_22'],–product='dna_22',–process_name='Go
+                     lden–Gate–Assembly')"
+                     /building_history_444=""
+                     /building_history_444="construct-BD4SE5IS5BS2BP0MUW72L2TY"
+                     /building_history_136="QUEEN.dna_dict['195725']–=–QUEEN(rec
+                     ord='195725',–dbtype='addgene',–project='195725')"
+                     /building_history_136="_source: 195725 construction; _load:
+                     195725"
+                     /building_history_136="195725-DTVH9LOQ7CTK4TWXE4FHQNG2"
+                     /building_history_386="QUEEN.queried_features_dict['195725_
+                     f8']–=–QUEEN.dna_dict['195725'].searchsequence(query=cs.lib
+                     ['BsaI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_386="query: cs.lib['BsaI'].cutsite"
+                     /building_history_386="construct-4HZ4ILNUWT8J4ZL6PUQ9JBJG"
+                     /building_history_387="QUEEN.dna_dict['195725_0'],–QUEEN.dn
+                     a_dict['195725_1']–=–cutdna(QUEEN.dna_dict['195725'],–QUEEN
+                     .queried_features_dict['195725_f8'][0],–QUEEN.queried_featu
+                     res_dict['195725_f8'][1],qexparam="""",–product='195725',–p
+                     rocess_name='Golden–Gate–Assembly')"
+                     /building_history_387="positions: 15/19,142/146;
+                     num_products: 2"
+                     /building_history_387="construct-CY6A1ZRPYTSS204ARCO04GSZ"
+                     /building_history_97="QUEEN.dna_dict['195726']–=–QUEEN(reco
+                     rd='195726',–dbtype='addgene',–project='195726')"
+                     /building_history_97="_source: 195726 construction; _load:
+                     195726"
+                     /building_history_97="195726-1NGNZ51UJNJKCXXZRRJ7I15W"
+                     /building_history_98="QUEEN.dna_dict['dna_1']–=–flipdna(QUE
+                     EN.dna_dict['195726'],quinalbe=""False"")"
+                     /building_history_98=""
+                     /building_history_98="construct-BI68RNUKQ0XD4FQE1PIEZ16K"
+                     /building_history_377="QUEEN.queried_features_dict['dna_f5'
+                     ]–=–QUEEN.dna_dict['dna_1'].searchsequence(query=cs.lib['Bs
+                     aI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_377="query: cs.lib['BsaI'].cutsite"
+                     /building_history_377="construct-84M83F4N6KRR4ZL6PUQ9JBJG"
+                     /building_history_378="QUEEN.dna_dict['dna_14'],–QUEEN.dna_
+                     dict['dna_15']–=–cutdna(QUEEN.dna_dict['dna_1'],–QUEEN.quer
+                     ied_features_dict['dna_f5'][0],–QUEEN.queried_features_dict
+                     ['dna_f5'][1],qexparam="""",–product='dna_1',–process_name=
+                     'Golden–Gate–Assembly')"
+                     /building_history_378="positions: 1822/1826,2030/2034;
+                     num_products: 2"
+                     /building_history_378="construct-42H0O02BQQ3D7A0CN1Y00VN4"
+                     /building_history_445="QUEEN.dna_dict['dna_40']–=–flipdna(Q
+                     UEEN.dna_dict['dna_14'],–product='dna_14',–process_name='Go
+                     lden–Gate–Assembly')"
+                     /building_history_445=""
+                     /building_history_445="construct-BTCR5627B4L94FZEVKJK2U85"
+                     /building_history_360="QUEEN.dna_dict['195727']–=–QUEEN(rec
+                     ord='195727',–dbtype='addgene',–project='195727')"
+                     /building_history_360="_source: 195727 construction; _load:
+                     195727"
+                     /building_history_360="195727-C7K2SPH1DUTV80B62RVSB295"
+                     /building_history_361="QUEEN.dna_dict['dna_9']–=–flipdna(QU
+                     EEN.dna_dict['195727'],quinalbe=""False"")"
+                     /building_history_361=""
+                     /building_history_361="construct-6UC9KPNSXQQ14FQE1PIEZ16K"
+                     /building_history_431="QUEEN.queried_features_dict['dna_f23
+                     ']–=–QUEEN.dna_dict['dna_9'].searchsequence(query=cs.lib['B
+                     saI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_431="query: cs.lib['BsaI'].cutsite"
+                     /building_history_431="construct-3XTIVJQK1EJQ4ZL6PUQ9JBJG"
+                     /building_history_432="QUEEN.dna_dict['dna_30'],–QUEEN.dna_
+                     dict['dna_31']–=–cutdna(QUEEN.dna_dict['dna_9'],–QUEEN.quer
+                     ied_features_dict['dna_f23'][0],–QUEEN.queried_features_dic
+                     t['dna_f23'][1],qexparam="""",–product='dna_9',–process_nam
+                     e='Golden–Gate–Assembly')"
+                     /building_history_432="positions: 1834/1838,2121/2125;
+                     num_products: 2"
+                     /building_history_432="construct-2WCWL0GWKNVLEP3E83A6SRA4"
+                     /building_history_446="QUEEN.dna_dict['dna_41']–=–flipdna(Q
+                     UEEN.dna_dict['dna_30'],–product='dna_30',–process_name='Go
+                     lden–Gate–Assembly')"
+                     /building_history_446=""
+                     /building_history_446="construct-2DAYIO96I1JV6V1DYRDPWNPK"
+                     /building_history_349="QUEEN.dna_dict['195728']–=–QUEEN(rec
+                     ord='195728',–dbtype='addgene',–project='195728')"
+                     /building_history_349="_source: 195728 construction; _load:
+                     195728"
+                     /building_history_349="195728-8ZUMHXGU0O0V8G8BE5VLXJYL"
+                     /building_history_350="QUEEN.dna_dict['dna_8']–=–flipdna(QU
+                     EEN.dna_dict['195728'],quinalbe=""False"")"
+                     /building_history_350=""
+                     /building_history_350="construct-BMOK8KCY0I7D4FQE1PIEZ16K"
+                     /building_history_428="QUEEN.queried_features_dict['dna_f22
+                     ']–=–QUEEN.dna_dict['dna_8'].searchsequence(query=cs.lib['B
+                     saI'].cutsite,–process_name='Golden–Gate–Assembly')"
+                     /building_history_428="query: cs.lib['BsaI'].cutsite"
+                     /building_history_428="construct-1RZM4WB7CPQI4ZL6PUQ9JBJG"
+                     /building_history_429="QUEEN.dna_dict['dna_28'],–QUEEN.dna_
+                     dict['dna_29']–=–cutdna(QUEEN.dna_dict['dna_8'],–QUEEN.quer
+                     ied_features_dict['dna_f22'][0],–QUEEN.queried_features_dic
+                     t['dna_f22'][1],qexparam="""",–product='dna_8',–process_nam
+                     e='Golden–Gate–Assembly')"
+                     /building_history_429="positions: 1834/1838,2144/2148;
+                     num_products: 2"
+                     /building_history_429="construct-7I53PRUHD4PS9OTUL9ZO8VVU"
+                     /building_history_447="QUEEN.dna_dict['dna_42']–=–flipdna(Q
+                     UEEN.dna_dict['dna_28'],–product='dna_28',–process_name='Go
+                     lden–Gate–Assembly')"
+                     /building_history_447=""
+                     /building_history_447="construct-4YH6051M4V9DBWLHSSO7YTGW"
+                     /building_history_448="QUEEN.dna_dict['construct']–=–joindn
+                     a(*[QUEEN.dna_dict['195729_0'],–QUEEN.dna_dict['195730_0'],
+                     –QUEEN.dna_dict['dna_32'],–QUEEN.dna_dict['195732_0'],–QUEE
+                     N.dna_dict['195733_0'],–QUEEN.dna_dict['195734_0'],–QUEEN.d
+                     na_dict['dna_33'],–QUEEN.dna_dict['195736_0'],–QUEEN.dna_di
+                     ct['195737_0'],–QUEEN.dna_dict['195738_0'],–QUEEN.dna_dict[
+                     '195714_0'],–QUEEN.dna_dict['195715_0'],–QUEEN.dna_dict['19
+                     5716_0'],–QUEEN.dna_dict['195717_0'],–QUEEN.dna_dict['19571
+                     8_0'],–QUEEN.dna_dict['dna_34'],–QUEEN.dna_dict['dna_35'],–
+                     QUEEN.dna_dict['dna_36'],–QUEEN.dna_dict['dna_37'],–QUEEN.d
+                     na_dict['dna_38'],–QUEEN.dna_dict['dna_39'],–QUEEN.dna_dict
+                     ['195725_0'],–QUEEN.dna_dict['dna_40'],–QUEEN.dna_dict['dna
+                     _41'],–QUEEN.dna_dict['dna_42']],–topology='circular',–comp
+                     atibility='complete',–autoflip=False,qexparam=""golden_gate
+                     _assembly(QUEEN.dna_dict['195714'],–[QUEEN.dna_dict['195729
+                     '],–QUEEN.dna_dict['195715'],–QUEEN.dna_dict['195732'],–QUE
+                     EN.dna_dict['dna'],–QUEEN.dna_dict['dna_0'],–QUEEN.dna_dict
+                     ['dna_1'],–QUEEN.dna_dict['195737'],–QUEEN.dna_dict['195736
+                     '],–QUEEN.dna_dict['195725'],–QUEEN.dna_dict['dna_2'],–QUEE
+                     N.dna_dict['195717'],–QUEEN.dna_dict['dna_3'],–QUEEN.dna_di
+                     ct['195718'],–QUEEN.dna_dict['195734'],–QUEEN.dna_dict['dna
+                     _4'],–QUEEN.dna_dict['195733'],–QUEEN.dna_dict['dna_5'],–QU
+                     EEN.dna_dict['195738'],–QUEEN.dna_dict['195730'],–QUEEN.dna
+                     _dict['dna_6'],–QUEEN.dna_dict['dna_7'],–QUEEN.dna_dict['19
+                     5716'],–QUEEN.dna_dict['dna_8'],–QUEEN.dna_dict['dna_9']],–
+                     cutsite='BsaI')"",–product='construct',–process_name='Golde
+                     n–Gate–Assembly')"
+                     /building_history_448="topology: circular"
+                     /building_history_448="construct-8MO103A9CT9DBLKINAD5ZA52"
+     source          1..282
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195714:0:2220:-:0..2220:37..318"
+     promoter        218..236
+                     /label="SP6 promoter"
+                     /note="promoter for bacteriophage SP6 RNA polymerase"
+     primer_bind     218..235
+                     /label="SP6"
+                     /note="SP6 promoter, forward primer"
+     source          279..400
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195715:0:1971:-:0..1971:16..137"
+     misc_feature    279..400
+                     /label="ins-1"
+     source          397..622
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195716:0:2075:-:0..2075:16..241"
+     misc_feature    397..622
+                     /label="ins-2"
+     source          619..844
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195717:0:2075:-:0..2075:16..241"
+     misc_feature    619..844
+                     /label="ins-3"
+     source          841..1043
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195718:0:2052:-:0..2052:16..218"
+     misc_feature    841..1043
+                     /label="ins-4"
+     source          1040..1180
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="dna_2:0:1990:-:0..1990:16..156"
+     misc_feature    1040..1180
+                     /label="ins-5"
+     source          1177..1397
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="dna_4:0:2070:-:0..2070:16..236"
+     misc_feature    1177..1397
+                     /label="ins-6"
+     source          1394..1594
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="dna_0:0:2050:-:0..2050:16..216"
+     misc_feature    1394..1594
+                     /label="ins-7"
+     source          1591..1838
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="dna:0:2097:-:0..2097:16..263"
+     misc_feature    1591..1838
+                     /label="ins-8"
+     source          1835..2131
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="dna_7:0:2146:-:0..2146:16..312"
+     misc_feature    1835..2131
+                     /label="ins-9"
+     source          2128..2304
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="dna_5:0:2026:-:0..2026:16..192"
+     misc_feature    2128..2304
+                     /label="ins-10"
+     source          2301..2431
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195725:0:1980:-:0..1980:16..146"
+     misc_feature    2301..2431
+                     /label="ins-11"
+     source          2428..2639
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="dna_1:0:2061:-:0..2061:28..239"
+     misc_feature    2428..2639
+                     /label="ins-12"
+     source          2636..2926
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="dna_9:0:2140:-:0..2140:16..306"
+     misc_feature    2636..2926
+                     /label="ins-13"
+     source          2923..3236
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="dna_8:0:2163:-:0..2163:16..329"
+     misc_feature    2923..3236
+                     /label="ins-14"
+     source          3233..3527
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195729:0:2144:-:0..2144:16..310"
+     misc_feature    3233..3527
+                     /label="ins-15"
+     primer_bind     3306..3328
+                     /label="M13/pUC Forward"
+                     /note="In lacZ gene"
+     primer_bind     3320..3337
+                     /label="M13 Forward"
+                     /note="In lacZ gene. Also called M13-F20 or M13 (-21)
+                     Forward"
+     primer_bind     3321..3337
+                     /label="M13 fwd"
+                     /note="common sequencing primer, one of multiple similar
+                     variants"
+     RBS             3365..3387
+                     /note="efficient ribosome binding site from bacteriophage
+                     T7 gene 10 (Olins and Rangwala, 1989)"
+     protein_bind    3402..3426
+                     /label="lac operator"
+                     /bound_moiety="lac repressor encoded by lacI"
+                     /note="The lac repressor binds to the lac operator to
+                     inhibit transcription in E. coli. This inhibition can be
+                     relieved by adding lactose or
+                     isopropyl-beta-D-thiogalactopyranoside (IPTG)."
+     promoter        complement(3430..3460)
+                     /label="lac promoter"
+                     /note="promoter for the E. coli lac operon"
+     source          3524..3786
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195730:0:2112:-:0..2112:16..278"
+     misc_feature    3524..3786
+                     /label="ins-16"
+     primer_bind     complement(3541..3560)
+                     /label="pBRrevBam"
+                     /note="pBR322 vectors, tet region, downstream of BamHI,
+                     reverse primer"
+     source          3783..3962
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="dna_6:0:2029:-:0..2029:16..195"
+     misc_feature    3783..3962
+                     /label="ins-17"
+     primer_bind     complement(3863..3882)
+                     /label="LacI-R"
+                     /note="LacI, reverse primer"
+     source          3959..4179
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195732:0:2070:-:0..2070:16..236"
+     misc_feature    3959..4179
+                     /label="ins-18"
+     source          4176..4314
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195733:0:1988:-:0..1988:16..154"
+     misc_feature    4176..4314
+                     /label="ins-19"
+     source          4311..4490
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195734:0:2029:-:0..2029:16..195"
+     misc_feature    4311..4490
+                     /label="ins-20"
+     source          4487..4674
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="dna_3:0:2037:-:0..2037:16..203"
+     misc_feature    4487..4674
+                     /label="ins-21"
+     source          4671..4807
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195736:0:1986:-:0..1986:16..152"
+     misc_feature    4671..4807
+                     /label="ins-22"
+     source          4804..5010
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195737:0:2056:-:0..2056:16..222"
+     misc_feature    4804..5010
+                     /label="ins-23"
+     source          5007..5129
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195738:0:1972:-:0..1972:16..138"
+     misc_feature    5007..5129
+                     /label="ins-24"
+     source          5126..6944
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195714:0:2220:-:0..2220:402..2220"
+     primer_bind     complement(5187..5206)
+                     /label="T7"
+                     /note="T7 promoter, forward primer"
+     promoter        complement(5188..5206)
+                     /label="T7 promoter"
+                     /note="promoter for bacteriophage T7 RNA polymerase"
+     CDS             complement(5317..5976)
+                     /codon_start=1
+                     /gene="cat"
+                     /product="chloramphenicol acetyltransferase"
+                     /label="CmR"
+                     /note="confers resistance to chloramphenicol"
+                     /translation="MEKKITGYTTVDISQWHRKEHFEAFQSVAQCTYNQTVQLDITAFL
+                     KTVKKNKHKFYPAFIHILARLMNAHPEFRMAMKDGELVIWDSVHPCYTVFHEQTETFSS
+                     LWSEYHDDFRQFLHIYSQDVACYGENLAYFPKGFIENMFFVSANPWVSFTSFDLNVANM
+                     DNFFAPVFTMGKYYTQGDKVLMPLAIQVHHAVCDGFHVGRMLNELQQYCDEWQGGA"
+     primer_bind     5891..5910
+                     /label="CAT-R"
+                     /note="Chloramphenicol resistance gene, reverse primer"
+     promoter        complement(5977..6079)
+                     /label="cat promoter"
+                     /note="promoter of the E. coli cat gene encoding
+                     chloramphenicol acetyltransferase"
+     rep_origin      6180..6768
+                     /direction=RIGHT
+                     /label="ori"
+                     /note="high-copy-number ColE1/pMB1/pBR322/pUC origin of
+                     replication"
+     primer_bind     6669..6688
+                     /label="pBR322ori-F"
+                     /note="pBR322 origin, forward primer"
+     primer_bind     6922..6939
+                     /label="L4440"
+                     /note="L4440 vector, forward primer"
+     source          6945..6980
+                     /organism="synthetic DNA construct"
+                     /mol_type="other DNA"
+                     /broken_feature="195714:0:2220:-:0..2220:1..36"
+ORIGIN
+        1 tcgatatttt acacgactct ctttaccaat tctgccccga attacactta aaacgactca
+       61 acagcttaac gttggcttgc cacgcattac ttgactgtaa aactctcact cttaccgaac
+      121 ttggccgtaa cctgccaacc aaagcgagaa caaaacataa catcaaacga atcgaccgat
+      181 tgttaggtaa tcgtcacctg caggaaggtt taaacgcatt taggtgacac tatagaagtg
+      241 tgtatcgctc gagggatccg aattcgaagt cttggtacgg agtcattttt gacaccagac
+      301 caactggtaa tggtagcgac cggcgctcag ctggaattcc gccgatactg acgggctcca
+      361 ggagtcgtcg ccaccaatcc ccatatggaa accgtcgata ttcagccatg tgccttcttc
+      421 cgcgtgcagc agatggcgat ggctggtttc catcagttgc tgttgactgt agcggctgat
+      481 gttgaactgg aagtcgccgc gccactggtg tgggccataa ttcaattcgc gcgtcccgca
+      541 gcgcagaccg ttttcgctcg ggaagacgta cggggtatac atgtctgaca atggcagatc
+      601 ccagcggtca aaacaggcgg cagtaaggcg gtcgggatag ttttcttgcg gccctaatcc
+      661 gagccagttt acccgctctg ctacctgcgc cagctggcag ttcaggccaa tccgcgccgg
+      721 atgcggtgta tcgctcgcca cttcaacatc aacggtaatc gccatttgac cactaccatc
+      781 aatccggtag gttttccggc tgataaataa ggttttcccc tgatgctgcc acgcgtgagc
+      841 ggtcgtaatc agcaccgcat cagcaagtgt atctgccgtg cactgcaaca acgctgcttc
+      901 ggcctggtaa tggcccgccg ccttccagcg ttcgacccag gcgttagggt caatgcgggt
+      961 cgcttcactt acgccaatgt cgttatccag cggtgcacgg gtgaactgat cgcgcagcgg
+     1021 cgtcagcagt tgttttttat cgccaatcca catctgtgaa agaaagcctg actggcggtt
+     1081 aaattgccaa cgcttattac ccagctcgat gcaaaaatcc atttcgctgg tggtcagatg
+     1141 cgggatggcg tgggacgcgg cggggagcgt cacactgagg ttttccgcca gacgccactg
+     1201 ctgccaggcg ctgatgtgcc cggcttctga ccatgcggtc gcgttcggtt gcactacgcg
+     1261 tactgtgagc cagagttgcc cggcgctctc cggctgcggt agttcaggca gttcaatcaa
+     1321 ctgtttacct tgtggagcga catccagagg cacttcaccg cttgccagcg gcttaccatc
+     1381 cagcgccacc atccagtgca ggagctcgtt atcgctatga cggaacaggt attcgctggt
+     1441 cacttcgatg gtttgcccgg ataaacggaa ctggaaaaac tgctgctggt gttttgcttc
+     1501 cgtcagcgct ggatgcggcg tgcggtcggc aaagaccaga ccgttcatac agaactggcg
+     1561 atcgttcggc gtatcgccaa aatcaccgcc gtaagccgac cacgggttgc cgttttcatc
+     1621 atatttaatc agcgactgat ccacccagtc ccagacgaag ccgccctgta aacggggata
+     1681 ctgacgaaac gcctgccagt atttagcgaa accgccaaga ctgttaccca tcgcgtgggc
+     1741 gtattcgcaa aggatcagcg ggcgcgtctc tccaggtagc gaaagccatt ttttgatgga
+     1801 ccatttcggc acagccggga agggctggtc ttcatccacg cgcgcgtaca tcgggcaaat
+     1861 aatatcggtg gccgtggtgt cggctccgcc gccttcatac tgcaccgggc gggaaggatc
+     1921 gacagatttg atccagcgat acagcgcgtc gtgattagcg ccgtggcctg attcattccc
+     1981 cagcgaccag atgatcacac tcgggtgatt acgatcgcgc tgcaccattc gcgttacgcg
+     2041 ttcgctcatc gccggtagcc agcgcggatc atcggtcaga cgattcattg gcaccatgcc
+     2101 gtgggtttca atattggctt catccaccac atacaggccg tagcggtcgc acagcgtgta
+     2161 ccacagcgga tggttcggat aatgcgaaca gcgcacggcg ttaaagttgt tctgcttcat
+     2221 cagcaggata tcctgcacca tcgtctgctc atccatgacc tgaccatgca gaggatgatg
+     2281 ctcgtgacgg ttaacgcctc gaatcagcaa cggcttgccg ttcagcagca gcagaccatt
+     2341 ttcaatccgc acctcgcgga aaccgacatc gcaggcttct gcttcaatca gcgtgccgtc
+     2401 ggcggtgtgc agttcaacca ccgcacgata gagattcggg atttcggcgc tccacagttt
+     2461 cgggttttcg acgttcagac gtagtgtgac gcgatcggca taaccaccac gctcatcgat
+     2521 aatttcaccg ccgaaaggcg cggtgccgct ggcgacctgc gtttcaccct gccataaaga
+     2581 aactgttacc cgtaggtagt cacgcaactc gccgcacatc tgaacttcag cctccagtac
+     2641 agcgcggctg aaatcatcat taaagcgagt ggcaacatgg aaatcgctga tttgtgtagt
+     2701 cggtttatgc agcaacgaga cgtcacggaa aatgccgctc atccgccaca tatcctgatc
+     2761 ttccagataa ctgccgtcac tccagcgcag caccatcacc gcgaggcggt tttctccggc
+     2821 gcgtaaaaat gcgctcaggt caaattcaga cggcaaacga ctgtcctggc cgtaaccgac
+     2881 ccagcgcccg ttgcaccaca gatgaaacgc cgagttaacg ccatcaaaaa taattcgcgt
+     2941 ctggccttcc tgtagccagc tttcatcaac attaaatgtg agcgagtaac aacccgtcgg
+     3001 attctccgtg ggaacaaacg gcggattgac cgtaatggga taggtcacgt tggtgtagat
+     3061 gggcgcatcg taaccgtgca tctgccagtt tgaggggacg acgacagtat cggcctcagg
+     3121 aagatcgcac tccagccagc tttccggcac cgcttctggt gccggaaacc aggcaaagcg
+     3181 ccattcgcca ttcaggctgc gcaactgttg ggaagggcga tcggtgcggg cctcttcgct
+     3241 attacgccag ctggcgaaag ggggatgtgc tgcaaggcga ttaagttggg taacgccagg
+     3301 gttttcccag tcacgacgtt gtaaaacgac ggccagtgaa tccgtaatca tggtcatatg
+     3361 tatatctcct tcttaaagtt aaacaaaatt atttctagag gggaattgtt atccgctcac
+     3421 aattccacac aacatacgag ccggaagcat aaagtgtaaa gcctgggatc gagatctcga
+     3481 tcctctacgc cggacgcatc gtggccggca tcaccggcgc cacaggtgcg gttgctggcg
+     3541 cctatatcgc cgacatcacc gatggggaag atcgggctcg ccacttcggg ctcatgagcg
+     3601 cttgtttcgg cgtgggtatg gtggcaggcc ccgtggccgg gggactgttg ggcgccatct
+     3661 ccttgcatgc accattcctt gcggcggcgg tgctcaacgg cctcaaccta ctactgggct
+     3721 gcttcctaat gcaggagtcg cataagggag agcgtcgaga tcccggacac catcgaatgg
+     3781 cgcaaaacct ttcgcggtat ggcatgatag cgcccggaag agagtcaatt cagggtggtg
+     3841 aatgtgaaac cagtaacgtt atacgatgtc gcagagtatg ccggtgtctc ttatcagacc
+     3901 gtttcccgcg tggtgaacca ggccagccac gtttctgcga aaacgcggga aaaagtggaa
+     3961 gcggcgatgg cggagctgaa ttacattccc aaccgcgtgg cacaacaact ggcgggcaaa
+     4021 cagtcgttgc tgattggcgt tgccacctcc agtctggccc tgcacgcgcc gtcgcaaatt
+     4081 gtcgcggcga ttaaatctcg cgccgatcaa ctgggtgcca gcgtggtggt gtcgatggta
+     4141 gaacgaagcg gcgtcgaagc ctgtaaagcg gcggtgcaca atcttctcgc gcaacgcgtc
+     4201 agtgggctga tcattaacta tccgctggat gaccaggatg ccattgctgt ggaagctgcc
+     4261 tgcactaatg ttccggcgtt atttcttgat gtctctgacc agacacccat caacagtatt
+     4321 attttctccc atgaagacgg tacgcgactg ggcgtggagc atctggtcgc attgggtcac
+     4381 cagcaaatcg cgctgttagc gggcccatta agttctgtct cggcgcgtct gcgtctggct
+     4441 ggctggcata aatatctcac tcgcaatcaa attcagccga tagcggaacg ggaaggcgac
+     4501 tggagtgcca tgtccggttt tcaacaaacc atgcaaatgc tgaatgaggg catcgttccc
+     4561 actgcgatgc tggttgccaa cgatcagatg gcgctgggcg caatgcgcgc cattaccgag
+     4621 tccgggctgc gcgttggtgc ggatatctcg gtagtgggat acgacgatac cgaagacagc
+     4681 tcatgttata tcccgccgtt aaccaccatc aaacaggatt ttcgcctgct ggggcaaacc
+     4741 agcgtggacc gcttgctgca actctctcag ggccaggcgg tgaagggcaa tcagctgttg
+     4801 cccgtctcac tggtgaaaag aaaaaccacc ctggcgccca atacgcaaac cgcctctccc
+     4861 cgcgcgttgg ccgattcatt aatgcagctg gcacgacagg tttcccgact ggaaagcggg
+     4921 cagtgagcgc aacgcaatta atgtaagtta gctcactcat taggcaccgg gatctcgacc
+     4981 gatgcccttg agagccttca acccagtcag ctccttccgg tgggcgcggg gcatgactat
+     5041 cgtcgccgca cttatgactg tcttctttat catgcaactc gtaggacagg tgccggcagc
+     5101 gctctgggtc attttcggcg aggacccatt cctgtagact tcttaattaa gacgtcagaa
+     5161 ttctcgaggc ggccgcatgt gagtctccct atagtgagtc gtattaattt cgcgggcgga
+     5221 acccctattt gtttattttt ctaaatacat tcaaatatgt atccgctcat gagtagcacc
+     5281 aggcgtttaa gggcaccaat aactgcctta aaaaaattac gccccgccct gccactcatc
+     5341 gcagtactgt tgtaattcat taagcattct gccgacatgg aagccatcac aaacggcatg
+     5401 atgaacctga atcgccagcg gcatcagcac cttgtcgcct tgcgtataat atttgcccat
+     5461 ggtgaaaacg ggggcgaaga agttgtccat attggccacg tttaaatcaa aactggtgaa
+     5521 actcacccag ggattggctg agacaaaaaa catattctca ataaaccctt tagggaaata
+     5581 ggccaggttt tcaccgtaac acgccacatc ttgcgaatat atgtgtagaa actgccggaa
+     5641 atcgtcgtgg tattcactcc agagcgatga aaacgtttca gtttgctcat ggaaaacggt
+     5701 gtaacaaggg tgaacactat cccatatcac cagctcaccg tctttcattg ccatacgaaa
+     5761 ttccggatga gcattcatca ggcgggcaag aatgtgaata aaggccggat aaaacttgtg
+     5821 cttatttttc tttacggtct ttaaaaaggc cgtaatatcc agctgaacgg tctggttata
+     5881 ggtacattga gcaactgact gaaatgcctc aaaatgttct ttacgatgcc attgggatat
+     5941 atcaacggtg gtatatccag tgattttttt ctccatttta gcttccttag ctcctgaaaa
+     6001 tctcgataac tcaaaaaata cgcccggtag tgatcttatt tcattatggt gaaagttgga
+     6061 acctcttacg tgccgatcaa agtctcattt tcgccaaaag ttgtcatgac caaaatccct
+     6121 taacgtgagt tttcgttcca ctgagcgtca gaccccgtag aaaagatcaa aggatcttct
+     6181 tgagatcctt tttttctgcg cgtaatctgc tgcttgcaaa caaaaaaacc accgctacca
+     6241 gcggtggttt gtttgccgga tcaagagcta ccaactcttt ttccgaaggt aactggcttc
+     6301 agcagagcgc agataccaaa tactgttctt ctagtgtagc cgtagttagg ccaccacttc
+     6361 aagaactctg tagcaccgcc tacatacctc gctctgctaa tcctgttacc agtggctgct
+     6421 gccagtggcg ataagtcgtg tcttaccggg ttggactcaa gacgatagtt accggataag
+     6481 gcgcagcggt cgggctgaac ggggggttcg tgcacacagc ccagcttgga gcgaacgacc
+     6541 tacaccgaac tgagatacct acagcgtgag ctatgagaaa gcgccacgct tcccgaaggg
+     6601 agaaaggcgg acaggtatcc ggtaagcggc agggtcggaa caggagagcg cacgagggag
+     6661 cttccagggg gaaacgcctg gtatctttat agtcctgtcg ggtttcgcca cctctgactt
+     6721 gagcgtcgat ttttgtgatg ctcgtcaggg gggcggagcc tatggaaaaa cgccagcaat
+     6781 gcggcctttt tacggttcct ggccttttgc tggccttttg ctcacatgtt ctttcctgcg
+     6841 ttatcccctg attctgtgga taaccgtatt accgcctttg agtgagctga taccgctcgc
+     6901 cgcagccgaa cgaccgagcg cagcgagtca gtgagcgagg aagccgaaaa atcaataatc
+     6961 agacaacaag atgtgcgaac
+//

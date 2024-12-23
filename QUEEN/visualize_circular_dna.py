@@ -17,7 +17,7 @@ except:
 matplotlib.rcParams["figure.max_open_warning"] = 0
 matplotlib.rcParams['ps.fonttype'] = 42
 matplotlib.rcParams['pdf.fonttype'] = 42
-matplotlib.rcParams['font.sans-serif']   = ["Arial","Lucida Sans","DejaVu Sans","Lucida Grande","Verdana"]
+matplotlib.rcParams['font.sans-serif']   = ["Helvetica", "Arial","Lucida Sans","DejaVu Sans","Lucida Grande","Verdana"]
 matplotlib.rcParams['font.family']       = 'sans-serif'
 matplotlib.rcParams['font.size']         = 8.0
 matplotlib.rcParams['font.weight']       = 500

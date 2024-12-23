@@ -1603,7 +1603,6 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             else:
                 raise ValueError("When 'adapter_mode' is 'standard', adapter value must be a QUEEN object or str object.")
 
-
         elif mode == "attB":
             for i in range(len(filtered_primer_pairs)):
                 if adapter == "attB1":
@@ -1630,10 +1629,10 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
 
             adapter_features = [feat for feat in adapter.dnafeatures if feat.feature_type not in ("source", "primer", "primer_bind")]
             for i in range(len(filtered_primer_pairs)):
-                s = filtered_primer_pairs[i]["fw"][1]
-                e = len(amplicon_region.seq) - filtered_primer_pairs[i]["rv"][1] 
-                pcr_amplicon = amplicon_region[s:e] 
-                amplicon_features = [feat for feat in pcr_amplicon.dnafeatures if feat.feature_type not in ("source", "primer", "primer_bind")]
+                #s = filtered_primer_pairs[i]["fw"][1]
+                #e = len(amplicon_region.seq) - filtered_primer_pairs[i]["rv"][1] 
+                #pcr_amplicon = amplicon_region[s:e] 
+                amplicon_features = [feat for feat in amplicon_region.dnafeatures if feat.feature_type not in ("source", "primer", "primer_bind")]
                 amplicon_features.sort(key=lambda x: x.start) 
                  
                 if strand == "fw":
@@ -1706,7 +1705,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                         feat1 = adapter_features[-1] 
                         feat2 = amplicon_features[0] 
                         fragment1 = adapter[feat1.start:].seq  
-                        fragment2 = pcr_amplicon[:feat2.end].seq 
+                        fragment2 = amplicon_region[:feat2.end].seq 
                         gapseq = "".join([random.choice("ATGC") for _ in range((len(fragment1) + len(fragment2)) % 3)])
                         filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter.seq[-1*homology_length:] + gapseq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
                     else:
@@ -1886,12 +1885,13 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             end = end - len(template.seq) * (end // len(template.seq))  
         else:
             pass
+    
     amplicon_region = template[start:end]
-    start = amplicon_region.seq.find(target.seq) 
-    end   = start + len(target.seq)
+    amp_start = amplicon_region.seq.find(target.seq) 
+    amp_end   = amp_start + len(target.seq)
     fw_candidates = [] 
     if fw_primer is None:
-        for pos in range(start+1):
+        for pos in range(amp_start+1):
             for plen in range(primer_length[0], primer_length[1] + 1): 
                 fw_candidate = amplicon_region.seq[pos:pos+plen]
                 fw_candidates.append([str(fw_candidate), pos]) 
@@ -1901,7 +1901,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
 
     rv_candidates = [] 
     if rv_primer is None:
-        for pos in range(end-len(target.seq)+1):
+        for pos in range(amp_end-len(target.seq)+1):
             for plen in range(primer_length[0], primer_length[1] + 1): 
                 rv_candidate = amplicon_region.rcseq[pos:pos+plen]
                 rv_candidates.append([str(rv_candidate), pos]) 
@@ -1946,6 +1946,13 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             filtered_primer_pairs.append(primer_pair)  
         else:
             pass
+    
+    #Automatic RE search 
+    #if adapter_mode == "RE" and ((type(fw_adapter) == str and fw_adapter == "") or (fw_adapter is None) or (type(fw_adapter) is int)):
+
+    #Automatic RE search 
+    #if adapter_mode == "RE" and ((type(fw_adapter) == str and fw_adapter == "") or (fw_adapter is None) or (type(fw_adapter) is int)):
+   
     filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, fw_adapter, adapter_mode, homology_length, "fw", fw_name, auto_adjust)
     filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, adapter_mode, homology_length, "rv", rv_name, auto_adjust)
 
@@ -1955,3 +1962,4 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         filtered_primer_pairs[i]["rv"] = filtered_primer_pairs[i]["rv"][0]
         filtered_primer_pairs[i]["rv"].setfeature({"feature_type":"primer_bind", "qualifier:label":rv_name})
     return filtered_primer_pairs[:design_num]
+

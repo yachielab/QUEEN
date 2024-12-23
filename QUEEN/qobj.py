@@ -323,6 +323,9 @@ class QUEEN():
                     new_seq += t
         return new_top, new_bottom, new_seq 
     
+    def __len__(self):
+        return len(self.seq)
+
     def __deepcopy__(self, memo):
         obj = QUEEN(seq=self.seq, quinable=0)
         for key in self.__dict__:

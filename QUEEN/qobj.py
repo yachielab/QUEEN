@@ -1534,10 +1534,10 @@ class QUEEN():
                 return subdna 
 
         if type(item) == str:
-            s1 = self.searchfeature(query="^"+item+"$", key_attribute="feature_id")
-            s2 = self.searchfeature(query=item, key_attribute="qualifier:label")
-            s3 = self.searchfeature(query=item, key_attribute="qualifier:gene")
-            s4 = self.searchfeature(query=item, key_attribute="qualifier:product")
+            s1 = self.searchfeature(query="^"+item+"$", key_attribute="feature_id", quinable=False)
+            s2 = self.searchfeature(query=item, key_attribute="qualifier:label",    quinable=False)
+            s3 = self.searchfeature(query=item, key_attribute="qualifier:gene",     quinable=False)
+            s4 = self.searchfeature(query=item, key_attribute="qualifier:product",  quinable=False)
             s1234 = s1 + s2 + s3 + s4
             if len(s1234) == 0:
                 raise ValueError("The index value(s) were not found, you should try different value.") 
@@ -1562,10 +1562,10 @@ class QUEEN():
                 starts = [] 
                 end  = 0 
                 for i, query in enumerate(item):
-                    s1 = temp.searchfeature(query="^"+query+"$", key_attribute="feature_id")
-                    s2 = temp.searchfeature(query=query, key_attribute="qualifier:label")
-                    s3 = temp.searchfeature(query=query, key_attribute="qualifier:gene")
-                    s4 = temp.searchfeature(query=query, key_attribute="qualifier:product")
+                    s1 = temp.searchfeature(query="^"+query+"$", key_attribute="feature_id", quinable=False)
+                    s2 = temp.searchfeature(query=query, key_attribute="qualifier:label",    quinable=False)
+                    s3 = temp.searchfeature(query=query, key_attribute="qualifier:gene",     quinable=False)
+                    s4 = temp.searchfeature(query=query, key_attribute="qualifier:product",  quinable=False)
                     s1234 = s1 + s2 + s3 + s4
                     if len(s1234) == 0:
                         raise ValueError("The index value(s) were not found, you should try different value.") 
@@ -1592,10 +1592,10 @@ class QUEEN():
 
             else:
                 if type(item[0]) == str and exclude == 1:
-                    s1 = self.searchfeature(query="^"+item[0]+"$", key_attribute="feature_id")
-                    s2 = self.searchfeature(query=item[0], key_attribute="qualifier:label")
-                    s3 = self.searchfeature(query=item[0], key_attribute="qualifier:gene")
-                    s4 = self.searchfeature(query=item[0], key_attribute="qualifier:product")
+                    s1 = self.searchfeature(query="^"+item[0]+"$", key_attribute="feature_id", quinable=False)
+                    s2 = self.searchfeature(query=item[0], key_attribute="qualifier:label",    quinable=False)
+                    s3 = self.searchfeature(query=item[0], key_attribute="qualifier:gene",     quinable=False)
+                    s4 = self.searchfeature(query=item[0], key_attribute="qualifier:product",  quinable=False)
                     s1234 = s1 + s2 + s3 + s4
                     if len(s1234) == 0:
                         raise ValueError("The index value(s) were not found, you should try different value.") 

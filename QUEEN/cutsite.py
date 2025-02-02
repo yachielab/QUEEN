@@ -23,6 +23,56 @@ def compilecutsite(site):
         raise ValueError("The sequence does not match the format pattern for representing a cutting site.")  
     return seq 
 
+def getend(site):
+    ref1 = r"([ATGCRYKMSWBDHVN]+)(\([\-0-9]+/[\-0-9]+\))"
+    ref2 = r"(\([\-0-9]+/[\-0-9]+\))([ATGCRYKMSWBDHVN]+)(\([\-0-9]+/[\-0-9]+\))"
+    ref3 = r"(\([\-0-9]+/[\-0-9]+\))([ATGCRYKMSWBDHVN]+)"
+    
+    match1 = re.fullmatch(ref1, site)
+    match2 = re.fullmatch(ref2, site)
+    match3 = re.fullmatch(ref3, site)
+    
+    if match1 is not None:
+        s,e = map(int, match1.group(2)[1:-1].split("/")) 
+        seq = match1.group(1)
+        if s > 0 and e > 0:
+            end = "N" * abs(s-e)
+        else:
+            if s < e:
+                end = seq[s:e]
+            else:
+                end = seq[e:s].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
+    
+    elif match2 is not None:
+        s1,e1 = map(int, match2.group(1)[1:-1].split("/")) 
+        s2,e2 = map(int, match2.group(3)[1:-1].split("/")) 
+        seq = match2.group(2)
+        end = None
+
+    elif match3 is not None:
+        s,e = map(int, match1.group(2)[1:-1].split("/")) 
+        seq = match3.group(1) 
+        if s < 0 and e < 0:
+            end = "N" * abs(s-e)
+        else:
+            if s < e:
+                end = seq[s:e]
+            else:
+                end = seq[e:s].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
+
+    elif "_" in site and "^" in site and site.count("_") == site.count("^"):
+        seq = site.replace("_","").replace("^","") 
+        s = site.find("^") 
+        e = site.find("_")
+        if s < e:
+            end = seq[s:e] 
+        else:
+            end = seq[e:s].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
+    else:
+        raise ValueError("The sequence does not match the format pattern for representing a cutting site.")  
+    
+    return end
+
 class _CUTSITES:
     def __setitem__(self, key, item):
         self.__dict__[key] = Cutsite(compilecutsite(item), item, key)
@@ -47,6 +97,7 @@ class Cutsite:
         self.seq       = Qseq(seq)
         self.rcseq     = Qseq(seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")))[::-1]
         self.cutsite   = Qseq(site) 
+        self.endseq    = getend(site) 
         self.name      = name
         self.seq.parent             = self
         self.seq.name               = "seq"

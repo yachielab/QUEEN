@@ -10,6 +10,10 @@ from Bio.SeqUtils import MeltingTemp as mt
 import functools
 import collections
 
+HF_enzymes = ["AgeI", "ApoI", "BamHI", "BbsI", "BclI", "BmtI", "BsaI", "BsiWI", "BsrGI", "BstEII", "DraIII", 
+              "EagI", "EcoRI", "EcoRV", "HindIII", "KpnI", "MfeI", "MluI", "NcoI", "NheI", "NotI", "NruI", 
+              "NsiI", "PstI", "PvuI", "PvuII", "SacI", "SalI", "ScaI", "SpeI", "SphI", "SspI", "StyI"]
+
 def _combine_history(dna, histories):
     combined_history = collections.defaultdict(dict) 
     combined_history["building_history"] = {} 
@@ -476,8 +480,8 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
             fragments.append(afragment) 
         return fragments
     else:
-        if product is not None:
-            dfragment = modifyends(dfragment, left="", right="", qexd=qexd, product=product, pn=process_name, pd=process_description) 
+        #if product is not None:
+        dfragment = modifyends(dfragment, left="", right="", qexd=qexd, product=product, pn=process_name, pd=process_description) 
         return dfragment 
 
 def ligation(*fragments, unique=True, follow_order=False, auto_select=True, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs): 
@@ -1485,9 +1489,9 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         immediately preceding the target used for the current primer design will be automatically specified.  
         The adapter sequence overlapping the specified QUEEN object will be automatically designed and 
         prepended to the forward primer. 
-        If mode is `"RE"`, the value must be a Cutsite object or a `str` object representing a restriction 
-        enzyme (RE) site. The adapter sequence including the specified RE site will be added at the beginning 
-        of the forward primers.
+        If mode is `"RE"`, the value must be specified by a Cutsite object, a `str` object representing a restriction 
+        enzyme (RE) site or None. If a cutsite is specified, the adapter sequence including the specified RE site will 
+        be added at the beginning of the forward primers. If None, a proper RE sites are automatically selected or added. 
         If mode is "BP", the value must be "attB1" or "attB2". The specified attB site will be added at the 
         beginning of the forward primers. Currently, "attB1" and "attB2" are specified as follows:
         attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
@@ -1501,9 +1505,9 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         immediately following the target used for the current primer design will be automatically specified.  
         The adapter sequence overlapping the specified QUEEN object will be automatically designed and 
         prepended to the reverse primer. 
-        If mode is `"RE"`, the value must be a Cutsite object or a `str` object representing a restriction 
-        enzyme (RE) site. The adapter sequence including the specified RE site will be added at the beginning 
-        of the reverse primers.
+        If mode is `"RE"`, the value must be specified by a Cutsite object, a `str` object representing a restriction 
+        enzyme (RE) site or None. If a cutsite is specified, the adapter sequence including the specified RE site will 
+        be added at the beginning of the reverse primers. If None, a proper RE sites are automatically selected or added.
         If mode is "BP", the value must be "attB1" or "attB2". The specified attB site will be added at the 
         beginning of the reverse primers. Currently, "attB1" and "attB2" are specified as follows:
         attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
@@ -1711,7 +1715,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                     else:
                         feat1 = amplicon_features[-1] 
                         feat2 = adapter_features[0] 
-                        fragment1 = pcr_amplicon[feat1.start:].seq  
+                        fragment1 = amplicon_region[feat1.start:].seq  
                         fragment2 = adapter[:feat2.end].seq 
                         gapseq = "".join([random.choice("ATGC") for _ in range((len(fragment1) + len(fragment2)) % 3)])
                         filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter.rcseq[-1*homology_length:] + gapseq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
@@ -1828,6 +1832,76 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             else:
                 fw_adapters = [fw_adapter] * len(template) if type(template) != list else fw_adapter
                 rv_adapters = [rv_adapter] * len(template) if type(template) != list else rv_adapter
+        
+        #elif adapter_mode == "RE":                 
+        #    if fw_adapter is None and rv_adapter is None:
+        #        fw_adapters = [] 
+        #        rv_adapters = [] 
+        #        new_target = [] 
+                 
+        #        cs_keys = HF_enzymes 
+        #        random.shuffle(cs_keys)
+
+        #        used_cs  = []
+        #        used_end = [] 
+                
+        #        for i, (temp, targ, fw_marg, rv_marg) in enumerate(zip(template, target, fw_margins, rv_margins)):
+        #            es = temp.seq.find(targ.seq) 
+        #            ss = es - fw_marg
+        #            se = es + len(targ.seq) 
+        #            ee = se + rv_marg
+
+        #            seq1 = temp[ss:es]
+        #            seq2 = temp[se:ee] 
+        #            new_targ = temp[ss:ee].seq 
+
+        #            if i == 0:
+        #                for key in cs.lib.keys():
+        #                    if cs.lib[key].seq in seq1 and new_targ.count(cs.lib[key].seq) == 1 and key not in used_cs:     
+        #                        s = ss + new_targ.find(cs.lib[key].seq) 
+        #                        used_cs.append(key)
+        #                        used_end.append(cs.lib[key].end) 
+        #                        break
+        #                    else:
+        #                        s = es
+        #                        break 
+
+        #                for key in cs.lib.keys():
+        #                    if cs.lib[key].seq in seq2 and new_targ.count(cs.lib[key].seq) == 1 and key not in used_cs:
+        #                        e = ss + new_targ.find(cs.lib[key].seq) + len(cs.lib[key].seq) 
+        #                        used_cs.append(key)
+        #                        used_end.append(cs.lib[key].end) 
+        #                        break
+        #                    else:
+        #                        e = se 
+        #                        break 
+        #                new_targ = temp[s:e]
+        #            
+        #            else:
+        #                for key in cs.lib.keys():
+        #                    if cs.lib[used_cs[-1]].seq in seq1 and new_targ.count(cs.lib[used_cs[-1]].seq) == 1:     
+        #                        s = ss + new_targ.find(cs.lib[key].seq) 
+        #                        used_cs.add(key)
+        #                        used_end.add(cs.lib[key].end) 
+        #                        break
+        #                    else:
+        #                        s = es
+        #                        break 
+
+        #                for key in cs.lib.keys():
+        #                    if cs.lib[key].seq in seq2 and new_targ.count(cs.lib[key].seq) == 1 and key not in used_cs:
+        #                        e = ss + new_targ.find(cs.lib[key].seq) + len(cs.lib[key].seq) 
+        #                        used_cs.add(key)
+        #                        used_end.add(cs.lib[key].end) 
+        #                        break
+        #                    else:
+        #                        e = se 
+        #                        break 
+        #                new_targ = temp[s:e]    
+        #            
+        #    else:               
+        #        fw_adapters = [fw_adapter] * len(template) if type(template) != list else fw_adapter
+        #        rv_adapters = [rv_adapter] * len(template) if type(template) != list else rv_adapter
         else:
             fw_adapters = [fw_adapter] * len(template) if type(template) != list else fw_adapter
             rv_adapters = [rv_adapter] * len(template) if type(template) != list else rv_adapter
@@ -1947,12 +2021,6 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         else:
             pass
     
-    #Automatic RE search 
-    #if adapter_mode == "RE" and ((type(fw_adapter) == str and fw_adapter == "") or (fw_adapter is None) or (type(fw_adapter) is int)):
-
-    #Automatic RE search 
-    #if adapter_mode == "RE" and ((type(fw_adapter) == str and fw_adapter == "") or (fw_adapter is None) or (type(fw_adapter) is int)):
-   
     filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, fw_adapter, adapter_mode, homology_length, "fw", fw_name, auto_adjust)
     filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, adapter_mode, homology_length, "rv", rv_name, auto_adjust)
 

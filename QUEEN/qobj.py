@@ -2322,6 +2322,11 @@ class QUEEN():
                     ordered_dict[key] = self._history["building_history"][key]
             self.record.annotations["structured_comment"]["building_history"] = ordered_dict
             self._history["building_history"] = history
+        else:
+            if "structured_comment" not in self.record.annotations:
+                pass 
+            else:
+                self.record.annotations["structured_comment"] = None 
 
         SeqIO.write(self.record, handle, format)
         self.record.features = self.dnafeatures

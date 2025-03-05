@@ -37,10 +37,22 @@ def getend(site):
         seq = match1.group(1)
         if s > 0 and e > 0:
             end = "N" * abs(s-e)
+            if s < e:
+                top, bottom = -1, 1
+            else:
+                if s == e:
+                    top, bottom = 1, 1 
+                else:
+                    top, bottom = 1, -1 
         else:
             if s < e:
                 end = seq[s:e]
+                top, bottom = -1, 1
             else:
+                if s == e: 
+                    top, bottom = 1, 1 
+                else:
+                    top, bottom = 1, -1 
                 end = seq[e:s].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
     
     elif match2 is not None:
@@ -48,16 +60,30 @@ def getend(site):
         s2,e2 = map(int, match2.group(3)[1:-1].split("/")) 
         seq = match2.group(2)
         end = None
+        top = None
+        bottom = None
 
     elif match3 is not None:
-        s,e = map(int, match1.group(2)[1:-1].split("/")) 
+        s,e = map(int, match3.group(2)[1:-1].split("/")) 
         seq = match3.group(1) 
         if s < 0 and e < 0:
             end = "N" * abs(s-e)
+            if s < e:
+                top, bottom = -1, 1
+            else:
+                if s == e:
+                    top, bottom = 1, 1 
+                else:
+                    top, bottom = 1, -1 
         else:
             if s < e:
                 end = seq[s:e]
+                top, bottom = -1, 1
             else:
+                if s == e:
+                    top, bottom = 1, 1 
+                else:
+                    top, bottom = 1, -1 
                 end = seq[e:s].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
 
     elif "_" in site and "^" in site and site.count("_") == site.count("^"):
@@ -65,13 +91,17 @@ def getend(site):
         s = site.find("^") 
         e = site.find("_")
         if s < e:
-            end = seq[s:e] 
+            end = seq[s:e-1] 
+            top, bottom = -1, 1
         else:
-            end = seq[e:s].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
+            if s == e:
+                top, bottom = 1, 1 
+            else:
+                top, bottom = 1, -1 
+            end = seq[e:s-1].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
     else:
         raise ValueError("The sequence does not match the format pattern for representing a cutting site.")  
-    
-    return end
+    return end, top, bottom
 
 class _CUTSITES:
     def __setitem__(self, key, item):
@@ -97,7 +127,10 @@ class Cutsite:
         self.seq       = Qseq(seq)
         self.rcseq     = Qseq(seq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")))[::-1]
         self.cutsite   = Qseq(site) 
-        self.endseq    = getend(site) 
+        endseq, top, bottom = getend(site) 
+        self.endseq    = endseq 
+        self.top       = top
+        self.bottom    = bottom
         self.name      = name
         self.seq.parent             = self
         self.seq.name               = "seq"

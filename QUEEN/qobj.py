@@ -446,7 +446,6 @@ class QUEEN():
     def __getattribute__(self, name):
         if name == "features_dict":
             return dict(list(map(lambda x:(x._id, x), self.dnafeatures)))
-
         elif name == "_seq":
             qseq = Qseq(super().__getattribute__(name))
             if "_product_id" in self.__dict__:
@@ -455,7 +454,7 @@ class QUEEN():
                 qseq.parental_id = self._unique_id 
             qseq.parent = self 
             qseq.parental_class = "QUEEN"
-            return qseq
+            return qseq 
         else:
             return super().__getattribute__(name)  
     
@@ -502,9 +501,11 @@ class QUEEN():
 
         elif name == "processdict":
             return dict(zip(self._processids, [QUEEN._processes[key] for key in self._processids]))
-        
         else:
-            raise AttributeError("QUEEN obejct has no attribute '{}'".format(name))
+            if name == "_product_id":
+                return "None"
+            else:
+                raise AttributeError("QUEEN obejct has no attribute '{}'".format(name))
     
 
     def __init__(self, seq=None, record=None, fileformat=None, dbtype="local", topology="linear", ssdna=False, import_history=True, supfeature=False, project=None, product=None, process_name=None, process_description=None, 

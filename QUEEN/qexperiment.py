@@ -1860,7 +1860,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         primer_lengths     = [primer_length] * len(template) if type(primer_length) != list else primer_length 
         design_nums        = [design_num] * len(template) if type(design_num) != list else design_num
 
-        adapter_modes      = [adapter_mode] * len(adapter_mode) if type(adapter_mode) != list else adapter_mode
+        adapter_modes      = [adapter_mode] * len(template) if type(adapter_mode) != list else adapter_mode
         if adapter_mode in ("gibson", "infusion", "overlappcr"):
             if fw_adapter is None and rv_adapter is None:
                 fw_adapters = [None]  
@@ -1916,12 +1916,12 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                             rv_adapters.append(rva) 
 
             else:
-                fw_adapters = [fw_adapter] * len(template) if type(template) != list else fw_adapter
-                rv_adapters = [rv_adapter] * len(template) if type(template) != list else rv_adapter
+                fw_adapters = [fw_adapter] * len(template) if type(fw_adapter) != list else fw_adapter
+                rv_adapters = [rv_adapter] * len(template) if type(rv_adapter) != list else rv_adapter
         
         else:
-            fw_adapters = [fw_adapter] * len(template) if type(template) != list else fw_adapter
-            rv_adapters = [rv_adapter] * len(template) if type(template) != list else rv_adapter
+            fw_adapters = [fw_adapter] * len(template) if type(fw_adapter) != list else fw_adapter
+            rv_adapters = [rv_adapter] * len(template) if type(rv_adapter) != list else rv_adapter
 
         homology_lengths   = [homology_length] * len(template) if type(homology_length) != list else homology_length
         nonspecific_limits = [nonspecific_limit] * len(template) if type(nonspecific_limit) != list else nonspecific_limit
@@ -1929,6 +1929,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         requirements       = [requirement] * len(template) if type(requirement) != list else requirement
         fw_names           = [fw_name] * len(template) if type(fw_name) != list else fw_name
         rv_names           = [rv_name] * len(template) if type(rv_name) != list else rv_name 
+        print([template, target, fw_primers, rv_primers, fw_margins, rv_margins, target_tms, tm_funcs, primer_lengths, design_nums, adapter_modes, fw_adapters, rv_adapters, homology_lengths, nonspecific_limits, auto_adjusts, requirements, fw_names, rv_names])
         arguments = list(zip(*[template, target, fw_primers, rv_primers, fw_margins, rv_margins, target_tms, tm_funcs, primer_lengths, design_nums, adapter_modes, fw_adapters, rv_adapters, homology_lengths, nonspecific_limits, auto_adjusts, requirements, fw_names, rv_names]))
         
         primer_pair_set = [] 

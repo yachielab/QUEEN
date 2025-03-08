@@ -1444,11 +1444,17 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                  homology_length=20, nonspecific_limit=3, auto_adjust=1, 
                  requirement=None, fw_name="fw_primer", rv_name="rv_primer"):
     """
-    Design forward and reverse primers for PCR amplification of a target region, allowing for the introduction of specific 
-    mutations, checking primer specificity, and meeting additional user-defined requirements. If a list of templates and 
-    targets is specified, a batch process will be executed for each template and target. In that case, the other parameters 
-    except for `adapter_mode` can also be specified as a list of appropriate class objects. However, each list should be 
-    the same length as the list of templates.
+    Design forward and reverse primers for PCR amplification of a specified target region.
+    Primers can incorporate desired mutations, be checked for specificity, and meet additional
+    user-defined requirements. If multiple templates and targets are provided, primers are designed
+    in batch mode for each template-target pair. 
+
+    When using batch mode, overlapping sequences (homology regions) required for homology-based cloning 
+    methods, such as Gibson Assembly or In-Fusion cloning, are automatically designed based on the specified 
+    order of templates and targets.
+    
+    In a batch process, the other parameters except for `adapter_mode` can also be specified as a list of 
+    appropriate class objects. However, each list should be the same length as the list of templates.
 
     Parameters
     ----------
@@ -1456,8 +1462,8 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         The QUEEN object to serve as the PCR template. If a `list` of templates is specified, appropriate primer pairs 
         will be designed for each template.
     target : QUEEN object or list of QUEEN objects. 
-        The sub-region in the template QUEEN object that needs to be included in the amplicon. If a list of targets is specified, 
-        the lengths should be the same, and each element should correspond to the template list. 
+        The sub-region in the template QUEEN object that needs to be included in the amplicon. If a list of targets is 
+        specified, the lengths should be the same, and each element should correspond to the template list. 
     fw_primer : ssDNA QUEEN object or list of ssDNA QUEEN object, optional
         If provided, this sequence will be used as the forward primer.
     rv_primer : ssDNA QUEEN object or list of ssDNA QUEEN object, optional
@@ -1483,39 +1489,41 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         The mode value specifies the the format of `fw_adapter` and `rv_adapter`. In batch process mode, 
         this value should be common for all processes 
     fw_adapter : QUEEN object, str, Cutsite, or list of each, optional
-        If mode is `"standard"`, the value must be a QUEEN object or a `str` object representing a DNA 
-        sequence. The sequence will be added at the beginning of any forward primers designed.
-        If the mode is "gibson", "infusion", or "overlappcr", the value shold be a dsDNA QUEEN object or `None`.   
-        If the other value is specified in these modes, `adapter_mode` will be regarded as "standard".  
-        Also, if the value is `None` and the target is specified as a list of QUEEN objects, the QUEEN object 
-        immediately preceding the target used for the current primer design will be automatically specified.  
-        The adapter sequence overlapping the specified QUEEN object will be automatically designed and 
-        prepended to the forward primer. 
-        If mode is `"RE"`, the value must be specified by a Cutsite object, a `str` object representing a restriction 
-        enzyme (RE) site or the liner DNA fragment digested by `digestion` function. If a cutsite is specified, 
-        the adapter sequence including the specified RE site will be added at the beginning of the forward primers. 
-        If a digested fragment is specied, a proper RE site is automatically selected or added. 
+        In normal process (not batch process), if `adapter_mode` is `"standard"`, the value must be a 
+        QUEEN object or a `str` object representing a DNA sequence. The sequence will be added at the 
+        beginning of any forward primers designed. Also if the mode is `"gibson"`, `"infusion"`, or 
+        `"overlappcr"`, the value shold be a dsDNA QUEEN object or `None`.   
+        If mode is `"RE"`, the value must be specified by a Cutsite object, a `str` object representing 
+        a restriction enzyme (RE) site or the liner DNA fragment digested by `digestion` function. 
+        If a cutsite is specified, the adapter sequence including the specified RE site will be added 
+        at the beginning of the forward primers. If a digested fragment is specied, the corresponding RE 
+        site is automatically selected and prepended to the forward primer. 
         If mode is "BP", the value must be "attB1" or "attB2". The specified attB site will be added at the 
         beginning of the forward primers. Currently, "attB1" and "attB2" are specified as follows:
         attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
         attB2: GGGGACCACTTTGTACAAGAAAGCTGGGT
+        In batch process, and `adapter_mode` is `"gibson"`, `"infusion"` or `"overlappcr"`, sequence 
+        overlapping the QUEEN object immediately preceding the target used for the current primer design 
+        will be automatically designed by joining the given `fw_adapter` value with `str` or QUEEN object 
+        and prepended to the forward primer.
     rv_adapter : QUEEN object, str, Cutsite, or list of each, optional
-        If mode is `"standard"`, the value must be a QUEEN object or a `str` object representing a DNA 
-        sequence. The sequence will be added at the beginning of any reverse primers designed.
-        If the mode is "gibson", "infusion", or "overlappcr", the value must be a dsDNA QUEEN object or `None`.   
-        If the other value is specified in these modes, `adapter_mode` will be regarded as "standard".  
-        Also, If the value is `None` and the target is specified as a list of QUEEN objects, the QUEEN object 
-        immediately following the target used for the current primer design will be automatically specified.  
-        The adapter sequence overlapping the specified QUEEN object will be automatically designed and 
-        prepended to the reverse primer. 
-        If mode is `"RE"`, the value must be specified by a Cutsite object, a `str` object representing a restriction 
-        enzyme (RE) site or the liner DNA fragment digested by `digestion` function. If a cutsite is specified, 
-        the adapter sequence including the specified RE site will be added at the beginning of the reverse primers. 
-        If a digested fragment is specied, a proper RE site is automatically selected or added. 
+        In normal process (not batch process), if `adapter_mode` is `"standard"`, the value must be a 
+        QUEEN object or a `str` object representing a DNA sequence. The sequence will be added at the 
+        beginning of any forward primers designed. Also iff the mode is `"gibson"`, `"infusion"`, or 
+        `"overlappcr"`, the value shold be a dsDNA QUEEN object or `None`.   
+        If mode is `"RE"`, the value must be specified by a Cutsite object, a `str` object representing 
+        a restriction enzyme (RE) site or the liner DNA fragment digested by `digestion` function. 
+        If a cutsite is specified, the adapter sequence including the specified RE site will be added 
+        at the beginning of the forward primers. If a digested fragment is specied, the corresponding RE 
+        site is automatically selected and prepended to the forward primer. 
         If mode is "BP", the value must be "attB1" or "attB2". The specified attB site will be added at the 
-        beginning of the reverse primers. Currently, "attB1" and "attB2" are specified as follows:
+        beginning of the forward primers. Currently, "attB1" and "attB2" are specified as follows:
         attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
         attB2: GGGGACCACTTTGTACAAGAAAGCTGGGT
+        In batch process, and `adapter_mode` is `"gibson"`, `"infusion"` or `"overlappcr"`, sequence 
+        overlapping the QUEEN object immediately preceding the target used for the current primer design 
+        will be automatically designed by joining the given `rv_adapter` value with `str` or QUEEN object 
+        and prepended to the reverse primer.
     homology_length : int or list of int, optional
         This parameter is active if `adapter_mode` is `"gibson"`, `"infusion"`, or `"overlappcr"`.  
         If an int value is provided, an adapter sequence including an overlapping end with the specified  
@@ -1885,23 +1893,40 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 if adapter_mode in ("gibson", "infusion"): 
                     for i, (fwa, rva) in enumerate(zip(fw_adapter, rv_adapter)):
                         if i == 0:
-                            fw_adapters.append(fwa) 
-                            rv_adapters.append(rva) 
+                            fwa = fwa if type(fwa) is QUEEN else QUEEN(seq=fwa, quinable=False)
+                            target[i] = fwa + target[i][0:len(target[i].seq)] 
+                            fw_adapters.append(None)
+
+                            rva = rva if type(rva) is QUEEN else QUEEN(seq=rva, quinable=False)
+                            target[i] = target[i][0:len(target[i].seq)] + flipdna(rva, auinable=False)
+                            rv_adapters.append(None) 
+
                         elif i < len(target) - 1:
                             if fwa is None:
                                 fw_adapters.append(target[i-1])
                             else:
-                                fw_adapters.append(fwa) 
-                            rv_adapters.append(rva) 
+                                fwa = fwa if type(fwa) is QUEEN else QUEEN(seq=fwa, quinable=False)
+                                target[i] = fwa + target[i][0:len(target[i].seq)] 
+                                fw_adapters.append(None)
+                            
+                            if rva is None:
+                                rv_adapters.append(None)
+                            else:
+                                rva = rva if type(rva) is QUEEN else QUEEN(seq=rva, quinable=False)
+                                target[i] = target[i][0:len(target[i].seq)] + flipdna(rva, auinable=False)
+                                rv_adapters.append(None) 
                         else:
                             if fwa is None: 
                                 fw_adapters.append(target[i-1])
                             else:
-                                fw_adapters.append(fwa)
+                                fwa = fwa if type(fwa) is QUEEN else QUEEN(seq=fwa, quinable=False)
+                                fw_adapters.append(fwa + target[i-1][0:len(target[i-1].seq)])
+                            
                             if rva is None:
                                 rv_adapters.append(target[0])
                             else:
-                                rv_adapters.append(rva)
+                                rva = rva if type(rva) is QUEEN else QUEEN(seq=rva, quinable=False)
+                                rv_adapters.append(rva + target[0][0:len(target[0].seq)])
 
                 if adapter_mode == "overlappcr":
                     for i in range(0, len(target)):

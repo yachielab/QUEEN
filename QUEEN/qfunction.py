@@ -3657,8 +3657,11 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
     if new_copy == True:
         return dna 
 
-def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None,label_location=None, display_label=2, display_title=True, display_axis=True, fontsize=None, fontsize_nucl=None, 
-                 tick_interval="auto", labelcolor="k", title=None, width_scale="auto", height_scale=1.0, linebreak=None, seq=False, rcseq=False, diamater_scale=1.0, fig= None):
+def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None, label_location=None, 
+                 display_label=2, display_title=True, display_axis=True, fontsize=None, fontsize_nucl=None, 
+                 tick_interval="auto", labelcolor="k", title=None, width_scale="auto", height_scale=1.0, linebreak=None, 
+                 seq=False, rcseq=False, diamater_scale=1.0, fig= None):
+    
     """Visualize the annotated sequence map of a `QUEEN_object`.
     
     Generate annotated sequence map of `QUEEN_object` with selected 

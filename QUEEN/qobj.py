@@ -1535,11 +1535,12 @@ class QUEEN():
                 return subdna 
 
         if type(item) == str:
-            s1 = self.searchfeature(query="^"+item+"$", key_attribute="feature_id", quinable=False)
-            s2 = self.searchfeature(query=item, key_attribute="qualifier:label",    quinable=False)
-            s3 = self.searchfeature(query=item, key_attribute="qualifier:gene",     quinable=False)
-            s4 = self.searchfeature(query=item, key_attribute="qualifier:product",  quinable=False)
-            s1234 = s1 + s2 + s3 + s4
+            s0 = self.searchfeature(query="^"+item+"$", key_attribute="feature_id",      quinable=False)
+            s1 = self.searchfeature(query="^"+item+"$", key_attribute="qualifier:label", quinable=False)
+            s2 = self.searchfeature(query=item, key_attribute="qualifier:label",   quinable=False)
+            s3 = self.searchfeature(query=item, key_attribute="qualifier:gene",    quinable=False)
+            s4 = self.searchfeature(query=item, key_attribute="qualifier:product", quinable=False)
+            s1234 = s0 + s1 + s2 + s3 + s4
             if len(s1234) == 0:
                 raise ValueError("The index value(s) were not found, you should try different value.") 
             else:

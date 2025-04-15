@@ -1652,7 +1652,7 @@ class QUEEN():
             else:
                 return joindna(other, self, quinable=0) 
     
-    def printsequence(self, start=None, end=None, strand=2, hide_middle=None, linebreak=None, display=False):
+    def printsequence(self, start=None, end=None, strand=2, hide_middle=None, linebreak=None, display=True):
         """Returns and displays partial or the entire dsDNA sequence and sequence end structures.
         
         Parameters
@@ -1665,7 +1665,7 @@ class QUEEN():
             Sequence strand(s) to be returned.
         display : bool (True or False), default: True   
             If `True`, the output will be displayed in `STDOUT`.  
-        hide_middle: int or None, default: None  
+        hide_middle: int or None, default: Noen if `len(QUEEN_object.seq)` is less than 100 else 20.
             Length of both end sequences to be displayed.  
         linebreak: int (default: length of the `QUEEN_object` sequence)  
             Length of sequence for linebreak.
@@ -1683,6 +1683,9 @@ class QUEEN():
             if display == True:
                 print("5' {} 3'".format(self.seq)) 
             return self.seq
+        
+        if hide_middle is None:
+            hide_middle = None if len(self.seq) < 100 else 20
 
         whole = False
         if linebreak is None:

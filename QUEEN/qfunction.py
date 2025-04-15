@@ -382,7 +382,7 @@ def _circularizedna(dna, compatibility, homology_length):
                         new_feat2 = feat1.__class__(feature=feat2, subject=dna) 
                         s = new_feat.start 
                         e = new_feat.end if new_feat.end <= len(dna.seq) else new_feat.end - len(dna.seq)
-                        if new_feat._original == dna.printsequence(new_feat1.start, new_feat2.end, new_feat.location.strand if new_feat.location.strand !=0 else 1):
+                        if new_feat._original == dna.printsequence(new_feat1.start, new_feat2.end, new_feat.location.strand if new_feat.location.strand !=0 else 1, display=False):
                             dna._dnafeatures[feat1_index].qualifiers["broken_feature"] = [note]
                             if len(new_seq) - ovhg_length == length1:
                                 del dna._dnafeatures[dna.dnafeatures.index(feat1)].qualifiers["broken_feature"]
@@ -652,7 +652,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                 e = feat.end
                 if s > e:
                     if "_original" not in feat.__dict__:
-                        feat._original = dna.printsequence(s, e, feat.location.strand if feat.location.strand !=0 else 1)
+                        feat._original = dna.printsequence(s, e, feat.location.strand if feat.location.strand !=0 else 1, display=False)
                         
                     if len(feat.location.parts) == 1:
                         length = len(dna.seq) - s + e
@@ -781,7 +781,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                 if len(feat.location.parts) == 1 and s <= e:
                     if e > start and s < end:
                         if "_original" not in feat.__dict__:
-                            feat._original = dna.printsequence(s, e, feat.location.strand if feat.location.strand !=0 else 1) 
+                            feat._original = dna.printsequence(s, e, feat.location.strand if feat.location.strand !=0 else 1, display=False) 
                         if s - start < 0:
                             feat.location.parts[0]._start = ExactPosition(0)
                             if "broken_feature" not in feat.qualifiers:
@@ -867,7 +867,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                         e = int(apart.end)
                         if e > start and s <= end:
                             if "_original" not in feat.__dict__:
-                                feat._original = dna.printsequence(s, e, feat.location.strand if feat.location.strand !=0 else 1) 
+                                feat._original = dna.printsequence(s, e, feat.location.strand if feat.location.strand !=0 else 1, display=False) 
                             _start = ExactPosition(s)
                             if s - start <= 0:
                                 sflag = 1
@@ -1675,7 +1675,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                                     s = new_feat.start 
                                     e = new_feat.end if new_feat.end <= len(construct.seq) else new_feat.end - len(construct.seq) 
                                     
-                                    if construct.printsequence(s, e, new_feat.location.strand if new_feat.location.strand !=0 else 1) in new_feat.original:
+                                    if construct.printsequence(s, e, new_feat.location.strand if new_feat.location.strand !=0 else 1, display=False) in new_feat.original:
                                         new_feat._id = label1.split(":")[1]
                                         construct._dnafeatures[feat1_index] = feat1.__class__(feature=new_feat)
                                         construct._dnafeatures[feat1_index].qualifiers["broken_feature"] = [note]
@@ -1777,7 +1777,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
             if feat.subject is None:
                 feat.subject = construct
             
-            if note.split(":")[-3] == construct.printsequence(sfeat, efeat, strand=feat.location.strand):
+            if note.split(":")[-3] == construct.printsequence(sfeat, efeat, strand=feat.location.strand, display=False):
                 if sfeat < efeat:
                     location = FeatureLocation(sfeat, efeat, feat.location.strand) 
                 else:
@@ -2271,7 +2271,7 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                     efeat = feat.end+(pose-1)    
                 
                 #print(note.split(":")[-3], new_dna.printsequence(sfeat, efeat, strand=feat.location.strand)) 
-                if note.split(":")[-3] == new_dna.printsequence(sfeat, efeat, strand=feat.location.strand):
+                if note.split(":")[-3] == new_dna.printsequence(sfeat, efeat, strand=feat.location.strand, display=False):
                     if sfeat < efeat:
                         location = FeatureLocation(sfeat, efeat, feat.location.strand) 
                     else:
@@ -2451,9 +2451,9 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                 if left_origin.name != None: 
                     if "printsequence" in left_origin.name:
                         if len(left_origin.name.split("_")) == 2: 
-                            seqname = "QUEEN.dna_dict['{}'].printsequence(strand={})".format(parental_id, left_origin.name.split("_")[-1]) 
+                            seqname = "QUEEN.dna_dict['{}'].printsequence(strand={}, display=False)".format(parental_id, left_origin.name.split("_")[-1]) 
                         else:
-                            seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={})".format(parental_id, *left_origin.name.split("_")[1:])
+                            seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={}, display=False)".format(parental_id, *left_origin.name.split("_")[1:])
                     elif lefet_origin.name == "rcseq":
                         seqname = "QUEEN.dna_dict['{}'].rcseq".format(parental_id) 
                 else:
@@ -2514,9 +2514,9 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                 if right_origin.name != None: 
                     if "printsequence" in right_origin.name:
                         if len(right_origin.name.split("_")) == 2: 
-                            seqname = "QUEEN.dna_dict['{}'].printsequence(strand={})".format(parental_id, right_origin.name.split("_")[-1]) 
+                            seqname = "QUEEN.dna_dict['{}'].printsequence(strand={}, display=False)".format(parental_id, right_origin.name.split("_")[-1]) 
                         else:
-                            seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={})".format(parental_id, *right_origin.name.split("_")[1:])
+                            seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={}, display=False)".format(parental_id, *right_origin.name.split("_")[1:])
                     elif right_origin.name == "rcseq":
                         seqname = "QUEEN.dna_dict['{}'].rcseq".format(parental_id) 
                 else:
@@ -2911,7 +2911,7 @@ def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=N
     if start == 0 and end == len(dna.seq):
         subject = dna.seq
     else:
-        subject = dna.printsequence(start, end, strand)
+        subject = dna.printsequence(start, end, strand, display=False)
 
     _mode = "edit"
     feat_list = [] 
@@ -2982,9 +2982,9 @@ def editsequence(dna, source_sequence, destination_sequence=None, start=0, end=N
             if source_sequence.name != None: 
                 if "printsequence" in source_sequence.name:
                     if len(source_sequence.name.split("_")) == 2: 
-                        seqname = "QUEEN.dna_dict['{}'].printsequence(strand={})".format(parental_id, source_sequence.name.split("_")[-1]) 
+                        seqname = "QUEEN.dna_dict['{}'].printsequence(strand={}, display=False)".format(parental_id, source_sequence.name.split("_")[-1]) 
                     else:
-                        seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={})".format(parental_id, *source_sequence.name.split("_")[1:])
+                        seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={}, display=False)".format(parental_id, *source_sequence.name.split("_")[1:])
                 elif source_sequence.name == "rcseq":
                     seqname = "QUEEN.dna_dict['{}'].rcseq".format(parental_id) 
             else:
@@ -3555,9 +3555,9 @@ def editfeature(dna, key_attribute="all", query=".+", source=None, start=0, end=
                 if query.name != None: 
                     if "printsequence" in query.name:
                         if len(query.name.split("_")) == 2: 
-                            seqname = "QUEEN.dna_dict['{}'].printsequence(strand={})".format(parental_id, query.name.split("_")[-1]) 
+                            seqname = "QUEEN.dna_dict['{}'].printsequence(strand={}, display=False)".format(parental_id, query.name.split("_")[-1]) 
                         else:
-                            seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={})".format(parental_id, *query.name.split("_")[1:])
+                            seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={}, display=False)".format(parental_id, *query.name.split("_")[1:])
                     elif query.name == "rcseq":
                         seqname = "QUEEN.dna_dict['{}'].rcseq".format(parental_id) 
                 else:

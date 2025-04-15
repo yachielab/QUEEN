@@ -71,22 +71,22 @@ class DNAfeature(SeqFeature):
             return self.type
         
         elif name == "_original":
-            seq = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
+            seq = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1, display=False) 
         
         elif name == "original":
             if "_original" in self.__dict__:
                 return self._original 
             else:
-                return self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
+                return self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1, display=False) 
          
         elif name == "seq" or name == "sequence":
-            seq             = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
+            seq             = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1, display=False) 
             seq             = Qseq(seq)
             seq.qkey        = self._start.qkey
             seq.parental_id = self._start.parental_id 
             seq.parent      = self 
             seq.parental_class = "DNAfeature"
-            seq = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1) 
+            seq = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1, display=False) 
             self._seq = seq
             return seq
         
@@ -1095,7 +1095,7 @@ class QUEEN():
             else:
                 subject = self.seq
         else:
-            subject = self.printsequence(start, end, strand=1)
+            subject = self.printsequence(start, end, strand=1, display=False)
             
 
         feat_list = [] 
@@ -1223,9 +1223,9 @@ class QUEEN():
                     if qorigin.name != None: 
                         if "printsequence" in qorigin.name:
                             if len(qorigin.name.split("_")) == 2: 
-                                seqname = "QUEEN.dna_dict['{}'].printsequence(strand={})".format(parental_id, qorigin.name.split("_")[-1]) 
+                                seqname = "QUEEN.dna_dict['{}'].printsequence(strand={}, display=False)".format(parental_id, qorigin.name.split("_")[-1]) 
                             else:
-                                seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={})".format(parental_id, *qorigin.name.split("_")[1:])
+                                seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={}, display=False)".format(parental_id, *qorigin.name.split("_")[1:])
                         if qorigin.name == "rcseq":
                             seqname = "QUEEN.dna_dict['{}'].rcseq".format(parental_id)
                     else:
@@ -1401,9 +1401,9 @@ class QUEEN():
                     if query.name != None:
                         if "printsequence" in query.name:
                             if len(query.name.split("_")) == 2: 
-                                seqname = "QUEEN.dna_dict['{}'].printsequence(strand={})".format(parental_id, query.name.split("_")[-1]) 
+                                seqname = "QUEEN.dna_dict['{}'].printsequence(strand={}, display=False)".format(parental_id, query.name.split("_")[-1]) 
                             else:
-                                seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={})".format(parental_id, *query.name.split("_")[1:])
+                                seqname = "QUEEN.dna_dict['{}'].printsequence(start={}, end={}, strand={}, display=False)".format(parental_id, *query.name.split("_")[1:])
                         if query.name == "rcseq":
                             seqname = "QUEEN.dna_dict['{}'].rcseq".format(parental_id)
                     else:

@@ -840,7 +840,7 @@ def visualize(brick, format=0, feature_list=None, bottom=None, fontsize=8, label
                 pass
             else:
                 feature_list.append(feat)
-        feature_list.sort(key=lambda x:len(brick.printsequence(x.start, x.end)))
+        feature_list.sort(key=lambda x:len(brick.printsequence(x.start, x.end, display=False)))
         #rint(feature_list[0]) 
     ax, y_list, ty_list, fig_width, ylim, bottom = map_feat(fig, ax, ax2, feature_list, len(brick.seq), format=format, bottom=bottom, enlarge=1.0, display_label=label_visible, fontsize=fontsize, display_axis=axis_visible, tick_space=tick_space, labelcolor=labelcolor)  
     if title_visible == True:

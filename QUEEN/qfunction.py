@@ -1079,6 +1079,9 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                     epos = epos + len(dna.seq) if epos < 0 else epos
                     new_positions.append((spos,epos))
     
+    if len(new_positions) == 0:
+        raise ValueError("No cutting sites were found.") 
+
     tmp_positions    = new_positions[:]
     tmp_positions.sort() 
     top_positions    = list(list(zip(*tmp_positions))[0])

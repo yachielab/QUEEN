@@ -1439,10 +1439,11 @@ def Tm_NN(check=True, strict=True, nn_table=None, tmm_table=None, imm_table=None
     return functools.partial(mt.Tm_NN, check=check, strict=strict, nn_table=nn_table, tmm_table=tmm_table, imm_table=imm_table, de_table=de_table, dnac1=dnac1, dnac2=dnac2, selfcomp=selfcomp, Na=Na, K=K, Tris=Tris, Mg=Mg, dNTPs=dNTPs, saltcorr=saltcorr)  
 
 def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, rv_margin=0,
-                 target_tm=60.0, tm_func=None, primer_length=(16, 25), 
-                 design_num=1, adapter_mode="standard", fw_adapter=None, rv_adapter=None, 
-                 homology_length=20, nonspecific_limit=3, auto_adjust=1, 
-                 requirement=None, fw_name="fw_primer", rv_name="rv_primer"):
+                 adapter_mode="standard", fw_adapter=None, rv_adapter=None, 
+                 requirement=None, fw_name="fw_primer", rv_name="rv_primer",
+                 target_tm=60.0, nonspecific_limit=3, auto_adjust=1, 
+                 homology_length=20, tm_func=None, primer_length=(16, 25), design_num=1
+                 ):
     """
     Design forward and reverse primers for PCR amplification of a specified target region.
     Primers can incorporate desired mutations, be checked for specificity, and meet additional
@@ -1840,7 +1841,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         pass 
 
     if type(target) != QUEEN:
-        if type(target) == list and list(set(map(type, template)))[0] == QUEEN:
+        if type(target) == list and list(set(map(type, target)))[0] == QUEEN:
             if len(template) == len(target): 
                 new_target = [] 
                 for t in target:

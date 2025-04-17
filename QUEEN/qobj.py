@@ -4,6 +4,7 @@ import urllib
 import tempfile
 import requests
 import inspect
+import cutsite as cs
 from bs4 import BeautifulSoup 
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -15,6 +16,7 @@ from qfunction import *
 from quine import * 
 from qint import Qint
 from qseq import Qseq
+
 
 def _convert_kwargs(arguments):
     out = []
@@ -2142,6 +2144,26 @@ class QUEEN():
             df = pd.DataFrame(values, index=index, columns=columns) 
             return df.transpose() 
     
+    def printcutsite(self, site="single"):
+        cutters = []
+        for key, re in cs.lib.items():
+            if site == "typeIIS" and re.IIS == True:
+                sites = self.searchsequence(re.cutsite)
+                cutters.extend(sites)
+            else:
+                sites = self.searchsequence(re.cutsite)
+                if site == "all": 
+                    cutters.extend(sites)
+                elif site == "single" and len(sites) == 1:
+                    cutters.append(sites[0])
+                elif site == "dual" and len(sites) == 2:
+                    cutters.extend(sites)
+        #new_plasmid = editfeature(self, source=cutters, target_attribute="feature_id", operation=createattribute("RE"))
+        #features    = new_plasmid.searchfeature(key_attribute="feature_type", query="misc_bind")
+        cutters.sort(key=lambda x:x.start) 
+        df = self.printfeature(cutters, seq=True, attribute=["qualifier:label", "start", "end", "strand"])
+        return df
+
     def printprotocol(self, execution=False, output=None):
         """
         Print the history of the qexperiment functions.

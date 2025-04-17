@@ -1955,7 +1955,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         requirements       = [requirement] * len(template) if type(requirement) != list else requirement
         fw_names           = [fw_name] * len(template) if type(fw_name) != list else fw_name
         rv_names           = [rv_name] * len(template) if type(rv_name) != list else rv_name 
-        arguments = list(zip(*[template, target, fw_primers, rv_primers, fw_margins, rv_margins, target_tms, tm_funcs, primer_lengths, design_nums, adapter_modes, fw_adapters, rv_adapters, homology_lengths, nonspecific_limits, auto_adjusts, requirements, fw_names, rv_names]))
+        arguments = list(zip(*[template, target, fw_primers, rv_primers, fw_margins, rv_margins, adapter_modes, fw_adapters, rv_adapters, requirements, fw_names, rv_names, target_tms, nonspecific_limits, auto_adjusts, homology_lengths, tm_funcs, primer_lengths, design_nums]))
         
         primer_pair_set = [] 
         for argument in arguments:

@@ -370,7 +370,7 @@ def _circularizedna(dna, compatibility, homology_length):
                             new_feat.location = FeatureLocation(int(feat1.location.parts[0].start), len(dna.seq) + int(feat2.location.parts[-1].end), feat1.strand)
                             new_feat.location.strand = strand
                         else:
-                            feat2_parts = [(int(p.start) + len(dna.seq), int(p.end) + len(dna.seq), feat2.strand) for p in feat2.location.parts]
+                            feat2_parts = [FeatureLocation(int(p.start) + len(dna.seq), int(p.end) + len(dna.seq), feat2.strand) for p in feat2.location.parts]
                             locations   = feat1.location.parts[0:-1] + [FeatureLocation(int(feat1.location.parts[-1].start), len(dna.seq) + int(feat2.location.parts[0].end), feat1.strand)] + feat2_parts[0:-1]
                             if strand == -1:
                                 locations.reverse() 

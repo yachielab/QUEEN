@@ -2041,7 +2041,12 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             pass
         else:
             checked_rv_candidates.append(candidate) 
-
+    
+    fw_candidates = checked_fw_candidates
+    rv_candidates = checked_rv_candidates
+    if len(fw_candidates) == 0 or len(rv_candidates) == 0:
+        raise ValueError("No proper primer binding sites were found. You should try re-execute this function with a different parameter set.")
+    
     fw_tm_set = []
     for candidate in fw_candidates:
         tm = tm_func(seq=candidate[0])

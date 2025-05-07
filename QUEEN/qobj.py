@@ -1566,27 +1566,28 @@ class QUEEN():
                     exclude = 0 
             
             if len(item) > 1:
-                temp = self
-                starts = [] 
-                end  = 0 
-                for i, query in enumerate(item):
-                    s1 = temp.searchfeature(query="^"+query+"$", key_attribute="feature_id", quinable=False)
-                    s2 = temp.searchfeature(query=query, key_attribute="qualifier:label",    quinable=False)
-                    s3 = temp.searchfeature(query=query, key_attribute="qualifier:gene",     quinable=False)
-                    s4 = temp.searchfeature(query=query, key_attribute="qualifier:product",  quinable=False)
-                    s1234 = s1 + s2 + s3 + s4
-                    if len(s1234) == 0:
-                        raise ValueError("The index value(s) were not found, you should try different value.") 
-                    else:
-                        site = s1234[0]
-                    
-                    if i == 0:
-                        start = site.start
-                        temp  =  temp[site.end:] + self[0:]
-                    else:    
-                        temp  =  temp[site.end:]
-                    end += site.end
-                
+                query = item[0]
+                s1 = self.searchfeature(query="^"+query+"$", key_attribute="feature_id", quinable=False)
+                s2 = self.searchfeature(query=query, key_attribute="qualifier:label",    quinable=False)
+                s3 = self.searchfeature(query=query, key_attribute="qualifier:gene",     quinable=False)
+                s4 = self.searchfeature(query=query, key_attribute="qualifier:product",  quinable=False)
+                s1234 = s1 + s2 + s3 + s4
+                if len(s1234) == 0:
+                    raise ValueError("The index value(s) were not found, you should try different value.")
+                else:
+                    start = s1234[0].start
+
+                query = item[-1]
+                s1 = self.searchfeature(query="^"+query+"$", key_attribute="feature_id", quinable=False)
+                s2 = self.searchfeature(query=query, key_attribute="qualifier:label",    quinable=False)
+                s3 = self.searchfeature(query=query, key_attribute="qualifier:gene",     quinable=False)
+                s4 = self.searchfeature(query=query, key_attribute="qualifier:product",  quinable=False)
+                s1234 = s1 + s2 + s3 + s4
+                if len(s1234) == 0:
+                    raise ValueError("The index value(s) were not found, you should try different value.")
+                else:
+                    end = s1234[0].end
+
                 if end > len(self.seq):
                     end = end - len(self.seq) 
                 

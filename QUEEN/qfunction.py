@@ -674,31 +674,48 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                     else:
                         feat1 = copy.deepcopy(feat)
                         new_locations = []
-                        for part in feat1.location.parts:
+                        for p, part in enumerate(feat1.location.parts[:-1]):
                             if int(part.start) > int(part.end):
                                 new_locations.append(FeatureLocation(int(part.start), len(dna.seq)))
                                 break
                             else:
                                 new_locations.append(part)
-                        if strand == -1:
-                            new_locations.reverse()
-                        feat1.location = CompoundLocation(new_locations)
+
+                            if part.start > feat1.location.parts[p+1].start:
+                                break
+
+                        if len(new_locations) > 1:
+                            if strand == -1:
+                                new_locations.reverse()
+                            feat1.location = CompoundLocation(new_locations)
+                        else:
+                            feat1.location = new_locations[0]
                         feat1.location.strand = strand
+
                         flag  = 0
                         feat2 = copy.deepcopy(feat)
                         new_locations = []
-                        for part in feat1.location.parts:
+                        for p, part in enumerate(feat2.location.parts):
                             if int(part.start) > int(part.end):
                                 new_locations.append(FeatureLocation(0, int(part.end)))
+                                flag = 1
+                            if p < len(feat2.location.parts) - 1 and part.start > feat2.location.parts[p+1].start:
                                 flag = 1
 
                             if flag == 1:
                                 new_locations.append(part)
 
-                        if strand == -1:
-                            new_locations.reverse()
-                        feat2.location = CompoundLocation(new_locations)
-                        feat2.location.strnad = strand
+                        if len(new_locations) > 1:
+                            if strand == -1:
+                                new_locations.reverse()
+                            feat2.location = CompoundLocation(new_locations)
+                            feat2.location.strand = strand
+                        elif len(new_locations) == 1:
+                            feat2.location = new_locations[0]
+                            feat2.location.strand = strand
+                        else:
+                            feat2 = None
+
 
                     if "broken_feature" not in feat1.qualifiers:
                         label = feat1._id
@@ -732,7 +749,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                             note   = "{}:{}..{}".format(label, pos_s, pos_s - (len(dna.seq)-s))
                         feat1.qualifiers["broken_feature"] = [note]
 
-                    if "broken_feature" not in feat2.qualifiers:
+                    if feat2 is not None and "broken_feature" not in feat2.qualifiers:
                         label = feat2._id
                         if feat2.feature_type == "source":
                             original_seq = "-"
@@ -749,7 +766,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                         else:
                             feat2.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, len(dna.seq)-s+e, len(dna.seq)-s+1)]
 
-                    else:
+                    elif feat2 is not None:
                         note   = feat.qualifiers["broken_feature"][0]
                         if strand >= 0:
                             label  = ":".join(note.split(":")[:-1])
@@ -766,7 +783,8 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                         feat2.qualifiers["broken_feature"] = [note]
                     
                     new_features.append(feat.__class__(feature=feat1))
-                    new_features.append(feat.__class__(feature=feat2))
+                    if feat2 is not None:
+                        new_features.append(feat.__class__(feature=feat2))
                 
                 else:
                     #print(feat, start, end) 

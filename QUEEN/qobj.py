@@ -1567,22 +1567,25 @@ class QUEEN():
             
             if len(item) > 1:
                 query = item[0]
-                s1 = self.searchfeature(query="^"+query+"$", key_attribute="feature_id", quinable=False)
+                s0 = self.searchfeature(query="^"+query+"$", key_attribute="feature_id", quinable=False)
+                s1 = self.searchfeature(query="^"+query+"$", key_attribute="qualifier:label", quinable=False)
                 s2 = self.searchfeature(query=query, key_attribute="qualifier:label",    quinable=False)
                 s3 = self.searchfeature(query=query, key_attribute="qualifier:gene",     quinable=False)
                 s4 = self.searchfeature(query=query, key_attribute="qualifier:product",  quinable=False)
-                s1234 = s1 + s2 + s3 + s4
+                s1234 = s0 + s1 + s2 + s3 + s4
                 if len(s1234) == 0:
                     raise ValueError("The index value(s) were not found, you should try different value.")
                 else:
                     start = s1234[0].start
-
+                
+                s1234 = [] 
                 query = item[-1]
-                s1 = self.searchfeature(query="^"+query+"$", key_attribute="feature_id", quinable=False)
+                s0 = self.searchfeature(query="^"+query+"$", key_attribute="feature_id", quinable=False)
+                s1 = self.searchfeature(query="^"+query+"$", key_attribute="qualifier:label", quinable=False)
                 s2 = self.searchfeature(query=query, key_attribute="qualifier:label",    quinable=False)
                 s3 = self.searchfeature(query=query, key_attribute="qualifier:gene",     quinable=False)
                 s4 = self.searchfeature(query=query, key_attribute="qualifier:product",  quinable=False)
-                s1234 = s1 + s2 + s3 + s4
+                s1234 = s0 + s1 + s2 + s3 + s4
                 if len(s1234) == 0:
                     raise ValueError("The index value(s) were not found, you should try different value.")
                 else:

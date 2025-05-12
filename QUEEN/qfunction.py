@@ -871,9 +871,12 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                     pos_e  = int(note.split(":")[-1].split("..")[1].replace(" ","")) 
                                     note   = "{}:{}..{}".format(label, pos_s, pos_s - (end-start-s)+1)
                                 feat.qualifiers["broken_feature"] = [note]
-                       
+                        
                         feat.location.strand = strand
-                        feats.append(feat.__class__(feature=feat))
+                        if feat.location.start == feat.location.end:
+                            pass 
+                        else:
+                            feats.append(feat.__class__(feature=feat))
                 
                 else:
                     length = e-s
@@ -982,8 +985,12 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                             if strand == -1:
                                 locations.reverse()
                             feat.location = CompoundLocation(locations)
-                        feats.append(feat.__class__(feature=feat))
-        
+                        
+                        if feat.location.start == feat.location.end:
+                            pass 
+                        else:
+                            feats.append(feat.__class__(feature=feat))
+
             feats.sort(key=lambda x:(int(x.location.parts[0].start), int(x.location.parts[-1].end)))
             subdna = dna.__class__(seq=str(dna.seq[start:end]), quinable=0)
             subdna._history = copy.deepcopy(dna._history) 

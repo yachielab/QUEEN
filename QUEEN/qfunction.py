@@ -933,7 +933,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                             locations[0][0] = ExactPosition(s - start)
                         
                         if e > end-start and eflag == 1:
-                            locations[-1][1] = ExactPosition(end-start)
+                            locations[-1][1] = ExactPosition(e-start)
                             if "broken_feature" not in feat.qualifiers:
                                 label = feat._id 
                                 if feat.feature_type == "source" or len(feat.original) > 10000:

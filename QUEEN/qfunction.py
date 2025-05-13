@@ -685,8 +685,6 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                 break
 
                         if len(new_locations) > 1:
-                            if strand == -1:
-                                new_locations.reverse()
                             feat1.location = CompoundLocation(new_locations)
                         else:
                             feat1.location = new_locations[0]
@@ -706,8 +704,6 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                 new_locations.append(part)
 
                         if len(new_locations) > 1:
-                            if strand == -1:
-                                new_locations.reverse()
                             feat2.location = CompoundLocation(new_locations)
                             feat2.location.strand = strand
                         elif len(new_locations) == 1:
@@ -982,8 +978,6 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                     locations[l][0] = locations[l][0] - start
                                     locations[l][1] = locations[l][1] - start
                             locations = [FeatureLocation(*loc) for loc in locations] 
-                            if strand == -1:
-                                locations.reverse()
                             feat.location = CompoundLocation(locations)
                         
                         if feat.location.start == feat.location.end:

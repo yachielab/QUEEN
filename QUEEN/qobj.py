@@ -1520,7 +1520,7 @@ class QUEEN():
                     end = len(self.seq) - abs(end) 
                 
                 if start == end and self.topology == "circular":
-                    subdna = cutdna(self, start, quinable=0)[0] 
+                    subdna = cutdna(self, start, quinable=0)[0]
                     subdna = joindna(subdna, quinable=0) 
                 else:
                     if start == end:

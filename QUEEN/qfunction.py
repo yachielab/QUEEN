@@ -879,7 +879,11 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                     locations = []
                     sflag = 0 
                     eflag = 0
-                    for apart in feat.location.parts:
+                    if feat.strand == -1:
+                        fparts = reversed(feat.location.parts)
+                    else:
+                        fparts = feat.location.parts
+                    for apart in fparts:
                         s = int(apart.start)
                         e = int(apart.end)
                         if e > start and s <= end:
@@ -933,7 +937,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                             locations[0][0] = ExactPosition(s - start)
                         
                         if e > end-start and eflag == 1:
-                            locations[-1][1] = ExactPosition(e-start)
+                            locations[-1][1] = ExactPosition(end-start)
                             if "broken_feature" not in feat.qualifiers:
                                 label = feat._id 
                                 if feat.feature_type == "source" or len(feat.original) > 10000:
@@ -978,6 +982,8 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                     locations[l][0] = locations[l][0] - start
                                     locations[l][1] = locations[l][1] - start
                             locations = [FeatureLocation(*loc) for loc in locations] 
+                            if feat.strand == -1:
+                                locations.reverse()
                             feat.location = CompoundLocation(locations)
                         
                         if feat.location.start == feat.location.end:

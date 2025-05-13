@@ -185,10 +185,10 @@ class DNAfeature(SeqFeature):
                 location = CompoundLocation([FeatureLocation(s, len(self.subject.seq)), FeatureLocation(0, e, strand)]) 
             self.location = location 
 
-        elif type(position[0]) is list and type(position[1]) is list:
+        elif type(position[0]) in (list, tuple) and type(position[1]) in (list, tuple):
             locations = [] 
             strand = self.location.strand
-            for s,e in zip(value[0], value[1]):
+            for s,e in zip(position[0], position[1]):
                 if s < e:
                     location = FeatureLocation(s, e, strand)
                     locations.append(location)
@@ -199,10 +199,10 @@ class DNAfeature(SeqFeature):
                     locations.append(loc2) 
             if strand == -1:
                 locations.reverse()
-            self.location = CompoundLocation(locations, type=feat.type) 
+            self.location = CompoundLocation(locations) 
         
         if self.location.strand == -1:
-            self._start = Qints(self.location.parts[-1].start)
+            self._start = Qint(self.location.parts[-1].start)
             self._end   = Qint(self.location.parts[0].end)
         else:
             self._start = Qint(self.location.parts[0].start)
@@ -2044,8 +2044,8 @@ class QUEEN():
                 label = "null"
 
             strand = feat.location.strand
-            start  = Qint(feat.location.parts[0].start)
-            end    = Qint(feat.location.parts[-1].end)
+            start  = Qint(feat.start)
+            end    = Qint(feat.end)
             seq    = feat.sequence 
             
             if x_based_index == 1:
@@ -2361,7 +2361,7 @@ class QUEEN():
             if "structured_comment" not in self.record.annotations:
                 pass 
             else:
-                self.record.annotations["structured_comment"] = None 
+                self.record.annotations["structured_comment"] = None  
 
         SeqIO.write(self.record, handle, format)
         self.record.features = self.dnafeatures

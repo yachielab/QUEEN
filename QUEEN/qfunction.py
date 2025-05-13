@@ -2674,11 +2674,12 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
                             break
                     parts_f = feat.location.parts[:p] 
                     parts_r = feat.location.parts[p:] 
-                    parts_f.reverse() 
-                    parts_r.reverse() 
+                    #parts_f.reverse() 
+                    #parts_r.reverse() 
                     feat.location.parts = parts_f + parts_r
                 else:
-                    feat.location.parts.reverse() 
+                    #feat.location.parts.reverse() 
+                    pass
                     
                             
             if "original" in feat.__dict__:

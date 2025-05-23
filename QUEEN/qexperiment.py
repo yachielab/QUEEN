@@ -2078,7 +2078,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
     if adapter_mode == "RE" and type(rv_adapter) == QUEEN:
         filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, "RE_auto", homology_length, "rv", rv_name, auto_adjust)
     else:
-        filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, adapter_mode, homology_length, "rv", fw_name, auto_adjust)
+        filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, adapter_mode, homology_length, "rv", rv_name, auto_adjust)
 
     for i in range(len(filtered_primer_pairs)):
         filtered_primer_pairs[i]["fw"] = filtered_primer_pairs[i]["fw"][0] 

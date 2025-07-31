@@ -713,14 +713,14 @@ class QUEEN():
                 self._left_end_bottom   = 1
                 self._right_end_top     = 1 
                 self._right_end_bottom  = 1
-                if self._topology == "linear" and "comment" in self.record.annotations and "QUEEN end structure" in self.record.annotations["comment"]:
-                    left_ends = self.record.annotations["comment"].split(", ")[1][5:].split("|")  
+                if self._topology == "linear" and "comment" in self.record.annotations and "QUEEN_left_end" in self.record.annotations["comment"]:
+                    left_ends = self.record.annotations["comment"].split("QUEEN_left_end:")[1].split("\n")[0].split("|")  
                     left_endlen, left_end_top, left_end_bottom = int(left_ends[0]), int(left_ends[1]), int(left_ends[2])
                     self._left_end = self._seq[:left_endlen]
                     self._left_end_top    = left_end_top 
                     self._left_end_bottom = left_end_bottom
 
-                    right_ends = self.record.annotations["comment"].split(", ")[2][6:].split("|")
+                    right_ends = self.record.annotations["comment"].split("QUEEN_right_end:")[1].split("\n")[0].split("|")
                     right_endlen, right_end_top, right_end_bottom = int(right_ends[0]), int(right_ends[1]), int(right_ends[2]) 
                     self._right_end        = self._seq[right_endlen*-1:]
                     self._right_end_top    = right_end_top 
@@ -2320,7 +2320,16 @@ class QUEEN():
         #Add end structure
         if self.topology == "linear":
             ends = [len(self._left_end), self._left_end_top, self._left_end_bottom, len(self._right_end), self._right_end_top, self._right_end_bottom]
-            self.record.annotations["comment"] = ["QUEEN end structure, left:{}|{}|{}, right:{}|{}|{}".format(*ends)] 
+            if "comment" in self.record.annotations:
+                if type(self.record.annotations["comment"]) == str:
+                    self.record.annotations["comment"] = self.record.annotations["comment"].rstrip()
+                    self.record.annotations["comment"] += "\nQUEEN_left_end:{}|{}|{}\nQUEEN_right_end:{}|{}|{}".format(*ends) 
+                elif type(self.record.annotations["comment"]) in (tuple, list):
+                    self.record.annotations["comment"].append("QUEEN_left_end:{}|{}|{}\nQUEEN_right_end:{}|{}|{}".format(*ends)) 
+                else:
+                    pass
+            else:
+                self.record.annotations["comment"] = "QUEEN_left_end:{}|{}|{}\nQUEEN_right_end:{}|{}|{}".format(*ends)
 
         #Add DATE
         import datetime

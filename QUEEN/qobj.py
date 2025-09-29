@@ -4,6 +4,7 @@ import urllib
 import tempfile
 import requests
 import inspect
+import regex as re 
 import cutsite as cs
 from bs4 import BeautifulSoup 
 from Bio.Seq import Seq
@@ -16,7 +17,6 @@ from qfunction import *
 from quine import * 
 from qint import Qint
 from qseq import Qseq
-
 
 def _convert_kwargs(arguments):
     out = []
@@ -139,12 +139,8 @@ class DNAfeature(SeqFeature):
                         self.__dict__[key] = copy.deepcopy(feature.__dict__[key]) 
         
         #start->end direction should be 5' to 3' on the top strand.
-        if self.location.strand == -1:
-            self._start = Qint(self.location.parts[-1].start)
-            self._end   = Qint(self.location.parts[0].end) 
-        else:
-            self._start = Qint(self.location.parts[0].start)
-            self._end   = Qint(self.location.parts[-1].end)
+        self._start = Qint(self.location.parts[0].start)
+        self._end   = Qint(self.location.parts[-1].end)
         
         self._seq       = None
         self._qkey      = None #ID for features_dict
@@ -750,9 +746,9 @@ class QUEEN():
             #import features
             self._dnafeatures = [] 
             if len(record.features) > 0:
+                record.features.sort(key=lambda x:(int(x.location.parts[0].start), int(x.location.parts[-1].end * -1)))
                 for feat in record.features:
                     self._dnafeatures.append(DNAfeature(feature=feat, subject=self))
-                
                 pairs = [] 
                 history_feature = None
                 history_nums = [QUEEN._num_history] 
@@ -1537,89 +1533,57 @@ class QUEEN():
                 return subdna 
 
         if type(item) == str:
-            s0 = self.searchfeature(query="^"+item+"$", key_attribute="feature_id",      quinable=False)
-            s1 = self.searchfeature(query="^"+item+"$", key_attribute="qualifier:label", quinable=False)
-            s2 = self.searchfeature(query=item, key_attribute="qualifier:label",   quinable=False)
-            s3 = self.searchfeature(query=item, key_attribute="qualifier:gene",    quinable=False)
-            s4 = self.searchfeature(query=item, key_attribute="qualifier:product", quinable=False)
-            if len(s0) > 0:
-                s1234 = s0
+            if bool(re.match(r"^.+:.+$", item)) == False and bool(re.match(r"^!.+:.+$", item)) == False:
+                if item[0] == "!":
+                    item = "!label:" + item[1:] 
+                else:
+                    item = "label:" + item 
+            
+            if item[0] == "!": 
+                qkey    = item.split(":")[0][1:]  
+                query   = item.split(":")[1]
+                exclude = 1
             else:
-                s1234 = s0 + s1 + s2 + s3 + s4
+                qkey    = item.split(":")[0]  
+                query   = item.split(":")[1]
+                exclude = 0 
+            qkey = "qualifier:" + qkey if qkey != "feature_id" else qkey
             
-            if len(s1234) == 0:
-                raise ValueError("The index value(s) were not found, you should try different value.") 
-            else:
-                site = s1234[0]
-            
-            return self[site.start:site.end] 
-        
-        if type(item) == tuple:
-            if len(item) == 1 and type(item[0]) == str:
-                return self[item[0]]
-            
-            if len(item) > 1:
-                if item[-1] == -1:
-                    item = item[:-1] 
-                    exclude = 1 
-                else:
-                    exclude = 0 
-            
-            if len(item) > 1:
-                query = item[0]
-                s0 = self.searchfeature(query="^"+query+"$", key_attribute="feature_id", quinable=False)
-                s1 = self.searchfeature(query="^"+query+"$", key_attribute="qualifier:label", quinable=False)
-                s2 = self.searchfeature(query=query, key_attribute="qualifier:label",    quinable=False)
-                s3 = self.searchfeature(query=query, key_attribute="qualifier:gene",     quinable=False)
-                s4 = self.searchfeature(query=query, key_attribute="qualifier:product",  quinable=False)
-                s1234 = s0 + s1 + s2 + s3 + s4
-                if len(s1234) == 0:
-                    raise ValueError("The index value(s) were not found, you should try different value.")
-                else:
-                    start = s1234[0].start
-                
-                s1234 = [] 
-                query = item[-1]
-                s0 = self.searchfeature(query="^"+query+"$", key_attribute="feature_id", quinable=False)
-                s1 = self.searchfeature(query="^"+query+"$", key_attribute="qualifier:label", quinable=False)
-                s2 = self.searchfeature(query=query, key_attribute="qualifier:label",    quinable=False)
-                s3 = self.searchfeature(query=query, key_attribute="qualifier:gene",     quinable=False)
-                s4 = self.searchfeature(query=query, key_attribute="qualifier:product",  quinable=False)
-                s1234 = s0 + s1 + s2 + s3 + s4
-                if len(s1234) == 0:
-                    raise ValueError("The index value(s) were not found, you should try different value.")
-                else:
-                    end = s1234[0].end
+            if "-to-" in query:
+                query1, query2 = query.split("-to-") 
+                sites1 = self.searchfeature(query="^"+query1+"$", key_attribute=qkey, quinable=False)
+                sites2 = self.searchfeature(query="^"+query2+"$", key_attribute=qkey, quinable=False)
+                if len(sites1) == 0 or len(sites2) == 0:
+                    raise ValueError("The index value(s) were not found, you should try different value.") 
+                strand = sites1[0].strand
+                start  = sites1[0].start
+                end    = sites2[0].end 
 
-                if end > len(self.seq):
-                    end = end - len(self.seq) 
-                
-                if exclude == 1:
-                    if self.topology == "circular":
+            else:
+                sites = self.searchfeature(query="^"+query+"$", key_attribute=qkey, quinable=False)
+                strand = sites[0].strand
+                start  = sites[0].start
+                end    = sites[0].end 
+            
+            if end > len(self.seq):
+                end = end - len(self.seq) 
+            
+            if exclude == 1:
+                if self.topology == "circular":
+                    if strand < 0:
+                        return flipdna(self[end:start], quinable=0)
+                    else:
                         return self[end:start]
+                else:
+                    if strand < 0:
+                        return flipdna(self[end:start], quinable=0)
                     else:
                         return self[:start], self[end:] 
+            else:
+                if strand < 0: 
+                    return flipdna(self[start:end], quinable=0)
                 else:
                     return self[start:end] 
-
-            else:
-                if type(item[0]) == str and exclude == 1:
-                    s1 = self.searchfeature(query="^"+item[0]+"$", key_attribute="feature_id", quinable=False)
-                    s2 = self.searchfeature(query=item[0], key_attribute="qualifier:label",    quinable=False)
-                    s3 = self.searchfeature(query=item[0], key_attribute="qualifier:gene",     quinable=False)
-                    s4 = self.searchfeature(query=item[0], key_attribute="qualifier:product",  quinable=False)
-                    s1234 = s1 + s2 + s3 + s4
-                    if len(s1234) == 0:
-                        raise ValueError("The index value(s) were not found, you should try different value.") 
-                    else:
-                        site = s1234[0]
-
-                    if self.topology == "circular":
-                        return self[site.end:site.start]
-                    else:
-                        return self[:site.start], self[site.end:] 
-                else:
-                    return None
 
         else:
             raise ValueError("Invalid index type was specified.") 
@@ -2026,7 +1990,7 @@ class QUEEN():
             attribute = new_attribute
         if feature_list is None:
             features = list(self.dnafeatures)
-            features.sort(key=lambda x:(int(x.location.parts[0].start), int(x.location.parts[0].end * -1)))
+            features.sort(key=lambda x:(int(x.start), int(x.end * -1)))
         else:
             features = feature_list 
 
@@ -2148,7 +2112,7 @@ class QUEEN():
             df = pd.DataFrame(values, index=index, columns=columns) 
             return df.transpose() 
     
-    def printcutsite(self, site="single"):
+    def printcutsite(self, site="single", display=True):
         cutters = []
         for key, re in cs.lib.items():
             if site == "typeIIS" and re.IIS == True:
@@ -2162,10 +2126,8 @@ class QUEEN():
                     cutters.append(sites[0])
                 elif site == "dual" and len(sites) == 2:
                     cutters.extend(sites)
-        #new_plasmid = editfeature(self, source=cutters, target_attribute="feature_id", operation=createattribute("RE"))
-        #features    = new_plasmid.searchfeature(key_attribute="feature_type", query="misc_bind")
         cutters.sort(key=lambda x:x.start) 
-        df = self.printfeature(cutters, seq=True, attribute=["qualifier:label", "start", "end", "strand"])
+        df = self.printfeature(cutters, seq=True, display=display, attribute=["qualifier:label", "start", "end", "strand"])
         return df
 
     def printprotocol(self, execution=False, output=None):
@@ -2299,7 +2261,7 @@ class QUEEN():
         if type(handle) is str:
             handle = open(handle, "w") 
         
-        features.sort(key=lambda x:(int(x.location.parts[0].start), int(x.location.parts[0].end * -1))) 
+        features.sort(key=lambda x:(int(x.start), int(x.end * -1))) 
         self.record.features = features 
         if record_id is None:
             self.record.id = self.project

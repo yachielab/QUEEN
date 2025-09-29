@@ -1,6 +1,6 @@
 import random
 import copy
-import regex as reg
+import regex as re
 import itertools as it
 from qfunction import joindna, cropdna, cutdna, flipdna, modifyends
 from qobj import QUEEN 
@@ -380,12 +380,14 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
         The rule to select a specific digested fragment with the specified condition. 
         If "min" is provided, the minimum fragment of the digested fragments would be returned.
         If "max" is provided, the maximum fragment of the digested fragments would be returned.
-        If "label:{feature_of_interest}" is provided, the unique fragment holding the DNAfeature with 
-        `feature_of_interest` in "qualifer:label" would be returned. If multiple fragments holding the 
-        specified feature are detected, a error will be raised.
-        If "!label:{feature_of_interest}" is provided, the unique fragment not holding the DNAfeature with 
-        `feature_of_interest` in "qualifer:label" would be returned. If multiple not fragments holding the 
-        specified feature are detected, a error will be raised.
+        If "{qualifier_key}:{feature_of_interest}" is provided, the unique fragment holding the DNAfeature with 
+        `feature_of_interest` in "qualifer:{qualifier_key}" would be returned. If multiple fragments holding the 
+        specified feature are detected, a error will be raised. When specification, "{qualifier_key}:" can be 
+        omitted and "label" will be automatically used as "{qualifier_key}".
+        If "!{qualifier_key}:{feature_of_interest}" is provided, the unique fragment not holding the DNAfeature 
+        with `feature_of_interest` in "qualifer:{qualifier_key}" would be returned. If multiple not fragments 
+        holding the specified feature are detected, a error will be raised. When specification, "{qualifier_key}:" 
+        can be omitted and "label" will be automatically used as "{qualifier_key}".
         If a `tuple` value is provided, The tuple (min_size, max_size) specifies the size range for filtering 
         the resulting fragments. If multiple fragments holding the are detected in the specified range, 
         a error will be raised.  
@@ -412,10 +414,9 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
             
     Examples
     --------
+    >>> import QUEEN.cutsite as cs
     >>> dna_sequence = QUEEN("example_dna_sequence")
-    >>> cutsite1 = Cutsite("restriction_enzyme_1")
-    >>> cutsite2 = Cutsite("restriction_enzyme_2")
-    >>> fragments = digestion(dna_sequence, cutsite1, cutsite2, selection=(100, 1000))
+    >>> fragments = digestion(dna_sequence, cs.lib["BamHI"], cs.lib["XbaI"], selection=(100, 1000))
 
     Notes
     -----
@@ -428,9 +429,15 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
     QUEEN, Cutsite, cutdna
 
     """
+
     if selection is not None:
-        if (type(selection) not in (int, tuple)) and selection not in ("min", "max") and (selection.startswith("label:") == False and selection.startswith("!label:") == False):
-            raise TypeError("`selection` should be `tuple` value, 'min', 'max', or `str` starting with 'label:' or '!label'.")
+        if type(selection) == str and selection not in ("min", "max") and bool(re.match(r"^.+:.+$", selection)) == False and bool(re.match(r"^!.+:.+$", selection)) == False:
+            if selection.startswith("!"):
+                selection = "!label:" + selection[1:]
+            else:
+                selection = "label:" + selection 
+        if (type(selection) not in (int, tuple)) and selection not in ("min", "max") and (bool(re.match(r"^.+:.+$", selection)) == False and bool(re.match(r"^!.+:.+$", selection)) == False):
+            raise TypeError("`selection` should be `tuple` value, 'min', 'max', or `str` starting with '!{qualifier_key}:{feature_of_interest}' or '!{qualifier_key}:{feature_of_interest}'.")
     
     cutsite_names = []
     cutsites = list(cutsites)
@@ -1606,7 +1613,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         qexps = [] 
         for line in quine(dna, _return_script=True):
             for key in pattern_dict:
-                amatch = reg.search(pattern_dict[key], line) 
+                amatch = re.search(pattern_dict[key], line) 
                 if amatch is None:
                     pass 
                 else:

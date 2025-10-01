@@ -636,8 +636,8 @@ class QUEEN():
             self._left_end_bottom   = 1
             self._right_end_top     = 1 
             self._right_end_bottom  = 1
-             
-        elif seq is None or "." in seq:
+            
+        elif seq is None or (type(seq) == str and "." in seq):
             if "." in str(seq):
                 record = seq
             
@@ -870,7 +870,7 @@ class QUEEN():
                 self._dnafeatures = []
                 self._topology   = topology
                 
-                if sticky == True:
+                if sticky == True and len(seq) > 0:
                     self._topology   = "linear"
                     self._left_end  = "" 
                     self._right_end = "" 
@@ -1589,8 +1589,11 @@ class QUEEN():
             raise ValueError("Invalid index type was specified.") 
     
     def __add__(self, other):
-        if (type(other) in (Qseq, str) and set(other) <= set("ATGCRYKMSWBDHVNatgcrykmswbdhvn-")) or type(other) == Seq:
-            other = QUEEN(seq=other) 
+        if (type(other) in (Qseq, str) and set(other) <= set("ATGCRYKMSWBDHVNatgcrykmswbdhvn-")) or type(other) == Seq: 
+            if self._ssdna == True:
+                other = QUEEN(seq=other, ssdna=True)
+            else:
+                other = QUEEN(seq=other)
 
         elif type(other) == SeqRecord:
             other = QUEEN(record=other) 
@@ -1609,7 +1612,10 @@ class QUEEN():
 
     def __radd__(self, other):
         if (type(other) in (Qseq, str) and set(other) <= set("ATGCRYKMSWBDHVNatgcrykmswbdhvn-")) or type(other) == Seq:
-            other = QUEEN(seq=other) 
+            if self._ssdna == True:
+                other = QUEEN(seq=other, ssdna=True)
+            else:
+                other = QUEEN(seq=other)
 
         elif type(other) == Seq.SeqRecord:
             other = QUEEN(record=other) 

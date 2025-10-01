@@ -270,7 +270,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     rv_bind_length = len(rv_site.sequence) 
     
     fw_feats = [feat for feat in fw.searchfeature(key_attribute="feature_type", query="primer_bind", qexd=True, pn=process_name, pd=process_description) if feat.end == len(fw.seq) and feat.start == 0] 
-    rv_feats = [feat for feat in rv.searchfeature(key_attribute="feature_type", query="primer_bind", qexd=True, pn=process_name, pd=process_description) if feat.end == len(rv.seq) and feat.end == 0]
+    rv_feats = [feat for feat in rv.searchfeature(key_attribute="feature_type", query="primer_bind", qexd=True, pn=process_name, pd=process_description) if feat.end == len(rv.seq) and feat.start == 0]
     
     if fw_site.end >= rv_site.start and fw_site.start < rv_site.start:
         if len(fw_feats) == 0:
@@ -1446,11 +1446,10 @@ def Tm_NN(check=True, strict=True, nn_table=None, tmm_table=None, imm_table=None
     return functools.partial(mt.Tm_NN, check=check, strict=strict, nn_table=nn_table, tmm_table=tmm_table, imm_table=imm_table, de_table=de_table, dnac1=dnac1, dnac2=dnac2, selfcomp=selfcomp, Na=Na, K=K, Tris=Tris, Mg=Mg, dNTPs=dNTPs, saltcorr=saltcorr)  
 
 def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, rv_margin=0,
-                 adapter_mode="standard", fw_adapter=None, rv_adapter=None, 
-                 requirement=None, fw_name="fw_primer", rv_name="rv_primer",
-                 target_tm=60.0, nonspecific_limit=3, auto_adjust=1, 
-                 homology_length=20, tm_func=None, primer_length=(16, 25), design_num=1
-                 ):
+                 adapter_mode="standard", fw_adapter=None, rv_adapter=None, fw_partner=None, 
+                 rv_partner=None, requirement=None, fw_name="fw_primer", rv_name="rv_primer",
+                 target_tm=60.0, nonspecific_limit=3, auto_adjust=1, homology_length=30, 
+                 tm_func=None, primer_length=(16, 25), design_num=1, batch_process=False):
     """
     Design forward and reverse primers for PCR amplification of a specified target region.
     Primers can incorporate desired mutations, be checked for specificity, and meet additional
@@ -1493,45 +1492,22 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         A tuple (min_size, max_size) specifying the primer length. Default is (16, 25).
     design_num : int or list of int, optional
         Number of primer pairs to design. Defaults to 1.
-    adapter_mode : "standard", "gibson", "infusion", "overlappcr", "RE", or "BP". Default is "standard"
-        The mode value specifies the the format of `fw_adapter` and `rv_adapter`. In batch process mode, 
-        this value should be common for all processes 
+    adapter_mode : "standard", "gibson", "infusion", "overlappcr", Default is "standard"
+        The mode value specifies the the format of `fw_adapter` and `rv_adapter`. 
+        The `"gibson"`, `"infusion"`, or `"overlappcr"` values can only be used in batch process mode. 
+        In batch process mode, this value should be common for all processes 
     fw_adapter : QUEEN object, str, Cutsite, or list of each, optional
-        In normal process (not batch process), if `adapter_mode` is `"standard"`, the value must be a 
-        QUEEN object or a `str` object representing a DNA sequence. The sequence will be added at the 
-        beginning of any forward primers designed. Also if the mode is `"gibson"`, `"infusion"`, or 
-        `"overlappcr"`, the value shold be a dsDNA QUEEN object or `None`.   
-        If mode is `"RE"`, the value must be specified by a Cutsite object, a `str` object representing 
-        a restriction enzyme (RE) site or the liner DNA fragment digested by `digestion` function. 
-        If a cutsite is specified, the adapter sequence including the specified RE site will be added 
-        at the beginning of the forward primers. If a digested fragment is specied, the corresponding RE 
-        site is automatically selected and prepended to the forward primer. 
-        If mode is "BP", the value must be "attB1" or "attB2". The specified attB site will be added at the 
-        beginning of the forward primers. Currently, "attB1" and "attB2" are specified as follows:
-        attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
-        attB2: GGGGACCACTTTGTACAAGAAAGCTGGGT
-        In batch process, and `adapter_mode` is `"gibson"`, `"infusion"` or `"overlappcr"`, sequence 
-        overlapping the QUEEN object immediately preceding the target used for the current primer design 
-        will be automatically designed by joining the given `fw_adapter` value with `str` or QUEEN object 
-        and prepended to the forward primer.
+        The value must be either a QUEEN object or a string representing a DNA sequence. 
+        This sequence will be added to the beginning of any forward primers that are designed. 
+        If adapter_mode is set to `"gibson"`, `"infusion"`, `"overlappcr"`, or `"RE"`, the 3′ region of the QUEEN object 
+        specified as `fw_partner`, that is placed on immediately upstream of the target used in the current primer design, 
+        will be automatically joined with the given fw_adapter value, which will then be prepended to the forward primer.
     rv_adapter : QUEEN object, str, Cutsite, or list of each, optional
-        In normal process (not batch process), if `adapter_mode` is `"standard"`, the value must be a 
-        QUEEN object or a `str` object representing a DNA sequence. The sequence will be added at the 
-        beginning of any forward primers designed. Also iff the mode is `"gibson"`, `"infusion"`, or 
-        `"overlappcr"`, the value shold be a dsDNA QUEEN object or `None`.   
-        If mode is `"RE"`, the value must be specified by a Cutsite object, a `str` object representing 
-        a restriction enzyme (RE) site or the liner DNA fragment digested by `digestion` function. 
-        If a cutsite is specified, the adapter sequence including the specified RE site will be added 
-        at the beginning of the forward primers. If a digested fragment is specied, the corresponding RE 
-        site is automatically selected and prepended to the forward primer. 
-        If mode is "BP", the value must be "attB1" or "attB2". The specified attB site will be added at the 
-        beginning of the forward primers. Currently, "attB1" and "attB2" are specified as follows:
-        attB1: GGGGACAAGTTTGTACAAAAAAGCAGGCT
-        attB2: GGGGACCACTTTGTACAAGAAAGCTGGGT
-        In batch process, and `adapter_mode` is `"gibson"`, `"infusion"` or `"overlappcr"`, sequence 
-        overlapping the QUEEN object immediately preceding the target used for the current primer design 
-        will be automatically designed by joining the given `rv_adapter` value with `str` or QUEEN object 
-        and prepended to the reverse primer.
+        The value must be either a QUEEN object or a string representing a DNA sequence. 
+        The reverse complemented sequence of it will be added to the beginning of any reverse primers that are designed. 
+        If adapter_mode is set to `"gibson"`, `"infusion"`, `"overlappcr"`, or `"RE"`, the 3′ region of the QUEEN object 
+        specified as `rv_partner`, that is placed on immediately upstream of the target used in the current primer design, 
+        will be automatically joined with the given rv_adapter value, which will then be prepended to the reverse primer.
     homology_length : int or list of int, optional
         This parameter is active if `adapter_mode` is `"gibson"`, `"infusion"`, or `"overlappcr"`.  
         If an int value is provided, an adapter sequence including an overlapping end with the specified  
@@ -1599,6 +1575,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         ...
     ]
     """
+    
     def search_qexps(dna):
         pattern_dict = {
             "pcr":       r"pcr\((.*)\)",
@@ -1620,88 +1597,69 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                     qexps.append((key, amatch.group(1).split())) 
         return qexps 
 
-
-    def append_adapter(amplicon_region, filtered_primer_pairs, adapter, mode, homology_length, strand, name, auto_adjust):
-        if mode in ("gibson", "infusion", "overlappcr"):
-            if type(adapter) == QUEEN and adapter._ssdna == False:
-                pass
-            else:
-                mode = "standard"
-
+    def append_adapter(amplicon_region, filtered_primer_pairs, adapter, partner, mode, homology_length, strand, name, auto_adjust): 
         if (type(adapter) == str and adapter == "") or (adapter is None):
             for i in range(len(filtered_primer_pairs)):
-                    filtered_primer_pairs[i][strand][0] = QUEEN(seq=filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
+                filtered_primer_pairs[i][strand][0] = QUEEN(seq=filtered_primer_pairs[i][strand][0])
             
-        elif mode == "standard":
+        else:
             if type(adapter) == QUEEN or (type(adapter) == str and set(adapter.upper()) <= set("ATGCRYKMSWBDHVN")):
                 if type(adapter) == QUEEN:
-                    if adapter._ssdna == True:
-                        for i in range(len(filtered_primer_pairs)):
-                            filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + adaper + QUEEN(seq=filtered_primer_pairs[i][strand][0], ssdna=True, quinable=0)
-                    else:
-                        for i in range(len(filtered_primer_pairs)):
-                            filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter.seq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
+                    pass 
                 else:
-                    for i in range(len(filtered_primer_pairs)):
-                        filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
-
-            else:
-                raise ValueError("When 'adapter_mode' is 'standard', adapter value must be a QUEEN object or str object.")
-
-        elif mode == "attB":
-            for i in range(len(filtered_primer_pairs)):
-                if adapter == "attB1":
-                    filtered_primer_pairs[i][strand][0] = QUEEN(seq="GGGGACAAGTTTGTACAAAAAAGCAGGCT" + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
-                elif adapter == "attB2":
-                    filtered_primer_pairs[i][strand][0] = QUEEN(seq="GGGGACCACTTTGTACAAGAAAGCTGGGT" + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
-                else:
-                    raise ValueError("When 'adapter_mode' is 'BP', adapter value must be a QUEEN object or str object.")
-
-        elif mode == "RE":
-            if (type(adapter) == str and adapter in cs.lib.keys()) or "Cutsite" in type(adapter).__name__:
+                    adapter = QUEEN(seq=adapter)
+                adapter = flipdna(adapter, quinable=0) if strand == "rv" else adapter
+                for i in range(len(filtered_primer_pairs)):
+                    filtered_primer_pairs[i][strand][0] = joindna(adapter, QUEEN(seq=filtered_primer_pairs[i][strand][0], quinable=0), homology_length=0, quinalbe=0) 
+            
+            elif (type(adapter) == str and adapter in cs.lib.keys()) or "Cutsite" in type(adapter).__name__:
                 if type(adapter) == str: 
                     adapter = cs.lib[adapter]
                 for i in range(len(filtered_primer_pairs)):
-                    filtered_primer_pairs[i][strand][0] = QUEEN(seq="ATGC" + adapter.seq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name) 
+                    adseq = adapter.rcseq if strand == "rv" else adapter.seq 
+                    filtered_primer_pairs[i][strand][0] = QUEEN(seq="ATGC" + adseq + filtered_primer_pairs[i][strand][0]) 
+            
             else:
-                raise ValueError("When 'adapter_mode' is 'RE', adapter value must be a Cutsite or a digested QUEEN object.") 
-
-        elif mode in ("gibson", "infusion", "overlappcr", "RE_auto"):
-            if type(adapter) == QUEEN and adapter._ssdna == False:
-                pass
+                raise ValueError("When 'adapter_mode' is 'standard', adapter value must be a QUEEN, str, or Cutsite object.")
+        
+        if mode in ("gibson", "infusion", "overlappcr", "RE"):
+            if partner is None:
+                pass 
             else:
-                raise ValueError("When 'adapter_mode' is 'gibson', 'infusion', or 'overlappcr', adapter value must be a dsDNA QUEEN object or str object.")
+                if type(partner) == QUEEN and partner._ssdna == False:
+                    pass
+                else:
+                    raise ValueError("When 'adapter_mode' is 'gibson', 'infusion', or 'overlappcr', partner value must be a dsDNA QUEEN object or str object.")
 
-            adapter_features  = [feat for feat in adapter.dnafeatures if feat.feature_type not in ("source", "primer", "primer_bind")]
-            amplicon_features = [feat for feat in amplicon_region.dnafeatures if feat.feature_type not in ("source", "primer", "primer_bind")]
-            amplicon_features.sort(key=lambda x: x.start) 
-            for i in range(len(filtered_primer_pairs)):
-                                 
+                partner_features  = [feat for feat in partner.dnafeatures if feat.feature_type not in ("source", "primer", "primer_bind")]
+                amplicon_features = [feat for feat in amplicon_region.dnafeatures if feat.feature_type not in ("source", "primer", "primer_bind")]
+                amplicon_features.sort(key=lambda x: x.start) 
+                    
                 if strand == "fw":
-                    feat1 = adapter_features[-1] 
+                    feat1 = partner_features[-1] 
                     feat2 = amplicon_features[0] 
                     if feat1.feature_type == "promoter" and feat2.feature_type == "CDS":
                         if feat1.strand == 1 and feat2.strand == -1 and auto_adjust == True:
-                            raise ValueError("**Attention**: The directions of the gene in the adapter and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                            raise ValueError("**Attention**: The directions of the gene in the partner and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
                         else:
                             pass
                     if feat1.feature_type == "CDS" and feat2.feature_type == "promoter":
                         if feat1.strand == -1 and feat2.strand == 1 and auto_adjust == True:
-                            raise ValueError("**Attention**: The directions of the gene in the adapter and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                            raise ValueError("**Attention**: The directions of the gene in the partner and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
                         else:
                             pass 
 
                 if strand == "rv":
                     feat1 = amplicon_features[-1] 
-                    feat2 = adapter_features[0] 
+                    feat2 = partner_features[0] 
                     if feat1.feature_type == "CDS" and feat2.feature_type == "promoter":
                         if feat1.strand == 1 and feat2.strand == -1 and auto_adjust == True:
-                            raise ValueError("**Attention**: The directions of the gene in the adapter and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                            raise ValueError("**Attention**: The directions of the gene in the partner and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
                         else:
                             pass
                     if feat1.feature_type == "promoter" and feat2.feature_type == "CDS":
                         if feat1.strand == -1 and feat2.strand == 1 and auto_adjust == True:
-                            raise ValueError("**Attention**: The directions of the gene in the adapter and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                            raise ValueError("**Attention**: The directions of the gene in the partner and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
                         else:
                             pass 
                             
@@ -1712,124 +1670,124 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                         else:
                             req = True
                     elif auto_adjust == True:
-                        raise ValueError("**Attention**: The directions of the gene in the adapter and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
+                        raise ValueError("**Attention**: The directions of the gene in the partner and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
                     else:
                         req = False
                         pass 
                 else:
                     req = False 
                 
-                remseq = ""
-                if strand == "fw": 
-                    if mode == "gibson":
-                        if adapter._right_end_bottom == 1 and adapter._right_end_top == -1: 
-                            mod_adapter = adapter[:len(adapter.seq) - len(adapter._right_end)]
-                        else:
-                            mod_adapter = adapter
-                        adapter_seq = mod_adapter.seq[-1*homology_length:]
-                    
-                    elif mode == "infusion":
-                        if adapter._right_end_bottom == -1 and adapter._right_end_top == 1:
-                            mod_adapter = adapter[:len(adapter.seq) - len(adapter._right_end)] 
-                        else:
-                            mod_adapter = adapter
-                        adapter_seq = mod_adapter.seq[-1*homology_length:]
-                    
-                    elif mode == "RE_auto":
-                        qexps = search_qexps(adapter)
-                        if qexps[-1][0] == "digestion":
-                            cutsites = []
-                            for arg in qexps[-1][1][1:]:
-                                if "selection" in arg:
-                                    break
-                                else:
-                                    cutsites.append(arg.rstrip()[1:-2])
- 
-                            cflag = 0 
-                            for cutsite in cutsites:
-                                if cs.lib[cutsite].endseq == adapter._right_end and (cs.lib[cutsite].top, cs.lib[cutsite].bottom) == (adapter._right_end_top, adapter._right_end_bottom): 
-                                    adapter_seq = QUEEN(seq="ATGC" + cs.lib[cutsite].seq, quinable=False)
-                                    remseq      = cutdna(adapter_seq, *adapter_seq.searchsequence(cs.lib[cutsite], quinable=False))[-1] 
-                                    adapter_seq = adapter_seq.seq
-                                    cflag = 1
-                                    break  
-                            #adapter = adapter[:-1*len(cs.lib[cutsite].endseq)] 
-                        else:
-                            raise ValueError("When 'adapter_mode' is 'RE', adapter value must be a Cutsite or a digested QUEEN object.")
-
-                if strand == "rv":
-                    if mode == "gibson":
-                        if adapter._left_end_bottom == -1 and adapter._left_end_top == 1: 
-                            mod_adapter = adapter[len(adapter._left_end):] 
-                        else:
-                            mod_adapter = adapter 
-                        adapter_seq = mod_adapter.rcseq[-1*homology_length:]
-                    
-                    elif mode == "infusion":
-                        if adapter._left_end_bottom == 1 and adapter._left_end_top == -1:
-                            mod_adapter = adapter[len(adapter._left_end):] 
-                            adapter_seq = mod_adapter.rcseq[-1*homology_length:]
-                        else:
-                            mod_adapter = adapter
-                        adapter_seq = mod_adapter.rcseq[-1*homology_length:]
- 
-                    elif mode == "RE_auto":
-                        qexps = search_qexps(adapter)
-                        if qexps[-1][0] == "digestion":
-                            cutsites = []
-                            for arg in qexps[-1][1][1:]:
-                                if "selection" == arg:
-                                    break
-                                else:
-                                    cutsites.append(arg.rstrip()[1:-2]) 
-                            
-                            cflag = 0 
-                            for cutsite in cutsites:
-                                if cs.lib[cutsite].endseq == adapter._left_end and (cs.lib[cutsite].top, cs.lib[cutsite].bottom) == (adapter._left_end_bottom, adapter._left_end_top): 
-                                    adapter_seq = QUEEN(seq="ATGC" + cs.lib[cutsite].rcseq, quinable=False)
-                                    remseq      = cutdna(adapter_seq, *adapter_seq.searchsequence(cs.lib[cutsite], quinable=False))[0] 
-                                    adapter_seq = adapter_seq.seq
-                                    cflag = 1
-                                    break 
-                            #adapter = adapter[:-1*len(cs.lib[cutsite].endseq)] 
-                        else:
-                            raise ValueError("When 'adapter_mode' is 'RE', adapter value must be a Cutsite or a digested QUEEN object.")
-                
-                if mode == "RE_auto":
-                    if strand == "fw":
-                        mod_adapter = adapter[:-1*len(cs.lib[cutsite].endseq)] 
-                    else:
-                        mod_adapter = adapter[len(cs.lib[cutsite].endseq):] 
-                
-                if req == True and auto_adjust == True:
-                    if strand == "fw":
-                        feat1 = adapter_features[-1] 
-                        feat2 = amplicon_features[0] 
-                        fragment1 = mod_adapter[feat1.start:].seq  
-                        fragment2 = amplicon_region[:feat2.end].seq 
-                        rem = (len(fragment1) + len(fragment2) + len(remseq)) % 3
-                        if rem > 0:
-                            gapseq = "".join([random.choice("ATGC") for _ in range(3-rem)])
-                        else:
-                            gapseq = ""
-                        filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter_seq + gapseq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
-                    else:
-                        feat1 = amplicon_features[-1] 
-                        feat2 = adapter_features[0] 
-                        fragment1 = amplicon_region[feat1.start:].seq  
-                        fragment2 = mod_adapter[:feat2.end].seq 
-                        rem = (len(fragment1) + len(fragment2) + len(remseq)) % 3 
-                        if rem > 0:
-                            gapseq = "".join([random.choice("ATGC") for _ in range(3-rem)])
-                        else:
-                            gapseq = "" 
-                        filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter_seq + gapseq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
-                      
-                else:
-                    filtered_primer_pairs[i][strand][0] = QUEEN(seq=adapter_seq + filtered_primer_pairs[i][strand][0], ssdna=True, product=name)
-        else:
-            raise TypeError("adapter object must be instance of QUEEN, Cutsite or str class.")
+                for i in range(len(filtered_primer_pairs)):
+                    remseq = ""
+                    if strand == "fw": 
+                        if mode == "gibson":
+                            if partner._right_end_bottom == 1 and partner._right_end_top == -1: 
+                                mod_partner = partner[:len(partner.seq) - len(partner._right_end)]
+                            else:
+                                mod_partner = partner
+                            partner_seq = mod_partner.seq[-1*homology_length:]
+                        
+                        elif mode == "infusion":
+                            if partner._right_end_bottom == -1 and partner._right_end_top == 1:
+                                mod_partner = partner[:len(partner.seq) - len(partner._right_end)] 
+                            else:
+                                mod_partner = partner
+                            partner_seq = mod_partner.seq[-1*homology_length:]
+                        
+                        elif mode == "RE":
+                            qexps = search_qexps(partner)
+                            if qexps[-1][0] == "digestion":
+                                cutsites = []
+                                for arg in qexps[-1][1][1:]:
+                                    if "selection" in arg:
+                                        break
+                                    else:
+                                        cutsites.append(arg.rstrip()[1:-2])
      
+                                cflag = 0 
+                                for cutsite in cutsites:
+                                    if cs.lib[cutsite].endseq == partner._right_end and (cs.lib[cutsite].top, cs.lib[cutsite].bottom) == (partner._right_end_top, partner._right_end_bottom): 
+                                        partner_seq = QUEEN(seq="ATGC" + cs.lib[cutsite].seq, quinable=False)
+                                        remseq      = cutdna(partner_seq, *partner_seq.searchsequence(cs.lib[cutsite], quinable=False))[-1] 
+                                        partner_seq = partner_seq.seq
+                                        cflag = 1
+                                        break  
+                            else:
+                                raise ValueError("When 'adapter_mode' is 'RE', partner value must be a digested QUEEN object.")
+
+                    if strand == "rv":
+                        if mode == "gibson":
+                            if partner._left_end_bottom == -1 and partner._left_end_top == 1: 
+                                mod_partner = partner[len(partner._left_end):] 
+                            else:
+                                mod_partner = partner
+                            partner_seq = mod_partner.rcseq[-1*homology_length:]
+                        
+                        elif mode == "infusion":
+                            if partner._left_end_bottom == 1 and partner._left_end_top == -1:
+                                mod_partner = partner[len(partner._left_end):] 
+                                partner_seq = mod_partner.rcseq[-1*homology_length:]
+                            else:
+                                mod_partner = partner
+                            partner_seq = mod_partner.rcseq[-1*homology_length:]
+     
+                        elif mode == "RE":
+                            qexps = search_qexps(partner)
+                            if qexps[-1][0] == "digestion":
+                                cutsites = []
+                                for arg in qexps[-1][1][1:]:
+                                    if "selection" == arg:
+                                        break
+                                    else:
+                                        cutsites.append(arg.rstrip()[1:-2]) 
+                                
+                                cflag = 0 
+                                for cutsite in cutsites:
+                                    if cs.lib[cutsite].endseq == partner._left_end and (cs.lib[cutsite].top, cs.lib[cutsite].bottom) == (partner._left_end_bottom, partner._left_end_top): 
+                                        partner_seq = QUEEN(seq="ATGC" + cs.lib[cutsite].rcseq, quinable=False)
+                                        remseq      = cutdna(partner_seq, *partner_seq.searchsequence(cs.lib[cutsite], quinable=False))[0] 
+                                        partner_seq = partner_seq.seq
+                                        cflag = 1
+                                        break 
+                            else:
+                                raise ValueError("When 'adapter_mode' is 'RE', partner value must be a digested QUEEN object.")
+                    
+                    if mode == "RE":
+                        if strand == "fw":
+                            mod_partner = partner[:-1*len(cs.lib[cutsite].endseq)] 
+                        else:
+                            mod_partner = partner[len(cs.lib[cutsite].endseq):] 
+                    
+                    if req == True and auto_adjust == True:
+                        if strand == "fw":
+                            feat1 = partner_features[-1] 
+                            feat2 = amplicon_features[0] 
+                            fragment1 = mod_partner[feat1.start:].seq  
+                            fragment2 = amplicon_region[:feat2.end].seq 
+                            rem = (len(fragment1) + len(fragment2) + len(remseq)) % 3
+                            if rem > 0:
+                                gapseq = "".join([random.choice("ATGC") for _ in range(3-rem)])
+                            else:
+                                gapseq = ""
+                            filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + gapseq + filtered_primer_pairs[i][strand][0]
+                        else:
+                            feat1 = amplicon_features[-1] 
+                            feat2 = partner_features[0] 
+                            fragment1 = amplicon_region[feat1.start:].seq  
+                            fragment2 = mod_partner[:feat2.end].seq 
+                            rem = (len(fragment1) + len(fragment2) + len(remseq)) % 3 
+                            if rem > 0:
+                                gapseq = "".join([random.choice("ATGC") for _ in range(3-rem)])
+                            else:
+                                gapseq = "" 
+                            filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + gapseq + filtered_primer_pairs[i][strand][0]
+                    else:
+                        filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + filtered_primer_pairs[i][strand][0]
+        else:
+            for i in range(len(filtered_primer_pairs)):
+                filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + filtered_primer_pairs[i][strand][0]  
+        for i in range(len(filtered_primer_pairs)):
+            filtered_primer_pairs[i][strand][0]._ssdna = True
         return filtered_primer_pairs
     
     if requirement is None:
@@ -1840,7 +1798,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             return req1 and req4 and req5
         
     if type(template) != QUEEN: 
-        if type(template) == list and list(set(map(type, template)))[0] == QUEEN:
+        if type(template) in (tuple, list) and list(set(map(type, template)))[0] == QUEEN:
             pass 
         else: 
             raise TypeError("`template` object must be instance of QUEEN class or a list of QUEEN objects")  
@@ -1848,7 +1806,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         pass 
 
     if type(target) != QUEEN:
-        if type(target) == list and list(set(map(type, target)))[0] == QUEEN:
+        if type(target) in (tuple, list) and list(set(map(type, target)))[0] == QUEEN:
             if len(template) == len(target): 
                 new_target = [] 
                 for t in target:
@@ -1865,109 +1823,118 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
     else:
         if -1 in (target._left_end_top, target._left_end_bottom, target._right_end_top, target._right_end_bottom):
             target = modifyends(target, quinable=False) 
-     
-    if type(template) == list:
-        fw_primers         = [fw_primer] * len(template) if type(fw_primer) != list else fw_primer
-        rv_primers         = [rv_primer] * len(template) if type(rv_primer) != list else rv_primer
-        fw_margins         = [fw_margin] * len(template) if type(fw_margin) != list else fw_margin
-        rv_margins         = [rv_margin] * len(template) if type(rv_margin) != list else rv_margin
-        target_tms         = [target_tm] * len(template) if type(target_tm) != list else target_tm
-        tm_funcs           = [tm_func] * len(template) if type(tm_func) != list else tm_func
-        primer_lengths     = [primer_length] * len(template) if type(primer_length) != list else primer_length 
-        design_nums        = [design_num] * len(template) if type(design_num) != list else design_num
+    
+    if adapter_mode in ("gibson", "infusion", "overlappcr", "RE"):
+        if type(fw_partner) is None: 
+            raise ValueError("When adapter mode is 'gibson', 'infusion', 'overlappcr' or 'RE', `fw_partner` should be QUEEN object.") 
+    else:
+        if type(fw_partner) is not None:
+            raise ValueError("When adapter mode is 'standard', `fw_partner` should be QUEEN object.") 
+    
+    if adapter_mode in ("gibson", "infusion", "overlappcr", "RE"):
+        if type(rv_partner) is None: 
+            raise ValueError("When adapter mode is 'gibson', 'infusion', 'overlappcr' or 'RE', `rv_partner` should be QUEEN object.") 
+    else:
+        if type(rv_partner) is not None:
+            raise ValueError("When adapter mode is 'standard', `rv_partner` should be QUEEN object.")    
 
-        adapter_modes      = [adapter_mode] * len(template) if type(adapter_mode) != list else adapter_mode
-        if adapter_mode in ("gibson", "infusion", "overlappcr"):
-            if fw_adapter is None and rv_adapter is None:
-                fw_adapters = [None]  
-                rv_adapters = [None] 
-                if adapter_mode in ("gibson", "infusion"): 
-                    for i in range(0, len(target)-1):
-                        if i < len(target) - 2:
-                            fw_adapters.append(target[i])
-                            rv_adapters.append(None) 
+    if type(template) in (tuple, list):
+        fw_primers     = [fw_primer] * len(template) if type(fw_primer) not in (tuple, list) else fw_primer
+        rv_primers     = [rv_primer] * len(template) if type(rv_primer) not in (tuple, list) else rv_primer
+        fw_margins     = [fw_margin] * len(template) if type(fw_margin) not in (tuple, list) else fw_margin
+        rv_margins     = [rv_margin] * len(template) if type(rv_margin) not in (tuple, list) else rv_margin
+        target_tms     = [target_tm] * len(template) if type(target_tm) not in (tuple, list) else target_tm
+        tm_funcs       = [tm_func] * len(template) if type(tm_func) not in (tuple, list) else tm_func
+        primer_lengths = [primer_length] * len(template) if type(primer_length[0]) not in (tuple, list) else primer_length 
+        design_nums    = [design_num] * len(template) if type(design_num) not in (tuple, list) else design_num
+        fw_adapters    = [fw_adapter] * len(template) if type(fw_adapter) not in (tuple, list) else fw_adapter
+        rv_adapters    = [rv_adapter] * len(template) if type(rv_adapter) not in (tuple, list) else rv_adapter
+        adapter_modes  = [adapter_mode] * len(template) if type(adapter_mode) not in (tuple, list) else adapter_mode
+        
+        if adapter_mode in ("gibson", "infusion", "RE", "overlappcr"):
+            if fw_partner is None and rv_partner is None:
+                fw_partners = []  
+                rv_partners = [] 
+                if adapter_mode in ("gibson", "infusion", "RE"): 
+                    for i in range(0, len(target)):
+                        if i < len(target) - 1:
+                            fw_partners.append(target[i-1])
+                            rv_partners.append(target[i+1]) 
                         else:
-                            fw_adapters.append(target[i])
-                            rv_adapters.append(target[0])
-
-                if adapter_mode == "overlappcr":
-                    for i in range(0, len(target)-1):
-                        fw_adapters.append(target[i])
-                        rv_adapters.append(None) 
-            
-            elif type(fw_adapter) == list and type(rv_adapter) == list: 
-                fw_adapters = [] 
-                rv_adapters = [] 
-                if adapter_mode in ("gibson", "infusion"): 
-                    for i, (fwa, rva) in enumerate(zip(fw_adapter, rv_adapter)):
-                        if i == 0:
-                            fwa = fwa if type(fwa) is QUEEN else QUEEN(seq=fwa, quinable=False)
-                            target[i] = fwa + target[i][0:len(target[i].seq)] 
-                            fw_adapters.append(None)
-
-                            rva = rva if type(rva) is QUEEN else QUEEN(seq=rva, quinable=False)
-                            target[i] = target[i][0:len(target[i].seq)] + flipdna(rva, auinable=False)
-                            rv_adapters.append(None) 
-
-                        elif i < len(target) - 1:
-                            if fwa is None:
-                                fw_adapters.append(target[i-1])
-                            else:
-                                fwa = fwa if type(fwa) is QUEEN else QUEEN(seq=fwa, quinable=False)
-                                target[i] = fwa + target[i][0:len(target[i].seq)] 
-                                fw_adapters.append(None)
-                            
-                            if rva is None:
-                                rv_adapters.append(None)
-                            else:
-                                rva = rva if type(rva) is QUEEN else QUEEN(seq=rva, quinable=False)
-                                target[i] = target[i][0:len(target[i].seq)] + flipdna(rva, auinable=False)
-                                rv_adapters.append(None) 
-                        else:
-                            if fwa is None: 
-                                fw_adapters.append(target[i-1])
-                            else:
-                                fwa = fwa if type(fwa) is QUEEN else QUEEN(seq=fwa, quinable=False)
-                                fw_adapters.append(fwa + target[i-1][0:len(target[i-1].seq)])
-                            
-                            if rva is None:
-                                rv_adapters.append(target[0])
-                            else:
-                                rva = rva if type(rva) is QUEEN else QUEEN(seq=rva, quinable=False)
-                                rv_adapters.append(rva + target[0][0:len(target[0].seq)])
+                            fw_partners.append(target[i-1])
+                            rv_partners.append(target[0])
 
                 if adapter_mode == "overlappcr":
                     for i in range(0, len(target)):
                         if i == 0:
-                            fw_adapters.append(fwa) 
-                            rv_adapters.append(rva) 
+                            fw_partners.append(None)
+                            rv_partners.append(target[i+1]) 
+                        elif i == len(target) - 1:
+                            fw_partners.append(target[i-1])
+                            rv_partners.append(None) 
                         else:
-                            if fwa is None:
-                                fw_adapters.append(target[i-1])
-                            else:
-                                fw_adapters.append(fwa) 
-                            rv_adapters.append(rva) 
-
+                            fw_partners.append(target[i-1])
+                            rv_partners.append(target[i+1]) 
             else:
-                fw_adapters = [fw_adapter] * len(template) if type(fw_adapter) != list else fw_adapter
-                rv_adapters = [rv_adapter] * len(template) if type(rv_adapter) != list else rv_adapter
-        
+                fw_partners = fw_partner
+                rv_partners = rv_partner
         else:
-            fw_adapters = [fw_adapter] * len(template) if type(fw_adapter) != list else fw_adapter
-            rv_adapters = [rv_adapter] * len(template) if type(rv_adapter) != list else rv_adapter
+            fw_partners = [fw_partner] * len(template) if type(fw_partner) not in (tuple, list) else fw_partner
+            rv_partners = [rv_partner] * len(template) if type(rv_partner) not in (tuple, list) else rv_partner 
+ 
+        homology_lengths   = [homology_length] * len(template) if type(homology_length) not in (tuple, list) else homology_length
+        nonspecific_limits = [nonspecific_limit] * len(template) if type(nonspecific_limit) not in (tuple, list) else nonspecific_limit
+        auto_adjusts       = [auto_adjust] * len(template) if type(auto_adjust) not in (tuple, list) else auto_adjust
+        requirements       = [requirement] * len(template) if type(requirement) not in (tuple, list) else requirement
+        fw_names           = [fw_name] * len(template) if type(fw_name) not in (tuple, list) else fw_name
+        rv_names           = [rv_name] * len(template) if type(rv_name) not in (tuple, list) else rv_name 
 
-        homology_lengths   = [homology_length] * len(template) if type(homology_length) != list else homology_length
-        nonspecific_limits = [nonspecific_limit] * len(template) if type(nonspecific_limit) != list else nonspecific_limit
-        auto_adjusts       = [auto_adjust] * len(template) if type(auto_adjust) != list else auto_adjust
-        requirements       = [requirement] * len(template) if type(requirement) != list else requirement
-        fw_names           = [fw_name] * len(template) if type(fw_name) != list else fw_name
-        rv_names           = [rv_name] * len(template) if type(rv_name) != list else rv_name 
-        arguments = list(zip(*[template, target, fw_primers, rv_primers, fw_margins, rv_margins, adapter_modes, fw_adapters, rv_adapters, requirements, fw_names, rv_names, target_tms, nonspecific_limits, auto_adjusts, homology_lengths, tm_funcs, primer_lengths, design_nums]))
-        
-        primer_pair_set = [] 
-        for argument in arguments:
-            primer_pair = primerdesign(*argument)
-            primer_pair_set.append(primer_pair)
+        arguments = list(zip(*[template, target, fw_primers, rv_primers, fw_margins, rv_margins, adapter_modes, fw_adapters, rv_adapters, fw_partners, rv_partners, requirements, fw_names, rv_names, target_tms, nonspecific_limits, auto_adjusts, homology_lengths, tm_funcs, primer_lengths, design_nums]))
+        arguments = list(map(list, arguments))
+
+        primer_pair_set = []
+        if adapter_mode in ("gibson", "infusion", "RE", "overlappcr"):
+            new_targets = []  
+            for i, argument in enumerate(arguments):
+                argument.append(True)  
+                new_targets.append(primerdesign(*argument)) 
+                argument[-1] = False
+            
+            fw_partners = []  
+            rv_partners = [] 
+            for i, target in enumerate(new_targets):
+                if adapter_mode in ("gibson", "infusion", "RE"): 
+                    if i < len(new_targets) - 1:
+                        fw_partners.append(new_targets[i-1])
+                        rv_partners.append(new_targets[i+1]) 
+                    else:
+                        fw_partners.append(new_targets[i-1])
+                        rv_partners.append(new_targets[0])
+
+                elif adapter_mode == "overlappcr":
+                    if i == 0:
+                        fw_partners.append(None)
+                        rv_partners.append(new_targets[i+1]) 
+                    elif i == len(new_targets) - 1:
+                        fw_partners.append(new_targets[i-1])
+                        rv_partners.append(None) 
+                    else:
+                        fw_partners.append(new_targets[i-1])
+                        rv_partners.append(new_targets[i+1]) 
+            
+            for i, (fw_partner, rv_partner) in enumerate(zip(fw_partners, rv_partners)):
+                arguments[i][-1] = False
+                arguments[i][9]  = fw_partner
+                arguments[i][10] = rv_partner 
+                primer_pair = primerdesign(*arguments[i]) 
+                primer_pair_set.append(primer_pair) 
+                 
+        else:
+            for i, argument in enumerate(arguments):
+                argument.append(False) 
+                primer_pair = primerdesign(*argument) 
+                primer_pair_set.append(primer_pair) 
+
         return primer_pair_set 
     
     if target.seq not in template.seq:
@@ -2011,86 +1978,115 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             pass
     
     amplicon_region = template[start:end]
-    amp_start = amplicon_region.seq.find(target.seq) 
-    amp_end   = amp_start + len(target.seq)
-    fw_candidates = [] 
-    if fw_primer is None:
-        for pos in range(amp_start+1):
-            for plen in range(primer_length[0], primer_length[1] + 1): 
-                fw_candidate = amplicon_region.seq[pos:pos+plen]
-                fw_candidates.append([str(fw_candidate), pos]) 
-    else:
-        site = amplicon_region.searchsequence(query=fw_primer, quinable=False)
-        fw_candidates.append([fw_primer.seq, site.start])
+    if batch_process == True:
+        if type(fw_adapter) == QUEEN or (type(fw_adapter) == str and set(fw_adapter.upper()) <= set("ATGCRYKMSWBDHVN")):
+            if type(fw_adapter) == QUEEN:
+                pass 
+            else:
+                fw_adapter = QUEEN(seq=fw_adapter, quinable=0)
 
-    rv_candidates = [] 
-    if rv_primer is None:
-        for pos in range(amp_end-len(target.seq)+1):
-            for plen in range(primer_length[0], primer_length[1] + 1): 
-                rv_candidate = amplicon_region.rcseq[pos:pos+plen]
-                rv_candidates.append([str(rv_candidate), pos]) 
-    else:
-        site = amplicon_region.searchsequence(query=rv_primer, quinable=False)
-        rv_candidates.append([rv_primer.seq, len(amplicon_region.seq) - site.end])
+        elif (type(fw_adapter) == str and fw_adapter in cs.lib.keys()) or "Cutsite" in type(fw_adapter).__name__:
+            if type(fw_adapter) == str: 
+                fw_adapter = cs.lib[fw_adapter].seq
+            else:
+                fw_adatepr = fw_adapter.seq
+        
+        if type(rv_adapter) == QUEEN or (type(rv_adapter) == str and set(rv_adapter.upper()) <= set("ATGCRYKMSWBDHVN")):
+            if type(rv_adapter) == QUEEN:
+                pass 
+            else:
+                rv_adapter = QUEEN(seq=rv_adapter, quinable=0)
 
-    checked_fw_candidates = [] 
-    for candidate in fw_candidates:
-        sites = template.searchsequence(query="(?:{}){{s<={}}}".format(candidate[0], nonspecific_limit), quinable=False) 
-        if len(sites) > 1:
-            pass 
+        elif (type(rv_adapter) == str and rv_adapter in cs.lib.keys()) or "Cutsite" in type(rv_adapter).__name__:
+            if type(rv_adapter) == str: 
+                rv_adapter = cs.lib[rv_adapter].seq
+            else:
+                rv_adapter = rv_adapter.seq
+        
+        if fw_adapter is None and rv_adapter is None:
+            amplicon_region = amplicon_region 
+        elif fw_adapter is None:
+            amplicon_region = amplicon_region + rv_adapter 
+        elif rv_adapter is None:
+            amplicon_region = fw_adapter + amplicon_region
         else:
-            checked_fw_candidates.append(candidate) 
-            
-    checked_rv_candidates = [] 
-    for candidate in rv_candidates:
-        sites = template.searchsequence(query="(?:{}){{s<={}}}".format(candidate[0], nonspecific_limit), quinable=False) 
-        if len(sites) > 1:
-            pass
-        else:
-            checked_rv_candidates.append(candidate) 
+            amplicon_region = fw_adapter + amplicon_region + rv_adapter  
+        return amplicon_region 
     
-    fw_candidates = checked_fw_candidates
-    rv_candidates = checked_rv_candidates
-    if len(fw_candidates) == 0 or len(rv_candidates) == 0:
-        raise ValueError("No proper primer binding sites were found. You should try re-execute this function with a different parameter set.")
-    
-    fw_tm_set = []
-    for candidate in fw_candidates:
-        tm = tm_func(seq=candidate[0])
-        fw_tm_set.append([candidate, tm]) 
-    
-    rv_tm_set = [] 
-    for candidate in rv_candidates: 
-        tm = tm_func(seq=candidate[0])
-        rv_tm_set.append([candidate, tm]) 
-    
-    primer_pairs = [] 
-    for fw, rv in it.product(fw_tm_set, rv_tm_set):
-        primer_pairs.append({"fw":copy.deepcopy(fw[0]), "rv":copy.deepcopy(rv[0]), "fw_tm":fw[1], "rv_tm":rv[1]}) 
-    primer_pairs.sort(key=lambda x: abs(x["fw_tm"]-target_tm) + abs(x["rv_tm"]-target_tm))
-
-    filtered_primer_pairs = [] 
-    for primer_pair in primer_pairs:
-        if requirement(primer_pair): 
-            filtered_primer_pairs.append(primer_pair)  
-        else:
-            pass
-    
-    filtered_primer_pairs = filtered_primer_pairs[:design_num]
-    if adapter_mode == "RE" and type(fw_adapter) == QUEEN:
-        filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, fw_adapter, "RE_auto", homology_length, "fw", fw_name, auto_adjust)
     else:
-        filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, fw_adapter, adapter_mode, homology_length, "fw", fw_name, auto_adjust)
+        amp_start = amplicon_region.seq.find(target.seq) 
+        amp_end   = amp_start + len(target.seq)
+        fw_candidates = [] 
+        if fw_primer is None:
+            for pos in range(amp_start+1):
+                for plen in range(primer_length[0], primer_length[1] + 1): 
+                    fw_candidate = amplicon_region.seq[pos:pos+plen]
+                    fw_candidates.append([str(fw_candidate), pos]) 
+        else:
+            site = amplicon_region.searchsequence(query=fw_primer, quinable=False)
+            fw_candidates.append([fw_primer.seq, site.start])
 
-    if adapter_mode == "RE" and type(rv_adapter) == QUEEN:
-        filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, "RE_auto", homology_length, "rv", rv_name, auto_adjust)
-    else:
-        filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, adapter_mode, homology_length, "rv", rv_name, auto_adjust)
+        rv_candidates = [] 
+        if rv_primer is None:
+            for pos in range(amp_end-len(target.seq)+1):
+                for plen in range(primer_length[0], primer_length[1] + 1): 
+                    rv_candidate = amplicon_region.rcseq[pos:pos+plen]
+                    rv_candidates.append([str(rv_candidate), pos]) 
+        else:
+            site = amplicon_region.searchsequence(query=rv_primer, quinable=False)
+            rv_candidates.append([rv_primer.seq, len(amplicon_region.seq) - site.end])
 
-    for i in range(len(filtered_primer_pairs)):
-        filtered_primer_pairs[i]["fw"] = filtered_primer_pairs[i]["fw"][0] 
-        filtered_primer_pairs[i]["fw"].setfeature({"feature_type":"primer_bind", "qualifier:label":fw_name})
-        filtered_primer_pairs[i]["rv"] = filtered_primer_pairs[i]["rv"][0]
-        filtered_primer_pairs[i]["rv"].setfeature({"feature_type":"primer_bind", "qualifier:label":rv_name})
-    return filtered_primer_pairs
+        checked_fw_candidates = [] 
+        for candidate in fw_candidates:
+            sites = template.searchsequence(query="(?:{}){{s<={}}}".format(candidate[0], nonspecific_limit), quinable=False) 
+            if len(sites) > 1:
+                pass 
+            else:
+                checked_fw_candidates.append(candidate) 
+                
+        checked_rv_candidates = [] 
+        for candidate in rv_candidates:
+            sites = template.searchsequence(query="(?:{}){{s<={}}}".format(candidate[0], nonspecific_limit), quinable=False) 
+            if len(sites) > 1:
+                pass
+            else:
+                checked_rv_candidates.append(candidate) 
+        
+        fw_candidates = checked_fw_candidates
+        rv_candidates = checked_rv_candidates
+        if len(fw_candidates) == 0 or len(rv_candidates) == 0:
+            raise ValueError("No proper primer binding sites were found. You should try re-execute this function with a different parameter set.")
+        
+        fw_tm_set = []
+        for candidate in fw_candidates:
+            tm = tm_func(seq=candidate[0])
+            fw_tm_set.append([candidate, tm]) 
+        
+        rv_tm_set = [] 
+        for candidate in rv_candidates: 
+            tm = tm_func(seq=candidate[0])
+            rv_tm_set.append([candidate, tm]) 
+        
+        primer_pairs = [] 
+        for fw, rv in it.product(fw_tm_set, rv_tm_set):
+            primer_pairs.append({"fw":copy.deepcopy(fw[0]), "rv":copy.deepcopy(rv[0]), "fw_tm":fw[1], "rv_tm":rv[1]}) 
+        primer_pairs.sort(key=lambda x: abs(x["fw_tm"]-target_tm) + abs(x["rv_tm"]-target_tm))
 
+        filtered_primer_pairs = [] 
+        for primer_pair in primer_pairs:
+            if requirement(primer_pair): 
+                filtered_primer_pairs.append(primer_pair)  
+            else:
+                pass
+        
+        filtered_primer_pairs = filtered_primer_pairs[:design_num]
+        filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, fw_adapter, fw_partner, adapter_mode, int(homology_length/2), "fw", fw_name, auto_adjust)
+        filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, rv_partner, adapter_mode, int(homology_length/2), "rv", rv_name, auto_adjust)
+
+        for i in range(len(filtered_primer_pairs)):
+            filtered_primer_pairs[i]["fw"] = filtered_primer_pairs[i]["fw"][0] 
+            filtered_primer_pairs[i]["fw"].setfeature({"feature_type":"primer_bind", "qualifier:label":fw_name})
+            filtered_primer_pairs[i]["rv"] = filtered_primer_pairs[i]["rv"][0]
+            filtered_primer_pairs[i]["rv"].setfeature({"feature_type":"primer_bind", "qualifier:label":rv_name})
+        
+        return filtered_primer_pairs

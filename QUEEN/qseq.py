@@ -1,3 +1,4 @@
+from Bio.Seq import Seq
 class Qseq(str):
     def __init__(self, seq):
         self.qkey           = None
@@ -63,3 +64,8 @@ class Qseq(str):
             return value 
         else:
             return super().find(*args, **kwargs)
+
+    def translate(self, *args, **kwargs):
+        seq = Seq(self) 
+        return str(seq.translate(*args, **kwargs)) 
+

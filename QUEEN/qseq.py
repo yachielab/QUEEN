@@ -65,7 +65,7 @@ class Qseq(str):
         else:
             return super().find(*args, **kwargs)
 
-    def translate(self, *args, **kwargs):
+    def get_translate(self, *args, **kwargs):
         seq = Seq(self) 
         return str(seq.translate(*args, **kwargs)) 
 

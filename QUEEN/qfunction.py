@@ -1730,7 +1730,6 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
         
         if topology == "circular":
             construct = _circularizedna(construct, compatibility, homology_length)
-            
             if quinable == True: 
                 zero_positions = [] 
                 for d, positions in enumerate(positions_list):

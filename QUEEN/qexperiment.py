@@ -691,6 +691,14 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
                 outobj = joindna(*fragment_set, topology="circular", autoflip=False, compatibility="complete", qexd=qexd, product=product, pn=process_name, pd=process_description)
             else:
                 raise ValueError("Multiple different constructs will be assembled. You should review your assembly design.")
+        
+        if len(fragments) == 1:
+            if 0 in outobj._positions:
+                zero_pos = outobj._positions.index(0)
+                outobj   = cutdna(outobj, zero_pos, quinable=0)[0]
+                outobj   = joindna(outobj, topology="circular", quinable=0)
+            else:
+                pass
         return outobj
     
     else:
@@ -893,7 +901,15 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
             raise ValueError("Multiple assembled constructs were detected. You should review your assembly design.")
         else:
             try:
-                return products[0]
+                product = products[0] 
+                if len(fragments) == 1:
+                    if 0 in product._positions:
+                        zero_pos = product._positions.index(0)
+                        product  = cutdna(product, zero_pos, quinable=0)[0]
+                        product  = joindna(product, topology="circular", quinable=0)
+                    else:
+                        pass
+                return product
             except Exception as e:
                 print(e, errors) 
                 raise ValueError("Error, Incompatible ends were detected. Maybe you need to reflect the PCR primers or restriction enzymes used to generate the fragments.") 

@@ -2,13 +2,14 @@ import random
 import copy
 import regex as re
 import itertools as it
-from qfunction import joindna, cropdna, cutdna, flipdna, modifyends
+from qfunction import joindna, cropdna, cutdna, flipdna, modifyends, editfeature, removeattribute 
 from qobj import QUEEN 
 from qseq import Qseq 
 from quine import quine
 import cutsite as cs
 from cutsite import Cutsite
 from Bio.SeqUtils import MeltingTemp as mt
+from Bio.Align import PairwiseAligner
 import functools
 import collections
 
@@ -223,7 +224,6 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
         aptxt = ""
     
     qexd = 'pcr(QUEEN.dna_dict["{}"], {}, {}{}{}{}{}{})'.format(template._product_id, fwstr, rvstr, bindnumtxt, mismatchtxt, endlengthtxt, aptxt, kwargs_str)
-
     process_description = pd if process_description is None else process_description
     if -1 in [template._left_end_top, template._left_end_bottom, template._right_end_top, template._right_end_bottom] and template._ssdna == False: 
         template = modifyends(template, qexd=True, pn=process_name, pd=process_description)
@@ -271,7 +271,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     
     fw_feats = [feat for feat in fw.searchfeature(key_attribute="feature_type", query="primer_bind", qexd=True, pn=process_name, pd=process_description) if feat.end == len(fw.seq) and feat.start == 0] 
     rv_feats = [feat for feat in rv.searchfeature(key_attribute="feature_type", query="primer_bind", qexd=True, pn=process_name, pd=process_description) if feat.end == len(rv.seq) and feat.start == 0]
-    
+
     if fw_site.end >= rv_site.start and fw_site.start < rv_site.start:
         if len(fw_feats) == 0:
             fw.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
@@ -291,21 +291,33 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
             start    = fw_site.start if fw_site.start < len(template.seq) else fw_site.start - len(template.seq)
             end      = rv_site.end if rv_site.end < len(template.seq) else rv_site.end - len(template.seq)
             extract  = cropdna(template, start, end, qexd=True, pn=process_name, pd=process_description)
-            amplicon = modifyends(extract, left=fw[0:len(fw.seq)-len(fw_bind)].seq, right=rv[0:len(rv.seq)-len(rv_bind)].rcseq, qexd=qexd, product=product, pn=process_name, pd=process_description)   
             if len(fw_feats) == 0:
-                amplicon.setfeature({"start":0, "end":len(fw.seq), "qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
+                fw_label = fw.project
+            else:
+                fw_label = fw_feats[0].qualifiers["label"][0]
+                editfeature(fw, query=fw_feats[0].feature_id, key_attribute="feature_id", target_attribute="feature_id", operation=removeattribute(), new_copy=False, quinable=False) 
+            
             if len(rv_feats) == 0:
-                amplicon.setfeature({"start":len(amplicon.seq)-len(rv.seq), "end":len(amplicon.seq), "strand":-1, "qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})  
+                rv_label = rv.project
+            else:
+                rv_label = rv_feats[0].qualifiers["label"][0] 
+                editfeature(rv, query=rv_feats[0].feature_id, key_attribute="feature_id", target_attribute="feature_id", operation=removeattribute(), new_copy=False, quinable=False) 
+
+            amplicon = modifyends(extract, left=fw[0:len(fw.seq)-len(fw_bind)].seq, right=rv[0:len(rv.seq)-len(rv_bind)].rcseq, qexd=qexd, product=product, pn=process_name, pd=process_description)   
+            amplicon.setfeature({"start":0, "end":len(fw.seq), "qualifier:label":"{}".format(fw_label), "feature_type":"primer_bind"})
+            amplicon.setfeature({"start":len(amplicon.seq)-len(rv.seq), "end":len(amplicon.seq), "strand":-1, "qualifier:label":"{}".format(rv_label), "feature_type":"primer_bind"})  
+
         else:
             if len(fw_feats) == 0:
                 fw.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
             if len(rv_feats) == 0:
                 rv.setfeature({"qualifier:label":"{}".format(rv.project), "feature_type":"primer_bind"})
+            
             start = fw_site.end if fw_site.end < len(template.seq) else fw_site.end - len(template.seq)
             end   = rv_site.start if rv_site.start < len(template.seq) else rv_site.start - len(template.seq)
             extract  = cropdna(template, start, end, qexd=True, pn=process_name, pd=process_description)
             amplicon = modifyends(extract, fw.seq, rv.rcseq, qexd=qexd, product=product, pn=process_name, pd=process_description)
-    
+
     histories = [amplicon._history, fw._history, rv._history]
     combined_history  = _combine_history(amplicon, histories)
     amplicon._history = combined_history
@@ -620,6 +632,9 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
     
     if follow_order == 'True':
         follow_order = True
+    
+    if len(fragments) == 1: 
+        follow_order = True
 
     qexd = 'ligation({}, {}{}{})'.format(fragments_str, uniquetxt, fotxt, kwargs_str)
     process_description = pd if process_description is None else process_description
@@ -628,12 +643,12 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
     if follow_order == True:
         pass
     else:
-        orders  = [(0,1)] 
-        results = [] 
-        remains = list(range(1, len(fragments)))
+        orders   = [(0,1)] 
+        results  = [] 
+        remains  = list(range(1, len(fragments)))
         results1 = add_fragment(fragments, orders[:], remains[:], results[:], flip=1)
         results2 = add_fragment(fragments, orders[:], remains[:], results[:], flip=-1)
-        results = results1 + results2 
+        results  = results1 + results2 
 
     if follow_order == True:
         outobj = joindna(*fragments, topology="circular", autoflip=False, compatibility="complete", qexd=qexd, product=product, pn=process_name, pd=process_description)
@@ -777,6 +792,9 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
         fotxt = ", follow_order='{}'".format(follow_order) 
 
     if follow_order == 'True':
+        follow_order = True
+
+    if len(fragments) == 1:
         follow_order = True
 
     qexd = 'homology_based_assembly({}, mode="{}"{}{}{}{})'.format(fragments_str, mode, hltxt, uniquetxt, fotxt, kwargs_str)
@@ -1448,8 +1466,9 @@ def Tm_NN(check=True, strict=True, nn_table=None, tmm_table=None, imm_table=None
 def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, rv_margin=0,
                  adapter_mode="standard", fw_adapter=None, rv_adapter=None, fw_partner=None, 
                  rv_partner=None, requirement=None, fw_name="fw_primer", rv_name="rv_primer",
-                 target_tm=60.0, nonspecific_limit=3, auto_adjust=1, homology_length=30, 
-                 tm_func=None, primer_length=(16, 25), design_num=1, batch_process=False):
+                 mut_pattern=None, target_tm=60.0, nonspecific_limit=3, auto_adjust=1, 
+                 homology_length=30, tm_func=None, primer_length=(16, 25), design_num=1, 
+                 batch_process=False):
     """
     Design forward and reverse primers for PCR amplification of a specified target region.
     Primers can incorporate desired mutations, be checked for specificity, and meet additional
@@ -1508,6 +1527,12 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         If adapter_mode is set to `"gibson"`, `"infusion"`, `"overlappcr"`, or `"RE"`, the 3′ region of the QUEEN object 
         specified as `rv_partner`, that is placed on immediately upstream of the target used in the current primer design, 
         will be automatically joined with the given rv_adapter value, which will then be prepended to the reverse primer.
+    fw_partner : QUEEN object or str (replesenting DNA sequence)
+        The DNA sequence or QUEEN object that joins to the 5′ end of the PCR product via ligation or homology-based assembly 
+        (such as Gibson Assembly).
+    rv_partner : QUEEN object or str (replesenting DNA sequence)
+        The DNA sequence or QUEEN object that joins to the 3′ end of the PCR product via ligation or homology-based assembly 
+        (such as Gibson Assembly).
     homology_length : int or list of int, optional
         This parameter is active if `adapter_mode` is `"gibson"`, `"infusion"`, or `"overlappcr"`.  
         If an int value is provided, an adapter sequence including an overlapping end with the specified  
@@ -1528,6 +1553,38 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             - `x["fw"][-1] not in ("A", "T") and x["rv"][-1] not in ("A", "T")`
             - `"AAAA" not in x["fw"] and "TTTT" not in x["fw"] and "GGGG" not in x["fw"] and "CCCC" not in x["fw"]`
             - `"AAAA" not in x["rv"] and "TTTT" not in x["rv"] and "GGGG" not in x["rv"] and "CCCC" not in x["rv"]`
+    mut_pattern : MutSpec (dict) or list[MutSpec], optional
+        Site-directed mutagenesis specification(s) within `target`. Coordinates are relative to `target` (5′→3′, 0-based, 
+        half-open [start, end)) unless `relative` is specified. Multiple sites can be given by supplying list values to fields 
+        inside MutSpec (vectorized fields).
+        MutSpec (dict):
+            operation : {"Q5","QuickChange","gibson","infusion","overlappcr"}, optional
+                Default strategy:
+                    - template == target AND exactly 1 site  → "Q5"
+                    - template == target AND ≥2 sites        → "gibson"
+                    - otherwise (target ⊂ template, any #)   → "overlappcr"
+            relative : {"target"} | QUEEN | str, optional
+                Reference subsequence for interpreting `loc`/`find`. If omitted or "target", coordinates are relative to `target`. 
+                If a QUEEN object or a DNA string is provided, it must map uniquely within `target`. Coordinates are taken in the 
+                5′→3′ direction of the `relative` sequence; if the match is on the reverse strand, mapping to `target` is handled 
+                automatically (with reverse-complement of `find` as needed). Non-unique matches raise an error. (Scalar or list; 
+                scalars broadcast. One `relative` applies to all sites in that MutSpec unless a list is given.)
+            loc : (start, end) or list[(start, end)], optional
+                Interval(s) to replace, relative to `relative` if given, otherwise `target`. Use (i, i) to denote an insertion at 
+                index i.
+            find : str or list[str], optional
+                Alternative to `loc`; unique subsequence(s) within the `relative` sequence (or within `target` when `relative` 
+                is omitted).
+            to : str or list[str], optional
+                Replacement/insert sequence(s) (IUPAC allowed). Use "" or None for deletion.
+        Vectorization:
+            - `relative`, `loc`, `find`, and `to` accept scalars or lists.
+            - If multiple fields are lists, their (non-None) lengths must match; scalars broadcast.
+            - For each site k, provide either `loc[k]` OR `find[k]` (not both).
+            - Deletion: `to[k]` in {"", None}. Insertion: `loc[k] == (i, i)`.
+        Batch mode:
+            - When `template`/`target` are lists, pass `mut_pattern` as a list whose length equals `templates`; each element is 
+              one MutSpec (with vectorized fields) for the corresponding template–target pair.
     fw_name : str, or list of str objects, optional
         The forward primer name(s) designed in this function. If a list is specified, its length should be match with 
         the `target` list. If the value is not specified, the forward primer is named as `fw_primer{num}`. `num` is the 
@@ -1603,7 +1660,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 filtered_primer_pairs[i][strand][0] = QUEEN(seq=filtered_primer_pairs[i][strand][0])
             
         else:
-            if type(adapter) == QUEEN or (type(adapter) == str and set(adapter.upper()) <= set("ATGCRYKMSWBDHVN")):
+            if type(adapter) == QUEEN or (type(adapter) in (str, Qseq) and set(adapter.upper()) <= set("ATGCRYKMSWBDHVN")):
                 if type(adapter) == QUEEN:
                     pass 
                 else:
@@ -1618,7 +1675,6 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 for i in range(len(filtered_primer_pairs)):
                     adseq = adapter.rcseq if strand == "rv" else adapter.seq 
                     filtered_primer_pairs[i][strand][0] = QUEEN(seq="ATGC" + adseq + filtered_primer_pairs[i][strand][0]) 
-            
             else:
                 raise ValueError("When 'adapter_mode' is 'standard', adapter value must be a QUEEN, str, or Cutsite object.")
         
@@ -1785,7 +1841,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                         filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + filtered_primer_pairs[i][strand][0]
         else:
             for i in range(len(filtered_primer_pairs)):
-                filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + filtered_primer_pairs[i][strand][0]  
+                filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + filtered_primer_pairs[i][strand][0]  
         for i in range(len(filtered_primer_pairs)):
             filtered_primer_pairs[i][strand][0]._ssdna = True
         return filtered_primer_pairs
@@ -1824,20 +1880,6 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         if -1 in (target._left_end_top, target._left_end_bottom, target._right_end_top, target._right_end_bottom):
             target = modifyends(target, quinable=False) 
     
-    if adapter_mode in ("gibson", "infusion", "overlappcr", "RE"):
-        if type(fw_partner) is None: 
-            raise ValueError("When adapter mode is 'gibson', 'infusion', 'overlappcr' or 'RE', `fw_partner` should be QUEEN object.") 
-    else:
-        if type(fw_partner) is not None:
-            raise ValueError("When adapter mode is 'standard', `fw_partner` should be QUEEN object.") 
-    
-    if adapter_mode in ("gibson", "infusion", "overlappcr", "RE"):
-        if type(rv_partner) is None: 
-            raise ValueError("When adapter mode is 'gibson', 'infusion', 'overlappcr' or 'RE', `rv_partner` should be QUEEN object.") 
-    else:
-        if type(rv_partner) is not None:
-            raise ValueError("When adapter mode is 'standard', `rv_partner` should be QUEEN object.")    
-
     if type(template) in (tuple, list):
         fw_primers     = [fw_primer] * len(template) if type(fw_primer) not in (tuple, list) else fw_primer
         rv_primers     = [rv_primer] * len(template) if type(rv_primer) not in (tuple, list) else rv_primer
@@ -1888,8 +1930,8 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         requirements       = [requirement] * len(template) if type(requirement) not in (tuple, list) else requirement
         fw_names           = [fw_name] * len(template) if type(fw_name) not in (tuple, list) else fw_name
         rv_names           = [rv_name] * len(template) if type(rv_name) not in (tuple, list) else rv_name 
-
-        arguments = list(zip(*[template, target, fw_primers, rv_primers, fw_margins, rv_margins, adapter_modes, fw_adapters, rv_adapters, fw_partners, rv_partners, requirements, fw_names, rv_names, target_tms, nonspecific_limits, auto_adjusts, homology_lengths, tm_funcs, primer_lengths, design_nums]))
+        mut_patterns       = [mut_pattern] * len(template) if type(mut_pattern) not in (tuple, list) else mut_pattern 
+        arguments = list(zip(*[template, target, fw_primers, rv_primers, fw_margins, rv_margins, adapter_modes, fw_adapters, rv_adapters, fw_partners, rv_partners, requirements, fw_names, rv_names, mut_patterns, target_tms, nonspecific_limits, auto_adjusts, homology_lengths, tm_funcs, primer_lengths, design_nums]))
         arguments = list(map(list, arguments))
 
         primer_pair_set = []
@@ -2013,65 +2055,162 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             amplicon_region = fw_adapter + amplicon_region + rv_adapter  
         return amplicon_region 
     
-    else:
-        amp_start = amplicon_region.seq.find(target.seq) 
-        amp_end   = amp_start + len(target.seq)
-        fw_candidates = [] 
-        if fw_primer is None:
-            for pos in range(amp_start+1):
-                for plen in range(primer_length[0], primer_length[1] + 1): 
-                    fw_candidate = amplicon_region.seq[pos:pos+plen]
-                    fw_candidates.append([str(fw_candidate), pos]) 
-        else:
-            site = amplicon_region.searchsequence(query=fw_primer, quinable=False)
-            fw_candidates.append([fw_primer.seq, site.start])
-
-        rv_candidates = [] 
-        if rv_primer is None:
-            for pos in range(amp_end-len(target.seq)+1):
-                for plen in range(primer_length[0], primer_length[1] + 1): 
-                    rv_candidate = amplicon_region.rcseq[pos:pos+plen]
-                    rv_candidates.append([str(rv_candidate), pos]) 
-        else:
-            site = amplicon_region.searchsequence(query=rv_primer, quinable=False)
-            rv_candidates.append([rv_primer.seq, len(amplicon_region.seq) - site.end])
-
-        checked_fw_candidates = [] 
-        for candidate in fw_candidates:
-            sites = template.searchsequence(query="(?:{}){{s<={}}}".format(candidate[0], nonspecific_limit), quinable=False) 
-            if len(sites) > 1:
-                pass 
+    else: 
+        if mut_pattern is not None:
+            if "relative" not in mut_pattern or mut_pattern["relative"] is None:
+                rs = amplicon_region.seq.find(target.seq)
             else:
-                checked_fw_candidates.append(candidate) 
+                rs = amplicon_region.seq.find(mut_pattern["relative"].seq)
+            
+            aligner = PairwiseAligner(mode="global")
+            aligner.mismatch_score = 1.0
+            aligner.target_end_gap_score = -0.1
+            aligner.query_end_gap_score  = -0.1
+          
+            if template.seq == amplicon_region.seq and type(mut_pattern["to"]) not in (tuple, list):
+                if "operation" not in mut_pattern:
+                    operation = "Q5"
+                else:
+                    operation = mut_pattern["operation"]  
                 
-        checked_rv_candidates = [] 
-        for candidate in rv_candidates:
-            sites = template.searchsequence(query="(?:{}){{s<={}}}".format(candidate[0], nonspecific_limit), quinable=False) 
-            if len(sites) > 1:
-                pass
+                if "loc" in mut_pattern:
+                    loc = mut_pattern["loc"]
+                    loc = (rs + loc[0], rs + loc[1])
+                elif "find" in mut_pattern:
+                    s   = amplicon_region.seq.find(mut_pattern["find"]) 
+                    e   = s + len(mut_pattern["find"]) 
+                    loc = (rs + s, rs + e) 
+                else:
+                    raise ValueError("Mutation location is not specified") 
+                
+
+                origins   = amplicon_region.seq[loc[0]:loc[1]] 
+                mutations = mut_pattern["to"]
+                aln  = aligner.align(origins, mutations)[0] 
+                for i, (o, m) in enumerate(zip(aln[0], aln[1])):
+                    if o != m:
+                        mut_pos = loc[0]+i
+                        break 
+            
+                target_seq = QUEEN(seq=amplicon_region.seq[:loc[0]] + aln[0] + amplicon_region.seq[loc[1]:], topology="circular", quinalbe=0).seq
+                mutate_seq = QUEEN(seq=amplicon_region.seq[:loc[0]] + aln[1] + amplicon_region.seq[loc[1]:], topology="circular", quinalbe=0).seq
+                
+                if operation in ("Q5", "QuickChange"):
+                    fw_tm_set = [] 
+                    rv_tm_set = [] 
+                    for plen in range(primer_length[0], primer_length[1]):
+                        flen = int(plen/2) + plen%2
+                        rlen = int(plen/2)
+                        fw_candidate = mutate_seq[mut_pos-flen:mut_pos+rlen] 
+                        rv_candidate = target_seq[mut_pos-flen:mut_pos+rlen] 
+                        fw_candidate = fw_candidate.replace("-","") 
+                        rv_candidate = rv_candidate.replace("-","")
+                        aln = aligner.align(fw_candidate, rv_candidate)[0]
+                        try:
+                            fwseq = ""
+                            rvseq = "" 
+                            for f,r in zip(aln[0], aln[1]):
+                                if f == "-" or r == "-":
+                                    pass 
+                                else:
+                                    fwseq += f
+                                    rvseq += r
+                            tm = tm_func(seq=fwseq, c_seq=rvseq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")))
+                        except:
+                            fwseq = ""
+                            rvseq = "" 
+                            for f,r in zip(aln[0], aln[1]):
+                                if f != "-":
+                                    fwseq += f
+                                    rvseq += r
+                            tm = tm_func(seq=fwseq, c_seq=rvseq.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB")))
+                        fw_tm_set.append([[fw_candidate, 0], tm]) 
+                        
+                        if operation == "QuickChange": 
+                            rv_candidate = rv_candidate.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
+                        else:
+                            rv_candidate = target_seq[mut_pos-flen-plen:mut_pos-flen].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
+                            tm = tm_func(seq=rv_candidate) 
+                        rv_tm_set.append([[rv_candidate, 0], tm])
+
+                elif operation in ("gibson", "infusion"):
+                    fw_tm_set = [] 
+                    rv_tm_set = [] 
+                    for plen in range(primer_length[0], primer_length[1]):
+                        flen = int(homology_length/2) 
+                        rlen = int(homology_length/2)
+                        fw_candidate = target_seq[mut_pos+flen:mut_pos+flen+plen] 
+                        rv_candidate = target_seq[mut_pos-rlen-plen:mut_pos-rlen].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
+                        fw_tm = tm_func(seq=fw_candidate)
+                        rv_tm = tm_func(seq=rv_candidate)
+                        fw_tm_set.append([[fw_candidate, 0], fw_tm])
+                        rv_tm_set.append([[rv_candidate, 0], rv_tm])
+                    fw_adapter = mutate_seq[mut_pos-rlen:mut_pos+flen]
+                    rv_adapter = mutate_seq[mut_pos-rlen:mut_pos+flen]
+                    #adapter_mode = operation
+                else:
+                    raise ValueError("If locations for mutations are single, operation should be 'gibson', 'infusion', 'QuickChange', 'Q5'.")
+
             else:
-                checked_rv_candidates.append(candidate) 
-        
-        fw_candidates = checked_fw_candidates
-        rv_candidates = checked_rv_candidates
-        if len(fw_candidates) == 0 or len(rv_candidates) == 0:
-            raise ValueError("No proper primer binding sites were found. You should try re-execute this function with a different parameter set.")
-        
-        fw_tm_set = []
-        for candidate in fw_candidates:
-            tm = tm_func(seq=candidate[0])
-            fw_tm_set.append([candidate, tm]) 
-        
-        rv_tm_set = [] 
-        for candidate in rv_candidates: 
-            tm = tm_func(seq=candidate[0])
-            rv_tm_set.append([candidate, tm]) 
-        
+                pass
+        else:
+            amp_start = amplicon_region.seq.find(target.seq) 
+            amp_end   = amp_start + len(target.seq)
+            fw_candidates = [] 
+            if fw_primer is None:
+                for pos in range(amp_start+1):
+                    for plen in range(primer_length[0], primer_length[1] + 1): 
+                        fw_candidate = amplicon_region.seq[pos:pos+plen]
+                        fw_candidates.append([str(fw_candidate), pos]) 
+            else:
+                site = amplicon_region.searchsequence(query=fw_primer, quinable=False)
+                fw_candidates.append([fw_primer.seq, site.start])
+
+            rv_candidates = [] 
+            if rv_primer is None:
+                for pos in range(amp_end-len(target.seq)+1):
+                    for plen in range(primer_length[0], primer_length[1] + 1): 
+                        rv_candidate = amplicon_region.rcseq[pos:pos+plen]
+                        rv_candidates.append([str(rv_candidate), pos]) 
+            else:
+                site = amplicon_region.searchsequence(query=rv_primer, quinable=False)
+                rv_candidates.append([rv_primer.seq, len(amplicon_region.seq) - site.end])
+
+            checked_fw_candidates = [] 
+            for candidate in fw_candidates:
+                sites = template.searchsequence(query="(?:{}){{s<={}}}".format(candidate[0], nonspecific_limit), quinable=False) 
+                if len(sites) > 1:
+                    pass 
+                else:
+                    checked_fw_candidates.append(candidate) 
+                    
+            checked_rv_candidates = [] 
+            for candidate in rv_candidates:
+                sites = template.searchsequence(query="(?:{}){{s<={}}}".format(candidate[0], nonspecific_limit), quinable=False) 
+                if len(sites) > 1:
+                    pass
+                else:
+                    checked_rv_candidates.append(candidate) 
+            
+            fw_candidates = checked_fw_candidates
+            rv_candidates = checked_rv_candidates
+            if len(fw_candidates) == 0 or len(rv_candidates) == 0:
+                raise ValueError("No proper primer binding sites were found. You should try re-execute this function with a different parameter set.")
+            
+            fw_tm_set = []
+            for candidate in fw_candidates:
+                tm = tm_func(seq=candidate[0])
+                fw_tm_set.append([candidate, tm]) 
+            
+            rv_tm_set = [] 
+            for candidate in rv_candidates: 
+                tm = tm_func(seq=candidate[0])
+                rv_tm_set.append([candidate, tm]) 
+            
         primer_pairs = [] 
         for fw, rv in it.product(fw_tm_set, rv_tm_set):
             primer_pairs.append({"fw":copy.deepcopy(fw[0]), "rv":copy.deepcopy(rv[0]), "fw_tm":fw[1], "rv_tm":rv[1]}) 
         primer_pairs.sort(key=lambda x: abs(x["fw_tm"]-target_tm) + abs(x["rv_tm"]-target_tm))
-
         filtered_primer_pairs = [] 
         for primer_pair in primer_pairs:
             if requirement(primer_pair): 

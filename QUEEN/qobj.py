@@ -747,6 +747,22 @@ class QUEEN():
             self._dnafeatures = [] 
             if len(record.features) > 0:
                 record.features.sort(key=lambda x:(int(x.location.parts[0].start), int(x.location.parts[-1].end * -1)))
+                tmp_features = [] 
+                lse_set = set([])
+
+                #Remove duplicating features
+                for feat in record.features:
+                    if "label" in feat.qualifiers:
+                        lse = feat.location.start, feat.location.end, feat.qualifiers["label"][0]
+                        if lse in lse_set:
+                            pass
+                        else:
+                            tmp_features.append(feat) 
+                            lse_set.add((feat.location.start, feat.location.end, feat.qualifiers["label"][0]))
+                    else:
+                        tmp_features.append(feat) 
+                record.features = tmp_features
+
                 for feat in record.features:
                     self._dnafeatures.append(DNAfeature(feature=feat, subject=self))
                 pairs = [] 

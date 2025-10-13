@@ -649,11 +649,18 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
         results1 = add_fragment(fragments, orders[:], remains[:], results[:], flip=1)
         results2 = add_fragment(fragments, orders[:], remains[:], results[:], flip=-1)
         results  = results1 + results2 
-
+    
     if follow_order == True:
         outobj = joindna(*fragments, topology="circular", autoflip=False, compatibility="complete", qexd=qexd, product=product, pn=process_name, pd=process_description)
+        if len(fragments) == 1:
+            if 0 in outobj._positions:
+                zero_pos = outobj._positions.index(0)
+                outobj   = cutdna(outobj, zero_pos, quinable=0)[0]
+                outobj   = joindna(outobj, topology="circular", quinable=0)
+            else:
+                pass
         return outobj
-
+    
     elif unique == True:
         if len(results) == 1:
             orders, flips = list(zip(*results[-1])) 

@@ -69,6 +69,27 @@ _lib = {
             "dna_mouse": "ATCGAGGGCCGC",
             "dna_yeast": "ATTGAAGGTAGA",
             "dna_common": "ATCGAGGGTCGT"
+          },
+            "SV40 NLS": {
+            "amino_acid": "PKKKRKV",
+            "dna_human": "CCCAAGAAAAAGCGCAAGGTG",
+            "dna_mouse": "CCCAAGAAAAAGCGCAAGGTG",
+            "dna_yeast": "CCTAAAAAGAAAAGAAAAGTT",
+            "dna_common": "CCAAAGAAGAAGAGAAAGGTG"
+          },
+          "cMyc NLS": {
+            "amino_acid": "PAAKRVKLD",
+            "dna_human": "CCCGCCGCTAAGCGCGTGAAGCTGGAC",
+            "dna_mouse": "CCCGCCGCTAAGCGCGTGAAGCTGGAC",
+            "dna_yeast": "CCTGCTGCCAAAAGAGTTAAATTGGAT",
+            "dna_common": "CCAGCCGCCAAGCGCGTGAAGCTGGAC"
+          },
+          "nucleoplasmin NLS": {
+            "amino_acid": "KRPAATKKAGQAKKKK",
+            "dna_human": "AAGCGCCCCGCCGCTACCAAGAAAGCCGGCCAGGCCAAGAAAAAGAAA",
+            "dna_mouse": "AAGCGCCCCGCCGCTACCAAGAAAGCCGGCCAGGCCAAGAAAAAGAAA",
+            "dna_yeast": "AAAAGACCTGCTGCCACTAAAAAGGCTGGTCAAGCTAAAAAGAAAAAG",
+            "dna_common": "AAGCGCCCCGCCGCCACCAAGAAGGCCGGCCAGGCCAAGAAGAAGAAG"
           }
     }
 lib = copy.deepcopy(_lib) 

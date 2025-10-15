@@ -1567,8 +1567,8 @@ class QUEEN():
             
             if "-to-" in query:
                 query1, query2 = query.split("-to-") 
-                sites1 = self.searchfeature(query="^"+query1+"$", key_attribute=qkey, quinable=False)
-                sites2 = self.searchfeature(query="^"+query2+"$", key_attribute=qkey, quinable=False)
+                sites1 = self.searchfeature(query="^" + re.escape(query1) + "$", key_attribute=qkey, quinable=False)
+                sites2 = self.searchfeature(query="^" + re.escape(query2) + "$", key_attribute=qkey, quinable=False)
                 if len(sites1) == 0 or len(sites2) == 0:
                     raise ValueError("The index value(s) were not found, you should try different value.") 
                 strand = sites1[0].strand
@@ -1576,7 +1576,7 @@ class QUEEN():
                 end    = sites2[0].end 
 
             else:
-                sites = self.searchfeature(query="^"+query+"$", key_attribute=qkey, quinable=False)
+                sites = self.searchfeature(query=r"^"+ re.escape(query) +"$", key_attribute=qkey, quinable=False)
                 strand = sites[0].strand
                 start  = sites[0].start
                 end    = sites[0].end 

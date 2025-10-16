@@ -193,8 +193,8 @@ class DNAfeature(SeqFeature):
                     loc2 = FeatureLocation(0, e, strand)
                     locations.append(loc1) 
                     locations.append(loc2) 
-            if strand == -1:
-                locations.reverse()
+            #if strand == -1:
+            #    locations.reverse()
             self.location = CompoundLocation(locations) 
         
         #if self.location.strand == -1:
@@ -752,6 +752,10 @@ class QUEEN():
 
                 #Remove duplicating features
                 for feat in record.features:
+                    if feat.location.strand == -1 and len(feat.location.parts) > 1:
+                        feat.location.parts.reverse() #Bug in biopython?
+                        print(feat) 
+
                     if "label" in feat.qualifiers:
                         lse = feat.location.start, feat.location.end, feat.qualifiers["label"][0]
                         if lse in lse_set:
@@ -1116,8 +1120,8 @@ class QUEEN():
         if query is None:
             if start > end:
                 locations = [(start, len(self.seq), strand), (0, end, strand)] 
-                if strand == -1:
-                    locations.reverse()
+                #if strand == -1:
+                #    locations.reverse()
                 new_feat = SeqFeature(CompoundLocation(list(map(FeatureLocation, locations))), type="misc_feature")
             else:
                 new_feat = SeqFeature(FeatureLocation(start, end, strand=1), type="misc_feature")
@@ -1543,10 +1547,10 @@ class QUEEN():
             else:
                 raise TypeError("slice indices must be integers or None or have an __index__ method")
             
-            if strand == -1 or strand < 0:
-                return flipdna(subdna, quinable=0)
-            else:
-                return subdna 
+            #if strand == -1 or strand < 0:
+            #    return flipdna(subdna, quinable=0)
+            #else:
+            return subdna 
 
         if type(item) == str:
             if bool(re.match(r"^.+:.+$", item)) == False and bool(re.match(r"^!.+:.+$", item)) == False:

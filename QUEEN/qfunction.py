@@ -372,8 +372,8 @@ def _circularizedna(dna, compatibility, homology_length):
                         else:
                             feat2_parts = [FeatureLocation(int(p.start) + len(dna.seq), int(p.end) + len(dna.seq), feat2.strand) for p in feat2.location.parts]
                             locations   = feat1.location.parts[0:-1] + [FeatureLocation(int(feat1.location.parts[-1].start), len(dna.seq) + int(feat2.location.parts[0].end), feat1.strand)] + feat2_parts[0:-1]
-                            if strand == -1:
-                                locations.reverse() 
+                            #if strand == -1:
+                            #    locations.reverse() 
                             new_feat.location = CompoundLocation(locations) 
                             new_feat.location.strand = strand 
                         
@@ -402,8 +402,8 @@ def _circularizedna(dna, compatibility, homology_length):
             else:
                 strand    = dna.dnafeatures[i].location.strand
                 locations = [FeatureLocation(int(dna.dnafeatures[i].location.parts[0].start),len(dna.seq)), FeatureLocation(0,int(dna.dnafeatures[i].location.parts[-1].end)-len(dna.seq))]
-                if strand == -1:
-                    locations.reverse()   
+                #if strand == -1:
+                #locations.reverse()   
                 dna._dnafeatures[i].location = CompoundLocation(locations)
                 dna._dnafeatures[i].location.strand = strand
             dna._dnafeatures[i] = dna.dnafeatures[i].__class__(feature=dna.dnafeatures[i], location=dna.dnafeatures[i].location)
@@ -657,8 +657,8 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                     if len(feat.location.parts) == 1:
                         length = len(dna.seq) - s + e
                         locations = [FeatureLocation(s,len(dna.seq)),FeatureLocation(0,e)]
-                        if strand == -1:
-                            locations.reverse()
+                        #if strand == -1:
+                        #locations.reverse()
                         feat.location = CompoundLocation(locations)
                         feat.location.strand = strand
 
@@ -879,10 +879,10 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                     locations = []
                     sflag = 0 
                     eflag = 0
-                    if feat.strand == -1:
-                        fparts = reversed(feat.location.parts)
-                    else:
-                        fparts = feat.location.parts
+                    #if feat.strand == -1:
+                    #    fparts = reversed(feat.location.parts)
+                    #else:
+                    fparts = feat.location.parts
                     for apart in fparts:
                         s = int(apart.start)
                         e = int(apart.end)
@@ -982,8 +982,8 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                                     locations[l][0] = locations[l][0] - start
                                     locations[l][1] = locations[l][1] - start
                             locations = [FeatureLocation(*loc) for loc in locations] 
-                            if feat.strand == -1:
-                                locations.reverse()
+                            #if feat.strand == -1:
+                            #    locations.reverse()
                             feat.location = CompoundLocation(locations)
                         
                         if feat.location.start == feat.location.end:
@@ -1642,16 +1642,16 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
             #Restore a original feature from fragmented features
             if len(feats1) > 0 and len(feats2) > 0:
                 for feat1 in feats1:
-                    if feat1.location.strand == -1:
-                        s1, e1 = Qint(feat1.location.parts[-1].start), Qint(feat1.location.parts[0].end)
-                    else:
-                        s1, e1 = Qint(feat1.location.parts[0].start), Qint(feat1.location.parts[-1].end)
+                    #if feat1.location.strand == -1:
+                    #    s1, e1 = Qint(feat1.location.parts[-1].start), Qint(feat1.location.parts[0].end)
+                    #else:
+                    s1, e1 = Qint(feat1.location.parts[0].start), Qint(feat1.location.parts[-1].end)
 
                     for feat2 in feats2:
-                        if feat2.location.strand == -1:
-                            s2, e2 = Qint(feat2.location.parts[-1].start) - (len(construct.seq) - ovhg_length), Qint(feat2.location.parts[0].end) - (len(construct.seq) - ovhg_length)
-                        else:
-                            s2, e2 = Qint(feat2.location.parts[0].start) - (len(construct.seq) - ovhg_length), Qint(feat2.location.parts[-1].end) - (len(construct.seq) - ovhg_length)
+                        #if feat2.location.strand == -1:
+                        #    s2, e2 = Qint(feat2.location.parts[-1].start) - (len(construct.seq) - ovhg_length), Qint(feat2.location.parts[0].end) - (len(construct.seq) - ovhg_length)
+                        #else:
+                        s2, e2 = Qint(feat2.location.parts[0].start) - (len(construct.seq) - ovhg_length), Qint(feat2.location.parts[-1].end) - (len(construct.seq) - ovhg_length)
                         
                         if feat1.type == feat2.type and feat1.original == feat2.original: 
                             flag = 0
@@ -1689,8 +1689,8 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                                         new_feat.location.strand = strand
                                     else:
                                         locations = feat1.location.parts[0:-1] + [FeatureLocation(int(feat1.location.parts[-1].start), int(feat2.location.parts[0].end), feat1.strand)] + feat2.location.parts[0:-1]
-                                        if strand == -1:
-                                            locations.reverse() 
+                                        #if strand == -1:
+                                        #locations.reverse() 
                                         new_feat.location = CompoundLocation(locations) 
                                         new_feat.location.strand = strand 
                                    
@@ -3117,12 +3117,13 @@ def _replaceattribute(dna=None, feat_list=None, target_attribute=None, query_re=
                     strand = 1 
                 elif strand == "-": 
                     strand = -1 
-                            
+
+            s,e = fs + ss, fs + se   
             if strand == -1:
-                s,e = fe - se, fe - ss 
+                #s,e = fe - se, fe - ss 
                 target_seq = dna.seq[s:e].translate(str.maketrans("ATGC","TACG"))[::-1]
             else:
-                s,e = fs + ss, fs + se
+                #s,e = fs + ss, fs + se
                 target_seq = dna.seq[s:e] 
 
             if query_re == "" or query_re is None:
@@ -3304,18 +3305,18 @@ def _createattribute(dna=None, feat_list=None, target_attribute=None, value=None
                     feat.qualifiers[key].append(value)
             
             for feat in feat_list:
-                if feat.location.strand == -1: 
-                    s1, e1 = Qint(feat.location.parts[-1].start), Qint(feat.location.parts[0].end)
-                else:
-                    s1, e1 = Qint(feat.location.parts[0].start), Qint(feat.location.parts[-1].end)
+                #if feat.location.strand == -1: 
+                #    s1, e1 = Qint(feat.location.parts[-1].start), Qint(feat.location.parts[0].end)
+                #else:
+                s1, e1 = Qint(feat.location.parts[0].start), Qint(feat.location.parts[-1].end)
                 
                 if "_id" not in feat.__dict__:
                     flag = 0
                     for feat2 in dna.dnafeatures:
-                        if feat2.location.strand == -1: 
-                            s2, e2 = Qint(feat.location.parts[-1].start), Qint(feat.location.parts[0].end)
-                        else:
-                            s2, e2 = Qint(feat.location.parts[0].start), Qint(feat.location.parts[-1].end) 
+                        #if feat2.location.strand == -1: 
+                        #    s2, e2 = Qint(feat.location.parts[-1].start), Qint(feat.location.parts[0].end)
+                        #else:
+                        s2, e2 = Qint(feat.location.parts[0].start), Qint(feat.location.parts[-1].end) 
 
                         if s1 >= e2 and feat2._id.isdecimal() == True:
                             unique_num = 1
@@ -3352,16 +3353,16 @@ def _createattribute(dna=None, feat_list=None, target_attribute=None, value=None
 
             if value is None:
                 value = "" 
-                if feat.location.strand == -1: 
-                    s1, e1 = Qint(feat.location.parts[-1].start), Qint(feat.location.parts[0].end)
-                else:
-                    s1, e1 = Qint(feat.location.parts[0].start), Qint(feat.location.parts[-1].end) 
+                #if feat.location.strand == -1: 
+                #    s1, e1 = Qint(feat.location.parts[-1].start), Qint(feat.location.parts[0].end)
+                #else:
+                s1, e1 = Qint(feat.location.parts[0].start), Qint(feat.location.parts[-1].end) 
                 flag = 0 
                 for feat2 in dna.dnafeatures:
-                    if feat2.location.strand == -1: 
-                        s2, e2 = Qint(feat2.location.parts[-1].start), Qint(feat2.location.parts[0].end)
-                    else:
-                        s2, e2 = Qint(feat2.location.parts[0].start), Qint(feat2.location.parts[-1].end)
+                    #if feat2.location.strand == -1: 
+                    #s2, e2 = Qint(feat2.location.parts[-1].start), Qint(feat2.location.parts[0].end)
+                    #else:
+                    s2, e2 = Qint(feat2.location.parts[0].start), Qint(feat2.location.parts[-1].end)
 
                     if s1 >= e2 and feat2._id.isdecimal() == True:
                         unique_num = 1

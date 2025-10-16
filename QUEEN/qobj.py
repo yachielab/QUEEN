@@ -197,12 +197,12 @@ class DNAfeature(SeqFeature):
                 locations.reverse()
             self.location = CompoundLocation(locations) 
         
-        if self.location.strand == -1:
-            self._start = Qint(self.location.parts[-1].start)
-            self._end   = Qint(self.location.parts[0].end)
-        else:
-            self._start = Qint(self.location.parts[0].start)
-            self._end   = Qint(self.location.parts[-1].end) 
+        #if self.location.strand == -1:
+        #    self._start = Qint(self.location.parts[-1].start)
+        #    self._end   = Qint(self.location.parts[0].end)
+        #else:
+        self._start = Qint(self.location.parts[0].start)
+        self._end   = Qint(self.location.parts[-1].end) 
         
         self._start = Qint(self._start)
         self._end   = Qint(self._end) 

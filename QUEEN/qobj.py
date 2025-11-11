@@ -122,6 +122,10 @@ class DNAfeature(SeqFeature):
     def __setattr__(self, key, value):
         if key in ["feature_id", "feature_type", "seq", "sequenece", "original", "strand", "start", "end", "span"]:
             raise AttributeError("'DNAfeature' object attribute '{}' is read-only".format(key))
+        elif key == "location":
+            super.__setattr__(self, key, value)
+            self._start = Qint(self.location.parts[0].start)
+            self._end   = Qint(self.location.parts[-1].end)
         else:
             super.__setattr__(self, key, value)
 
@@ -769,6 +773,7 @@ class QUEEN():
 
                 for feat in record.features:
                     self._dnafeatures.append(DNAfeature(feature=feat, subject=self))
+                
                 pairs = [] 
                 history_feature = None
                 history_nums = [QUEEN._num_history] 
@@ -831,6 +836,16 @@ class QUEEN():
                 QUEEN._num_history = max(history_nums)   
                 if history_feature is not None:
                     self._dnafeatures.remove(pairs[0][0]) 
+            
+            #Remove source
+            sources = []
+            for feat in self._dnafeatures:
+                if feat.feature_type == "source":
+                    sources.append(feat)
+            
+            for source in sources:
+                self._dnafeatures.remove(source) 
+            
             if len(self.dnafeatures) == 0:
                 import_history = False
                 self._dnafeatures = []
@@ -2288,6 +2303,15 @@ class QUEEN():
             handle = open(handle, "w") 
         
         features.sort(key=lambda x:(int(x.start), int(x.end * -1))) 
+        
+        #Add source
+        if len([feat for feat in features if feat.start == 0 and feat.end == len(self.seq) and feat.feature_type == "source"]) == 0:
+            source = SeqFeature(FeatureLocation(0, len(self.seq), strand=1), type="source")
+            source = DNAfeature(feature=source, subject=self) 
+            source.qualifiers["mol_type"] = ["other DNA"] 
+            source.qualifiers["organism"] = ["synthetic DNA construct"]
+        
+        features = [source] + features
         self.record.features = features 
         if record_id is None:
             self.record.id = self.project
@@ -2359,7 +2383,7 @@ class QUEEN():
                 pass 
             else:
                 self.record.annotations["structured_comment"] = None  
-
+        
         SeqIO.write(self.record, handle, format)
         self.record.features = self.dnafeatures
         if stdIOflag == 1:

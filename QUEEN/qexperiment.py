@@ -268,7 +268,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
 
     fw_bind_length = len(fw_site.sequence) 
     rv_bind_length = len(rv_site.sequence) 
-    
+
     fw_feats = [feat for feat in fw.searchfeature(key_attribute="feature_type", query="primer_bind", qexd=True, pn=process_name, pd=process_description) if feat.end == len(fw.seq) and feat.start == 0] 
     rv_feats = [feat for feat in rv.searchfeature(key_attribute="feature_type", query="primer_bind", qexd=True, pn=process_name, pd=process_description) if feat.end == len(rv.seq) and feat.start == 0]
 
@@ -285,12 +285,15 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
         rv_index = fw_site.end - rv_site.start 
         amplicon = modifyends(extract, fw.seq[:fw_index], rv.rcseq[rv_index:], qexd=qexd, product=product, pn=process_name, pd=process_description)
     else:
-        if mismatch == 0 and ((fw_site.start <= rv_site.end and fw_site.start >= rv_site.start) == False):
+        req1 = (mismatch == 0 and ((fw_site.start < rv_site.end and fw_site.start >= rv_site.start) == False))
+        req2 = (mismatch > 0 and ((fw_site.start < rv_site.end and fw_site.start >= rv_site.start) == False) and fw_bind_length == len(fw_site.sequence) and rv_bind_length == len(rv_site.sequence))
+        if req1 == True or req2 == True:
             fw_bind  = template.seq[fw_site.start:fw_site.end]
             rv_bind  = template.seq[rv_site.start:rv_site.end]
             start    = fw_site.start if fw_site.start < len(template.seq) else fw_site.start - len(template.seq)
             end      = rv_site.end if rv_site.end < len(template.seq) else rv_site.end - len(template.seq)
             extract  = cropdna(template, start, end, qexd=True, pn=process_name, pd=process_description)
+            
             if len(fw_feats) == 0:
                 fw_label = fw.project
             else:
@@ -302,11 +305,10 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
             else:
                 rv_label = rv_feats[0].qualifiers["label"][0] 
                 editfeature(rv, query=rv_feats[0].feature_id, key_attribute="feature_id", target_attribute="feature_id", operation=removeattribute(), new_copy=False, quinable=False) 
-
+            
             amplicon = modifyends(extract, left=fw[0:len(fw.seq)-len(fw_bind)].seq, right=rv[0:len(rv.seq)-len(rv_bind)].rcseq, qexd=qexd, product=product, pn=process_name, pd=process_description)   
             amplicon.setfeature({"start":0, "end":len(fw.seq), "qualifier:label":"{}".format(fw_label), "feature_type":"primer_bind"})
             amplicon.setfeature({"start":len(amplicon.seq)-len(rv.seq), "end":len(amplicon.seq), "strand":-1, "qualifier:label":"{}".format(rv_label), "feature_type":"primer_bind"})  
-
         else:
             if len(fw_feats) == 0:
                 fw.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
@@ -638,10 +640,19 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
 
     qexd = 'ligation({}, {}{}{})'.format(fragments_str, uniquetxt, fotxt, kwargs_str)
     process_description = pd if process_description is None else process_description
-    #process_description = pd_suffix if process_description is None else process_description #"\n" + pd_suffix
    
     if follow_order == True:
-        pass
+        outobj = joindna(*fragments, topology="circular", autoflip=False, compatibility="complete", qexd=qexd, product=product, pn=process_name, pd=process_description)
+        if len(fragments) == 1:
+            if 0 in outobj._positions:
+                zero_pos = outobj._positions.index(0)
+                outobj   = cutdna(outobj, zero_pos, qexd=True)[0]
+                outobj   = joindna(outobj, topology="circular", qexd=True)
+                outobj._positions = tuple(range(len(outobj.seq)))
+            else:
+                pass
+        return outobj
+    
     else:
         orders   = [(0,1)] 
         results  = [] 
@@ -649,19 +660,8 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
         results1 = add_fragment(fragments, orders[:], remains[:], results[:], flip=1)
         results2 = add_fragment(fragments, orders[:], remains[:], results[:], flip=-1)
         results  = results1 + results2 
-    
-    if follow_order == True:
-        outobj = joindna(*fragments, topology="circular", autoflip=False, compatibility="complete", qexd=qexd, product=product, pn=process_name, pd=process_description)
-        if len(fragments) == 1:
-            if 0 in outobj._positions:
-                zero_pos = outobj._positions.index(0)
-                outobj   = cutdna(outobj, zero_pos, quinable=0)[0]
-                outobj   = joindna(outobj, topology="circular", quinable=0)
-            else:
-                pass
-        return outobj
-    
-    elif unique == True:
+            
+    if unique == True:
         if len(results) == 1:
             orders, flips = list(zip(*results[-1])) 
             fragment_set  = [flipdna(fragments[ind], product=fragments[ind].project, qexd=True, pn=process_name, pd=process_description) if fl == -1 else fragments[ind] for ind, fl in zip(orders, flips)]
@@ -702,8 +702,9 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
         if len(fragments) == 1:
             if 0 in outobj._positions:
                 zero_pos = outobj._positions.index(0)
-                outobj   = cutdna(outobj, zero_pos, quinable=0)[0]
-                outobj   = joindna(outobj, topology="circular", quinable=0)
+                outobj = cutdna(outobj, zero_pos, qexd=True)[0]
+                outobj = joindna(outobj, topology="circular", qexd=True)
+                outobj._positions = tuple(range(len(outobj.seq)))
             else:
                 pass
         return outobj
@@ -912,10 +913,13 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
                 if len(fragments) == 1:
                     if 0 in product._positions:
                         zero_pos = product._positions.index(0)
-                        product  = cutdna(product, zero_pos, quinable=0)[0]
-                        product  = joindna(product, topology="circular", quinable=0)
+                        product  = cutdna(product, zero_pos, qexd=True)[0]
+                        product  = joindna(product, topology="circular", qexd=True)
+                        product._positions = tuple(range(len(product.seq)))
                     else:
                         pass
+                
+                
                 return product
             except Exception as e:
                 print(e, errors) 

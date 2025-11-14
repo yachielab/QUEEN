@@ -69,6 +69,7 @@ def make_newhistories(histories, search_function=True):
             process_notes.add((process_name, process_description)) 
         else:
             pass 
+    
     return new_histories, process_notes, name_dict, unique_name_dict, unique_name_name_dict
 
 

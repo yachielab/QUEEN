@@ -361,13 +361,19 @@ def _circularizedna(dna, compatibility, homology_length):
                     if feat1.location.strand != -1: 
                         req = (feat1.location.strand == feat2.location.strand and pos_s2 > pos_e1)
                     else:
-                        req = (feat1.location.strand == feat2.location.strand and pos_e1 > pos_s2)
+                       req = (feat1.location.strand == feat2.location.strand and pos_e1 > pos_s2)
                     
                     if (s1 >= e2) and (e1 >= s2) and (e1-s2 > length1) and length1 == length2 and "_original" in feat1.__dict__ and "_original" in feat2.__dict__ and feat1.original == feat2.original and feat1.location.strand == feat2.location.strand and req == True:
-
-                        ns, ne = pos_s1, pos_e2
-                        note   = "{}:{}..{}".format(label, ns, ne)
                         
+                        if feat1.location.strand != -1:
+                            ns,  ne  = pos_s1, pos_e2
+                            nm1, nm2 = pos_e1, pos_s2
+                            note = "{}:{}..{}".format(label, ns, ne)
+                        else:
+                            ns, ne   = pos_e2, pos_s1 
+                            nm1, nm2 = pos_s2, pos_e1
+                            note = "{}:{}..{}".format(label, ne, ns)
+
                         feat1_index = dna.dnafeatures.index(feat1)
                         new_feat    = copy.deepcopy(dna.dnafeatures[feat1_index]) 
                         strand      = new_feat.location.strand
@@ -651,7 +657,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
             else:
                 subdna2 = extract(dna, [0,0], [end,end])
                 subdna  = joindna(subdna1, subdna2, quinable=0)
-                
+
             if start_top == end_top and start_bottom == end_bottom:
                 start, end = end, start
             else:
@@ -661,7 +667,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                 raise ValueError("'end' position must be larger than 'start' position.")
             feats = []
             new_features = []
-           
+            
             #Linearize feature (Split feature covering zero position) 
             for feat in dna.dnafeatures:
                 strand = feat.strand
@@ -740,7 +746,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                         if strand >= 0:
                             feat1.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, 1, len(dna.seq)-s)]
                         else:
-                            feat1.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, len(dna.seq)-s, 1)]
+                            feat1.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, len(dna.seq)-s+e, len(dna.seq)-s+1)]
                          
                     else:
                         note = feat.qualifiers["broken_feature"]
@@ -768,8 +774,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                         if strand >= 0:
                             feat2.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, len(dna.seq)-s+1, len(dna.seq)-s+e)]
                         else:
-                            feat2.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, len(dna.seq)-s+e, len(dna.seq)-s+1)]
-                        
+                            feat2.qualifiers["broken_feature"] = ["{}:{}..{}".format(label, len(dna.seq)-s, 1)]
                      
                     elif feat2 is not None:
                         note   = feat.qualifiers["broken_feature"][0]
@@ -1162,7 +1167,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                 dnas.append(extract(dna, new_positions[-1], new_positions[0], project=project)) 
     
 
-    #CDS to gene if gene length is not multiples of 3.
+    #Remove `translation` if CDS length is not multiples of 3.
     for subdna in dnas: 
         for feat in subdna.dnafeatures: 
             if "broken_feature" in feat.qualifiers and feat.feature_type in ("CDS", "gene"):
@@ -1170,7 +1175,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                     feat.type = "CDS"
                     feat.qualifiers["translation"] = [feat.sequence.get_translation()] 
                 else:
-                    feat.type = "gene"
+                    #feat.type = "gene"
                     if "translation" in feat.qualifiers:
                         del feat.qualifiers["translation"]
 
@@ -1632,7 +1637,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
             feats2      = [feat for feat in feats if "broken_feature" in feat.qualifiers]
             feats2_seqs = set([str(feat._original) for feat in feats2]) 
             feats1      = [feat for feat in feats1 if str(feat._original) in feats2_seqs]
-
+            
             if annealing == True:
                 construct._seq = new_q._seq
                 construct._right_end = new_q._right_end
@@ -1683,16 +1688,19 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                                 if feat1.location.strand != -1: 
                                     req = (feat1.location.strand == feat2.location.strand and pos_s2 > pos_e1)
                                 else:
-                                    req = (feat1.location.strand == feat2.location.strand and pos_e2 > pos_s1)
+                                    req = (feat1.location.strand == feat2.location.strand and pos_e1 > pos_s2) 
                                 
                                 #Join fragmented features
                                 if length1 == length2 and "_original" in feat1.__dict__ and "_original" in feat2.__dict__ and feat1.location.strand == feat2.location.strand and req == True:
                                     if feat1.location.strand != -1:
-                                        ns, ne = pos_s1, pos_e2
+                                        ns,  ne  = pos_s1, pos_e2
+                                        nm1, nm2 = pos_e1, pos_s2
+                                        note = "{}:{}..{}".format(label1, ns, ne)
                                     else:
-                                        ns, ne = pos_s2, pos_e1
+                                        ns, ne   = pos_e2, pos_s1 
+                                        nm1, nm2 = pos_s2, pos_e1
+                                        note = "{}:{}..{}".format(label1, ne, ns)
                                     
-                                    note        = "{}:{}..{}".format(label1, ns, ne)
                                     feat1_index = const_features.index(feat1)
                                     new_feat    = copy.deepcopy(const_features[feat1_index]) 
                                     strand      = new_feat.location.strand
@@ -1712,10 +1720,11 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                                     new_feat2 = feat1.__class__(feature=feat2, subject=construct) 
                                     s = new_feat.start 
                                     e = new_feat.end if new_feat.end <= len(construct.seq) else new_feat.end - len(construct.seq) 
-                                    
+                                   
                                     current_seq  = construct.printsequence(s, e, new_feat.location.strand if new_feat.location.strand !=0 else 1, display=False)
                                     original_seq = new_feat.original 
-                                    if len(original_seq) >= len(current_seq) and ((current_seq in original_seq) or (ns == 1 and ne == length1) or (ns == length1 and ne == 1)):
+                                    
+                                    if len(original_seq) >= len(current_seq) and ((current_seq in original_seq) or (ns == 1 and ne == length1) or (ns == length1 and ne == 1) or (nm2 - nm1 == 1)):
                                         new_feat._id = label1.split(":")[1] 
                                         construct._dnafeatures[feat1_index] = feat1.__class__(feature=new_feat)
                                         construct._dnafeatures[feat1_index].qualifiers["broken_feature"] = [note]
@@ -1797,7 +1806,6 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
     remove_features = [] 
     for feat in construct.dnafeatures: 
         if "broken_feature" in feat.qualifiers and feat.feature_type != "source":
-
             note       = feat.qualifiers["broken_feature"][0]
             label      = ":".join(note.split(":")[:-1])
             poss, pose = list(map(int,note.split(":")[-1].split("..")))
@@ -2801,8 +2809,10 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
                     feat.qualifiers["broken_feature"] = [note]
             else:
                 feat.location.strand = strand
-
-            feats.append(feat.__class__(feature=feat,subject=seq))
+            
+            feat.location.parts.reverse() 
+            #feat.location.parts.sort(x=lambda x:x.start)
+            feats.append(feat.__class__(feature=feat, subject=seq))
     
     comp = dna.__class__(seq=seq, topology = dna.topology, quinable=0) 
     feats.sort(key=lambda x:int(x.location.parts[0].start)) 
@@ -2810,6 +2820,7 @@ def flipdna(dna, supfeature=False, product=None, process_name=None, process_desc
     comp._history = dna._history 
     comp._supfeatureids()
     comp.record.features = comp.dnafeatures
+    comp.record.annotations["topology"] = dna.topology
     comp._right_end, comp._left_end = dna._left_end.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1], dna._right_end.translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
     comp._right_end_top, comp._left_end_bottom = dna._left_end_bottom, dna._right_end_top
     comp._right_end_bottom, comp._left_end_top = dna._left_end_top, dna._right_end_bottom

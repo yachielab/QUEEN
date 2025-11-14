@@ -287,28 +287,68 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     else:
         req1 = (mismatch == 0 and ((fw_site.start < rv_site.end and fw_site.start >= rv_site.start) == False))
         req2 = (mismatch > 0 and ((fw_site.start < rv_site.end and fw_site.start >= rv_site.start) == False) and fw_bind_length == len(fw_site.sequence) and rv_bind_length == len(rv_site.sequence))
-        if req1 == True or req2 == True:
+        
+        if len(fw_feats) == 0:
+            fw_label = fw.project
+        else:
+            fw_label = fw_feats[0].qualifiers["label"][0]
+            editfeature(fw, query=fw_feats[0].feature_id, key_attribute="feature_id", target_attribute="feature_id", operation=removeattribute(), new_copy=False, quinable=False) 
+        
+        if len(rv_feats) == 0:
+            rv_label = rv.project
+        else:
+            rv_label = rv_feats[0].qualifiers["label"][0] 
+            editfeature(rv, query=rv_feats[0].feature_id, key_attribute="feature_id", target_attribute="feature_id", operation=removeattribute(), new_copy=False, quinable=False) 
+
+        if req1 == True:
             fw_bind  = template.seq[fw_site.start:fw_site.end]
             rv_bind  = template.seq[rv_site.start:rv_site.end]
             start    = fw_site.start if fw_site.start < len(template.seq) else fw_site.start - len(template.seq)
             end      = rv_site.end if rv_site.end < len(template.seq) else rv_site.end - len(template.seq)
             extract  = cropdna(template, start, end, qexd=True, pn=process_name, pd=process_description)
             
-            if len(fw_feats) == 0:
-                fw_label = fw.project
-            else:
-                fw_label = fw_feats[0].qualifiers["label"][0]
-                editfeature(fw, query=fw_feats[0].feature_id, key_attribute="feature_id", target_attribute="feature_id", operation=removeattribute(), new_copy=False, quinable=False) 
-            
-            if len(rv_feats) == 0:
-                rv_label = rv.project
-            else:
-                rv_label = rv_feats[0].qualifiers["label"][0] 
-                editfeature(rv, query=rv_feats[0].feature_id, key_attribute="feature_id", target_attribute="feature_id", operation=removeattribute(), new_copy=False, quinable=False) 
-            
             amplicon = modifyends(extract, left=fw[0:len(fw.seq)-len(fw_bind)].seq, right=rv[0:len(rv.seq)-len(rv_bind)].rcseq, qexd=qexd, product=product, pn=process_name, pd=process_description)   
             amplicon.setfeature({"start":0, "end":len(fw.seq), "qualifier:label":"{}".format(fw_label), "feature_type":"primer_bind"})
             amplicon.setfeature({"start":len(amplicon.seq)-len(rv.seq), "end":len(amplicon.seq), "strand":-1, "qualifier:label":"{}".format(rv_label), "feature_type":"primer_bind"})  
+        
+        elif req2 == True:
+            fw_mut, rv_mut = 0, 0
+            start    = fw_site.start if fw_site.start < len(template.seq) else fw_site.start - len(template.seq)
+            end      = rv_site.end if rv_site.end < len(template.seq) else rv_site.end - len(template.seq)
+            
+            if fw.seq != template.seq[start:start+len(fw.seq)]:
+                extract_fw = cropdna(template, start, start+len(fw.seq), qexd=True, pn=process_name, pd=process_description)
+                extract_fw._seq = fw.seq
+                extract_fw._seq.qkey        = template.seq.qkey
+                extract_fw._seq.parent      = template.seq.parent
+                extract_fw._seq.parental_id = template.seq.parental_id
+                extract_fw._seq.name        = template.seq.name
+                extract_fw._seq.item        = template.seq.item
+                fw_mut = 1
+            
+            if  rv.rcseq != template.seq[end-len(rv.seq):end]:
+                extract_rv = cropdna(template, end-len(rv.seq), end, qexd=True, pn=process_name, pd=process_description)
+                extract_rv._seq = rv.rcseq
+                extract_rv._seq.qkey        = template.seq.qkey
+                extract_rv._seq.parent      = template.seq.parent
+                extract_rv._seq.parental_id = template.seq.parental_id
+                extract_rv._seq.name        = template.seq.name
+                extract_rv._seq.item        = template.seq.item
+                rv_mut = 1
+           
+            if fw_mut == True and rv_mut == True:
+                extract  = cropdna(template, start+len(fw.seq), end-len(rv.seq), qexd=True, pn=process_name, pd=process_description)
+                amplicon = joindna(extract_fw, extract, extract_rv, qexd=qexd, product=product, pn=process_name, pd=process_description)
+            elif fw_mut == True:
+                extract  = cropdna(template, start+len(fw.seq), end, qexd=True, pn=process_name, pd=process_description)
+                amplicon = joindna(extract_fw, extract, qexd=qexd, product=product, pn=process_name, pd=process_description)
+            else:
+                extract  = cropdna(template, start, end-len(rv.seq), qexd=True, pn=process_name, pd=process_description)
+                amplicon = joindna(extract, extract_rv, qexd=qexd, product=product, pn=process_name, pd=process_description)
+            
+            amplicon.setfeature({"start":0, "end":len(fw.seq), "qualifier:label":"{}".format(fw_label), "feature_type":"primer_bind"})
+            amplicon.setfeature({"start":len(amplicon.seq)-len(rv.seq), "end":len(amplicon.seq), "strand":-1, "qualifier:label":"{}".format(rv_label), "feature_type":"primer_bind"})  
+        
         else:
             if len(fw_feats) == 0:
                 fw.setfeature({"qualifier:label":"{}".format(fw.project), "feature_type":"primer_bind"})  
@@ -643,6 +683,7 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
    
     if follow_order == True:
         outobj = joindna(*fragments, topology="circular", autoflip=False, compatibility="complete", qexd=qexd, product=product, pn=process_name, pd=process_description)
+        outobj.printfeature() 
         if len(fragments) == 1:
             if 0 in outobj._positions:
                 zero_pos = outobj._positions.index(0)
@@ -2084,11 +2125,17 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
     
     else: 
         if mut_pattern is not None:
+            flip = 0 
             if "relative" not in mut_pattern or mut_pattern["relative"] is None:
                 rs = amplicon_region.seq.find(target.seq)
             else:
                 rs = amplicon_region.seq.find(mut_pattern["relative"].seq)
-            
+                if rs == -1:
+                    amplicon_region = flipdna(amplicon_region, quinable=0)
+                    template = flipdna(template, quinable=0)
+                    rs = amplicon_region.seq.find(mut_pattern["relative"].seq)
+                    flip = 1
+
             aligner = PairwiseAligner(mode="global")
             aligner.mismatch_score = 1.0
             aligner.target_end_gap_score = -0.1
@@ -2110,7 +2157,6 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 else:
                     raise ValueError("Mutation location is not specified") 
                 
-
                 origins   = amplicon_region.seq[loc[0]:loc[1]] 
                 mutations = mut_pattern["to"]
                 aln  = aligner.align(origins, mutations)[0] 
@@ -2159,6 +2205,10 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                             rv_candidate = target_seq[mut_pos-flen-plen:mut_pos-flen].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
                             tm = tm_func(seq=rv_candidate) 
                         rv_tm_set.append([[rv_candidate, 0], tm])
+                    
+                    if flip == 1:
+                        fw_tm_set, rv_tm_set       = rv_tm_set, fw_tm_set
+                        fw_candidate, rv_candidate = rv_candidate, fw_candidate
 
                 elif operation in ("gibson", "infusion"):
                     fw_tm_set = [] 
@@ -2174,7 +2224,12 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                         rv_tm_set.append([[rv_candidate, 0], rv_tm])
                     fw_adapter = mutate_seq[mut_pos-rlen:mut_pos+flen]
                     rv_adapter = mutate_seq[mut_pos-rlen:mut_pos+flen]
-                    #adapter_mode = operation
+                    
+                    if flip == 1:
+                        fw_tm_set, rv_tm_set       = rv_tm_set, fw_tm_set
+                        fw_candidate, rv_candidate = rv_candidate, fw_candidate
+                        fw_adapter, rv_adapter     = rv_adapter, fw_adapter
+                        #adapter_mode = operation
                 else:
                     raise ValueError("If locations for mutations are single, operation should be 'gibson', 'infusion', 'QuickChange', 'Q5'.")
 

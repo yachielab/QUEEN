@@ -758,7 +758,6 @@ class QUEEN():
                 for feat in record.features:
                     if feat.location.strand == -1 and len(feat.location.parts) > 1:
                         feat.location.parts.reverse() #Bug in biopython?
-                        print(feat) 
 
                     if "label" in feat.qualifiers:
                         lse = feat.location.start, feat.location.end, feat.qualifiers["label"][0]
@@ -778,6 +777,7 @@ class QUEEN():
                 history_feature = None
                 history_nums = [QUEEN._num_history] 
                 for feat in self.dnafeatures:
+                    feat.location.parts.sort(key=lambda x:x.start)
                     if feat.type == "source" and feat.start == 0 and feat.end == len(self.seq):
                         for key in feat.qualifiers:
                             if "building_history" in key[0:18] and import_history == True:
@@ -2312,7 +2312,10 @@ class QUEEN():
             source.qualifiers["organism"] = ["synthetic DNA construct"]
         
         features = [source] + features
-        self.record.features = features 
+        for feat in features:
+            if len(feat.location.parts) > 1 and feat.location.strand == -1:
+                feat.location.parts.reverse() 
+        self.record.features = features
         if record_id is None:
             self.record.id = self.project
         else:

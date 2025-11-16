@@ -358,10 +358,10 @@ def _circularizedna(dna, compatibility, homology_length):
                     pos_s2  = int(note2.split(":")[-1].split("..")[0].replace(" ",""))
                     pos_e2  = int(note2.split(":")[-1].split("..")[1].replace(" ","")) 
 
-                    if feat1.location.strand != -1: 
+                    if feat1.location.strand != -1:
                         req = (feat1.location.strand == feat2.location.strand and pos_s2 > pos_e1)
                     else:
-                       req = (feat1.location.strand == feat2.location.strand and pos_e1 > pos_s2)
+                        req = (feat1.location.strand == feat2.location.strand and pos_e1 > pos_s2)
                     
                     if (s1 >= e2) and (e1 >= s2) and (e1-s2 > length1) and length1 == length2 and "_original" in feat1.__dict__ and "_original" in feat2.__dict__ and feat1.original == feat2.original and feat1.location.strand == feat2.location.strand and req == True:
                         
@@ -1825,7 +1825,14 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
             original_seq = note.split(":")[-3]
             current_seq  = construct.printsequence(sfeat, efeat, strand=feat.location.strand, display=False) 
             
-            if len(original_seq) == len(current_seq) and ((poss == 1 and pose == length) or (poss == length and pose == 1)):
+            if "label" in feat.qualifiers and feat.qualifiers["label"][0] == "nucleoplasmin NLS":
+                print(feat)
+                print(sfeat, efeat) 
+                print(current_seq) 
+                print(original_seq) 
+                print(current_seq == original_seq) 
+
+            if original_seq == current_seq or (len(original_seq) == len(current_seq) and ((poss == 1 and pose == length) or (poss == length and pose == 1))):
                 if sfeat < efeat:
                     location = FeatureLocation(sfeat, efeat, feat.location.strand) 
                 else:
@@ -2365,7 +2372,7 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                 original_seq = note.split(":")[-3]
                 current_seq  = new_dna.printsequence(sfeat, efeat, strand=feat.location.strand, display=False)
                 
-                if len(original_seq) == len(current_seq) and ((poss == 1 and pose == length) or (poss == length and pose == 1)):               
+                if original_seq == current_seq or (len(original_seq) == len(current_seq) and ((poss == 1 and pose == length) or (poss == length and pose == 1))):
                     if sfeat < efeat:
                         location = FeatureLocation(sfeat, efeat, feat.location.strand) 
                     else:

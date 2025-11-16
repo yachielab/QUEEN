@@ -797,8 +797,8 @@ class QUEEN():
                             if key == "broken_feature":
                                 feat.qualifiers["broken_feature"][0] = feat.qualifiers["broken_feature"][0].replace(" ","") 
                                 note = feat.qualifiers["broken_feature"][0]
-                                original = note.split(":")[-3]
-                                feat._original = original
+                                #original = note.split(":")[-3]
+                                #feat._original = original
                 
                 if len(pairs) == 0 and ("structured_comment" not in record.annotations or "building_history" not in record.annotations['structured_comment']):
                     import_history = False

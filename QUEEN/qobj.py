@@ -1562,10 +1562,10 @@ class QUEEN():
             else:
                 raise TypeError("slice indices must be integers or None or have an __index__ method")
             
-            #if strand == -1 or strand < 0:
-            #    return flipdna(subdna, quinable=0)
-            #else:
-            return subdna 
+            if strand == -1 or strand < 0:
+                return flipdna(subdna, quinable=0)
+            else:
+                return subdna 
 
         if type(item) == str:
             if bool(re.match(r"^.+:.+$", item)) == False and bool(re.match(r"^!.+:.+$", item)) == False:
@@ -1682,7 +1682,7 @@ class QUEEN():
             If `True`, the output will be displayed in `STDOUT`.  
         hide_middle: int or None, default: Noen if `len(QUEEN_object.seq)` is less than 100 else 20.
             Length of both end sequences to be displayed.  
-        linebreak: int (default: length of the `QUEEN_object` sequence)  
+        linebreak : int (default: length of the `QUEEN_object` sequence)  
             Length of sequence for linebreak.
 
         Returns

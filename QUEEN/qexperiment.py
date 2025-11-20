@@ -313,9 +313,9 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
         
         elif req2 == True:
             fw_mut, rv_mut = 0, 0
-            start    = fw_site.start if fw_site.start < len(template.seq) else fw_site.start - len(template.seq)
-            end      = rv_site.end if rv_site.end < len(template.seq) else rv_site.end - len(template.seq)
-            
+            start = fw_site.start if fw_site.start < len(template.seq) else fw_site.start - len(template.seq)
+            end   = rv_site.end if rv_site.end <= len(template.seq) else rv_site.end - len(template.seq)
+
             if fw.seq != template.seq[start:start+len(fw.seq)]:
                 extract_fw = cropdna(template, start, start+len(fw.seq), qexd=True, pn=process_name, pd=process_description)
                 extract_fw._seq = fw.seq
@@ -335,17 +335,19 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
                 extract_rv._seq.name        = template.seq.name
                 extract_rv._seq.item        = template.seq.item
                 rv_mut = 1
-           
+            
             if fw_mut == True and rv_mut == True:
                 extract  = cropdna(template, start+len(fw.seq), end-len(rv.seq), qexd=True, pn=process_name, pd=process_description)
                 amplicon = joindna(extract_fw, extract, extract_rv, qexd=qexd, product=product, pn=process_name, pd=process_description)
             elif fw_mut == True:
                 extract  = cropdna(template, start+len(fw.seq), end, qexd=True, pn=process_name, pd=process_description)
                 amplicon = joindna(extract_fw, extract, qexd=qexd, product=product, pn=process_name, pd=process_description)
-            else:
+            elif rv_mut == True:
                 extract  = cropdna(template, start, end-len(rv.seq), qexd=True, pn=process_name, pd=process_description)
                 amplicon = joindna(extract, extract_rv, qexd=qexd, product=product, pn=process_name, pd=process_description)
-            
+            else:
+                amplicon = cropdna(template, start, end, qexd=qexd, pn=process_name, pd=process_description)
+
             amplicon.setfeature({"start":0, "end":len(fw.seq), "qualifier:label":"{}".format(fw_label), "feature_type":"primer_bind"})
             amplicon.setfeature({"start":len(amplicon.seq)-len(rv.seq), "end":len(amplicon.seq), "strand":-1, "qualifier:label":"{}".format(rv_label), "feature_type":"primer_bind"})  
         
@@ -528,11 +530,12 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
         new_cutsites.extend(sites) 
     
     fragments = cutdna(dna, *new_cutsites, qexd=True, product=None, pn=process_name, pd=process_description)
+
     if len(fragments) == 1 and selection is None: 
         dfragment = _select(fragments, "max") 
     else:
         dfragment = _select(fragments, selection)
-    
+     
     if type(dfragment) == list:
         fragments = []
         for d, afragment in enumerate(dfragment):
@@ -712,6 +715,7 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
         else:
             tf_set = [] 
             new_results = []
+            
             for result in results:
                 tf_set.append([]) 
                 index1, direction1 = result[0] 
@@ -728,11 +732,13 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
                         fragment2 = fragments[index2][::-1]
                     tf_set[-1].append(check_arrangement(fragment1, fragment2)) 
                     fragment1 = fragment2 
+            
             for i, tf in enumerate(tf_set):
                 if False in tf:
                     pass 
                 else:
                     new_results.append(results[i]) 
+            
             if len(new_results) == 1:
                 orders, flips = list(zip(*new_results[-1])) 
                 fragment_set  = [flipdna(fragments[ind], product=fragments[ind].project, qexd=True, pn=process_name, pd=process_description) if fl == -1 else fragments[ind] for ind, fl in zip(orders, flips)]
@@ -1525,7 +1531,6 @@ def check_arrangement(fragment1, fragment2):
             return False
     else:
         pass 
-
     return True 
 
 def Tm_NN(check=True, strict=True, nn_table=None, tmm_table=None, imm_table=None, de_table=None, dnac1=25, dnac2=25, selfcomp=False, Na=50, K=0, Tris=0, Mg=0, dNTPs=0, saltcorr=5): 

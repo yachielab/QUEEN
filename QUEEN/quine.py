@@ -677,7 +677,7 @@ def printprotocol(dna, execution=False, output=None):
                         value = arg.group(4)
                     if key not in ("follow_order", "product", "process_id", "process_name", "process_description") and "original_ids" not in key and "_sourcefile" not in key:
                         print("- {}: {}".format(key.capitalize(), value), file=output) 
-                print("Output:\n{}: {}".format(product, len(qobjects[product].seq)), file=output)  
+                print("Output:\n{}".format(product), file=output)  
                 print("", file=output) 
  
         elif (match := re.search(pattern_dict["hba"], row)):

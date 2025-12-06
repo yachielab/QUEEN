@@ -2029,8 +2029,27 @@ class QUEEN():
                 else:
                     new_attribute.append(att)
             attribute = new_attribute
+        
         if feature_list is None:
             features = list(self.dnafeatures)
+            selected = [] 
+            for feat in features:
+                if "broken_feature" in feat.qualifiers:
+                    try:
+                        note   = feat.qualifiers["broken_feature"][0]
+                        label  = ":".join(note.split(":")[:-1])
+                        length = int(note.split(":")[-4]) 
+                        pos_s  = int(note.split(":")[-1].split("..")[0].replace(" ",""))
+                        pos_e  = int(note.split(":")[-1].split("..")[1].replace(" ",""))
+                        if abs(pos_s-pos_e) / length >= 0.5:
+                            selected.append(feat) 
+                        else:
+                            pass 
+                    except:
+                        selected.append(feat)
+                else:
+                    selected.append(feat) 
+            features = selected
             features.sort(key=lambda x:(int(x.start), int(x.end * -1)))
         else:
             features = feature_list 

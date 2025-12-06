@@ -605,7 +605,12 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
     QUEEN, flipdna, joindna
 
     """
+    if len(fragments) == 1 and isinstance(fragments[0], (list, tuple)):
+        raise ValueError("Fragments must be given as positional arguments, not as a single list. Use ligation(a, b) or ligation(*[a,b]).")
     
+    if "fragments" in kwargs:
+        raise TypeError('"fragments" is not a valid keyword argument. Pass fragments as positional arguments (a, b). Use ligation(a, b) or ligation(*[a, b])."')
+
     def add_fragment(fragments, orders, remains, results, flip=1):
         flag = 0 
         fragment1 = fragments[orders[-1][0]] 
@@ -822,6 +827,12 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
     QUEEN, flipdna, joindna, modifyends
 
     """
+    if len(fragments) == 1 and isinstance(fragments[0], (list, tuple)):
+        raise ValueError("Fragments must be given as positional arguments, not as a single list. Use homology_based_assembly(a, b, c) or homology_based_assembly(*[a,b,c]).")
+    
+    if "fragments" in kwargs:
+        raise TypeError('"fragments" is not a valid keyword argument. Pass fragments as positional arguments (a, b, c). Use homology_based_assembly(a, b, c) or homology_based_assembly(*[a,b,c])."')
+
     max_homology_length = 500 #max_homology_length
     
     process_name = pn if process_name is None else process_name

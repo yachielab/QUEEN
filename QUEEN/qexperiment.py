@@ -1540,8 +1540,8 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                  adapter_mode="standard", fw_adapter=None, rv_adapter=None, fw_partner=None, 
                  rv_partner=None, requirement=None, fw_name="fw_primer", rv_name="rv_primer",
                  mut_pattern=None, target_tm=60.0, nonspecific_limit=3, auto_adjust=1, 
-                 homology_length=30, tm_func=None, primer_length=(16, 25), design_num=1, 
-                 batch_process=False):
+                 homology_length=30, tm_func=None, primer_length=(16, 25), design_num=1,
+                 gap=None, batch_process=False):
     """
     Design forward and reverse primers for PCR amplification of a specified target region.
     Primers can incorporate desired mutations, be checked for specificity, and meet additional
@@ -1726,8 +1726,8 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 else:
                     qexps.append((key, amatch.group(1).split())) 
         return qexps 
-
-    def append_adapter(amplicon_region, filtered_primer_pairs, adapter, partner, mode, homology_length, strand, name, auto_adjust): 
+    
+    def append_adapter(amplicon_region, filtered_primer_pairs, adapter, partner, mode, homology_length, strand, name, gapseq, auto_adjust): 
         if (type(adapter) == str and adapter == "") or (adapter is None):
             for i in range(len(filtered_primer_pairs)):
                 filtered_primer_pairs[i][strand][0] = QUEEN(seq=filtered_primer_pairs[i][strand][0])
@@ -1806,6 +1806,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 else:
                     req = False 
                 
+                gapflag = 0 
                 for i in range(len(filtered_primer_pairs)):
                     remseq = ""
                     if strand == "fw": 
@@ -1886,7 +1887,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                             mod_partner = partner[:-1*len(cs.lib[cutsite].endseq)] 
                         else:
                             mod_partner = partner[len(cs.lib[cutsite].endseq):] 
-                    
+                   
                     if req == True and auto_adjust == True:
                         if strand == "fw":
                             feat1 = partner_features[-1] 
@@ -1894,10 +1895,12 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                             fragment1 = mod_partner[feat1.start:].seq  
                             fragment2 = amplicon_region[:feat2.end].seq 
                             rem = (len(fragment1) + len(fragment2) + len(remseq)) % 3
-                            if rem > 0:
-                                gapseq = "".join([random.choice("ATGC") for _ in range(3-rem)])
-                            else:
-                                gapseq = ""
+                            if i == 0 and gapseq is None:
+                                if rem > 0:
+                                    gapflag = 1
+                                    gapseq  = "".join([random.choice("ATGC") for _ in range(3-rem)])
+                                else:
+                                    gapseq = ""
                             filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + gapseq + filtered_primer_pairs[i][strand][0]
                         else:
                             feat1 = amplicon_features[-1] 
@@ -1905,20 +1908,30 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                             fragment1 = amplicon_region[feat1.start:].seq  
                             fragment2 = mod_partner[:feat2.end].seq 
                             rem = (len(fragment1) + len(fragment2) + len(remseq)) % 3 
-                            if rem > 0:
-                                gapseq = "".join([random.choice("ATGC") for _ in range(3-rem)])
-                            else:
-                                gapseq = "" 
+                            if i == 0 and gapseq is None:
+                                if rem > 0:
+                                    gapflag = 1
+                                    gapseq  = "".join([random.choice("ATGC") for _ in range(3-rem)])
+                                else:
+                                    gapseq = ""
                             filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + gapseq + filtered_primer_pairs[i][strand][0]
                     else:
                         filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + filtered_primer_pairs[i][strand][0]
+                
+                if gapflag == 1: 
+                    if strand == "fw":
+                        return "fw", gapseq
+                    else:
+                        return "rv", gapseq 
         else:
             for i in range(len(filtered_primer_pairs)):
                 filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + filtered_primer_pairs[i][strand][0]  
+        
         for i in range(len(filtered_primer_pairs)):
             filtered_primer_pairs[i][strand][0]._ssdna = True
+        
         return filtered_primer_pairs
-    
+     
     if requirement is None:
         def requirement(x):
             req1 =  x["fw"][-1] not in ("A", "T") and x["rv"][-1] not in ("A", "T") 
@@ -1938,12 +1951,18 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         if type(target) in (tuple, list) and list(set(map(type, target)))[0] == QUEEN:
             if len(template) == len(target): 
                 new_target = [] 
-                for t in target:
-                    if -1 in (t._left_end_top, t._left_end_bottom, t._right_end_top, t._right_end_bottom):
-                        t = modifyends(t, quinable=False)
+                for te, ta in zip(template, target):
+                    if -1 in (ta._left_end_top, ta._left_end_bottom, ta._right_end_top, ta._right_end_bottom):
+                        ta = modifyends(ta, quinable=False)
                     else:    
+                        pass 
+                    if ta.seq in te.seq: 
                         pass
-                    new_target.append(t) 
+                    elif ta.rcseq in te.seq:
+                        ta = flipdna(ta, quinable=0)
+                    else:
+                        raise ValueError("target sequence to be amplified is not included in template sequence.") 
+                    new_target.append(ta)
                 target = new_target
             else:
                 raise ValueError("The length of target should be same with the template.")
@@ -1952,7 +1971,14 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
     else:
         if -1 in (target._left_end_top, target._left_end_bottom, target._right_end_top, target._right_end_bottom):
             target = modifyends(target, quinable=False) 
-    
+        
+        if target.seq in template.seq: 
+            pass
+        elif target.rcseq in template.seq:
+            target = flipdna(target, quinable=0)
+        else:
+            raise ValueError("target sequence to be amplified is not included in template sequence.") 
+
     if type(template) in (tuple, list):
         fw_primers     = [fw_primer] * len(template) if type(fw_primer) not in (tuple, list) else fw_primer
         rv_primers     = [rv_primer] * len(template) if type(rv_primer) not in (tuple, list) else rv_primer
@@ -1962,6 +1988,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         tm_funcs       = [tm_func] * len(template) if type(tm_func) not in (tuple, list) else tm_func
         primer_lengths = [primer_length] * len(template) if type(primer_length[0]) not in (tuple, list) else primer_length 
         design_nums    = [design_num] * len(template) if type(design_num) not in (tuple, list) else design_num
+        gaps           = [gap] * len(template) if type(design_num) not in (tuple, list) else design_num
         fw_adapters    = [fw_adapter] * len(template) if type(fw_adapter) not in (tuple, list) else fw_adapter
         rv_adapters    = [rv_adapter] * len(template) if type(rv_adapter) not in (tuple, list) else rv_adapter
         adapter_modes  = [adapter_mode] * len(template) if type(adapter_mode) not in (tuple, list) else adapter_mode
@@ -2004,17 +2031,25 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         fw_names           = [fw_name] * len(template) if type(fw_name) not in (tuple, list) else fw_name
         rv_names           = [rv_name] * len(template) if type(rv_name) not in (tuple, list) else rv_name 
         mut_patterns       = [mut_pattern] * len(template) if type(mut_pattern) not in (tuple, list) else mut_pattern 
-        arguments = list(zip(*[template, target, fw_primers, rv_primers, fw_margins, rv_margins, adapter_modes, fw_adapters, rv_adapters, fw_partners, rv_partners, requirements, fw_names, rv_names, mut_patterns, target_tms, nonspecific_limits, auto_adjusts, homology_lengths, tm_funcs, primer_lengths, design_nums]))
+        arguments = list(zip(*[template, target, fw_primers, rv_primers, fw_margins, rv_margins, adapter_modes, fw_adapters, rv_adapters, fw_partners, rv_partners, requirements, fw_names, rv_names, mut_patterns, target_tms, nonspecific_limits, auto_adjusts, homology_lengths, tm_funcs, primer_lengths, design_nums, gaps]))
         arguments = list(map(list, arguments))
 
         primer_pair_set = []
         if adapter_mode in ("gibson", "infusion", "RE", "overlappcr"):
             new_targets = []  
             for i, argument in enumerate(arguments):
-                argument.append(True)  
-                new_targets.append(primerdesign(*argument)) 
+                argument.append(True) 
+                new_target, gap_fw, gap_rv = primerdesign(*argument)
+                new_targets.append(new_target)
+                argument[-2] = [gap_fw, gap_rv] 
                 argument[-1] = False
             
+            for i, argument in enumerate(arguments):
+                if type(arguments[i][-2][0]) == str:
+                    arguments[i-1][-2][1] = arguments[i][-2][0].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
+                else:
+                    pass 
+
             fw_partners = []  
             rv_partners = [] 
             for i, target in enumerate(new_targets):
@@ -2036,7 +2071,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                     else:
                         fw_partners.append(new_targets[i-1])
                         rv_partners.append(new_targets[i+1]) 
-            
+
             for i, (fw_partner, rv_partner) in enumerate(zip(fw_partners, rv_partners)):
                 arguments[i][-1] = False
                 arguments[i][9]  = fw_partner
@@ -2051,10 +2086,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 primer_pair_set.append(primer_pair) 
 
         return primer_pair_set 
-    
-    if target.seq not in template.seq:
-        raise ValueError("target sequence to be amplified is not included in template sequence.") 
-    
+        
     if fw_primer is not None:
         if type(fw_primer) == QUEEN:
             pass 
@@ -2126,7 +2158,21 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             amplicon_region = fw_adapter + amplicon_region
         else:
             amplicon_region = fw_adapter + amplicon_region + rv_adapter  
-        return amplicon_region 
+        
+        dammy = [{"fw":["ATGC", 4], "rv":["ATGC", 4], "fw_tm":50, "rv_tm":50}]
+        gapinfo_fw = append_adapter(amplicon_region, dammy, fw_adapter, fw_partner, adapter_mode, int(homology_length/2), "fw", fw_name, None, auto_adjust)
+        gapinfo_rv = append_adapter(amplicon_region, dammy, rv_adapter, rv_partner, adapter_mode, int(homology_length/2), "rv", rv_name, None, auto_adjust)
+        if gapinfo_fw[0] == "fw":
+            gap_fw = gapinfo_fw[1] 
+        else:
+            gap_fw = None
+        
+        if gapinfo_rv[0] == "rv":
+            gap_rv = gapinfo_rv[1]
+        else:
+            gap_rv = None
+        
+        return amplicon_region, gap_fw, gap_rv 
     
     else: 
         if mut_pattern is not None:
@@ -2306,8 +2352,12 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 pass
         
         filtered_primer_pairs = filtered_primer_pairs[:design_num]
-        filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, fw_adapter, fw_partner, adapter_mode, int(homology_length/2), "fw", fw_name, auto_adjust)
-        filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, rv_partner, adapter_mode, int(homology_length/2), "rv", rv_name, auto_adjust)
+        if gap is None:
+            filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, fw_adapter, fw_partner, adapter_mode, int(homology_length/2), "fw", fw_name, None, auto_adjust)
+            filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, rv_partner, adapter_mode, int(homology_length/2), "rv", rv_name, None, auto_adjust)
+        else:
+            filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, fw_adapter, fw_partner, adapter_mode, int(homology_length/2), "fw", fw_name, gap[0], auto_adjust)
+            filtered_primer_pairs = append_adapter(amplicon_region, filtered_primer_pairs, rv_adapter, rv_partner, adapter_mode, int(homology_length/2), "rv", rv_name, gap[1], auto_adjust)
 
         for i in range(len(filtered_primer_pairs)):
             filtered_primer_pairs[i]["fw"] = filtered_primer_pairs[i]["fw"][0] 

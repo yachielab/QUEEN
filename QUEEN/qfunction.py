@@ -2390,13 +2390,13 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                         else:
                             original_cigar = new_feat.qualifiers["mutation"][0]
                             original_cigar_list = original_cigar.split(",")
-                            new_cigar_list = []  
+                            new_cigar_list = original_cigar.split(",") 
                             new_feat.qualifiers["mutation"] = None
                        
                         for i, (o, c) in enumerate(zip(original_seq, current_seq)):
                             if o != c:
                                 if f"{c}{i+1}{o}" in original_cigar_list:
-                                    pass 
+                                    new_cigar_list.remove(f"{c}{i+1}{o}")
                                 else:
                                     new_cigar_list.append(f"{o}{i+1}{c}")
                         

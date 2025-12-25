@@ -1908,7 +1908,8 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
             else:
                 new_features.append(feat) 
         construct._dnafeatures = new_features
-
+    
+    construct._dnafeatures.sort(key=lambda x:int(x.location.parts[0].start))
     construct._supfeatureids() #Update feature ID
     construct.record.feartures = construct.dnafeatures
     if quinable == True:
@@ -2543,6 +2544,7 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
             if right_end_bottom == -1:
                 new_dna._ssdna = True
     
+    new_dna._dnafeatures.sort(key=lambda x:int(x.location.parts[0].start)) 
     new_dna._supfeatureids()
     if project is None:
         new_dna._unique_id = dna._unique_id 

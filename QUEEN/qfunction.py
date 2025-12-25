@@ -1825,13 +1825,6 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
             original_seq = note.split(":")[-3]
             current_seq  = construct.printsequence(sfeat, efeat, strand=feat.location.strand, display=False) 
             
-            if "label" in feat.qualifiers and feat.qualifiers["label"][0] == "nucleoplasmin NLS":
-                print(feat)
-                print(sfeat, efeat) 
-                print(current_seq) 
-                print(original_seq) 
-                print(current_seq == original_seq) 
-
             if original_seq == current_seq or (len(original_seq) == len(current_seq) and ((poss == 1 and pose == length) or (poss == length and pose == 1))):
                 if sfeat < efeat:
                     location = FeatureLocation(sfeat, efeat, feat.location.strand) 
@@ -1856,13 +1849,13 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                     else:
                         original_cigar = new_feat.qualifiers["mutation"][0]
                         original_cigar_list = original_cigar.split(",") 
-                        new_cigar_list = []  
+                        new_cigar_list = original_cigar.split(",")  
                         new_feat.qualifiers["mutation"] = None
                     
                     for i, (o, c) in enumerate(zip(original_seq, current_seq)):
                         if o != c:
                             if f"{c}{i+1}{o}" in original_cigar_list:
-                                pass 
+                                new_cigar_list.remove(f"{c}{i+1}{o}")
                             else:
                                 new_cigar_list.append(f"{o}{i+1}{c}")
 

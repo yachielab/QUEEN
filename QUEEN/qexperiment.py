@@ -61,72 +61,124 @@ def sanger(template, primer, length=1000):
 
 
 def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=False, tm_func=None, return_tm=False, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
-    """
-    Simulates a PCR (Polymerase Chain Reaction) process on a given DNA template using forward and reverse primers. This function does not provide the function to check cross dimer and homo dimer in primer design as default. If you wanna add such function, set the original `requirement` equiation. 
+    """Simulate an in silico PCR reaction on one or more templates.
+
+    This function performs a PCR (Polymerase Chain Reaction) on one or more
+    `QUEEN` templates using a forward and reverse primer. Primer binding
+    sites are searched on the template(s) according to the specified
+    binding length, mismatch tolerance, and 3′-end constraints.
+
+    If ``template`` is a list of `QUEEN` objects, the elements are treated
+    as an ordered series of fragments for overlap‑extension (fusion) PCR:
+    adjacent templates must share sufficient homology for the primers and
+    overlaps to join them into a single amplicon.
+
     Parameters
     ----------
-    template : QUEEN or list of QUEEN objects 
-        The DNA template to be amplified. If list is given, overlap extension PCR is performed,
-        so each template QUEEN obejct should be ovelapped with adjacent QUEEN objects.  
+    template : QUEEN or list of QUEEN
+        Template DNA molecule(s) to be amplified. When a list is given,
+        it is interpreted as an ordered set of fragments for overlap‑
+        extension PCR; the 3′ end of each fragment must be compatible
+        with the 5′ end of the next fragment.
     fw : QUEEN or str
-        The forward primer. Can be a QUEEN object or a string representing the DNA sequence.
-        If a dsDNA QUEEN object is given, its top strand sequence is used as a foward primer.
+        Forward primer sequence. May be provided as:
+
+        * a `QUEEN` object (ssDNA or dsDNA), in which case the top strand
+          is used as the primer sequence (5′→3′), or
+        * a plain DNA string representing the primer sequence (5′→3′).
+
     rv : QUEEN or str
-        The reverse primer. Can be a QUEEN object or a string representing the DNA sequence.
-        If a dsDNA QUEEN object is given, its top strand sequence is used as reverse primer.
+        Reverse primer sequence. Same conventions as for ``fw``. If a
+        dsDNA `QUEEN` is given, its top strand sequence is used and
+        reverse‑complemented when searching for the binding site.
     bindnum : int, optional
-        The minimum number of binding nucleotides for a primer, by default 15.
+        Minimum number of contiguous matching bases required for a
+        candidate primer binding site. Default is ``15``.
     mismatch : int, optional
-        The maximum number of mismatches allowed in the primer binding, by default 0.
+        Maximum number of mismatches allowed over the entire binding
+        region. Default is ``0`` (perfect match only).
     endlength : int, optional
-        The length of the end region of the primer to consider during binding, by default 3.
+        Minimum number of perfectly matched bases required at the primer
+        3′ end (the last bases toward the 3′ direction). Default is ``3``.
     add_primerbind : bool, optional
-        If True, add DNAfeatures on the primer binding sites in the template DNA. 
-    tm_func : str, function, optional
-        Function to calculate the melting temperature of the primer pair 
-        As `str` specfication, you can select `"Breslauer" or "br"` and `"SantaLucia" or "sa"`. 
-        Default is `"SantaLucia"`. Also, as built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. 
-        This function is implemented based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, 
-        so the all parameters of `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, 
-        can be acceptable.
+        If ``True``, primer binding sites are annotated as `DNAfeature`
+        objects and added to both the template and product `QUEEN`
+        objects. Default is ``False``.
+    tm_func : callable, optional
+        Function used to calculate primer melting temperatures. By
+        default, this is equivalent to
+        :func:`Bio.SeqUtils.MeltingTemp.Tm_NN` (SantaLucia nearest‑neighbor
+        model) or :func:`QUEEN.qexperiment.Tm_NN`. The function must accept
+        a ``seq`` keyword argument and may accept additional keyword
+        arguments supplied via ``**kwargs``.
     return_tm : bool, optional
-        If True, tm values of the primer pair are also returned.  
-        The tm values will be calculated based on thier biding region excluding adaptor regions.
-    product : str, optional 
-        Product name of the PCR process.
+        If ``True``, also return the forward and reverse primer melting
+        temperatures computed for the bound regions (adapter sequences
+        are excluded). Default is ``False``.
+    product : str, optional
+        Human‑readable name for the PCR product. When provided, it is
+        stored in the resulting `QUEEN` object (for example in the
+        ``.product`` or ``.project`` attributes) and recorded in the
+        construction history.
     process_name : str, optional
-        Brief label for the PCR process, by default "PCR"
+        Short label for this PCR step in the construction history. If
+        ``None`` and ``pn`` is also ``None``, a default such as
+        ``"PCR"`` is used.
     process_description : str, optional
-        Additional description for the PCR process.
+        Free‑text description of the PCR step. Stored in the construction
+        history for later export via :meth:`QUEEN.printprotocol` or
+        :meth:`QUEEN.outputgbk`.
     pn : str, optional
-        Alias for process_description.
+        Alias for ``process_name``. Used only when ``process_name`` is
+        ``None``.
     pd : str, optional
-        Alias for process_description.
+        Alias for ``process_description``. Used only when
+        ``process_description`` is ``None``.
     **kwargs
-        Additional keyword arguments for advanced configurations.
+        Additional keyword arguments forwarded directly to ``tm_func``.
 
     Returns
     -------
-    QUEEN (amplicon)
-    Returns the PCR product (amplicon) as a QUEEN object.
+    amplicon : QUEEN
+        The assembled PCR product spanning between the selected forward
+        and reverse primer binding sites on the (possibly fused) template.
+    tm : tuple of float, optional
+        Only returned when ``return_tm`` is ``True``. A pair
+        ``(fw_tm, rv_tm)`` giving the forward and reverse primer melting
+        temperatures in degrees Celsius.
+
+    Raises
+    ------
+    TypeError
+        If ``template`` is neither a `QUEEN` object nor a list of `QUEEN`
+        objects, or if ``fw``/``rv`` are neither `QUEEN` objects nor
+        strings, or if ``tm_func`` is not callable.
+    ValueError
+        If no valid binding site is found for either primer; if multiple
+        candidate binding sites remain and cannot be resolved
+        unambiguously; if both primers bind to the same strand; or if the
+        overlap‑extension templates are incompatible with the specified
+        homology and primer constraints.
 
     Examples
     --------
-    >>> template = QUEEN("example_dna_sequence")
-    >>> forward_primer = "xxxxxxxxx" #Specify a proper DNA sequence.
-    >>> reverse_primer = "xxxxxxxxx" #Specify a proper DNA sequence.
-    >>> pcr_product = pcr(template, forward_primer, reverse_primer)
-    
-    Notes
-    -----
-    The function internally uses a nested function `search_binding_site` to locate the binding sites of the primers.
-    It performs DNA cropping and modification to simulate the PCR process. Errors are raised for invalid inputs or if 
-    suitable binding sites are not found.
+    Amplify a region from a single circular template::
 
-    See Also
-    --------
-    QUEEN, cropdna, modifyends
+        amplicon = pcr(
+            template=plasmid,
+            fw="ACGTTGACT...",
+            rv="TCAGCTTGA...",
+            product="example_pcr"
+        )
 
+    Obtain primer melting temperatures in addition to the amplicon::
+
+        amplicon, (fw_tm, rv_tm) = pcr(
+            template=plasmid,
+            fw=fw_primer,
+            rv=rv_primer,
+            return_tm=True
+        )
     """
     def search_binding_site(template, primer, strand=1, bindnum=15, endlength=3, mismatch=1, flag=1, pn=None, pd=None, **kwargs): 
         site = [] 
@@ -166,10 +218,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
                 return site 
             else:
                 raise ValueError("Multiple primer binding sites were detected. You should re-design the primer sequneces.") 
-        
-        #else:
-        #    raise ValueError("Primer binded to an unexpected strand.") 
-    
+         
     if type(template) != QUEEN: 
         if type(template) == list and False not in [type(element) == QUEEN for element in template]:
             template = homology_based_assembly(*template, mode="overlappcr") 
@@ -190,7 +239,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     elif type(rv) == QUEEN:
         rvstr = 'QUEEN.dna_dict["{}"]'.format(rv._product_id)
     else:
-        raise TypeError("`fw` object must be instance of QUEEN or str class.") 
+        raise TypeError("`rv` object must be instance of QUEEN or str class.") 
     
     if template._ssdna == True: 
         template = copy.deepcopy(template) 
@@ -397,7 +446,9 @@ def _select(fragments, selection=None, process_name=None, process_description=No
     elif type(selection) == tuple:
         fragments = [fragment for fragment in fragments if min(size_range) <= len(fragment.seq) <= max(size_range)] 
         if len(fragments) > 1:
-            raise ValueError("Multiple fragments holding the specified feature were detected") 
+            raise ValueError("Multiple fragments were detected within the specified range.") 
+        elif len(fragments) == 0:
+            raise ValueError("No fragment was detected within the specified range.") 
         return fragments[0] 
 
     elif selection in ("min", "max"):
@@ -412,6 +463,8 @@ def _select(fragments, selection=None, process_name=None, process_description=No
         fragments = [fragment for fragment in fragments if len(fragment.searchfeature(key_attribute="qualifier:{}".format(selection.split(":")[0]), query=query, qexd=True, pn=process_name, pd=process_description)) > 0]
         if len(fragments) > 1:
             raise ValueError("Multiple fragments holding the specified feature were detected") 
+        elif len(fragments) == 0:
+            raise ValueError("No fragment holding the specified feature was detected.") 
         return fragments[0]
     
     elif selection.startswith("!") and ":" in selection: 
@@ -419,71 +472,101 @@ def _select(fragments, selection=None, process_name=None, process_description=No
         fragments = [fragment for fragment in fragments if len(fragment.searchfeature(key_attribute="qualifier:{}".format(selection.split(":")[0][1:]), query=query, qexd=True, pn=process_name, pd=process_description)) == 0]
         if len(fragments) > 1:
             raise ValueError("Multiple fragments holding the specified feature were detected") 
+        elif len(fragments) == 0:
+            raise ValueError("No fragment holding the specified feature was detected.")
         return fragments[0] 
 
 def digestion(dna, *cutsites, selection=None, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
-    """
-    Simulates a digestion of a DNA sequence using specified restriction enzymes (cutsites). 
-    Optionally filters the resulting DNA fragments based on size.
+    """Simulate restriction digestion of a `QUEEN` object.
+
+    The function digests an input `QUEEN` object using one or more
+    restriction endonuclease specificities (``Cutsite`` objects or
+    enzyme names). The resulting fragments can optionally be filtered
+    or reduced to a single fragment based on size or feature content.
 
     Parameters
     ----------
     dna : QUEEN
-        The DNA sequence to be digested.
+        Template DNA molecule to digest.
     *cutsites : Cutsite or str
-        Variable number of Cutsite objects or names representing the restriction enzymes used for digestion.
-    selection : "min", "max", "label:*", "!label:*", or tuple of int, optional
-        The rule to select a specific digested fragment with the specified condition. 
-        If "min" is provided, the minimum fragment of the digested fragments would be returned.
-        If "max" is provided, the maximum fragment of the digested fragments would be returned.
-        If "{qualifier_key}:{feature_of_interest}" is provided, the unique fragment holding the DNAfeature with 
-        `feature_of_interest` in "qualifer:{qualifier_key}" would be returned. If multiple fragments holding the 
-        specified feature are detected, a error will be raised. When specification, "{qualifier_key}:" can be 
-        omitted and "label" will be automatically used as "{qualifier_key}".
-        If "!{qualifier_key}:{feature_of_interest}" is provided, the unique fragment not holding the DNAfeature 
-        with `feature_of_interest` in "qualifer:{qualifier_key}" would be returned. If multiple not fragments 
-        holding the specified feature are detected, a error will be raised. When specification, "{qualifier_key}:" 
-        can be omitted and "label" will be automatically used as "{qualifier_key}".
-        If a `tuple` value is provided, The tuple (min_size, max_size) specifies the size range for filtering 
-        the resulting fragments. If multiple fragments holding the are detected in the specified range, 
-        a error will be raised.  
-        If a `int` value is specified, the fragment with the nearest length to the specified value will be selected. 
-        If None, no selection is done. Default is None.  
-    product : str, optional 
-        Product name of the digestion process.
+        One or more restriction sites. Each element may be a
+        :class:`Cutsite` instance or a string key present in
+        ``QUEEN.cutsite.lib``.
+    selection : {"min", "max"} or int or tuple of int or str, optional
+        Rule for selecting a subset or a single digested fragment.
+
+        * ``None`` (default)  
+          Return a list of all digested fragments.
+        * ``"min"``  
+          Return only the shortest fragment.
+        * ``"max"``  
+          Return only the longest fragment.
+        * integer ``n``  
+          Return the fragment whose length is closest to ``n`` base pairs.
+        * tuple of two integers ``(min_len, max_len)``  
+          Return fragment(s) whose lengths fall within the given range.
+        * string of the form ``"{qualifier}:{label}"``  
+          Return the unique fragment containing a `DNAfeature` whose
+          qualifier ``qualifier`` contains the substring ``label``.
+        * string of the form ``"!{qualifier}:{label}"``  
+          Return the unique fragment that **does not** contain such a
+          feature.
+
+        If the selection rule matches multiple fragments when only one is
+        expected, a :class:`ValueError` is raised.
+    product : str, optional
+        Human‑readable name for the selected fragment(s). Stored in the
+        resulting `QUEEN` object(s) and recorded in the construction
+        history.
     process_name : str, optional
-        Brief label for the digestion process, by default "Digestion"
-    pn : str, optional
-        Alias for process_description.
+        Short label for this digestion step in the construction history.
+        If ``None`` and ``pn`` is also ``None``, a default such as
+        ``"Digestion"`` is used.
     process_description : str, optional
-        Additional description for the digestion process.
+        Free‑text description of the digestion step.
+    pn : str, optional
+        Alias for ``process_name``. Used only when ``process_name`` is
+        ``None``.
     pd : str, optional
-        Alias for process_description.
+        Alias for ``process_description``. Used only when
+        ``process_description`` is ``None``.
     **kwargs
-        Additional keyword arguments for advanced configurations.
+        Reserved for future extensions. Ignored by the current
+        implementation but included in the recorded history string.
 
     Returns
     -------
-    list of QUEEN or QUEEN
-        If `selection` is None, return list of QUEEN objects composed of the digested fragments.
-        Otherwise, return a specific fragment filling the specified condition.
-            
+    QUEEN or list of QUEEN
+        If ``selection`` is ``None``, a list of digested `QUEEN` fragments
+        is returned. Otherwise, a single `QUEEN` fragment is returned.
+
+    Raises
+    ------
+    TypeError
+        If ``selection`` is a tuple but not of length 2; or if any element
+        in ``cutsites`` is neither a :class:`Cutsite` instance nor a
+        string key present in ``QUEEN.cutsite.lib``.
+    ValueError
+        If a label‑based selection string matches zero or multiple
+        fragments where a unique fragment is required.
+
     Examples
     --------
-    >>> import QUEEN.cutsite as cs
-    >>> dna_sequence = QUEEN("example_dna_sequence")
-    >>> fragments = digestion(dna_sequence, cs.lib["BamHI"], cs.lib["XbaI"], selection=(100, 1000))
+    Basic double digestion and retrieval of all fragments::
 
-    Notes
-    -----
-    The function performs DNA digestion by searching for cut sites in the provided DNA sequence. 
-    It then uses these sites to simulate cutting the DNA. Error handling is implemented to ensure 
-    that the provided cut sites are valid Cutsite instances.
+        fragments = digestion(
+            dna=plasmid,
+            *[cutsite_A, cutsite_B]
+        )
 
-    See Also
-    --------
-    QUEEN, Cutsite, cutdna
+    Select the fragment closest to 2000 bp::
 
+        fragment = digestion(plasmid, cutsite_A, cutsite_B, selection=2000)
+
+    Select the fragment containing a specific feature label::
+
+        fragment = digestion(plasmid, cutsite_A, cutsite_B,
+                             selection="qualifier:promoter")
     """
 
     if selection is not None:
@@ -510,7 +593,6 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
     if process_name is None:
         process_name = "Digestion"
    
-    #product = product.replace(" ","") if product is not None else None
     cs_str  = ", ".join(['"{}"'.format(name) for name in cutsite_names])
     kwargs_str = _convert_kwargs(kwargs) 
     
@@ -551,60 +633,87 @@ def digestion(dna, *cutsites, selection=None, product=None, process_name=None, p
         return dfragment 
 
 def ligation(*fragments, unique=True, follow_order=False, auto_select=True, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs): 
-    """
-    Simulates a ligation of DNA fragments, assembling them in various combinations and orientations.
-    Can return either unique or multiple assembled DNA constructs.
+    """Simulate ligation of one or more `QUEEN` fragments.
+
+    This function joins multiple `QUEEN` fragments by matching their end
+    structures (compatible cohesive or blunt ends). Different permutations
+    and orientations are explored unless restricted by the arguments.
 
     Parameters
     ----------
-    *fragments : QUEEN
-        Variable number of QUEEN objects representing DNA fragments to be ligated. 
+    *fragments : QUEEN or list of QUEEN
+        `QUEEN` fragment(s) to be ligated. Fragments must have compatible
+        end structures (generated, for example, by :func:`digestion`,
+        :func:`pcr`, or :func:`modifyends`).  Passing a single list or
+        tuple of `QUEEN` objects is not allowed; fragments should be
+        supplied as positional arguments, e.g. ``ligation(a, b, c)``.
     unique : bool, optional
-        If True, ensures that only a unique assembled construct is returned. If multiple constructs 
-        are possible, raises an error. Default is True.
-    follow_order : bool, optional 
-        If True, a ligation reaction will be simulated along with the given order of fragments.
-        Default is False. 
+        If ``True`` (default), require that exactly one construct can be
+        assembled from the provided fragments. If multiple distinct
+        constructs are possible, a :class:`ValueError` is raised. If
+        ``False``, all valid constructs are returned as a list.
+    follow_order : bool, optional
+        If ``True``, ligation is restricted to the given fragment order
+        (no permutations). This is useful when the intended order is known
+        a priori. Default is ``False``.
     auto_select : bool, optional
-        If multiple constructs are generated, retrieve a single construct with proper gene arrangements.
-        If a proper single construct cannot be identified, raises an error. Default is True.
-    product : str, optional 
-        Product name of the ligation process
+        If ``unique`` is ``False`` and multiple constructs are generated,
+        setting ``auto_select=True`` allows the function to pick a single
+        construct using internal heuristics (for example, favoring
+        constructs without truncated features). When ``auto_select=False``
+        and multiple products exist, a list of all products is returned.
+    product : str, optional
+        Human‑readable name for the ligation product(s). Recorded in the
+        returned `QUEEN` object(s) and in the construction history.
     process_name : str, optional
-        Brief label for the ligation process, by default "Ligation".
-    pn : str, optional
-        Alias for process_description.
+        Short label for this ligation step in the construction history.
+        If ``None`` and ``pn`` is also ``None``, a default such as
+        ``"Ligation"`` is used.
     process_description : str, optional
-        Additional description for the ligation process.
+        Free‑text description of the ligation step.
+    pn : str, optional
+        Alias for ``process_name``. Used only when ``process_name`` is
+        ``None``.
     pd : str, optional
-        Alias for process_description.
+        Alias for ``process_description``. Used only when
+        ``process_description`` is ``None``.
     **kwargs
-        Additional keyword arguments for advanced configurations.
+        Reserved for future extensions. Ignored by the current
+        implementation but included in the recorded history string.
 
     Returns
     -------
     QUEEN or list of QUEEN
-        If `unique` is True and only one construct is possible, returns that construct as a QUEEN object.
-        If `unique` is False, returns a list of all possible assembled constructs as QUEEN objects.
-        If no constructs are possible, returns an empty list or None.
+        If a single unique construct is identified (either because
+        ``unique=True`` or because ligation yields only one possible
+        product), a single `QUEEN` is returned. Otherwise, a list of
+        `QUEEN` objects representing all valid constructs is returned.
+
+    Raises
+    ------
+    ValueError
+        If fragments are passed as a single list or tuple instead of
+        individual positional arguments; if no valid ligation products can
+        be formed from the provided fragments; or if ``unique=True`` and
+        multiple distinct products are possible.
+    TypeError
+        If the keyword argument ``fragments=...`` is used instead of
+        positional arguments; or if any element of ``fragments`` is not a
+        `QUEEN` object (for example, if a list of fragments was passed
+        without selecting a single fragment from a previous digestion).
 
     Examples
     --------
-    >>> fragment1 = QUEEN("dna_fragment_1")
-    >>> fragment2 = QUEEN("dna_fragment_2")
-    >>> assembled_product = ligation(fragment1, fragment2, unique=True)
+    Ligate two compatible fragments into a unique construct::
 
-    Notes
-    -----
-    The function attempts all permutations and orientations of the given fragments for ligation.
-    If `unique` is set to True, it validates the uniqueness of the assembled product. The function
-    handles situations where the assembly is not possible or results in multiple products.
+        construct = ligation(fragment_a, fragment_b, product="joined")
 
-    See Also
-    --------
-    QUEEN, flipdna, joindna
+    Allow multiple possible assemblies to be returned::
 
+        constructs = ligation(fragment_a, fragment_b, fragment_c,
+                              unique=False, follow_order=False)
     """
+
     if len(fragments) == 1 and isinstance(fragments[0], (list, tuple)):
         raise ValueError("Fragments must be given as positional arguments, not as a single list. Use ligation(a, b) or ligation(*[a,b]).")
     
@@ -666,7 +775,6 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
     if process_name is None:
         process_name = "Ligation"  
     
-    #product = product.replace(" ","") if product is not None else None
     kwargs_str = _convert_kwargs(kwargs)
     fragments_str = ", ".join(['QUEEN.dna_dict["{}"]'.format(fragment._product_id) for fragment in fragments])
     
@@ -710,7 +818,7 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
         results2 = add_fragment(fragments, orders[:], remains[:], results[:], flip=-1)
         results  = results1 + results2 
             
-    if unique == True:
+    if unique == True:     
         if len(results) == 1:
             orders, flips = list(zip(*results[-1])) 
             fragment_set  = [flipdna(fragments[ind], product=fragments[ind].project, qexd=True, pn=process_name, pd=process_description) if fl == -1 else fragments[ind] for ind, fl in zip(orders, flips)]
@@ -770,63 +878,96 @@ def ligation(*fragments, unique=True, follow_order=False, auto_select=True, prod
         return products 
 
 def homology_based_assembly(*fragments, mode="gibson", homology_length=15, unique=True, follow_order=None, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs): #homology_based_assembly
-    """
-    Simulates a homology-based DNA assembly, supporting various modes like Gibson, Infusion, or Overlap PCR.
+    """Simulate homology‑based DNA assembly (e.g., Gibson or In‑Fusion).
+
+    This function assembles multiple `QUEEN` fragments using overlapping
+    homology at their ends. It supports common homology‑based cloning
+    schemes such as Gibson Assembly, In‑Fusion cloning, and overlap‑PCR
+    style fusion of fragments.
 
     Parameters
     ----------
-    *fragments : QUEEN
-        Variable number of QUEEN objects representing DNA fragments to be assembled.
-    mode : str, optional
-        The assembly mode to be used. Valid options are "gibson", "infusion", and "overlappcr". Default is "gibson".
+    *fragments : QUEEN or list of QUEEN
+        `QUEEN` fragment(s) to be assembled. Passing a single list or
+        tuple is not allowed; fragments should be supplied as positional
+        arguments, e.g. ``homology_based_assembly(a, b, c)``.
+    mode : {"gibson", "infusion", "overlappcr"}, optional
+        Assembly mode used to interpret and, if necessary, modify fragment
+        ends.
+
+        * ``"gibson"`` (default) – double‑stranded overlaps on both ends.
+        * ``"infusion"`` – cohesive ends treated according to In‑Fusion
+          style overlaps.
+        * ``"overlappcr"`` – overlap‑PCR style assembly, typically with
+          fragments generated by primers containing homology tails.
+
     homology_length : int, optional
-        The minimum length of homology required for the assembly. Default is 20.
+        Minimum homology length required between adjacent fragments for a
+        valid assembly. Default is ``20``.
     unique : bool, optional
-        If True, ensures that only a unique assembled construct is returned. If multiple constructs 
-        are possible, raises an error. Default is True.
-    follow_order : bool, optional 
-        If True, a ligation reaction will be simulated along with the given order of fragments.  
-        If the number of given fragments is larger than 4, default is True. Otherwise, False. 
-    product : str, optional 
-        Product name of the homology_based_assembly (hba) process. 
+        If ``True`` (default), require that exactly one product be formed.
+        If multiple distinct constructs can be assembled, a
+        :class:`ValueError` is raised. If ``False``, all valid constructs
+        are returned.
+    follow_order : bool, optional
+        If ``True``, assembly is restricted to the given order of
+        ``fragments``. If ``False``, permutations may be explored,
+        depending on the mode. Default is ``None``, which lets the
+        implementation choose a sensible behavior based on ``mode``.
+    product : str, optional
+        Human‑readable name for the assembled construct(s). Recorded in
+        the returned `QUEEN` object(s) and in the construction history.
     process_name : str, optional
-        Brief label for the `homology_based_assembly` process.
-        If `mode` is `"gibson"`, default is "Gibson Assembly". 
-        If `mode` is `"infusion"`, default is "In-Fusion Assembly". 
-        If `mode` is `"overlappcr"`, default is "Overlap PCR".
+        Short label for this assembly step in the construction history.
+        If ``None`` and ``pn`` is also ``None``, a default such as
+        ``"Homology-based Assembly"`` is used.
     process_description : str, optional
-        Additional description for the assembly process.
+        Free‑text description of the assembly step.
     pn : str, optional
-        Alias for process_description.
+        Alias for ``process_name``. Used when ``process_name`` is
+        ``None``.
     pd : str, optional
-        Alias for process_name.
+        Alias for ``process_description``. Used when
+        ``process_description`` is ``None``.
     **kwargs
-        Additional keyword arguments for advanced configurations.
+        Reserved for future extensions. Ignored by the current
+        implementation but included in the recorded history string.
 
     Returns
     -------
     QUEEN or list of QUEEN
-        If `unique` is True and only one construct is possible, returns that construct as a QUEEN object.
-        If `unique` is False, returns a list of all possible assembled constructs as QUEEN objects.
-        If no constructs are possible, returns an empty list or None.
+        If a single valid assembly product is obtained (or ``unique=True``),
+        a single `QUEEN` object is returned. Otherwise, a list of `QUEEN`
+        objects representing all valid assemblies is returned.
+
+    Raises
+    ------
+    ValueError
+        If fragments are passed as a single list or tuple instead of
+        positional arguments; if ``mode`` is not one of ``"gibson"``,
+        ``"infusion"``, or ``"overlappcr"``; if no valid product can be
+        assembled; or if ``unique=True`` and multiple distinct constructs
+        are possible.
+    TypeError
+        If the keyword argument ``fragments=...`` is used instead of
+        positional arguments.
+    ValueError
+        If incompatible end structures are detected among the fragments
+        (for example, missing or insufficient homology).
 
     Examples
     --------
-    >>> fragment1 = QUEEN("dna_fragment_1")
-    >>> fragment2 = QUEEN("dna_fragment_2")
-    >>> assembled_product = homology_based_assembly(fragment1, fragment2, mode="gibson", unique=True)
+    Assemble two fragments using Gibson Assembly::
 
-    Notes
-    -----
-    The function considers different assembly modes, each with its specific requirements for fragment
-    orientation and homology lengths. It handles permutations and orientations of the given fragments.
-    Error handling is implemented for invalid inputs or assembly modes.
-
-    See Also
-    --------
-    QUEEN, flipdna, joindna, modifyends
-
+        product = homology_based_assembly(
+            fragment_a,
+            fragment_b,
+            mode="gibson",
+            homology_length=30,
+            product="gibson_product"
+        )
     """
+
     if len(fragments) == 1 and isinstance(fragments[0], (list, tuple)):
         raise ValueError("Fragments must be given as positional arguments, not as a single list. Use homology_based_assembly(a, b, c) or homology_based_assembly(*[a,b,c]).")
     
@@ -986,51 +1127,74 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
         return products 
 
 def annealing(ssdna1, ssdna2, homology_length=4, product=None, pn=None, pd=None, process_name=None, process_description=None, **kwargs):
-    """
-    Simulates an annealing of two single-stranded DNA (ssDNA) molecules based on homology length.
-    If dsDNA objects are given, their top strand will be used for the annealing.
+    """Simulate annealing of two complementary single‑stranded DNAs.
+
+    The function joins two single‑stranded `QUEEN` objects (or DNA strings)
+    into a double‑stranded DNA molecule based on a homologous overlap.
+
     Parameters
     ----------
-    ssdna1 : QUEEN
-        The first single-stranded DNA molecule to be annealed. If a dsDNA QUEEN object is given, it will be regarded as ssDNA QUEEN object with its top strand sequence. 
-    ssdna2 : QUEEN
-        The second single-stranded DNA molecule to be annealed. If a dsDNA QUEEN object is given, it will be regarded as ssDNA QUEEN object with its top strand sequence.
+    ssdna1 : QUEEN or str
+        First single‑stranded DNA. If a dsDNA `QUEEN` is provided, its top
+        strand is used. If a string is provided, it is internally
+        converted to a ssDNA `QUEEN`.
+    ssdna2 : QUEEN or str
+        Second single‑stranded DNA. Same conventions as for ``ssdna1``.
     homology_length : int, optional
-        The length of the homologous region required for annealing. Default is 4.
-    product : str, optional 
-        Product name of the ligation process
+        Minimum length of the homologous region required for annealing.
+        Default is ``4``.
+    product : str, optional
+        Human‑readable name for the annealed product. Recorded in the
+        returned `QUEEN` object and in the construction history.
     process_name : str, optional
-        Brief label for the gateway reaction process. Default is "Gateway Reaction".
+        Short label for this annealing step in the construction history.
+        If ``None`` and ``pn`` is also ``None``, a default such as
+        ``"Annealing"`` is used.
     process_description : str, optional
-        Additional description for the gateway reaction process.
+        Free‑text description of the annealing step.
     pn : str, optional
-        Alias for process_name.
+        Alias for ``process_name`` when ``process_name`` is ``None``.
     pd : str, optional
-        Alias for process_description.
+        Alias for ``process_description`` when
+        ``process_description`` is ``None``.
     **kwargs
-        Additional keyword arguments for advanced configurations.
+        Reserved for future extensions.
 
     Returns
     -------
     QUEEN
-        The resulting double-stranded DNA molecule after annealing.
+        Double‑stranded `QUEEN` object representing the annealed duplex.
+
+    Raises
+    ------
+    TypeError
+        If ``ssdna1`` or ``ssdna2`` is neither a `QUEEN` object nor a
+        string.
+    ValueError
+        If no suitable homologous region of length at least
+        ``homology_length`` is found.
 
     Examples
     --------
-    >>> ssdna1 = QUEEN("ATCG")
-    >>> ssdna2 = QUEEN("CGTA")
-    >>> dsdna = annealing(ssdna1, ssdna2, homology_length=4)
+    Anneal two complementary oligonucleotides into a short duplex::
 
-    See Also
-    --------
-    QUEEN, joindna
-
+        duplex = annealing(
+            ssdna1=QUEEN(seq="ACGTACGT", ssdna=True),
+            ssdna2=QUEEN(seq="ACGTACGT", ssdna=True),
+            homology_length=8
+        )
     """
     if type(ssdna1) == str:
         ssdna1 = QUEEN(seq=ssdna1, ssdna=True)
     
     if type(ssdna2) == str:
         ssdna2 = QUEEN(seq=ssdna2, ssdna=True)
+        
+    if type(ssdna1) != QUEEN:
+        TypeError("`ssdna1` must be a QUEEN object or a string.")
+
+    if type(ssdna2) != QUEEN:
+        TypeError("`ssdna2` must be a QUEEN object or a string.")
 
     process_name = pn if process_name is None else process_name
     if process_name is None:
@@ -1063,42 +1227,77 @@ def annealing(ssdna1, ssdna2, homology_length=4, product=None, pn=None, pd=None,
         raise TypeError("`ssdna_down` object must be a QUEEN or str object") 
     
     annealed_dna = joindna(ssdna1, ssdna2, homology_length=homology_length, qexd=qexd, product=product, pn=process_name, pd=process_description)
-    
     ssdna1._ssdna = False if flag1 == 1 else True 
     ssdna2._ssdna = False if flag2 == 1 else True
 
     return annealed_dna 
 
 def gateway_reaction(destination, entry, mode="BP", product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
-    """
-    Simulates a gateway reaction of two DNA molecules.
-    Basic `BP` and `LR` reactions are available.
+    """Simulate a Gateway-style recombination reaction.
+
+    This function performs a Gateway‑like reaction between a destination
+    backbone and an entry vector containing compatible recombination
+    sites (att sites). Basic BP and LR‑style reactions are supported.
 
     Parameters
     ----------
-    destination : QUEE object 
-        The destination QUEEN object with circular sequence topolgy holding the backbone DNA molecule.
-    entry : QUEEN object
-        The entry QUEEN object holding the insert DNA molecule.
-    mode: str, tuple, or list
-        The mode of the reaction, can be "BP" or "LR". Default is "BP".
+    destination : QUEEN
+        Circular `QUEEN` object representing the destination backbone.
+    entry : QUEEN
+        `QUEEN` object representing the entry construct containing the
+        insert and att sites.
+    mode : str or tuple of str, optional
+        Reaction mode. Common values include:
+
+        * ``"BP"`` – entry attL / attR to destination attP / attB
+          style reaction.
+        * ``"LR"`` – entry attB / attP to destination attL / attR
+          style reaction.
+
+        Internally, the mode may be treated as a tuple indicating the
+        specific att site flavors; see implementation for details.
+    product : str, optional
+        Human‑readable name for the recombination product. Recorded in the
+        returned `QUEEN` object and in the construction history.
     process_name : str, optional
-        Brief label for the gateway reaction process. Default is "Gateway Reaction".
+        Short label for this Gateway step. If ``None`` and ``pn`` is also
+        ``None``, the default ``"Gateway Reaction"`` is used.
     process_description : str, optional
-        Additional description for the gateway reaction process.
+        Free‑text description of the reaction.
     pn : str, optional
-        Alias for process_name.
+        Alias for ``process_name`` when ``process_name`` is ``None``.
     pd : str, optional
-        Alias for process_description.
+        Alias for ``process_description`` when
+        ``process_description`` is ``None``.
     **kwargs
-        Additional keyword arguments for advanced configurations.
+        Reserved for future extensions.
 
     Returns
-    ----------
+    -------
     QUEEN
-        The QUEEN object representing the result of the gateway reaction process.
-    """
-    
+        `QUEEN` object representing the recombination product.
+
+    Raises
+    ------
+    TypeError
+        If ``destination`` is not a circular `QUEEN` object.
+    ValueError
+        If the required att sites cannot be found or are found more than
+        once in either ``destination`` or ``entry``; or if the specified
+        ``mode`` is not supported by the implementation.
+
+    Examples
+    --------
+    Perform a BP‑style reaction between a destination and an entry
+    construct::
+
+        product = gateway_reaction(
+            destination=dest_plasmid,
+            entry=entry_plasmid,
+            mode="BP",
+            product="bp_product"
+        )
+    """ 
     if type(destination) == QUEEN:
         if destination.topology == "circular":
             pass 
@@ -1144,24 +1343,33 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
     atty2 = destination.searchsequence(cs.lib["attY2"], product="att{}1_site".format(mode[1]), qexd=True, pn=process_name, pd=process_description) 
     if len(attx1) > 1:
         raise ValueError("Multiple att{}1 sites were detected.".format(mode[0]))
-    else:
+    elif len(attx1) == 1:
         attx1 = attx1[0] 
+    else:
+        raise ValueError("No att{}1 site was detected.".format(mode[0]))
+
 
     if len(attx2) > 1:
         raise ValueError("Multiple att{}2 sites were detected.".format(mode[0]))
-    else:
+    elif len(attx2) == 1:
         attx2 = attx2[0] 
-            
+    else:
+        raise ValueError("No att{}2 site was detected.".format(mode[0]))
+       
     if len(atty1) > 1:
         raise ValueError("Multiple att{}1 sites were detected.".format(mode[1]))
-    else:
+    elif len(atty1) == 1:
         atty1 = atty1[0] 
+    else:
+        raise ValueError("No att{}1 site was detected.".format(mode[1]))
 
     if len(atty2) > 1:
         raise ValueError("Multiple att{}2 sites were detected.".format(mode[1]))
-    else:
+    elif len(atty2) == 0 :
         atty2 = atty2[0] 
-    
+    else:
+        raise ValueError("No att{}2 site was detected.".format(mode[1]))
+
     if attx1.strand == 1 and attx2.strand == 1:
         insert = cropdna(entry, attx1, attx2, qexd=True, pn=process_name, pd=process_description) 
     
@@ -1178,28 +1386,68 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
     return outobj
 
 def goldengate_assembly(destination, entry, cutsite=None, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
-    """
-    Simulates a Golden Gate Assembly.
+    """Simulate Golden Gate Assembly.
+
+    This function performs a Golden Gate Assembly between a circular
+    destination backbone and one or more entry fragments using a type IIS
+    restriction site.
 
     Parameters
     ----------
-    destination : QUEEN object
-        The destination QUEEN object with circular sequence topology holding the backbone DNA molecule.
-    entry : list of QUEEN objects
-        The entry QUEEN objects holding the insert DNA molecules.
-    cutsite : Cutsite or str
-        The restriction enzyme site used for this reaction.    
+    destination : QUEEN
+        Circular `QUEEN` object representing the destination backbone.
+        The sequence topology must be ``"circular"``.
+    entry : list of QUEEN
+        List of `QUEEN` objects representing the insert fragment(s).
+    cutsite : Cutsite or str, optional
+        Type IIS restriction site used in the Golden Gate reaction.
+        May be a :class:`Cutsite` object or a string key present in
+        ``QUEEN.cutsite.lib``. If ``None``, a suitable default may be
+        chosen by the implementation.
+    product : str, optional
+        Human‑readable name for the assembled construct. Recorded in the
+        returned `QUEEN` object and in the construction history.
     process_name : str, optional
-        Brief label for the gateway reaction process. Default is "Golden Gate Assembly".
+        Short label for this Golden Gate step in the construction history.
+        If ``None`` and ``pn`` is also ``None``, the default
+        ``"Golden Gate Assembly"`` is used.
     process_description : str, optional
-        Additional description for the gateway reaction process.
+        Free‑text description of the Golden Gate step.
     pn : str, optional
-        Alias for process_name.
+        Alias for ``process_name`` when ``process_name`` is ``None``.
     pd : str, optional
-        Alias for process_description.
+        Alias for ``process_description`` when
+        ``process_description`` is ``None``.
     **kwargs
-        Additional keyword arguments for advanced configurations.
+        Reserved for future extensions.
+
+    Returns
+    -------
+    QUEEN
+        `QUEEN` object representing the assembled Golden Gate construct.
+
+    Raises
+    ------
+    TypeError
+        If ``destination`` is not a `QUEEN` object with circular topology;
+        or if ``entry`` is not a list or tuple of `QUEEN` objects.
+    ValueError
+        If ``cutsite`` is neither a :class:`Cutsite` instance nor a string
+        key in ``QUEEN.cutsite.lib``, or if no valid assembly can be
+        generated using the given cut site and fragment set.
+
+    Examples
+    --------
+    Assemble one insert into a backbone using a type IIS site::
+
+        construct = goldengate_assembly(
+            destination=backbone,
+            entry=[insert],
+            cutsite="BsaI",
+            product="gg_product"
+        )
     """
+    
     if type(destination) == QUEEN:
         if destination.topology == "circular":
             pass 
@@ -1217,6 +1465,8 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
         cutsite = cs.lib[cutsite]  
     elif type(cutsite) == Cutsite or "cutsite" in cutsite.__dict__:
         pass 
+    else:
+        raise ValueError("No valide restriction site was specified.")
 
     process_name = pn if process_name is None else process_name
     if process_name is None:
@@ -1259,32 +1509,78 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
     return outobj
 
 def topo_cloning(destination, entry, mode="TA", product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
-    """
-    Simulates TOPO cloning. 
-    
+    """Simulate TOPO cloning.
+
+    This function models TOPO‑style cloning of an insert fragment into a
+    destination backbone. Different modes correspond to TA cloning, blunt
+    cloning, or directional cloning using a specific 5′ overhang.
+
     Parameters
     ----------
-    destination : QUEEN object
-        The destination QUEEN object holding the backbone DNA molecule. Basically, the sequence topology should be linear and proper end structure along with the `mode` value. However, if the sequence topology is circular, the sequence would be processed pre-defined restriction enzymes based on `mode` value.  
-    entry : QUEEN object with blunt-linear topology
-        The entry QUEEN objects holding the insert DNA molecules. If `mode` is `"directional"`, its 5' end sequnence should be `"CACC"`. 
-    mode : "TA", "blunt", or "directional"
-        Brief label for the `topo_cloning` process.
+    destination : QUEEN
+        `QUEEN` object representing the backbone molecule. Depending on
+        ``mode``, its ends may be automatically processed to carry the
+        required TOPO overhangs.
+    entry : QUEEN
+        Insert fragment to be cloned, typically a linear amplicon with
+        appropriate end structures:
+
+        * ``mode="TA"`` – insert should carry a 3′ A overhang on each
+          end (typical of some polymerases).
+        * ``mode="blunt"`` – insert should be blunt‑ended.
+        * ``mode="directional"`` – insert should carry a specific 5′ end
+          sequence (for example, a short directional tag).
+
+    mode : {"TA", "blunt", "directional"}, optional
+        Cloning mode. Default is ``"TA"``.
+    product : str, optional
+        Human‑readable name for the TOPO cloning product. Recorded in the
+        returned `QUEEN` object and in the construction history.
+    process_name : str, optional
+        Short label for this TOPO step. If ``None`` and ``pn`` is also
+        ``None``, the default such as ``"TOPO Cloning"`` is used.
     process_description : str, optional
-        Additional description for the gateway reaction process.
+        Free‑text description of the TOPO cloning step.
     pn : str, optional
-        Alias for process_description.
+        Alias for ``process_name`` when ``process_name`` is ``None``.
     pd : str, optional
-        Alias for process_description.
+        Alias for ``process_description`` when
+        ``process_description`` is ``None``.
     **kwargs
-        Additional keyword arguments for advanced configurations.
-    
+        Reserved for future extensions.
+
     Returns
     -------
-    QUEEN (construct)
-    Returns the topo cloning construct.
+    QUEEN
+        `QUEEN` object representing the TOPO cloning product.
+
+    Raises
+    ------
+    TypeError
+        If ``destination`` or ``entry`` is not a `QUEEN` object.
+    ValueError
+        If ``mode`` is not one of ``"TA"``, ``"blunt"``, or
+        ``"directional"``; or if the end structures of ``destination`` and
+        ``entry`` are incompatible with the requested mode (for example,
+        missing the required 3′ A overhangs for ``"TA"`` cloning).
+
+    Examples
+    --------
+    Clone a blunt amplicon into a TOPO backbone::
+
+        product = topo_cloning(
+            destination=backbone,
+            entry=insert,
+            mode="blunt",
+            product="topo_product"
+        )
     """
-    #product = product.replace(" ","") if product is not None else None
+    if type(destination) != QUEEN: 
+        raise TypeError("`destination` object must be instance of QUEEN object.")  
+    
+    if type(entry) != QUEEN: 
+        raise TypeError("`entry` object must be instance of QUEEN object.")  
+
     kwargs_str = _convert_kwargs(kwargs)
     qexd = 'topo_cloning(QUEEN.dna_dict["{}"], QUEEN.dna_dict["{}"], mode="{}"{})'.format(destination._product_id, entry._product_id, mode, kwargs_str)
 
@@ -1300,7 +1596,8 @@ def topo_cloning(destination, entry, mode="TA", product=None, process_name=None,
                 elif destination.seq[0] == "T" and  destination.seq[-1] == "A":
                     destination = modifyends(destination, "*/-", "-/*") 
                 else:
-                    pass 
+                    raise ValueError(f"Incompatible end structures for 'TA' cloning: destination={dest_ends}, entry={entry_ends}. TA cloning requires a 3′-T overhang on the destination and a 3′-A overhang on the entry.")
+ 
         entry  = modifyends(entry, "T", "A", qexd=True, pn=process_name, pd=process_description) 
         entry  = modifyends(entry, "-/*", "*/-", qexd=True, pn=process_name, pd=process_description)
         outobj = joindna(destination, entry, autoflip=False, compatibility="complete", homology_length=1, topology="circular", qexd=qexd, product=product, pn=process_name, pd=process_description)
@@ -1329,6 +1626,9 @@ def topo_cloning(destination, entry, mode="TA", product=None, process_name=None,
         entry = modifyends(entry, "****/----", "*/*", qexd=True, pn=process_name, pd=process_description)
         outobj = joindna(destination, entry, autoflip=False, compatibility="complete", topology="circular", qexd=qexd, product=product, pn=process_name, pd=process_description) 
     
+    else:
+        allowed = ("TA", "blunt", "directional")
+        raise ValueError(f"Invalid cloning mode: {mode!r}. Allowed modes: {', '.join(map(repr, allowed))}.")
     return outobj
 
 def intra_site_specific_recombination(dna, site="loxP", product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
@@ -1372,11 +1672,9 @@ def intra_site_specific_recombination(dna, site="loxP", product=None, process_na
     if process_name is None:
         process_name = "Intra site-specific recombination" 
     
-    #product = product.replace(" ","") if product is not None else None
     kwargs_str = _convert_kwargs(kwargs)
     qexd = "intra_site_specific_recombination({}, site={}{})".format(dna.project, site, kwargs_str)
     process_description = pd if process_description is None else process_description
-    #process_description = pd_suffix if process_description is None else process_description #+ "\n" + pd_suffix
     
     if site == "loxP":
         cs.lib["recsite"] = "ATAACTTCGTATAA^TGTATG_CTATACGAAGTTAT"
@@ -1553,169 +1851,262 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                  mut_pattern=None, target_tm=60.0, nonspecific_limit=3, auto_adjust=1, 
                  homology_length=30, tm_func=None, primer_length=(16, 25), design_num=1,
                  gap=None, batch_process=False):
-    """
-    Design forward and reverse primers for PCR amplification of a specified target region.
-    Primers can incorporate desired mutations, be checked for specificity, and meet additional
-    user-defined requirements. If multiple templates and targets are provided, primers are designed
-    in batch mode for each template-target pair. 
-
-    When using batch mode, overlapping sequences (homology regions) required for homology-based cloning 
-    methods, such as Gibson Assembly or In-Fusion cloning, are automatically designed based on the specified 
-    order of templates and targets.
     
-    In a batch process, the other parameters except for `adapter_mode` can also be specified as a list of 
-    appropriate class objects. However, each list should be the same length as the list of templates.
+    """
+    Design PCR primers for a specified target region.
+
+    This function designs forward and reverse primers to amplify a ``target``
+    region from a ``template`` `QUEEN` object. Primer design can be constrained
+    by target melting temperature (Tm), primer length range, and user-defined
+    filters, and can optionally encode site-directed mutagenesis. It also
+    supports batch design across multiple template/target pairs and provides
+    utilities for homology-based cloning workflows (e.g., Gibson/In-Fusion/
+    overlap-PCR style assemblies).
 
     Parameters
     ----------
-    template : QUEEN object of list of QUEEN objects.
-        The QUEEN object to serve as the PCR template. If a `list` of templates is specified, appropriate primer pairs 
-        will be designed for each template.
-    target : QUEEN object or list of QUEEN objects. 
-        The sub-region in the template QUEEN object that needs to be included in the amplicon. If a list of targets is 
-        specified, the lengths should be the same, and each element should correspond to the template list. 
-    fw_primer : ssDNA QUEEN object or list of ssDNA QUEEN object, optional
-        If provided, this sequence will be used as the forward primer.
-    rv_primer : ssDNA QUEEN object or list of ssDNA QUEEN object, optional
-        If provided, this sequence will be used as the reverse primer.
-    fw_margin : int or list of int, optional
-        Additional base pairs to add to the 5' end of the target region when designing the forward primer. Default is 0.
-    rv_margin : int or list of int, optiona
-        Additional base pairs to add to the 3' end of the target region when designing the reverse primer. Default is 0.
-    target_tm : float or list of float , optional
-        Desired melting temperature (Tm) for the primers in degrees Celsius. Default is 60.0.
-    tm_func : str, function or list of str/func, optional
-        Function to calculate the melting temperature of the primer pair.   
-        As `str` specfication, you can select `"Breslauer" or "br"` and `"SantaLucia" or "sa"`. 
-        Default is `"SantaLucia"`. Also, as built-in algorithms, `QUEEN.qexperiment.Tm_NN()`. 
-        This function is implemented based on the `Bio.SeqUtils.MeltingTemp.Tm_NN()`, 
-        so the all parameters of `Bio.SeqUtils.MeltingTemp.Tm_NN()`, excluding `seq` and `c_seq`, 
-        can be acceptable.
-    primer_length : tuple of int pair or list of int pairs, optional
-        A tuple (min_size, max_size) specifying the primer length. Default is (16, 25).
-    design_num : int or list of int, optional
-        Number of primer pairs to design. Defaults to 1.
-    adapter_mode : "standard", "gibson", "infusion", "overlappcr", Default is "standard"
-        The mode value specifies the the format of `fw_adapter` and `rv_adapter`. 
-        The `"gibson"`, `"infusion"`, or `"overlappcr"` values can only be used in batch process mode. 
-        In batch process mode, this value should be common for all processes 
-    fw_adapter : QUEEN object, str, Cutsite, or list of each, optional
-        The value must be either a QUEEN object or a string representing a DNA sequence. 
-        This sequence will be added to the beginning of any forward primers that are designed. 
-        If adapter_mode is set to `"gibson"`, `"infusion"`, `"overlappcr"`, or `"RE"`, the 3′ region of the QUEEN object 
-        specified as `fw_partner`, that is placed on immediately upstream of the target used in the current primer design, 
-        will be automatically joined with the given fw_adapter value, which will then be prepended to the forward primer.
-    rv_adapter : QUEEN object, str, Cutsite, or list of each, optional
-        The value must be either a QUEEN object or a string representing a DNA sequence. 
-        The reverse complemented sequence of it will be added to the beginning of any reverse primers that are designed. 
-        If adapter_mode is set to `"gibson"`, `"infusion"`, `"overlappcr"`, or `"RE"`, the 3′ region of the QUEEN object 
-        specified as `rv_partner`, that is placed on immediately upstream of the target used in the current primer design, 
-        will be automatically joined with the given rv_adapter value, which will then be prepended to the reverse primer.
-    fw_partner : QUEEN object or str (replesenting DNA sequence)
-        The DNA sequence or QUEEN object that joins to the 5′ end of the PCR product via ligation or homology-based assembly 
-        (such as Gibson Assembly).
-    rv_partner : QUEEN object or str (replesenting DNA sequence)
-        The DNA sequence or QUEEN object that joins to the 3′ end of the PCR product via ligation or homology-based assembly 
-        (such as Gibson Assembly).
-    homology_length : int or list of int, optional
-        This parameter is active if `adapter_mode` is `"gibson"`, `"infusion"`, or `"overlappcr"`.  
-        If an int value is provided, an adapter sequence including an overlapping end with the specified  
-        dsDNA QUEEN object will be designed, such that the overlap is greater than or equal to the provided value.  
-        Default value is 20.
-    nonspecific_limit : int or list of int, optional
-        The maximum number of mismatches allowed for primer binding outside of the designated primer design region  
-        within the template sequence. Primer pairs that bind to any region of the template with a number of mismatches  
-        equal to or less than this limit will be excluded from the design, to increase the specificity of the PCR reaction  
-        and decrease the likelihood of nonspecific amplification.  
-        Defaults to 3.
-    auto_adjust : bool or list of bool, optional
-        If True and the adapter is dsDNA QUEEN object, the adapter sequence will be automatically adjusted to ensure  
-        the reading frame of the genes in the target amplicon. 
-    requirement : lambda function or list of lambda function, optional
-        Function that takes a dictionary representing a primer pair and returns True if the pair meets the specified conditions.
-        Default requirement is as follows.
-            - `x["fw"][-1] not in ("A", "T") and x["rv"][-1] not in ("A", "T")`
-            - `"AAAA" not in x["fw"] and "TTTT" not in x["fw"] and "GGGG" not in x["fw"] and "CCCC" not in x["fw"]`
-            - `"AAAA" not in x["rv"] and "TTTT" not in x["rv"] and "GGGG" not in x["rv"] and "CCCC" not in x["rv"]`
-    mut_pattern : MutSpec (dict) or list[MutSpec], optional
-        Site-directed mutagenesis specification(s) within `target`. Coordinates are relative to `target` (5′→3′, 0-based, 
-        half-open [start, end)) unless `relative` is specified. Multiple sites can be given by supplying list values to fields 
-        inside MutSpec (vectorized fields).
-        MutSpec (dict):
+    template : QUEEN or sequence of QUEEN
+        PCR template DNA as a `QUEEN` object. If a list/tuple of templates is
+        provided, primer design is performed in batch mode (one design per
+        template). In batch mode, list-valued parameters must either match the
+        length of ``template`` or be provided as scalars (scalars are broadcast).
+    target : QUEEN or sequence of QUEEN
+        Sub-region that must be included in the PCR amplicon. In batch mode,
+        ``target`` must be a list/tuple whose length matches ``template``, and
+        each element corresponds to the template at the same index.
+
+        The function requires that the target sequence is contained in the
+        template sequence. If ``target.seq`` is not found in ``template.seq`` but
+        ``target.rcseq`` is found, the target may be flipped internally to match
+        the template orientation. If neither is found, a ``ValueError`` is raised.
+    fw_primer : QUEEN (ssDNA recommended) or str or sequence, optional
+        Forward primer to use instead of designing one. If a string is provided,
+        it is interpreted as a DNA sequence and may be converted to an ssDNA
+        `QUEEN`. In batch mode, provide a sequence aligned to ``template``/``target``
+        or a scalar to broadcast.
+    rv_primer : QUEEN (ssDNA recommended) or str or sequence, optional
+        Reverse primer to use instead of designing one. Same conventions as
+        ``fw_primer``.
+    fw_margin : int or sequence of int, optional
+        Additional bases to include upstream (5′ side) of the target region when
+        choosing forward primer binding sites. Default is ``0``.
+    rv_margin : int or sequence of int, optional
+        Additional bases to include downstream (3′ side) of the target region when
+        choosing reverse primer binding sites. Default is ``0``.
+    adapter_mode : {"standard", "gibson", "infusion", "overlappcr", "RE"}, optional
+        Specifies how ``fw_adapter`` / ``rv_adapter`` are interpreted and how
+        partner-derived overlaps are constructed.
+
+        - ``"standard"`` (default):
+          Adapters are simply prepended to designed primers.
+        - ``"gibson"``, ``"infusion"``, ``"overlappcr"``:
+          Adapters and/or partner-derived sequences are treated as homology tails
+          for homology-based assembly. In many workflows, these modes are mainly
+          used in batch designs where multiple fragments are intended to be assembled
+          together, and the mode is expected to be common across the batch.
+        - ``"RE"``:
+          Adapters represent restriction site logic. When partner-derived ends are
+          needed, partners are expected to be digested `QUEEN` objects so the end
+          structure can be inferred from digestion history.
+
+        Note
+            Some versions/uses treat ``"gibson"``, ``"infusion"``, and ``"overlappcr"``
+            as intended primarily for batch workflows. If you use them in single-target
+            mode, explicitly provide partners and verify the generated tails.
+    fw_adapter : QUEEN or str or Cutsite or sequence, optional
+        Adapter to prepend to the 5′ end of designed forward primers.
+
+        - If a `QUEEN` or DNA string is provided, it is prepended as sequence.
+          IUPAC bases may be accepted depending on implementation.
+        - If a `Cutsite` object (or a cutsite-name key) is provided, the corresponding
+          restriction site sequence is prepended using the internal cutsite wrapper.
+        - If ``adapter_mode`` is one of ``{"gibson","infusion","overlappcr","RE"}``
+          and ``fw_partner`` is provided, the partner segment immediately upstream of
+          the target junction may be automatically joined with ``fw_adapter`` to form
+          the final tail that is prepended to the forward primer.
+    rv_adapter : QUEEN or str or Cutsite or sequence, optional
+        Adapter to prepend to the 5′ end of designed reverse primers (the reverse-
+        complemented adapter is prepended to the reverse primer sequence).
+
+        Behavior parallels ``fw_adapter``. If ``adapter_mode`` is one of
+        ``{"gibson","infusion","overlappcr","RE"}`` and ``rv_partner`` is provided,
+        partner context may be used to derive the final tail.
+    fw_partner : QUEEN or str or sequence, optional
+        DNA sequence (or `QUEEN`) that will join to the 5′ end of the PCR product
+        via ligation or homology-based assembly. In homology-based modes, this partner
+        can be used to derive overlap/homology tails. For some modes (e.g., ``"RE"``),
+        partners are expected to be dsDNA `QUEEN` objects with appropriate end structures.
+    rv_partner : QUEEN or str or sequence, optional
+        DNA sequence (or `QUEEN`) that will join to the 3′ end of the PCR product.
+        Same conventions as ``fw_partner``.
+    requirement : callable or sequence of callable, optional
+        Filter(s) applied to candidate primer pairs. Each callable should accept a
+        dictionary describing a primer pair and return ``True`` if the pair is acceptable.
+        The dictionary typically contains keys like ``"fw"``, ``"rv"``, ``"fw_tm"``,
+        and ``"rv_tm"``.
+
+        If ``None`` (default), a built-in default filter is applied equivalent to:
+
+        - the last base of each primer is not ``"A"`` or ``"T"``
+        - neither primer contains any 4-base homopolymer runs:
+          no ``"AAAA"``, ``"TTTT"``, ``"GGGG"``, or ``"CCCC"``
+    fw_name : str or sequence of str, optional
+        Forward primer name(s)/label(s). In batch mode, provide a list aligned to
+        ``target`` or a scalar to broadcast. If not provided (or if explicitly set
+        to ``None`` in some workflows), implementations may name primers as
+        ``fw_primer{num}``, where ``num`` is the batch index.
+    rv_name : str or sequence of str, optional
+        Reverse primer name(s)/label(s). Same conventions as ``fw_name``. If not
+        provided (or set to ``None``), implementations may name primers as
+        ``rv_primer{num}``.
+    mut_pattern : dict (MutSpec) or list of dict (MutSpec), optional
+        Site-directed mutagenesis specification(s) within ``target``. Coordinates are
+        relative to ``target`` (5′→3′, 0-based, half-open [start, end)) unless
+        ``relative`` is specified. Multiple edit sites can be represented by supplying
+        list values (vectorized fields) inside one MutSpec dict.
+
+        Defaults
+            If ``mut_pattern`` is ``None`` (default), no mutagenesis is applied and
+            primers are designed for the unmodified target region.
+
+        MutSpec keys (dict)
             operation : {"Q5","QuickChange","gibson","infusion","overlappcr"}, optional
-                Default strategy:
-                    - template == target AND exactly 1 site  → "Q5"
-                    - template == target AND ≥2 sites        → "gibson"
-                    - otherwise (target ⊂ template, any #)   → "overlappcr"
-            relative : {"target"} | QUEEN | str, optional
-                Reference subsequence for interpreting `loc`/`find`. If omitted or "target", coordinates are relative to `target`. 
-                If a QUEEN object or a DNA string is provided, it must map uniquely within `target`. Coordinates are taken in the 
-                5′→3′ direction of the `relative` sequence; if the match is on the reverse strand, mapping to `target` is handled 
-                automatically (with reverse-complement of `find` as needed). Non-unique matches raise an error. (Scalar or list; 
-                scalars broadcast. One `relative` applies to all sites in that MutSpec unless a list is given.)
-            loc : (start, end) or list[(start, end)], optional
-                Interval(s) to replace, relative to `relative` if given, otherwise `target`. Use (i, i) to denote an insertion at 
-                index i.
-            find : str or list[str], optional
-                Alternative to `loc`; unique subsequence(s) within the `relative` sequence (or within `target` when `relative` 
-                is omitted).
-            to : str or list[str], optional
-                Replacement/insert sequence(s) (IUPAC allowed). Use "" or None for deletion.
-        Vectorization:
-            - `relative`, `loc`, `find`, and `to` accept scalars or lists.
-            - If multiple fields are lists, their (non-None) lengths must match; scalars broadcast.
-            - For each site k, provide either `loc[k]` OR `find[k]` (not both).
-            - Deletion: `to[k]` in {"", None}. Insertion: `loc[k] == (i, i)`.
-        Batch mode:
-            - When `template`/`target` are lists, pass `mut_pattern` as a list whose length equals `templates`; each element is 
-              one MutSpec (with vectorized fields) for the corresponding template–target pair.
-    fw_name : str, or list of str objects, optional
-        The forward primer name(s) designed in this function. If a list is specified, its length should be match with 
-        the `target` list. If the value is not specified, the forward primer is named as `fw_primer{num}`. `num` is the 
-        index of the list`.
-    rv_name : str, or list of str ojbects, optional 
-        The reverse primer name(s) designed in this function. If a list is specified, its length should be match with 
-        the `target` list. If the value is not specified, the reverse primer is named as `rv_primer{num}`. `num` is the 
-        index of the list`.
-    
-    Raises
-    ------
-    ValueError
-        If the target sequence is not found within the template sequence.
+                Mutagenesis strategy. If omitted, a default strategy is chosen:
+
+                - template == target AND exactly 1 site  → "Q5"
+                - template == target AND ≥2 sites        → "gibson"
+                - otherwise (target ⊂ template, any #)   → "overlappcr"
+
+            relative : {"target"} or QUEEN or str, optional
+                Reference subsequence for interpreting ``loc``/``find``. If omitted or
+                "target", coordinates are relative to ``target``.
+                If a `QUEEN` object or DNA string is provided, it must map uniquely within
+                ``target``. Coordinates are interpreted in the 5′→3′ direction of the
+                ``relative`` sequence; if a match is on the reverse strand, mapping to
+                ``target`` is handled automatically (including reverse-complementing
+                ``find`` as needed). Non-unique matches should raise an error.
+
+            loc : (start, end) or list of (start, end), optional
+                Interval(s) to replace, relative to ``relative`` if provided, otherwise
+                relative to ``target``. Use ``(i, i)`` to denote an insertion at index ``i``.
+
+            find : str or list of str, optional
+                Alternative to ``loc``. A unique subsequence within the ``relative`` sequence
+                (or within ``target`` when ``relative`` is omitted) that specifies the edit site.
+
+            to : str or list of str, optional
+                Replacement/insert sequence(s) (IUPAC may be accepted). Use ``""`` or
+                ``None`` for deletion.
+
+        Vectorization rules (MutSpec)
+            - ``relative``, ``loc``, ``find``, and ``to`` accept scalars or lists.
+            - If multiple fields are lists, their (non-None) lengths must match; scalars
+              broadcast.
+            - For each site k, specify either ``loc[k]`` OR ``find[k]`` (not both).
+            - Deletion: ``to[k]`` in {``""``, ``None``}. Insertion: ``loc[k] == (i, i)``.
+
+        Batch mode (MutSpec)
+            - When ``template``/``target`` are lists, pass ``mut_pattern`` as a list whose
+              length equals the number of templates; each element is one MutSpec dict (with
+              vectorized fields) for the corresponding template–target pair.
+
+    target_tm : float or sequence of float, optional
+        Desired melting temperature (Tm) for primers in degrees Celsius. Default is ``60.0``.
+    nonspecific_limit : int or sequence of int, optional
+        Specificity filter threshold. Candidate primers that bind to any region of the template
+        with mismatches <= this value (outside the intended binding) are excluded to reduce
+        nonspecific amplification. Default is ``3``.
+    auto_adjust : bool or int or sequence, optional
+        If enabled (default is ``1`` which behaves like ``True``), and partner-derived tails
+        are used, the function may adjust the junction to preserve reading frame when joining
+        coding sequences (CDS–CDS contexts). Depending on the implementation, this may include
+        inserting a short gap sequence (typically 0–2 bases) between partner-derived tail and
+        primer binding region so the join length becomes a multiple of 3.
+
+        Note
+            If ``gap`` is not supplied, some implementations may generate the gap sequence
+            automatically (and in some cases pseudo-randomly). Always verify junction
+            sequences with ``printsequence()``.
+    homology_length : int or sequence of int, optional
+        Active when ``adapter_mode`` is one of ``{"gibson","infusion","overlappcr","RE"}``.
+        Controls the minimum homology length used when constructing homology tails with
+        partner context. Default is ``30`` (function default). (Some older docs referenced
+        20; current default is 30.)
+    tm_func : str or callable or sequence, optional
+        Function/selector used to calculate primer Tm.
+
+        - As a string selector, supported values include:
+          ``"SantaLucia"`` / ``"sa"`` and ``"Breslauer"`` / ``"br"``.
+        - As a callable, it should be compatible with Biopython’s
+          ``Bio.SeqUtils.MeltingTemp.Tm_NN``-like interface (accepting ``seq`` and optional
+          parameters; excluding ``seq`` and ``c_seq`` in some wrapper implementations).
+
+        If ``None``, a SantaLucia-like nearest-neighbor model is used by default.
+    primer_length : tuple of int or sequence of tuple, optional
+        Primer length bounds as ``(min_len, max_len)``. Default is ``(16, 25)``.
+    design_num : int or sequence of int, optional
+        Number of primer pairs to return per template/target. Default is ``1``.
+    gap : object or sequence, optional
+        Optional gap specification used for frame adjustment logic in multi-fragment or
+        partner-aware workflows. This is mainly for internal/batch workflows.
+        If provided, it is typically a pair ``(gap_fw, gap_rv)`` where each element is a
+        short DNA string (often 0–2 bases) or ``None``. Default is ``None``.
+    batch_process : bool, optional
+        Internal flag used in batch homology workflows. If ``True``, the function returns
+        an intermediate amplicon region (with adapters applied if provided) and gap
+        information instead of primer pairs. Default is ``False``.
 
     Returns
     -------
     list of dict
-        A list of dictionaries where each dictionary represents a primer pair.
-        Each dictionary contains two keys, "fw" and "rv", with the corresponding primer sequences formed by ssDNA QUEEN objects.
-        The list is sorted by the closeness of the primer's Tm to the target_tm, with the closest pair first.
+        In single-template mode, returns a list of primer-pair records sorted by how close
+        the primer Tm values are to ``target_tm`` (closest first). Each record contains
+        at least:
 
-        Example return value:
-        [
-            {"fw": QUEEN(seq="ATGCGT...", ssdna=True), "rv": QUEEN(seq="TACGCA...", ssdna=True)},
-        ]
-    
+        - ``"fw"`` : `QUEEN` (ssDNA) forward primer
+        - ``"rv"`` : `QUEEN` (ssDNA) reverse primer
+
+        Implementations may also include fields such as ``"fw_tm"`` and ``"rv_tm"``.
+    list of list of dict
+        In batch mode (``template`` is a list/tuple), returns a list where each element is
+        the corresponding primer-pair list for that template/target pair (same order).
+    tuple
+        If ``batch_process=True``, returns ``(amplicon_region, gap_fw, gap_rv)``, where
+        ``amplicon_region`` is a `QUEEN` representing the design region (possibly with
+        adapters applied) and ``gap_fw`` / ``gap_rv`` are optional gap sequences inferred
+        by the partner-aware logic.
+
+    Raises
+    ------
+    TypeError
+        If ``template``/``target`` are not `QUEEN` objects (or lists of `QUEEN` objects),
+        or if list-valued arguments are of invalid types.
+    ValueError
+        If the target sequence (or its reverse complement) is not found within the template
+        sequence.
+    ValueError
+        If mutagenesis specification is malformed (e.g., missing both ``loc`` and ``find``,
+        non-unique mapping for ``relative``/``find``, inconsistent vectorized lengths), or
+        if adapter/partner values are inconsistent with ``adapter_mode`` (e.g., partner is
+        required but missing or of incompatible type).
+
     Notes
     -----
-    It is assumed that template and target are provided as QUEEN objects with appropriate annotations
-    for target regions. The requirement for the target sequence to be within the template sequence
-    ensures specificity of the primers to the region of interest. The function will not proceed if
-    the target sequence is not a subset of the template.
-    
-    Example
-    -------
-    >>> from QUEEN.queen import *
-    >>> template_Q = QUEEN('ATGC...')
-    >>> target_Q = QUEEN('ATGC...')
-    >>> # Assuming target_Q sequence is within template_Q
-    >>> primers = primerdesign(template_Q, target_Q, target_tm=65.0, design_num=5)
-    >>> primers
-    [
-        {"fw": QUEEN(seq="ATGCGT...", ssdna=True), "rv": QUEEN(seq="TACGCA...", ssdna=True)},
-        {"fw": QUEEN(seq="ATGCGT...", ssdna=True), "rv": QUEEN(seq="TACGCA...", ssdna=True)},
-        ...
-    ]
-    """
+    It is assumed that template and target are provided as `QUEEN` objects representing
+    the sequence context for primer design. The requirement that the target sequence is
+    within the template sequence ensures specificity of primer binding. The function will
+    not proceed when the target is not a subset (or reverse-complement subset) of the template.
+
+    Examples
+    --------
+    Design primers for a target subregion within a template::
+
+        template = QUEEN(seq="ATGC" * 200)
+        target   = template[100:200]
+        primers  = primerdesign(template, target, target_tm=65.0, design_num=2)
+        fw = primers[0]["fw"]
+        rv = primers[0]["rv"]
+    """ 
     
     def search_qexps(dna):
         pattern_dict = {

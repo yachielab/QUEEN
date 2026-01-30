@@ -3788,79 +3788,135 @@ def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None, l
                  tick_interval="auto", labelcolor="k", title=None, width_scale="auto", height_scale=1.0, linebreak=None, 
                  seq=False, rcseq=False, diamater_scale=1.0, fig= None):
     
-    """Visualize the annotated sequence map of a `QUEEN_object`.
-    
-    Generate annotated sequence map of `QUEEN_object` with selected 
-    `DNAfeature_objects`. Each feature annotation label is retrieved from the 
-    `"qualifier:label"` attribute. All feature annotations and their label Locations 
-    of feature annotation labels are automatically adjusted to prevent overlaps on 
-    the sequence map. The face color and edge color of each feature annotation are 
-    also automatically assigned from the default colormap. However, they can be 
-    determined by `"qualifier:edgecolor_queen"` and `"qualifier:facecolor_queen"` 
-    attributes of  `DNAfeature_objects`.
+    """Visualize an annotated sequence map for a `QUEEN` object.
+
+    Generate a linear or circular map of a `QUEEN` object's sequence with
+    selected `DNAfeature` annotations. Labels are taken from the
+    ``"qualifier:label"`` qualifier of each feature. Label positions are
+    automatically adjusted to reduce overlaps. Colors can be controlled via
+    feature qualifiers such as ``"qualifier:edgecolor_queen"`` and
+    ``"qualifier:facecolor_queen"``.
 
     Parameters
-    ----------- 
-    dna : QUEEN.qobj.QUEEN object 
-        `QUEEN_object`
-    map_view : str ("linear" or "circular"), default: "linear"
-        Visualization style. 
-    feature_list : list of `DNAfeaure_objects`     
-        DNAfeature_objects to be displayed on the sequence map.  
-        The default value is `QUEEN_object.dnafeatures` excluding those with the 
-        feature type `"source"`. 
-    fontsize : int, default: 12 for "circular" map and 10 for "linear" map
-        Common font size. Separate font sizes can also be defined for different 
-        `DNAfeaure_objects` by editing the `"qualifier:fontsize_queen"` attribute, 
-        which overrides the common font size. 
-    labelcolor : str, default: "black"
-        Common font color for all feature labels. Separate font colors can also be 
-        defined for different `DNAfeaure_objects` by editing the 
-        `"qualifier:labelcolor_queen"` attribute, which overrides the common font color.
-    display_label : 0, 1, or 2, default: 2
-        If `2`, all of the labels will be displayed. If `1`, only the feature labels that 
-        can fit inside the object boxes will be displayed. If `0`, feature labels won't 
-        be displayed.
-    tick_interval : int, default: None
-        Tick interval of sequence map (base pairs).
-    display_axis : bool, default: True
-        Display spines of matplotlib.axes.Axes object.
-    title : str, default: QUEEN.qobj.QUEEN..project
-        Title name to be displayed.
-    start : int (zero-based indexing),  default: 0, 
-        The parameter is available for only linear maps.  
-        Start position of the `QUEEN_object` sequence to be displayed. 
-    end : int (zero-based indexing),  default: the last sequence position of `QUEEN_object`. 
-        The parameter is available for only linear maps.  
-        End position of the `QUEEN_object` sequence to be displayed. 
-    width_scale : flaot, default: Please see the following description. 
-        The parameter is available for only linear maps.
-        Scaling factor for the width of the sequence map.
-        Default value is 1.0 if the dna length > 4000,  4.0 if the dna length > 1000, 
-        10 if the dna length > 500 else 20. However, if `seq` is True, the value is 40. 
-    height_scale : flaot, default: 1.0
-        The parameter is available for only linear maps.
-        Scaling factor for the height of the sequence map.
-    label_location : float, default: "either"` when `seq` is `False`, otherwise "top"), 
-        The parameter is available for only linear maps. Feature label locations. Each 
-        feature label is generally placed inside the object box. However, if a feature 
-        label is larger than the object box, the label will be put outside. If this value 
-        is `"either"`, labels will be put below or above the object boxes, whichever is 
-        available. If this value is `"top"`, labels will be put above the object boxes.   
-        If `seq` is `True`, the value must be set to `"top"`.
-    linebreak : int or None, default: Length of the `QUEEN_object` sequence. 
-        The parameter is available for only linear maps. Sequence length for line break.
-    seq : bool, default: False, The parameter is available for only linear maps.
-        When `True`, a color map representing the `QUEEN_object` sequence will be displayed 
-        below the sequence map.
-    diameter_scale : float, default: 1.0, The parameter available for only circular maps.
-        Scaling factor for the diameter of the sequence map.
-    
+    ----------
+    dna : QUEEN
+        `QUEEN` object whose sequence and features are to be visualized.
+    map_view : {"linear", "circular"}, optional
+        Layout of the map. Default is ``"linear"``. Circular maps require
+        that ``dna.topology == "circular"``.
+    feature_list : list of DNAfeature or None, optional
+        Features to display. If ``None`` (default), all features in
+        ``dna.dnafeatures`` except those with type ``"source"`` are shown.
+    start : int, optional
+        Zero‑based coordinate of the left boundary for linear maps or the
+        starting angle for circular maps. Default is ``0``.
+    end : int or None, optional
+        Zero‑based coordinate of the right boundary (exclusive). If
+        ``None``, the full sequence length is used.
+    label_location : {"top", "bottom", "either"} or None, optional
+        For linear maps, controls where feature labels are placed relative
+        to feature boxes:
+
+        * ``"top"`` – labels above feature boxes.
+        * ``"bottom"`` – labels below feature boxes.
+        * ``"either"`` – automatically choose top or bottom to reduce
+          overlaps.
+
+        If ``seq=True``, label location is effectively restricted to the
+        top.
+    display_label : {0, 1, 2}, optional
+        Level of label visibility. Default is ``2``.
+
+        * ``2`` – display all labels.
+        * ``1`` – display only labels that fit inside their feature boxes.
+        * ``0`` – hide feature labels.
+    display_title : bool, optional
+        If ``True`` (default), draw a title on the map (either the object's
+        project name or ``title`` if provided).
+    display_axis : bool, optional
+        If ``True`` (default), draw an axis with tick marks (for example,
+        base‑pair coordinates).
+    fontsize : int or None, optional
+        Base font size for labels and axis text. If ``None``, a mode‑
+        specific default is chosen (e.g., ~10 for linear, ~12 for
+        circular). Individual features can override this via the
+        ``"qualifier:fontsize_queen"`` qualifier.
+    fontsize_nucl : int or None, optional
+        Font size for nucleotide letters when ``seq=True``. If ``None``,
+        a reasonable default is chosen based on the length of the region.
+    tick_interval : {"auto"} or int, optional
+        Spacing between coordinate ticks. If set to ``"auto"`` (default),
+        an interval is chosen automatically. If an integer, ticks are
+        placed every given number of bases.
+    labelcolor : str, optional
+        Default text color for feature labels. Default is ``"k"`` (black).
+        Individual features can override this via the
+        ``"qualifier:labelcolor_queen"`` qualifier.
+    title : str or None, optional
+        Title string for the plot. If ``None``, a title may be inferred
+        from ``dna.project`` or omitted.
+    width_scale : {"auto"} or float, optional
+        Horizontal scaling factor for the plot. For linear maps,
+        ``"auto"`` chooses a width based on sequence length; numeric values
+        rescale this width.
+    height_scale : float, optional
+        Vertical scaling factor for linear maps. Default is ``1.0``.
+    linebreak : int or None, optional
+        For linear maps, sequence length per row when ``seq=True``.
+        If ``None``, a default is derived from sequence length.
+    seq : bool, optional
+        If ``True``, draw a colorized representation of the sequence
+        (top strand) below the map for linear layouts, or along the
+        circular path for circular layouts. Default is ``False``.
+    rcseq : bool, optional
+        If ``True``, also show the reverse‑complement sequence. Default
+        is ``False``.
+    diamater_scale : float, optional
+        Scaling factor for the radius/diameter of circular maps.
+        Default is ``1.0``.
+    fig : matplotlib.figure.Figure or patchworklib.Brick or None, optional
+        Existing figure or patchworklib container to draw into. If
+        ``None``, a new figure is created. When patchworklib is available,
+        axes may be returned as Brick/Bricks objects for composition.
+
     Returns
     -------
-    matplolib.pyplot.figure object
+    object
+        A matplotlib :class:`~matplotlib.figure.Figure` or a
+        patchworklib ``Brick``/``Bricks`` object, depending on the
+        environment and the value of ``fig``. In simple cases, this can be
+        treated as a standard matplotlib figure for display or saving.
 
+    Raises
+    ------
+    TypeError
+        If ``dna`` is not a `QUEEN` object.
+    ValueError
+        If ``map_view="circular"`` is requested for a `QUEEN` object with
+        linear topology; or if ``map_view`` is neither ``"linear"`` nor
+        ``"circular"``.
+
+    Examples
+    --------
+    Draw a circular map of a plasmid::
+
+        fig = visualizemap(
+            dna=plasmid,
+            map_view="circular",
+            display_title=True
+        )
+
+    Draw a linear map of a subregion with sequence colors::
+
+        fig = visualizemap(
+            dna=plasmid,
+            map_view="linear",
+            start=0,
+            end=2000,
+            seq=True
+        )
     """
+    
     if dna.topology == "linear" and map_view == "circular":
         raise ValueError("The sequence topology is linear, you should set map_view='lienar'.")
 

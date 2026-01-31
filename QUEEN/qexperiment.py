@@ -2106,6 +2106,44 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         primers  = primerdesign(template, target, target_tm=65.0, design_num=2)
         fw = primers[0]["fw"]
         rv = primers[0]["rv"]
+    
+    Design primer pairs for a homology_based_assembly of two PCR amplicons::
+
+        template1  = QUEEN(record="123456", dbtype="addgene")
+        insert     = template["Gene1"]
+        template2  = QUEEN(record="654231", dbtype="addgene")
+        backbone   = template["!Gene2"]
+        primer_pairs = primerdesign([template1, template2], [insert, backbone], target_tm=65.0)
+        primer_pair1 = primer_pairs[0][0]
+        primer_pair2 = primer_pairs[1][0] 
+        
+        #pcr using the desgined primer pairs
+        fw1 = primer_pair1["fw"] 
+        rv1 = primer_pair1["rv"]
+        insert_amplicon = pcr(template1, fw1, rv1) 
+        
+        fw2 = primer_pair2["fw"] 
+        rv2 = primer_pair2["rv"]
+        backbone_amplicon = pcr(template2, fw2, rv2) 
+
+        #homology_based_assembly of insert and backbone amplicons. 
+        construct = homology_based_assembly(insert_amplicon, backbone_amplicon)
+    
+    Design primers for introducing a site-specific mutation::
+        
+        template     = QUEEN(record="111111", dbtype="addgene")
+        goi_region   = template["GeneX"]
+        mut_pattern  = {"relative": goi_region, "loc": (102,105), "to": "GCC", "operation": "gibson"}
+        primers = primerdesign(template=template, target=template, mut_pattern=mut_pattern)
+        
+        #pcr using the designed primers. 
+        fw = primers[0]["fw"]
+        rv = primers[0]["rv"]
+        amplicon = pcr(template, fw, rv) 
+
+        #homology_based_assembly for joining a linear PCR amplicon holding a site-specific mutation.   
+        construct = homoogy_based_assembly(amplicon) 
+    
     """ 
     
     def search_qexps(dna):

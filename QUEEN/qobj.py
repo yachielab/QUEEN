@@ -1,5 +1,6 @@
 import sys
 import copy
+import collections
 import urllib
 import tempfile
 import requests
@@ -43,6 +44,83 @@ def _combine_history(dna, histories):
         for key in history["building_history"]: 
             combined_history["building_history"][key] = history["building_history"][key] 
     return combined_history 
+
+
+def _feature_label(feat):
+    if "label" not in feat.qualifiers:
+        return ""
+    value = feat.qualifiers["label"]
+    if type(value) in (list, tuple):
+        return str(value[0] if len(value) > 0 else "")
+    return str(value)
+
+
+def _feature_parts(feat):
+    return [(int(part.start), int(part.end)) for part in feat.location.parts]
+
+
+def _feature_span_len(feat):
+    return sum(e - s for s, e in _feature_parts(feat))
+
+
+def _location_contains(outer_feat, inner_feat):
+    outer_parts = _feature_parts(outer_feat)
+    inner_parts = _feature_parts(inner_feat)
+    if len(outer_parts) != len(inner_parts):
+        return False
+
+    for (outer_s, outer_e), (inner_s, inner_e) in zip(outer_parts, inner_parts):
+        if outer_s > inner_s or inner_e > outer_e:
+            return False
+    return True
+
+
+def _normalize_redundant_features(
+    features,
+    feature_types=("CDS", "gene"),
+    skip_types=("source", "primer_bind"),
+    skip_broken=True,
+):
+    groups = collections.defaultdict(list)
+    remove_indices = set()
+
+    for index, feat in enumerate(features):
+        ftype = str(getattr(feat, "type", "") or "")
+        if ftype in skip_types:
+            continue
+        if feature_types is not None and ftype not in feature_types:
+            continue
+        if skip_broken == True and "broken_feature" in feat.qualifiers:
+            continue
+
+        label = _feature_label(feat)
+        if label == "":
+            continue
+
+        groups[(ftype, label, feat.location.strand)].append((index, feat))
+
+    for _, items in groups.items():
+        items.sort(
+            key=lambda item: (_feature_span_len(item[1]), len(_feature_parts(item[1]))),
+            reverse=True,
+        )
+        survivors = []
+        for index, feat in items:
+            redundant = False
+            for _, survivor in survivors:
+                if _location_contains(survivor, feat):
+                    redundant = True
+                    break
+            if redundant == True:
+                remove_indices.add(index)
+            else:
+                survivors.append((index, feat))
+
+    if len(remove_indices) == 0:
+        return features, 0
+
+    new_features = [feat for index, feat in enumerate(features) if index not in remove_indices]
+    return new_features, len(remove_indices)
 
 @total_ordering
 class DNAfeature(SeqFeature):
@@ -649,7 +727,7 @@ class QUEEN():
     
 
     def __init__(self, seq=None, record=None, fileformat=None, dbtype="local", topology="linear", ssdna=False, import_history=True, supfeature=False, project=None, product=None, process_name=None, process_description=None, 
-        pd=None, pn=None, process_id=None, original_ids=[], quinable=True, **kwargs):
+        pd=None, pn=None, process_id=None, original_ids=[], quinable=True, normalize_redundant_features=False, redundant_feature_types=("CDS", "gene"), **kwargs):
         
         """
 
@@ -678,6 +756,13 @@ class QUEEN():
         import_history : bool, default: True
             If False, it disable the inheritance of operational process histories of previously 
             generated `QUEEN_objects` to a newly producing `QUEEN_object`.   
+        normalize_redundant_features : bool, default: False
+            If True, remove annotation features that are strictly contained in another
+            feature with the same feature type, label, and strand. This normalization is
+            applied only at load time and skips `broken_feature`, `source`, and
+            `primer_bind` features.
+        redundant_feature_types : tuple, default: ("CDS", "gene")
+            Feature types eligible for redundant-feature normalization.
         product : str 
             This parameter enables users to provide label names for producing `QUEEN_objects`.  
             The provided labels are stored in `QUEEN_objects.project`.  
@@ -895,7 +980,10 @@ class QUEEN():
                 #Remove duplicating features
                 for feat in record.features:
                     if feat.location.strand == -1 and len(feat.location.parts) > 1:
-                        feat.location.parts.reverse() #Bug in biopython?
+                        first_start = int(feat.location.parts[0].start)
+                        last_start = int(feat.location.parts[-1].start)
+                        if first_start < last_start:
+                            feat.location.parts.reverse()  # Normalize wrap features to high-start -> low-start order.
 
                     if "label" in feat.qualifiers:
                         lse = feat.location.start, feat.location.end, feat.qualifiers["label"][0]
@@ -910,6 +998,14 @@ class QUEEN():
 
                 for feat in record.features:
                     self._dnafeatures.append(DNAfeature(feature=feat, subject=self))
+
+                if normalize_redundant_features == True:
+                    self._dnafeatures, _ = _normalize_redundant_features(
+                        self._dnafeatures,
+                        feature_types=redundant_feature_types,
+                        skip_types=("source", "primer_bind"),
+                        skip_broken=True,
+                    )
                 
                 pairs = [] 
                 history_feature = None
@@ -1131,10 +1227,12 @@ class QUEEN():
                 fproduct     = "" if fproduct is None else ", product='{}'".format(fproduct)
                 fileformat   = "" if fileformat is None else ", fileformat='{}'".format(fileformat) 
                 fsupfeature  = "" if supfeature == False else ", supfeature={}".format(str(supfeature)) 
+                fnormalize   = "" if normalize_redundant_features == False else ", normalize_redundant_features={}".format(normalize_redundant_features)
+                fnormtypes   = "" if tuple(redundant_feature_types) == ("CDS", "gene") else ", redundant_feature_types={}".format(str(tuple(redundant_feature_types)))
                 process_name = "" if process_name is None else ", process_name='" + process_name + "'"
                 process_description = "" if process_description is None else ", process_description='" + process_description + "'" 
                 
-                args = [fseq, frecord, fdbtype, fproject, fssdna, ftopology, fileformat, fsupfeature, fproduct, process_name, process_description]
+                args = [fseq, frecord, fdbtype, fproject, fssdna, ftopology, fileformat, fsupfeature, fnormalize, fnormtypes, fproduct, process_name, process_description]
                 building_history = "QUEEN.dna_dict['{}'] = QUEEN({}{}{}{}{}{}{}{}{}{})".format(self._product_id, *args)  
                 process_id, original_ids = make_processid(self, building_history, process_id, original_ids)
                 QUEEN._num_history += 1 
@@ -1188,7 +1286,7 @@ class QUEEN():
             self._load_history = -1 
      
         self._positions       = tuple(range(len(self.seq))) 
-        self.record.feartures = self.dnafeatures
+        self.record.features = self.dnafeatures
         self.seq.parental_id  = self._unique_id
         
         if product is None:

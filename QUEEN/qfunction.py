@@ -125,6 +125,121 @@ def _convert_kwargs(arguments):
         out = ", " + ", ".join(out) 
     return out
 
+
+def _feature_original_sequence(dna, feat):
+    strand = feat.location.strand if feat.location.strand != 0 else 1
+    parts = list(feat.location.parts)
+    if len(parts) == 0:
+        return dna.printsequence(feat.start, feat.end, strand, display=False)
+    if strand == -1:
+        parts = parts[::-1]
+
+    seqs = []
+    for part in parts:
+        seqs.append(str(dna.printsequence(int(part.start), int(part.end), strand, display=False)))
+    return "".join(seqs)
+
+
+def _feature_qualifiers_without_broken(feat):
+    qualifiers = copy.deepcopy(feat.qualifiers)
+    if "broken_feature" in qualifiers:
+        del qualifiers["broken_feature"]
+    return qualifiers
+
+
+def _merge_feature_pair_if_complete(feat1, feat2, seq_len, topology):
+    if feat1.type != feat2.type:
+        return None
+    if feat1.location.strand != feat2.location.strand:
+        return None
+    if len(feat1.location.parts) != 1 or len(feat2.location.parts) != 1:
+        return None
+    if _feature_qualifiers_without_broken(feat1) != _feature_qualifiers_without_broken(feat2):
+        return None
+    if "_original" not in feat1.__dict__ or "_original" not in feat2.__dict__:
+        return None
+    if str(feat1._original) != str(feat2._original):
+        return None
+
+    original_length = len(str(feat1._original))
+    s1, e1 = int(feat1.location.parts[0].start), int(feat1.location.parts[0].end)
+    s2, e2 = int(feat2.location.parts[0].start), int(feat2.location.parts[0].end)
+    low, high = sorted([(s1, e1, feat1), (s2, e2, feat2)], key=lambda x: x[0])
+    low_s, low_e, low_feat = low
+    high_s, high_e, _ = high
+
+    location = None
+    if low_e == high_s and (high_e - low_s) == original_length:
+        location = FeatureLocation(low_s, high_e, feat1.location.strand)
+    elif topology == "circular":
+        low_len = low_e - low_s
+        high_len = high_e - high_s
+        if low_s == 0 and high_e == seq_len and (low_len + high_len) == original_length:
+            location = CompoundLocation(
+                [
+                    FeatureLocation(0, low_e, feat1.location.strand),
+                    FeatureLocation(high_s, seq_len, feat1.location.strand),
+                ]
+            )
+
+    if location is None:
+        return None
+
+    new_feat = copy.deepcopy(low_feat)
+    new_feat.location = location
+    new_feat.location.strand = feat1.location.strand
+    if "broken_feature" in new_feat.qualifiers:
+        del new_feat.qualifiers["broken_feature"]
+
+    merged_feature = low_feat.__class__(feature=new_feat, subject=low_feat.subject)
+    if merged_feature.subject is not None:
+        merged_feature._original = _feature_original_sequence(merged_feature.subject, merged_feature)
+    return merged_feature
+
+
+def _merge_adjacent_complete_features(features, seq_len, topology):
+    features = sorted(features, key=lambda x: (int(x.location.parts[0].start), int(x.location.parts[-1].end)))
+    changed = True
+    while changed == True:
+        changed = False
+        new_features = []
+        used = set()
+        for i, feat1 in enumerate(features):
+            if i in used:
+                continue
+
+            merged_feature = None
+            for j in range(i + 1, len(features)):
+                if j in used:
+                    continue
+                merged_feature = _merge_feature_pair_if_complete(feat1, features[j], seq_len, topology)
+                if merged_feature is not None:
+                    used.add(i)
+                    used.add(j)
+                    new_features.append(merged_feature)
+                    changed = True
+                    break
+
+            if merged_feature is None:
+                used.add(i)
+                new_features.append(feat1)
+
+        features = sorted(new_features, key=lambda x: (int(x.location.parts[0].start), int(x.location.parts[-1].end)))
+
+    return features
+
+
+def _align_original_sequence_to_current(original_seq, current_seq, strand):
+    original = str(original_seq)
+    current = str(current_seq)
+    if strand != -1 or len(original) != len(current):
+        return original
+
+    original_rc = str(Seq(original).reverse_complement())
+    mismatch_forward = sum(1 for o, c in zip(original, current) if o != c)
+    mismatch_reverse = sum(1 for o, c in zip(original_rc, current) if o != c)
+    return original_rc if mismatch_reverse < mismatch_forward else original
+
 def _assigndnafeatures(dnafeatures):
     features = [] 
     for feat in dnafeatures:
@@ -394,11 +509,11 @@ def _circularizedna(dna, compatibility, homology_length):
                         e = new_feat.end if new_feat.end <= len(dna.seq) else new_feat.end - len(dna.seq)
                         
                         current_seq  = dna.printsequence(new_feat.start, new_feat.end, new_feat.location.strand if new_feat.location.strand !=0 else 1, display=False) 
-                        original_seq = new_feat._original
+                        original_seq = _align_original_sequence_to_current(new_feat._original, current_seq, new_feat.location.strand)
                         
-                        if current_seq == original_seq or (ns == 1 and ne == length1) or (ns == length1 and ne == 1):
+                        if str(current_seq) == original_seq or (ns == 1 and ne == length1) or (ns == length1 and ne == 1):
                             dna._dnafeatures[feat1_index].qualifiers["broken_feature"] = [note]                            
-                            if current_seq == original_seq and ((ns == 1 and ne == length1) or (ns == length1 and ne == 1)):
+                            if str(current_seq) == original_seq and ((ns == 1 and ne == length1) or (ns == length1 and ne == 1)):
                                 del dna._dnafeatures[feat1_index].qualifiers["broken_feature"]
                                 if len(current_seq) % 3 == 0 and dna._dnafeatures[feat1_index].feature_type in ("CDS", "gene"):
                                     dna._dnafeatures[feat1_index].qualifiers["translation"] = [current_seq.get_translation()] 
@@ -411,6 +526,8 @@ def _circularizedna(dna, compatibility, homology_length):
                                 dna._dnafeatures.remove(feat2) 
                                 remove_list.append(feat2)
     
+    dna._dnafeatures = _merge_adjacent_complete_features(dna._dnafeatures, len(dna.seq), "circular")
+
     for i in range(len(dna.dnafeatures)):    
         if int(dna.dnafeatures[i].end) > len(dna.seq) and int(dna.dnafeatures[i].start) < len(dna.seq):
             if len(dna.dnafeatures[i].location.parts) == 1:
@@ -675,7 +792,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                 e = feat.end
                 if s > e:
                     if "_original" not in feat.__dict__:
-                        feat._original = dna.printsequence(s, e, feat.location.strand if feat.location.strand !=0 else 1, display=False)
+                        feat._original = _feature_original_sequence(dna, feat)
                         
                     if len(feat.location.parts) == 1:
                         length = len(dna.seq) - s + e
@@ -896,7 +1013,7 @@ def cutdna(dna, *cutsites, crop=False, supfeature=False, product=None, process_n
                         
                         if e > start and s < end:
                             if "_original" not in feat.__dict__:
-                                feat._original = dna.printsequence(s, e, feat.location.strand if feat.location.strand !=0 else 1, display=False) 
+                                feat._original = _feature_original_sequence(dna, feat)
                             _start = ExactPosition(s)
                             if s - start <= 0:
                                 sflag = 1
@@ -1738,7 +1855,8 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                                         if feat2 in feats:
                                             del feats[feats.index(feat2)] 
 
-            construct._dnafeatures = construct.dnafeatures + feats
+        construct._dnafeatures = construct.dnafeatures + feats
+        construct._dnafeatures = _merge_adjacent_complete_features(construct._dnafeatures, len(construct.seq), "linear")
 
         construct._dnafeatures.sort(key=lambda x:int(x.location.parts[0].start))
         if Alphabet:
@@ -1822,10 +1940,10 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
             if feat.subject is None:
                 feat.subject = construct
 
-            original_seq = note.split(":")[-3]
             current_seq  = construct.printsequence(sfeat, efeat, strand=feat.location.strand, display=False) 
+            original_seq = _align_original_sequence_to_current(note.split(":")[-3], current_seq, feat.location.strand)
             
-            if original_seq == current_seq or (len(original_seq) == len(current_seq) and ((poss == 1 and pose == length) or (poss == length and pose == 1))):
+            if original_seq == str(current_seq) or (len(original_seq) == len(current_seq) and ((poss == 1 and pose == length) or (poss == length and pose == 1))):
                 if sfeat < efeat:
                     location = FeatureLocation(sfeat, efeat, feat.location.strand) 
                 else:
@@ -1834,7 +1952,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                 new_feat.qualifiers = feat.qualifiers
                 del new_feat.qualifiers["broken_feature"]
                 
-                if original_seq == current_seq:
+                if original_seq == str(current_seq):
                     if new_feat.feature_type in ("CDS", "gene") and len(original_seq) % 3 == 0:
                         new_feat.type = "CDS" 
                         new_feat.qualifiers["translation"] = [current_seq.get_translation()]
@@ -1852,7 +1970,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                         new_cigar_list = original_cigar.split(",")  
                         new_feat.qualifiers["mutation"] = None
                     
-                    for i, (o, c) in enumerate(zip(original_seq, current_seq)):
+                    for i, (o, c) in enumerate(zip(original_seq, str(current_seq))):
                         if o != c:
                             if f"{c}{i+1}{o}" in original_cigar_list:
                                 new_cigar_list.remove(f"{c}{i+1}{o}")
@@ -2363,10 +2481,10 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                     sfeat = sfeat if sfeat >= 0 else len(new_dna.seq) + sfeat if new_dna.topology == "circular" else 0
                     efeat = feat.end+(pose-1)    
                 
-                original_seq = note.split(":")[-3]
                 current_seq  = new_dna.printsequence(sfeat, efeat, strand=feat.location.strand, display=False)
+                original_seq = _align_original_sequence_to_current(note.split(":")[-3], current_seq, feat.location.strand)
                 
-                if original_seq == current_seq or (len(original_seq) == len(current_seq) and ((poss == 1 and pose == length) or (poss == length and pose == 1))):
+                if original_seq == str(current_seq) or (len(original_seq) == len(current_seq) and ((poss == 1 and pose == length) or (poss == length and pose == 1))):
                     if sfeat < efeat:
                         location = FeatureLocation(sfeat, efeat, feat.location.strand) 
                     else:
@@ -2375,8 +2493,8 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                     new_feat.qualifiers = feat.qualifiers
                     del new_feat.qualifiers["broken_feature"]
 
-                    if original_seq == current_seq: 
-                        if len(original_seq) % 3 == 0:
+                    if original_seq == str(current_seq): 
+                        if new_feat.feature_type in ("CDS", "gene") and len(original_seq) % 3 == 0:
                             new_feat.type = "CDS" 
                             new_feat.qualifiers["translation"] = [current_seq.get_translation()]
                         else:
@@ -2393,7 +2511,7 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                             new_cigar_list = original_cigar.split(",") 
                             new_feat.qualifiers["mutation"] = None
                        
-                        for i, (o, c) in enumerate(zip(original_seq, current_seq)):
+                        for i, (o, c) in enumerate(zip(original_seq, str(current_seq))):
                             if o != c:
                                 if f"{c}{i+1}{o}" in original_cigar_list:
                                     new_cigar_list.remove(f"{c}{i+1}{o}")
@@ -3969,4 +4087,3 @@ def visualizemap(dna, map_view="linear", feature_list=None, start=0, end=None, l
                 return figo 
         else:
             return figo
-

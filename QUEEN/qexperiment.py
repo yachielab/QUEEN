@@ -2520,7 +2520,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                     adapter = QUEEN(seq=adapter)
                 adapter = flipdna(adapter, quinable=0) if strand == "rv" else adapter
                 for i in range(len(filtered_primer_pairs)):
-                    filtered_primer_pairs[i][strand][0] = joindna(adapter, QUEEN(seq=filtered_primer_pairs[i][strand][0], quinable=0), homology_length=0, quinalbe=0) 
+                    filtered_primer_pairs[i][strand][0] = joindna(adapter, QUEEN(seq=filtered_primer_pairs[i][strand][0], quinable=0), homology_length=0, quinable=0) 
             
             elif (type(adapter) == str and adapter in cs.lib.keys()) or "Cutsite" in type(adapter).__name__:
                 if type(adapter) == str: 
@@ -2606,7 +2606,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                                 for cutsite in cutsites:
                                     if cs.lib[cutsite].endseq == partner._right_end and (cs.lib[cutsite].top, cs.lib[cutsite].bottom) == (partner._right_end_top, partner._right_end_bottom): 
                                         partner_seq = QUEEN(seq="ATGC" + cs.lib[cutsite].seq, quinable=False)
-                                        remseq      = cutdna(partner_seq, *partner_seq.searchsequence(cs.lib[cutsite], quinable=False))[-1] 
+                                        remseq      = cutdna(partner_seq, *partner_seq.searchsequence(cs.lib[cutsite], quinable=False), quinable=0)[-1] 
                                         partner_seq = partner_seq.seq
                                         cflag = 1
                                         break  
@@ -2643,7 +2643,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                                 for cutsite in cutsites:
                                     if cs.lib[cutsite].endseq == partner._left_end and (cs.lib[cutsite].top, cs.lib[cutsite].bottom) == (partner._left_end_bottom, partner._left_end_top): 
                                         partner_seq = QUEEN(seq="ATGC" + cs.lib[cutsite].rcseq, quinable=False)
-                                        remseq      = cutdna(partner_seq, *partner_seq.searchsequence(cs.lib[cutsite], quinable=False))[0] 
+                                        remseq      = cutdna(partner_seq, *partner_seq.searchsequence(cs.lib[cutsite], quinable=False), quinable=0)[0] 
                                         partner_seq = partner_seq.seq
                                         cflag = 1
                                         break 
@@ -3037,8 +3037,8 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                         mut_pos = loc[0]+i
                         break 
             
-                target_seq = QUEEN(seq=amplicon_region.seq[:loc[0]] + aln[0] + amplicon_region.seq[loc[1]:], topology="circular", quinalbe=0).seq
-                mutate_seq = QUEEN(seq=amplicon_region.seq[:loc[0]] + aln[1] + amplicon_region.seq[loc[1]:], topology="circular", quinalbe=0).seq
+                target_seq = QUEEN(seq=amplicon_region.seq[:loc[0]] + aln[0] + amplicon_region.seq[loc[1]:], topology="circular", quinable=0).seq
+                mutate_seq = QUEEN(seq=amplicon_region.seq[:loc[0]] + aln[1] + amplicon_region.seq[loc[1]:], topology="circular", quinable=0).seq
                 
                 if operation in ("Q5", "QuickChange"):
                     fw_tm_set = [] 

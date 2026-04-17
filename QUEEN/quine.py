@@ -89,37 +89,80 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     If `execution` is `True`, `True` if the reconstructed `QUEEN_object` is identical to the original one. Otherwise, `False`.
 
     """
-    def extract_qexd(rows): 
-        extracted_rows = [] 
+    def _extract_qexd_row(row):
+        if all(token not in row for token in ("qexd =", "qexd=", "qexparam =", "qexparam=")):
+            return None
+        pattern1 = r"qexd='(.*?)'"
+        pattern2 = r"qexd = '(.*?)'"
+        pattern3 = r"qexparam='(.*?)'"
+        pattern4 = r"qexparam = '(.*?)'"
+        match1 = re.search(pattern1, row)
+        match2 = re.search(pattern2, row)
+        match3 = re.search(pattern3, row)
+        match4 = re.search(pattern4, row)
+        if match1 is not None:
+            txt = match1.group(1)
+        elif match2 is not None:
+            txt = match2.group(1)
+        elif match3 is not None:
+            txt = match3.group(1)
+        elif match4 is not None:
+            txt = match4.group(1)
+        else:
+            txt = None
+        if txt is None:
+            return None
+
+        outdna = row.split("=")[0].strip()
+        if "product=" in row:
+            index_start = row.find("product=")
+        elif "process_name=" in row:
+            index_start = row.find("process_name=")
+        elif "process_description" in row:
+            index_start = row.find("process_description=")
+        elif "process_id=" in row:
+            index_start = row.find("process_id=")
+        else:
+            index_start = len(row) - 1
+        return outdna.rstrip() + " = " + txt[:-1].replace('"', "'") + ", " + row[index_start:]
+
+    def _has_qex_metadata(row):
+        return any(token in row for token in ("qexd =", "qexd=", "qexparam =", "qexparam="))
+
+    def _is_seed_row(row):
+        stripped = row.strip()
+        return stripped.startswith("QUEEN.dna_dict[") and " = QUEEN(" in stripped
+
+    def _strip_qex_metadata(row):
+        patterns = (
+            r",\s*qexd\s*=\s*'[^']*'",
+            r',\s*qexd\s*=\s*"[^"]*"',
+            r",\s*qexd\s*=\s*[A-Za-z_][A-Za-z0-9_]*",
+            r",\s*qexparam\s*=\s*'[^']*'",
+            r',\s*qexparam\s*=\s*"[^"]*"',
+            r",\s*qexparam\s*=\s*[A-Za-z_][A-Za-z0-9_]*",
+        )
+        for pattern in patterns:
+            row = re.sub(pattern, "", row)
+        row = re.sub(r",\s*,", ", ", row)
+        row = re.sub(r"\(\s*,", "(", row)
+        row = re.sub(r",\s*\)", ")", row)
+        return row
+
+    def extract_qexd(rows):
+        extracted_rows = []
         for row in rows:
-            if "qexd =" not in row and "qexd=" not in row:
-                extracted_rows.append(row) 
-            else:
-                pattern1 = r"qexd='(.*?)'"
-                pattern2 = r"qexd = '(.*?)'"
-                match1 = re.search(pattern1, row) 
-                match2 = re.search(pattern2, row)
-                if match1 is not None:
-                    txt = match1.group(1)
-                elif match2 is not None:
-                    txt = match2.group(1)
-                else:
-                    txt = None
-                if txt is None or "qexd=True" in txt:
-                    pass 
-                else:
-                    outdna = row.split("=")[0] 
-                    if "product=" in row:
-                        index_start = row.find("product=") 
-                    elif "process_name=" in row:
-                        index_start = row.find("process_name=") 
-                    elif "process_description" in row:
-                        index_start = row.find("process_description=") 
-                    elif "process_id=" in row:
-                        index_start = row.find("process_id=")
-                    txt = outdna.rstrip() + " = " +  txt[:-1].replace('"',"'") + ", " + row[index_start:]
-                    extracted_rows.append(txt)
+            extracted = _extract_qexd_row(row)
+            if extracted is not None:
+                extracted_rows.append(extracted)
+            elif _has_qex_metadata(row):
+                continue
+            elif _is_seed_row(row):
+                extracted_rows.append(row)
         return extracted_rows
+
+    def extract_lower(rows):
+        return [_strip_qex_metadata(row) for row in rows]
 
     if execution == True and output is None:
         output  = tempfile.NamedTemporaryFile(mode="w+", delete=False) 
@@ -374,9 +417,10 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         else:
             new_new_rows.append(row) 
     
-    new_rows = new_new_rows
     if qexperiment_only == True:
-        new_rows = extract_qexd(new_rows) 
+        new_rows = extract_qexd(new_new_rows) 
+    else:
+        new_rows = extract_lower(new_new_rows)
 
     project_names = []
     if description_only == False:

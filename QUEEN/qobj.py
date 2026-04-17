@@ -1064,7 +1064,10 @@ class QUEEN():
                         for key in record.annotations['structured_comment']["building_history"]:
                             new_history_num = int(key.split("_")[0]) + QUEEN._num_history  
                             new_key = str(new_history_num) + "_" + key.split("_")[1]
-                            self._history["building_history"][new_key] = record.annotations['structured_comment']["building_history"][key]
+                            value = record.annotations['structured_comment']["building_history"][key]
+                            if new_key.endswith("_script"):
+                                value = value.lstrip()
+                            self._history["building_history"][new_key] = value
                             history_nums.append(new_history_num)
                         
                         for key in list(self._history["building_history"].keys()):

@@ -89,14 +89,14 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     If `execution` is `True`, `True` if the reconstructed `QUEEN_object` is identical to the original one. Otherwise, `False`.
 
     """
-    def _extract_qexd_row(row):
+    def _extract_qexd_text(row):
         if all(token not in row for token in ("qexd =", "qexd=", "qexparam =", "qexparam=")):
             return None
         pattern1 = r"qexd='(.*?)'"
         pattern2 = r"qexd = '(.*?)'"
         pattern3 = r"qexparam='(.*?)'"
         pattern4 = r"qexparam = '(.*?)'"
-        match1 = re.search(pattern1, row)
+        match1 = re.search(pattern1, row) 
         match2 = re.search(pattern2, row)
         match3 = re.search(pattern3, row)
         match4 = re.search(pattern4, row)
@@ -110,24 +110,39 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             txt = match4.group(1)
         else:
             txt = None
+        if txt is None or "qexd=True" in txt:
+            return None
+        return txt.strip()
+
+    def _extract_qexd_row(row):
+        txt = _extract_qexd_text(row)
         if txt is None:
             return None
 
         outdna = row.split("=")[0].strip()
         if "product=" in row:
-            index_start = row.find("product=")
+            index_start = row.find("product=") 
         elif "process_name=" in row:
-            index_start = row.find("process_name=")
+            index_start = row.find("process_name=") 
         elif "process_description" in row:
-            index_start = row.find("process_description=")
+            index_start = row.find("process_description=") 
         elif "process_id=" in row:
             index_start = row.find("process_id=")
         else:
             index_start = len(row) - 1
-        return outdna.rstrip() + " = " + txt[:-1].replace('"', "'") + ", " + row[index_start:]
 
-    def _has_qex_metadata(row):
+        extracted = outdna.rstrip() + " = " + txt[:-1].replace('"',"'") + ", " + row[index_start:]
+        extracted = extracted.replace("follow_order='True'", "follow_order=True")
+        extracted = extracted.replace("follow_order='False'", "follow_order=False")
+        extracted = extracted.replace('follow_order=\"True\"', "follow_order=True")
+        extracted = extracted.replace('follow_order=\"False\"', "follow_order=False")
+        return extracted
+
+    def _row_has_qex_metadata(row):
         return any(token in row for token in ("qexd =", "qexd=", "qexparam =", "qexparam="))
+
+    def _is_qexperiment_row(row):
+        return re.search(r"=\s*(pcr|digestion|ligation|homology_based_assembly|annealing|gateway_reaction|goldengate_assembly|topo_cloning|intra_site_specific_recombination|homologous_recombination)\(", row) is not None
 
     def _is_seed_row(row):
         stripped = row.strip()
@@ -149,20 +164,115 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         row = re.sub(r",\s*\)", ")", row)
         return row
 
-    def extract_qexd(rows):
-        extracted_rows = []
+    def _normalize_record_path_row(row):
+        def repl(match):
+            addgene_id = match.group(1)
+            candidate = os.path.join(os.getcwd(), "gbks", f"new_{addgene_id}.gbk")
+            if os.path.exists(candidate):
+                return "record='gbks/new_{}.gbk'".format(addgene_id)
+            return match.group(0)
+
+        row = re.sub(r"record='[^']*addgene_(\d+)_addgene\.gbk'", repl, row)
+        row = re.sub(r'record=\"[^\"]*addgene_(\d+)_addgene\.gbk\"', lambda m: repl(m).replace("'", '"'), row)
+        return row
+
+    def _normalize_none_join_row(row):
+        match = re.search(r"^(.*?=\s*)joindna\(\*\[(.*)\](,\s*topology=.*)\)$", row)
+        if match is None or "QUEEN.dna_dict['None']" not in row:
+            return row
+
+        lhs = match.group(1)
+        args_blob = match.group(2)
+        suffix = match.group(3)
+        args = [part.strip() for part in args_blob.split(",") if part.strip()]
+        args = [part for part in args if part != "QUEEN.dna_dict['None']"]
+        if len(args) == 1:
+            return lhs + args[0]
+        if len(args) >= 2:
+            return lhs + "joindna(*[" + ", ".join(args) + "]" + suffix + ")"
+        return row
+
+    def _normalize_ssdna_helper_row(row, live_products):
+        match = re.search(r"^(QUEEN\.dna_dict\['([^']+)'\]\s*=\s*)(.+)$", row)
+        if match is None:
+            return row
+
+        obj_name = match.group(2)
+        obj = live_products.get(obj_name)
+        if obj is None or hasattr(obj, "seq") is False or getattr(obj, "_ssdna", False) is False:
+            return row
+
+        seq = str(obj.seq)
+        if len(seq) == 0:
+            return row
+
+        lhs = match.group(1)
+        return "{}QUEEN(seq={}, ssdna={})".format(lhs, repr(seq), getattr(obj, "_ssdna", False))
+
+    def _extract_load_alias(args_text):
+        if args_text is None or "_load: " not in args_text:
+            return None
+        for item in args_text.split("; "):
+            if item.startswith("_load: "):
+                return item.split(": ", 1)[1]
+        return None
+
+    def _rewrite_load_alias_row(row, args_text):
+        load_alias = _extract_load_alias(args_text)
+        if load_alias is None or " = QUEEN(" not in row or "record=" not in row:
+            return row
+
+        match = re.search(r"^(QUEEN\.dna_dict\[')([^']+)('\]\s*=\s*QUEEN\()", row)
+        if match is None:
+            return row
+
+        row = row[:match.start(2)] + load_alias + row[match.end(2):]
+        if "product=" in row:
+            row = re.sub(r"product='[^']*'", "product='{}'".format(load_alias), row, count=1)
+            row = re.sub(r'product=\"[^\"]*\"', 'product="{}"'.format(load_alias), row, count=1)
+        else:
+            insert_pos = row.rfind(")")
+            if insert_pos != -1:
+                row = row[:insert_pos] + ", product='{}'".format(load_alias) + row[insert_pos:]
+        return row
+
+    def extract_qexd(rows): 
+        extracted_rows = [] 
         for row in rows:
             extracted = _extract_qexd_row(row)
             if extracted is not None:
                 extracted_rows.append(extracted)
-            elif _has_qex_metadata(row):
+            elif _is_qexperiment_row(row):
+                extracted_rows.append(_strip_qex_metadata(row))
+            elif _row_has_qex_metadata(row):
                 continue
             elif _is_seed_row(row):
                 extracted_rows.append(row)
         return extracted_rows
 
-    def extract_lower(rows):
-        return [_strip_qex_metadata(row) for row in rows]
+    def _prune_unused_rows(rows):
+        dependency_counts = collections.defaultdict(int)
+        for row in rows:
+            if row.startswith("if __name__"):
+                continue
+            for match in re.findall(r"QUEEN\.dna_dict\[(?:'[^'\[\]]+'|\"[^\"\[\]]+\")\]", row):
+                dependency_counts[match] += 1
+            for match in re.findall(r"QUEEN\.queried_feature_dict\[(?:'[^'\[\]]+'|\"[^\"\[\]]+\")\]", row):
+                dependency_counts[match] += 1
+            for match in re.findall(r"QUEEN\.queried_features_dict\[(?:'[^'\[\]]+'|\"[^\"\[\]]+\")\]", row):
+                dependency_counts[match] += 1
+
+        pruned_rows = []
+        for row in rows:
+            lhs_match = re.match(r"^(QUEEN\.(?:dna_dict|queried_feature_dict|queried_features_dict)\['[^\[\]]+'\])\s*=", row.strip())
+            if lhs_match is None:
+                pruned_rows.append(row)
+                continue
+            lhs = lhs_match.group(1)
+            lhs_alt = lhs.replace("['", '["').replace("']", '"]')
+            if dependency_counts.get(lhs, 0) + dependency_counts.get(lhs_alt, 0) > 1:
+                pruned_rows.append(row)
+        return pruned_rows
 
     if execution == True and output is None:
         output  = tempfile.NamedTemporaryFile(mode="w+", delete=False) 
@@ -276,6 +386,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             history[1] = history1[:-1] + ", process_id='" + process_id + "')"
         else:
             history[1] = history1[:-1] + ", process_id='" + process_id + "')"
+        history[1] = _rewrite_load_alias_row(history[1], history[2])
         new_histories.append(history) 
         pre_pd = pd
     histories = new_histories
@@ -419,8 +530,14 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     
     if qexperiment_only == True:
         new_rows = extract_qexd(new_new_rows) 
+        new_rows = [_normalize_record_path_row(_normalize_none_join_row(row)) for row in new_rows]
+        new_rows = _prune_unused_rows(new_rows)
     else:
-        new_rows = extract_lower(new_new_rows)
+        new_rows = []
+        for row in new_new_rows:
+            if _is_qexperiment_row(row):
+                continue
+            new_rows.append(_strip_qex_metadata(_normalize_record_path_row(_normalize_none_join_row(row))))
 
     project_names = []
     if description_only == False:
@@ -432,13 +549,31 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             print("from QUEEN.queen import *", file=o) 
             print("from QUEEN import cutsite as cs", file=o) 
             for cutsite in list(cs.new_cutsites):
-                print("cs.lib[{}] = '{}'".format(cutsite[0], cutsite[1]), file=o) 
+                print("cs.lib[{}] = {}".format(repr(cutsite[0]), repr(cutsite[1])), file=o) 
             if dna.__class__._namespaceflag == 1 and execution == False:
                 print("set_namespace(globals())", file=o)
             print("", file=o) 
         
         scripts = [] 
+        live_products = getattr(dnas[0].__class__, "_products", {})
         for row in new_rows:
+            row = re.sub(r",\s*,", ", ", row)
+            row = re.sub(r"\(\s*,", "(", row)
+            row = re.sub(r",\s*\)", ")", row)
+            row = _normalize_record_path_row(row)
+            row = re.sub(r"(?<=, )follow_order(?=,|\))", "follow_order=True", row)
+            row = row.replace("follow_order='True'", "follow_order=True")
+            row = row.replace("follow_order='False'", "follow_order=False")
+            row = row.replace('follow_order=\"True\"', "follow_order=True")
+            row = row.replace('follow_order=\"False\"', "follow_order=False")
+            row = _normalize_ssdna_helper_row(row, live_products)
+            primer_match = re.search(r"^QUEEN\.dna_dict\['([^']+)'\] = QUEEN\(seq=''[^)]*\)", row)
+            if primer_match is not None:
+                primer_name = primer_match.group(1)
+                primer_obj = live_products.get(primer_name)
+                if primer_obj is not None and hasattr(primer_obj, "seq") and len(primer_obj.seq) > 0:
+                    primer_init = "QUEEN(seq={}, ssdna={})".format(repr(str(primer_obj.seq)), getattr(primer_obj, "_ssdna", False))
+                    row = re.sub(r"QUEEN\(seq=''[^)]*\)", primer_init, row, count=1)
             match = re.search(r"process_id='([^=]*)'", row)
             if match is not None:
                 if "-" in match.group(1):
@@ -997,4 +1132,3 @@ def printprotocol(dna, execution=False, output=None):
                 print("", file=output)
         
         #print(row) 
-

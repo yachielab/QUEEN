@@ -151,11 +151,32 @@ class DNAfeature(SeqFeature):
             return self.type
         
         elif name == "_original":
-            seq = self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1, display=False) 
+            if "_original" in self.__dict__:
+                return self.__dict__["_original"]
+            if self.subject is not None:
+                seq = self.subject.printsequence(
+                    self.start,
+                    self.end,
+                    self.location.strand if self.location.strand != 0 else 1,
+                    display=False,
+                )
+                self._original = str(seq)
+                return self._original
+            if "broken_feature" in self.qualifiers:
+                try:
+                    note = self.qualifiers["broken_feature"][0]
+                    original = note.split(":")[-3].replace(" ", "")
+                    self._original = original
+                    return self._original
+                except Exception:
+                    pass
+            raise AttributeError("DNAfeature object has no recoverable '_original' sequence")
         
         elif name == "original":
             if "_original" in self.__dict__:
                 return self._original 
+            elif self.subject is None and "broken_feature" in self.qualifiers:
+                return self.__getattr__("_original")
             else:
                 return self.subject.printsequence(self.start, self.end, self.location.strand if self.location.strand !=0 else 1, display=False) 
          
@@ -625,21 +646,18 @@ class QUEEN():
     
     def __setattr__(self, key, value):
         if key == "_unique_id":
-            if "_unique_id" in self.__dict__:
-                if value in self.__class__.dna_dict:
-                    if value.isdecimal() == False and value.split("_")[-1].isdecimal() == True:
-                        value = "_".join(value.split("_")[:-1]) 
-                    unique = 0
-                    while value + "_" + str(unique) in self.__class__.dna_dict:
-                        unique += 1    
-                    _unique_id = value + "_" + str(unique)
-                else:         
-                    _unique_id = value
-                QUEEN.dna_dict[_unique_id] = None
-                super.__setattr__(self, "_unique_id", _unique_id)
+            if value in self.__class__.dna_dict:
+                if value.isdecimal() == False and value.split("_")[-1].isdecimal() == True:
+                    value = "_".join(value.split("_")[:-1])
+                unique = 0
+                while value + "_" + str(unique) in self.__class__.dna_dict:
+                    unique += 1
+                _unique_id = value + "_" + str(unique)
             else:
-                QUEEN.dna_dict[value] = None
-                super.__setattr__(self, "_unique_id", value)
+                _unique_id = value
+
+            QUEEN.dna_dict[_unique_id] = None
+            super.__setattr__(self, "_unique_id", _unique_id)
         
         elif key == "_product_id":
             if value in self.__class__._products:
@@ -945,7 +963,10 @@ class QUEEN():
 
                     right_ends = self.record.annotations["comment"].split("QUEEN_right_end:")[1].split("\n")[0].split("|")
                     right_endlen, right_end_top, right_end_bottom = int(right_ends[0]), int(right_ends[1]), int(right_ends[2]) 
-                    self._right_end        = self._seq[right_endlen*-1:]
+                    # When the serialized right-end length is zero, slicing with
+                    # ``self._seq[0:]`` would incorrectly restore the whole
+                    # sequence as the right end after a GenBank round-trip.
+                    self._right_end        = "" if right_endlen == 0 else self._seq[right_endlen*-1:]
                     self._right_end_top    = right_end_top 
                     self._right_end_bottom = right_end_bottom
 
@@ -2630,9 +2651,36 @@ class QUEEN():
 
         def extract_qexd(history): 
             new_history = copy.deepcopy(history)
+            def _extract_qex_text(script):
+                if _has_qex_metadata(script) is False:
+                    return None
+                pattern1 = r"qexd='(.*?)'"
+                pattern2 = r"qexd = '(.*?)'"
+                pattern3 = r"qexparam='(.*?)'"
+                pattern4 = r"qexparam = '(.*?)'"
+                match1 = re.search(pattern1, script) 
+                match2 = re.search(pattern2, script)
+                match3 = re.search(pattern3, script)
+                match4 = re.search(pattern4, script)
+                if match1 is not None:
+                    txt = match1.group(1)
+                elif match2 is not None:
+                    txt = match2.group(1)
+                elif match3 is not None:
+                    txt = match3.group(1)
+                elif match4 is not None:
+                    txt = match4.group(1)
+                else:
+                    txt = None
+                if txt is None or "qexd=True" in txt:
+                    return None
+                return txt
 
             def _has_qex_metadata(script):
                 return any(token in script for token in ("qexd =", "qexd=", "qexparam =", "qexparam="))
+
+            def _is_qexperiment_script(script):
+                return re.search(r"=\s*(pcr|digestion|ligation|homology_based_assembly|annealing|gateway_reaction|goldengate_assembly|topo_cloning|intra_site_specific_recombination|homologous_recombination)\(", script) is not None
 
             def _is_seed_script(script):
                 stripped = script.strip()
@@ -2654,63 +2702,66 @@ class QUEEN():
                 script = re.sub(r",\s*\)", ")", script)
                 return script
 
-            for key in history:
-                if "_script" not in key:
-                    continue
-                if qexperiment_only == True:
-                    if _has_qex_metadata(history[key]) is False:
-                        if _is_seed_script(history[key]):
+            for key in history: 
+                if "_script" in key: 
+                    if qexperiment_only == True:
+                        if _has_qex_metadata(history[key]) is False:
+                            if _is_seed_script(history[key]) or _is_qexperiment_script(history[key]):
+                                pass
+                            else:
+                                del new_history[key]
+                                del new_history[key.replace("script","args")]
+                                del new_history[key.replace("script","id")]
                             continue
-                        del new_history[key]
-                        del new_history[key.replace("script", "args")]
-                        del new_history[key.replace("script", "id")]
-                        continue
-
-                    if "qexd = True" in history[key] or "qexd=True" in history[key] or "qexparam = True" in history[key] or "qexparam=True" in history[key]:
-                        del new_history[key]
-                        del new_history[key.replace("script", "args")]
-                        del new_history[key.replace("script", "id")]
-                        continue
-
-                    pattern1 = r"qexd='(.*?)'"
-                    pattern2 = r"qexd = '(.*?)'"
-                    pattern3 = r"qexparam='(.*?)'"
-                    pattern4 = r"qexparam = '(.*?)'"
-                    match1 = re.search(pattern1, history[key])
-                    match2 = re.search(pattern2, history[key])
-                    match3 = re.search(pattern3, history[key])
-                    match4 = re.search(pattern4, history[key])
-                    if match1 is not None:
-                        txt = match1.group(1)
-                    elif match2 is not None:
-                        txt = match2.group(1)
-                    elif match3 is not None:
-                        txt = match3.group(1)
-                    elif match4 is not None:
-                        txt = match4.group(1)
+                        
+                        if "qexd = True" in history[key] or "qexd=True" in history[key] or "qexparam = True" in history[key] or "qexparam=True" in history[key]:
+                            del new_history[key]
+                            del new_history[key.replace("script","args")]
+                            del new_history[key.replace("script","id")]
+                        else:
+                            pattern1 = r"qexd='(.*?)'"
+                            pattern2 = r"qexd = '(.*?)'"
+                            pattern3 = r"qexparam='(.*?)'"
+                            pattern4 = r"qexparam = '(.*?)'"
+                            match1 = re.search(pattern1, history[key]) 
+                            match2 = re.search(pattern2, history[key])
+                            match3 = re.search(pattern3, history[key])
+                            match4 = re.search(pattern4, history[key])
+                            if match1 is not None:
+                                txt = match1.group(1)
+                            elif match2 is not None:
+                                txt = match2.group(1)
+                            elif match3 is not None:
+                                txt = match3.group(1)
+                            elif match4 is not None:
+                                txt = match4.group(1)
+                            else:
+                                txt = None
+                            if txt is None:
+                                del new_history[key]
+                                del new_history[key.replace("script","args")]
+                                del new_history[key.replace("script","id")]
+                            else:
+                                outdna = history[key].split("=")[0] 
+                                if "product=" in history[key]:
+                                    index_start = history[key].find("product=") 
+                                elif "process_name=" in history[key]:
+                                    index_start = history[key].find("process_name=") 
+                                elif "process_description" in history[key]:
+                                    index_start = history[key].find("process_description=") 
+                                elif "process_id=" in history[key]:
+                                    index_start = history[key].find("process_id=")
+                                else:
+                                    index_start = len(history[key]) - 1
+                                new_history[key] = outdna.rstrip() + " = " + txt[:-1].replace('"',"'") + "," + history[key][index_start:]
+                                new_history[key.replace("script","args")] = ""
                     else:
-                        txt = None
-                    if txt is None:
-                        del new_history[key]
-                        del new_history[key.replace("script", "args")]
-                        del new_history[key.replace("script", "id")]
-                        continue
-
-                    outdna = history[key].split("=")[0]
-                    if "product=" in history[key]:
-                        index_start = history[key].find("product=")
-                    elif "process_name=" in history[key]:
-                        index_start = history[key].find("process_name=")
-                    elif "process_description" in history[key]:
-                        index_start = history[key].find("process_description=")
-                    elif "process_id=" in history[key]:
-                        index_start = history[key].find("process_id=")
-                    else:
-                        index_start = len(history[key]) - 1
-                    new_history[key] = outdna.rstrip() + " = " + txt[:-1].replace('"', "'") + "," + history[key][index_start:]
-                    new_history[key.replace("script", "args")] = ""
-                else:
-                    new_history[key] = _strip_qex_metadata(history[key])
+                        if _is_qexperiment_script(history[key]):
+                            del new_history[key]
+                            del new_history[key.replace("script","args")]
+                            del new_history[key.replace("script","id")]
+                        else:
+                            new_history[key] = _strip_qex_metadata(history[key])
             return new_history
 
         if export_history not in (0, 1, 2):

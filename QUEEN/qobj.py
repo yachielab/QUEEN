@@ -2630,39 +2630,87 @@ class QUEEN():
 
         def extract_qexd(history): 
             new_history = copy.deepcopy(history)
-            for key in history: 
-                if "_script" in key: 
-                    if "qexd =" not in history[key] and "qexd=" not in history[key]:
-                        pass 
-                    else:
-                        if "qexd = True" in history[key] or "qexd=True" in history[key]:
-                            del new_history[key]
-                            del new_history[key.replace("script","args")]
-                            del new_history[key.replace("script","id")]
-                        else:
-                            pattern1 = r"qexd='(.*?)'"
-                            pattern2 = r"qexd = '(.*?)'"
-                            match1 = re.search(pattern1, history[key]) 
-                            match2 = re.search(pattern2, history[key])
-                            if match1 is not None:
-                                txt = match1.group(1)
-                            elif match2 is not None:
-                                txt = match2.group(1)
-                            else:
-                                txt = None
-                            if txt is None:
-                                pass 
-                            else:
-                                outdna = history[key].split("=")[0] 
-                                if "product=" in history[key]:
-                                    index_start = history[key].find("product=") 
-                                elif "process_name=" in history[key]:
-                                    index_start = history[key].find("process_name=") 
-                                elif "process_description" in history[key]:
-                                    index_start = history[key].find("process_description=") 
-                                new_history[key] = outdna.rstrip() + " = " + txt[:-1].replace('"',"'") + "," + history[key][index_start:]
 
-                                new_history[key.replace("script","args")] = ""
+            def _has_qex_metadata(script):
+                return any(token in script for token in ("qexd =", "qexd=", "qexparam =", "qexparam="))
+
+            def _is_seed_script(script):
+                stripped = script.strip()
+                return stripped.startswith("QUEEN.dna_dict[") and " = QUEEN(" in stripped
+
+            def _strip_qex_metadata(script):
+                patterns = (
+                    r",\s*qexd\s*=\s*'[^']*'",
+                    r',\s*qexd\s*=\s*"[^"]*"',
+                    r",\s*qexd\s*=\s*[A-Za-z_][A-Za-z0-9_]*",
+                    r",\s*qexparam\s*=\s*'[^']*'",
+                    r',\s*qexparam\s*=\s*"[^"]*"',
+                    r",\s*qexparam\s*=\s*[A-Za-z_][A-Za-z0-9_]*",
+                )
+                for pattern in patterns:
+                    script = re.sub(pattern, "", script)
+                script = re.sub(r",\s*,", ", ", script)
+                script = re.sub(r"\(\s*,", "(", script)
+                script = re.sub(r",\s*\)", ")", script)
+                return script
+
+            for key in history:
+                if "_script" not in key:
+                    continue
+                if qexperiment_only == True:
+                    if _has_qex_metadata(history[key]) is False:
+                        if _is_seed_script(history[key]):
+                            continue
+                        del new_history[key]
+                        del new_history[key.replace("script", "args")]
+                        del new_history[key.replace("script", "id")]
+                        continue
+
+                    if "qexd = True" in history[key] or "qexd=True" in history[key] or "qexparam = True" in history[key] or "qexparam=True" in history[key]:
+                        del new_history[key]
+                        del new_history[key.replace("script", "args")]
+                        del new_history[key.replace("script", "id")]
+                        continue
+
+                    pattern1 = r"qexd='(.*?)'"
+                    pattern2 = r"qexd = '(.*?)'"
+                    pattern3 = r"qexparam='(.*?)'"
+                    pattern4 = r"qexparam = '(.*?)'"
+                    match1 = re.search(pattern1, history[key])
+                    match2 = re.search(pattern2, history[key])
+                    match3 = re.search(pattern3, history[key])
+                    match4 = re.search(pattern4, history[key])
+                    if match1 is not None:
+                        txt = match1.group(1)
+                    elif match2 is not None:
+                        txt = match2.group(1)
+                    elif match3 is not None:
+                        txt = match3.group(1)
+                    elif match4 is not None:
+                        txt = match4.group(1)
+                    else:
+                        txt = None
+                    if txt is None:
+                        del new_history[key]
+                        del new_history[key.replace("script", "args")]
+                        del new_history[key.replace("script", "id")]
+                        continue
+
+                    outdna = history[key].split("=")[0]
+                    if "product=" in history[key]:
+                        index_start = history[key].find("product=")
+                    elif "process_name=" in history[key]:
+                        index_start = history[key].find("process_name=")
+                    elif "process_description" in history[key]:
+                        index_start = history[key].find("process_description=")
+                    elif "process_id=" in history[key]:
+                        index_start = history[key].find("process_id=")
+                    else:
+                        index_start = len(history[key]) - 1
+                    new_history[key] = outdna.rstrip() + " = " + txt[:-1].replace('"', "'") + "," + history[key][index_start:]
+                    new_history[key.replace("script", "args")] = ""
+                else:
+                    new_history[key] = _strip_qex_metadata(history[key])
             return new_history
 
         if export_history not in (0, 1, 2):
@@ -2770,7 +2818,8 @@ class QUEEN():
                 new_history = extract_qexd(history)
                 self._history["building_history"] = new_history
             else:
-                self._history["building_history"] = history
+                new_history = extract_qexd(history)
+                self._history["building_history"] = new_history
             keys = self._history["building_history"] 
             keys_script = [key for key in keys if "_script" in key]
             keys_args   = [key for key in keys if "_args" in key]

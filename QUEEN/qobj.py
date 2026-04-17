@@ -2654,6 +2654,58 @@ class QUEEN():
 
         def extract_qexd(history): 
             new_history = copy.deepcopy(history)
+            def _parse_args_info(args_text):
+                info = {}
+                if args_text is None or len(args_text) == 0:
+                    return info
+                for item in args_text.split("; "):
+                    if ": " not in item:
+                        continue
+                    key, value = item.split(": ", 1)
+                    info[key] = value
+                return info
+
+            def _literal_arg(value):
+                if value is None:
+                    return None
+                value = value.strip()
+                if len(value) == 0:
+                    return None
+                if (value.startswith("'") and value.endswith("'")) or (value.startswith('"') and value.endswith('"')):
+                    return value
+                if re.fullmatch(r"-?\d+", value):
+                    return value
+                return repr(value)
+
+            def _rewrite_lower_script_from_args(script, args_text):
+                info = _parse_args_info(args_text)
+                if len(info) == 0:
+                    return script
+
+                if " = modifyends(" in script:
+                    left = _literal_arg(info.get("left"))
+                    right = _literal_arg(info.get("right"))
+                    if left is not None:
+                        script = re.sub(r"left\s*=\s*[^,\)]+", "left={}".format(left), script, count=1)
+                    if right is not None:
+                        script = re.sub(r"right\s*=\s*[^,\)]+", "right={}".format(right), script, count=1)
+                    return script
+
+                if " = cropdna(" in script:
+                    start = _literal_arg(info.get("start"))
+                    end = _literal_arg(info.get("end"))
+                    if start is not None:
+                        script = re.sub(r"start\s*=\s*[^,\)]+", "start={}".format(start), script, count=1)
+                    if end is not None:
+                        script = re.sub(r"end\s*=\s*[^,\)]+", "end={}".format(end), script, count=1)
+                    return script
+
+                if " = joindna(" in script and "compatibility=" not in script and "qexparam='gateway_reaction(" in script:
+                    script = script.replace("autoflip=False", "autoflip=False, compatibility='complete'")
+                    return script
+
+                return script
+
             def _extract_qex_text(script):
                 if _has_qex_metadata(script) is False:
                     return None
@@ -2764,7 +2816,10 @@ class QUEEN():
                             del new_history[key.replace("script","args")]
                             del new_history[key.replace("script","id")]
                         else:
-                            new_history[key] = _strip_qex_metadata(history[key])
+                            new_history[key] = _rewrite_lower_script_from_args(
+                                _strip_qex_metadata(history[key]),
+                                history.get(key.replace("script","args"), "")
+                            )
             return new_history
 
         if export_history not in (0, 1, 2):

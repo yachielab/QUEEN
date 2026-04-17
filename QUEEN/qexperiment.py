@@ -1,8 +1,7 @@
-import random
 import copy
 import regex as re
 import itertools as it
-from qfunction import joindna, cropdna, cutdna, flipdna, modifyends, editfeature, removeattribute 
+from qfunction import joindna, cropdna, cutdna, flipdna, modifyends, editfeature, removeattribute, compile_cutsite 
 from qobj import QUEEN 
 from qseq import Qseq 
 from quine import quine
@@ -42,6 +41,45 @@ def _convert_kwargs(arguments):
     else:
         out = ", " + ", ".join(out) 
     return out
+
+
+def _deterministic_gap_seq(fragment1, fragment2, remseq, gap_len):
+    if gap_len <= 0:
+        return ""
+    fragment1 = str(fragment1).upper()
+    fragment2 = str(fragment2).upper()
+    remseq = str(remseq).upper()
+    stop_codons = {"TAA", "TAG", "TGA"}
+    best_gap = None
+    best_key = None
+    for gap_tuple in it.product("ACGT", repeat=gap_len):
+        gap = "".join(gap_tuple)
+        junction = fragment1 + gap + remseq + fragment2
+        stop_count = 0
+        for idx in range(0, len(junction) - 2, 3):
+            if junction[idx:idx+3] in stop_codons:
+                stop_count += 1
+        gc_count = gap.count("G") + gap.count("C")
+        gc_distance = abs((gap_len / 2.0) - gc_count)
+        key = (stop_count, gc_distance, gap)
+        if best_key is None or key < best_key:
+            best_key = key
+            best_gap = gap
+    return best_gap or ("A" * gap_len)
+
+
+def _primer_pair_sort_key(pair, target_tm):
+    if target_tm is None:
+        tm_delta = 0.0
+    else:
+        tm_delta = abs(pair["fw_tm"] - target_tm) + abs(pair["rv_tm"] - target_tm)
+    fw = pair["fw"]
+    rv = pair["rv"]
+    fw_seq = str(fw[0]) if type(fw) in (tuple, list) and len(fw) > 0 else str(fw)
+    rv_seq = str(rv[0]) if type(rv) in (tuple, list) and len(rv) > 0 else str(rv)
+    fw_pos = int(fw[1]) if type(fw) in (tuple, list) and len(fw) > 1 else -1
+    rv_pos = int(rv[1]) if type(rv) in (tuple, list) and len(rv) > 1 else -1
+    return (tm_delta, fw_pos, rv_pos, fw_seq, rv_seq)
 
 
 def _oriented_feature_seq(dna, feat):
@@ -117,10 +155,19 @@ def _count_equivalent_features(product, feature_key):
 def _source_feature_requirements(source_dnas):
     requirements = collections.Counter()
     for source_dna in source_dnas:
+        seen_keys = set()
         for feat in source_dna.dnafeatures:
             if feat.feature_type in ("source", "primer", "primer_bind"):
                 continue
-            requirements[_feature_equivalence_key(source_dna, feat)] += 1
+            feature_key = _feature_equivalence_key(source_dna, feat)
+            # crop/modifyends can leave duplicate feature records that are
+            # identical in label/type/strand/sequence. Count each unique
+            # feature key only once per source molecule so the rescue loop
+            # does not keep "re-adding" an already satisfied feature forever.
+            if feature_key in seen_keys:
+                continue
+            seen_keys.add(feature_key)
+            requirements[feature_key] += 1
     return requirements
 
 
@@ -241,6 +288,7 @@ def _has_equivalent_feature(product, feat, source_dna):
 def _rescue_missing_features_by_exact_sequence(product, source_dnas):
     rescued = 0
     requirements = _source_feature_requirements(source_dnas)
+    stalled_exact = set()
     changed = True
     while changed:
         changed = False
@@ -271,6 +319,9 @@ def _rescue_missing_features_by_exact_sequence(product, source_dnas):
                 hits = [hit for hit in hits if (hit.strand if hit.strand not in (None, 0) else 1) == strand]
                 if len(hits) == 1:
                     hit = hits[0]
+                    exact_hit_key = (feature_key, int(hit.start), int(hit.end), int(strand))
+                    if exact_hit_key in stalled_exact:
+                        continue
                     feature_dict = {
                         "feature_type": feat.feature_type,
                         "start": int(hit.start),
@@ -288,8 +339,19 @@ def _rescue_missing_features_by_exact_sequence(product, source_dnas):
                             feature_dict["qualifier:{}".format(key)] = value
                     product.setfeature(feature_dict)
                     _drop_redundant_subfeatures(product, product.dnafeatures[-1])
-                    rescued += 1
-                    changed = True
+                    if requirements[feature_key] == 1:
+                        satisfied = _has_equivalent_feature(product, feat, source_dna)
+                    else:
+                        satisfied = _has_contextually_equivalent_feature(product, feat, source_dna)
+                    if satisfied:
+                        rescued += 1
+                        changed = True
+                    else:
+                        # Overlapping source fragments can legitimately share the
+                        # same rescued sub-feature. If re-adding the exact same
+                        # feature at the exact same product coordinates does not
+                        # increase satisfaction, do not retry forever.
+                        stalled_exact.add(exact_hit_key)
                     continue
 
                 if _rescue_missing_feature_by_context(product, feat, source_dna):
@@ -784,6 +846,315 @@ def _select(fragments, selection=None, process_name=None, process_description=No
         elif len(fragments) == 0:
             raise ValueError("No fragment holding the specified feature was detected.")
         return fragments[0] 
+
+
+def _site_cut_interval(dna, site_feature):
+    if "cutsite" not in site_feature.qualifiers:
+        raise ValueError("DNAfeature object should hold 'qualifiers:cutsite' attribute.")
+
+    if site_feature._digestion_topl == "null":
+        _, _, site_feature._digestion_topl, site_feature._digestion_topr, site_feature._digestion_bottoml, site_feature._digestion_bottomr = compile_cutsite(site_feature.qualifiers["cutsite"][0])
+
+    strand = site_feature.location.strand
+    if strand != -1:
+        if site_feature._digestion_topl != "null":
+            pos1 = int(site_feature.start) - int(site_feature._digestion_topl)
+            pos2 = int(site_feature.start) - int(site_feature._digestion_bottoml)
+        else:
+            pos1 = int(site_feature.end) + int(site_feature._digestion_topr)
+            pos2 = int(site_feature.end) + int(site_feature._digestion_bottomr)
+    else:
+        if site_feature._digestion_topr != "null":
+            pos1 = int(site_feature.start) - int(site_feature._digestion_bottomr)
+            pos2 = int(site_feature.start) - int(site_feature._digestion_topr)
+        else:
+            pos1 = int(site_feature.end) + int(site_feature._digestion_bottoml)
+            pos2 = int(site_feature.end) + int(site_feature._digestion_topl)
+
+    length = len(dna.seq)
+    pos1 %= length
+    pos2 %= length
+    return tuple(sorted((pos1, pos2)))
+
+
+def _target_interval_in_source(source, target):
+    positions = getattr(target, "_positions", None)
+    if type(positions) in (tuple, list) and len(positions) == len(target.seq) and len(positions) > 0:
+        source_len = len(source.seq)
+        positions = [int(pos) % source_len for pos in positions]
+        if len(positions) == 1:
+            return positions[0], positions[0] + 1, 1
+
+        diffs = [((positions[i + 1] - positions[i]) % source_len) for i in range(len(positions) - 1)]
+        if all(diff == 1 for diff in diffs):
+            start = positions[0]
+            return start, start + len(positions), 1
+        if all(diff == (source_len - 1) for diff in diffs):
+            start = positions[-1]
+            return start, start + len(positions), -1
+
+    queries = [str(target.seq)]
+    rcseq = str(target.rcseq)
+    if rcseq != queries[0]:
+        queries.append(rcseq)
+
+    matches = []
+    for query in queries:
+        sites = source.searchsequence(query=query)
+        for site in sites:
+            start = int(site.start)
+            end = int(site.end)
+            strand = 1 if site.strand in (None, 0) else int(site.strand)
+            if end <= start:
+                end += len(source.seq)
+            matches.append((start, end, strand))
+
+    matches = sorted(set(matches))
+    if len(matches) == 0:
+        raise ValueError("`target` sequence was not found in `source`.")
+    if len(matches) > 1:
+        raise ValueError("`target` sequence mapped to multiple locations in `source`; provide a unique target fragment.")
+    return matches[0]
+
+
+def _normalize_enzyme_name_set(enzyme_set):
+    if enzyme_set is None:
+        return None
+
+    allowed = set()
+    for enzyme in enzyme_set:
+        if type(enzyme) == Cutsite or "cutsite" in getattr(enzyme, "__dict__", {}):
+            allowed.add(enzyme.name)
+            continue
+
+        enzyme_name = str(enzyme)
+        if enzyme_name not in cs.lib.keys():
+                raise ValueError("`enzyme_set` contains an unknown restriction enzyme name.")
+        allowed.add(enzyme_name)
+    return allowed
+
+
+def _normalize_max_distance(max_distance):
+    if max_distance is None:
+        return None, None
+    if type(max_distance) == int:
+        if max_distance < 0:
+            raise ValueError("`max_distance` must be >= 0.")
+        return max_distance, max_distance
+    if type(max_distance) in (tuple, list) and len(max_distance) == 2:
+        left_max, right_max = max_distance
+        if type(left_max) != int or type(right_max) != int:
+            raise TypeError("`max_distance` tuple values must be integers.")
+        if left_max < 0 or right_max < 0:
+            raise ValueError("`max_distance` tuple values must be >= 0.")
+        return left_max, right_max
+    raise TypeError("`max_distance` must be None, an integer, or a tuple/list of two integers.")
+
+
+def _infer_cutsite_candidates(source, target, cuttype="single", enzyme_set=None, max_distance=None):
+    """Return a ranked DataFrame of flanking cutsite-pair candidates around a target core."""
+
+    if type(source) != QUEEN:
+        raise TypeError("`source` must be a QUEEN object.")
+    if type(target) != QUEEN:
+        raise TypeError("`target` must be a QUEEN object.")
+    if cuttype not in ("single", "dual", "all", "typeIIS"):
+        raise ValueError("`cuttype` should be one of 'single', 'dual', 'all', or 'typeIIS'.")
+
+    import pandas as pd
+
+    allowed_enzyme_names = _normalize_enzyme_name_set(enzyme_set)
+    left_max_distance, right_max_distance = _normalize_max_distance(max_distance)
+
+    source_len = len(source.seq)
+    target_start, target_end, target_strand = _target_interval_in_source(source, target)
+
+    site_rows = []
+    if allowed_enzyme_names is None:
+        enzyme_items = list(cs.lib.items())
+    else:
+        enzyme_items = [(enzyme_name, cs.lib[enzyme_name]) for enzyme_name in sorted(allowed_enzyme_names)]
+
+    for enzyme_name, enzyme in enzyme_items:
+        if cuttype == "typeIIS" and enzyme.IIS is not True:
+            continue
+
+        sites = source.searchsequence(query=enzyme.cutsite)
+        if cuttype == "single" and len(sites) != 1:
+            continue
+        if cuttype == "dual" and len(sites) != 2:
+            continue
+
+        for site in sites:
+            cut_lo, cut_hi = _site_cut_interval(source, site)
+            for shift in (-source_len, 0, source_len):
+                shifted_lo = cut_lo + shift
+                shifted_hi = cut_hi + shift
+                shifted_site_start = int(site.start) + shift
+                shifted_site_end = int(site.end) + shift
+                if shifted_hi <= target_start:
+                    side = "left"
+                    cut_boundary_distance = target_start - shifted_hi
+                    site_boundary_distance = target_start - shifted_site_end
+                elif shifted_lo >= target_end:
+                    side = "right"
+                    cut_boundary_distance = shifted_lo - target_end
+                    site_boundary_distance = shifted_site_start - target_end
+                else:
+                    continue
+
+                site_rows.append({
+                    "enzyme": enzyme_name,
+                    "site_start": int(site.start),
+                    "site_end": int(site.end),
+                    "site_strand": 1 if site.strand in (None, 0) else int(site.strand),
+                    "cut_lo": int(cut_lo),
+                    "cut_hi": int(cut_hi),
+                    "shifted_cut_lo": int(shifted_lo),
+                    "shifted_cut_hi": int(shifted_hi),
+                    "shifted_site_start": int(shifted_site_start),
+                    "shifted_site_end": int(shifted_site_end),
+                    "side": side,
+                    "cut_boundary_distance_bp": int(cut_boundary_distance),
+                    "site_boundary_distance_bp": int(site_boundary_distance),
+                })
+
+    left_sites = [row for row in site_rows if row["side"] == "left"]
+    right_sites = [row for row in site_rows if row["side"] == "right"]
+    if len(left_sites) == 0 or len(right_sites) == 0:
+        raise ValueError("No flanking cutsite pair was found around the target region.")
+
+    rows = []
+    for left in left_sites:
+        for right in right_sites:
+            if left["shifted_cut_hi"] > right["shifted_cut_lo"]:
+                continue
+            extra_left = int(target_start - left["shifted_cut_hi"])
+            extra_right = int(right["shifted_cut_lo"] - target_end)
+            left_site_distance = int(left["site_boundary_distance_bp"])
+            right_site_distance = int(right["site_boundary_distance_bp"])
+            if left_max_distance is not None and left_site_distance > left_max_distance:
+                continue
+            if right_max_distance is not None and right_site_distance > right_max_distance:
+                continue
+            rows.append({
+                "pair": "{}|{}".format(left["enzyme"], right["enzyme"]),
+                "left_enzyme": left["enzyme"],
+                "right_enzyme": right["enzyme"],
+                "same_enzyme": left["enzyme"] == right["enzyme"],
+                "target_start": int(target_start),
+                "target_end": int(target_end),
+                "target_strand": int(target_strand),
+                "left_site_start": int(left["site_start"]),
+                "left_site_end": int(left["site_end"]),
+                "right_site_start": int(right["site_start"]),
+                "right_site_end": int(right["site_end"]),
+                "left_cut": int(left["shifted_cut_hi"]),
+                "right_cut": int(right["shifted_cut_lo"]),
+                "left_boundary_distance_bp": int(extra_left),
+                "right_boundary_distance_bp": int(extra_right),
+                "left_site_boundary_distance_bp": int(left_site_distance),
+                "right_site_boundary_distance_bp": int(right_site_distance),
+                "extra_span_bp": int(extra_left + extra_right),
+                "fragment_span_bp": int(right["shifted_cut_lo"] - left["shifted_cut_hi"]),
+                "cuttype": cuttype,
+            })
+
+    if len(rows) == 0:
+        if max_distance is None:
+            raise ValueError("No ordered flanking cutsite pair was found around the target region.")
+        raise ValueError("No flanking cutsite pair was found within the requested target-boundary distance.")
+
+    df = pd.DataFrame(rows)
+    df = df.sort_values(
+        by=[
+            "extra_span_bp",
+            "left_site_boundary_distance_bp",
+            "right_site_boundary_distance_bp",
+            "left_boundary_distance_bp",
+            "right_boundary_distance_bp",
+            "fragment_span_bp",
+            "left_enzyme",
+            "right_enzyme",
+        ],
+        ascending=[True, True, True, True, True, True, True, True],
+    ).reset_index(drop=True)
+    return df
+
+
+def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_distance=None, display=True, **kwargs):
+    """Infer a restriction pair flanking a target core region.
+
+    Parameters
+    ----------
+    source : QUEEN
+        Source DNA containing the target core region to be excised. In many
+        cloning workflows this will be the donor plasmid, but the helper is
+        generic and can also be applied to any other source molecule that
+        carries the region of interest.
+    target : QUEEN
+        Core region that must be retained inside the excised fragment.
+        This does not need to be the exact final released fragment; it is the
+        must-include region that the inferred cutsite pair should flank from
+        the outside. In typical use this is a `QUEEN` slice or feature-derived
+        subobject obtained from ``source``.
+    cuttype : {"single", "dual", "all", "typeIIS"}, optional
+        Restrict candidate enzymes to the same categories used by
+        :meth:`QUEEN.printcutsite`. Default is ``"single"``.
+    enzyme_set : sequence of Cutsite or str, optional
+        Restrict the search space to a user-specified enzyme set. This is
+        useful when another molecule, such as a backbone, has already
+        constrained the permissible enzymes.
+    max_distance : int or tuple(int, int), optional
+        Maximum allowed distance from the target-core boundary to the left and
+        right recognition sites. Distances are measured from the target core
+        to the nearest edge of each enzyme recognition site, not to the exact
+        cleavage positions. If an integer is provided, it is applied to both
+        sides. If a two-element tuple/list is provided, it is interpreted as
+        ``(left_max_bp, right_max_bp)``. If no candidate pair satisfies this
+        threshold, a ``ValueError`` is raised.
+    display : bool, optional
+        If ``True`` (default), print the ranked candidate table to standard
+        output before returning the best cutsite list.
+
+    Returns
+    -------
+    list of Cutsite
+        Best-ranked restriction enzyme list ready to pass directly to
+        :func:`digestion`. For dual-cutter same-enzyme cases this may be a
+        one-element list, because ``digestion(source, enzyme)`` already cuts
+        all occurrences of that enzyme in ``source``.
+
+    Notes
+    -----
+    This helper is intended for a must-keep target core on a source molecule. It can be applied to donor-side excision or to backbone site selection, as long as the target region is already represented as a single contiguous `QUEEN` object on ``source``.
+    """
+
+    payload = kwargs.pop("payload", None)
+    if kwargs:
+        raise TypeError("Unexpected keyword arguments: {}".format(", ".join(sorted(kwargs.keys()))))
+    if target is None:
+        target = payload
+    elif payload is not None:
+        raise TypeError("Pass either `target` or deprecated `payload`, not both.")
+    if target is None:
+        raise TypeError("`target` must be provided.")
+
+    df = _infer_cutsite_candidates(
+        source=source,
+        target=target,
+        cuttype=cuttype,
+        enzyme_set=enzyme_set,
+        max_distance=max_distance,
+    )
+
+    if display is True:
+        print(df.to_string(index=False))
+
+    top_row = df.iloc[0]
+    if bool(top_row["same_enzyme"]) is True:
+        return [cs.lib[str(top_row["left_enzyme"])]]
+    return [cs.lib[str(top_row["left_enzyme"])], cs.lib[str(top_row["right_enzyme"])]]
 
 def digestion(dna, *cutsites, selection=None, product=None, process_name=None, process_description=None, pn=None, pd=None, **kwargs):
     """Simulate restriction digestion of a `QUEEN` object.
@@ -1317,7 +1688,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
     if follow_order == False or follow_order is None: 
         fotxt = ""
     else:
-        fotxt = ", follow_order='{}'".format(follow_order) 
+        fotxt = ", follow_order={}".format(follow_order) 
 
     if follow_order == 'True':
         follow_order = True
@@ -1337,6 +1708,14 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
 
     if mode in ("gibson", "infusion") and follow_order == True and len(fragments) > 1:
         try:
+            for f in range(len(fragments)):
+                fragment = fragments[f]
+                if len(fragment.seq) <= max_homology_length: 
+                    mhl = int(len(fragment.seq)) - len(fragment._left_end) - len(fragment._right_end) - 1
+                else:
+                    mhl = max_homology_length
+                fragments[f] = modifyends(fragment, "-{{{}}}/*{{{}}}".format(mhl,mhl), "*{{{}}}/-{{{}}}".format(mhl,mhl), qexd=True, pn=process_name, pd=process_description)
+
             outobj = joindna(*fragments, autoflip=False, homology_length=homology_length, topology="circular", qexd=qexd, product=product, pn=process_name, pd=process_description)
             outobj, _ = _rescue_missing_features_by_exact_sequence(outobj, fragments)
             if unique == True:
@@ -1538,7 +1917,18 @@ def annealing(ssdna1, ssdna2, homology_length=4, product=None, pn=None, pd=None,
     else:
         hltxt = ", homology_length={}".format(homology_length) 
 
-    qexd = 'annealing(QUEEN.dna_dict["{}"], QUEEN.dna_dict["{}"]{}{})'.format(ssdna1._product_id, ssdna2._product_id, hltxt, kwargs_str)
+    def _annealing_operand_text(ssdna):
+        product_id = getattr(ssdna, "_product_id", None)
+        if product_id:
+            return 'QUEEN.dna_dict["{}"]'.format(product_id)
+        return "QUEEN(seq={}, ssdna=True)".format(repr(str(ssdna.seq)))
+
+    qexd = 'annealing({}, {}{}{})'.format(
+        _annealing_operand_text(ssdna1),
+        _annealing_operand_text(ssdna2),
+        hltxt,
+        kwargs_str,
+    )
     process_description = pd if process_description is None else process_description
  
     flag1 = 0
@@ -1671,7 +2061,7 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
     attx1 = entry.searchsequence(cs.lib["attX1"], product="att{}1_site".format(mode[0]), qexd=True, pn=process_name, pd=process_description) 
     attx2 = entry.searchsequence(cs.lib["attX2"], product="att{}2_site".format(mode[0]), qexd=True, pn=process_name, pd=process_description)
     atty1 = destination.searchsequence(cs.lib["attY1"], product="att{}1_site".format(mode[1]), qexd=True, pn=process_name, pd=process_description)
-    atty2 = destination.searchsequence(cs.lib["attY2"], product="att{}1_site".format(mode[1]), qexd=True, pn=process_name, pd=process_description) 
+    atty2 = destination.searchsequence(cs.lib["attY2"], product="att{}2_site".format(mode[1]), qexd=True, pn=process_name, pd=process_description) 
     if len(attx1) > 1:
         raise ValueError("Multiple att{}1 sites were detected.".format(mode[0]))
     elif len(attx1) == 1:
@@ -1701,18 +2091,85 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
     else:
         raise ValueError("No att{}2 site was detected.".format(mode[1]))
 
-    if attx1.strand == 1 and attx2.strand == 1:
-        insert = cropdna(entry, attx1, attx2, qexd=True, pn=process_name, pd=process_description) 
-    
-    elif attx1.strand == -1 and attx2.strand == -1:
+    def _rc(seq):
+        table = str.maketrans("ATGCRYKMSWBDHV", "TACGYRMKWSVHDB")
+        return seq.translate(table)[::-1]
+
+    insert = None
+    if attx1.strand == 1:
+        insert = cropdna(entry, attx1, attx2, qexd=True, pn=process_name, pd=process_description)
+    elif attx1.strand == -1:
         insert = cropdna(entry, attx2, attx1, qexd=True, pn=process_name, pd=process_description)
 
-    if atty1.strand == 1 and atty2.strand == 1:
-        destination = cropdna(destination, atty2, atty1, qexd=True, pn=process_name, pd=process_description) 
-    elif atty1.strand == -1 and atty2.strand == -1:
-        destination = cropdna(destination, atty1, atty2, qexd=True, pn=process_name, pd=process_description) 
+    if insert is None:
+        raise ValueError("Failed to crop the Gateway entry insert from the attX sites. Check the att-site orientation on the entry construct.")
 
-    outobj = ligation(insert, destination, qexd=True, pn=process_name, pd=process_description) 
+    destination_candidates = []
+    for dest_obj in (destination, flipdna(destination, quinable=0)):
+        cand_y1 = dest_obj.searchsequence(cs.lib["attY1"], quinable=False)
+        cand_y2 = dest_obj.searchsequence(cs.lib["attY2"], quinable=False)
+        if len(cand_y1) != 1 or len(cand_y2) != 1:
+            continue
+        cand_y1 = cand_y1[0]
+        cand_y2 = cand_y2[0]
+        if cand_y1.strand == 1:
+            destination_candidates.append(cropdna(dest_obj, cand_y2, cand_y1, qexd=True, pn=process_name, pd=process_description))
+        elif cand_y1.strand == -1:
+            destination_candidates.append(cropdna(dest_obj, cand_y1, cand_y2, qexd=True, pn=process_name, pd=process_description))
+
+    if len(destination_candidates) == 0:
+        raise ValueError("Failed to crop the Gateway destination backbone from the attY sites. Check the att-site orientation on the destination construct.")
+
+    if mode == "BP":
+        attl1_seq = "CCAACTTTGTACAAAAAAGCAGGCT"
+        attl2_seq = "ACCCAGCTTTCTTGTACAAAGTTGG"
+        core_left = len(insert._left_end) if len(insert._left_end) > 0 else 0
+        core_right = len(insert.seq) - len(insert._right_end) if len(insert._right_end) > 0 else len(insert.seq)
+        if core_right > core_left:
+            entry_core = insert[core_left:core_right]
+        else:
+            entry_core = insert
+        gateway_insert = modifyends(entry_core, left=attl1_seq, right=attl2_seq, qexd=True, pn=process_name, pd=process_description)
+        bp_products = []
+        cs.lib["attL1"] = "CCAACTTT^GTACAAA_AAAGCAGGCT"
+        cs.lib["attL2"] = "ACCCAGCTTT^CTTGTAC_AAAGTTGG"
+        for destination_crop in destination_candidates:
+            left_ovhg = len(destination_crop._left_end) if len(destination_crop._left_end) > 0 else 0
+            right_ovhg = len(destination_crop._right_end) if len(destination_crop._right_end) > 0 else 0
+            crop_end = len(destination_crop.seq) - right_ovhg
+            if crop_end <= left_ovhg:
+                continue
+            backbone_internal = cropdna(destination_crop, left_ovhg, crop_end, qexd=True, pn=process_name, pd=process_description)
+            try:
+                product_obj = joindna(gateway_insert, backbone_internal, topology="circular", qexparam=qexd, product=product, pn=process_name, pd=process_description)
+            except Exception:
+                continue
+            hits_l1 = product_obj.searchsequence(query=cs.lib["attL1"].cutsite, quinable=False)
+            hits_l2 = product_obj.searchsequence(query=cs.lib["attL2"].cutsite, quinable=False)
+            if len(hits_l1) == 1 and len(hits_l2) == 1:
+                bp_products.append(product_obj)
+        if len(bp_products) > 0:
+            bp_products.sort(key=lambda obj: len(obj.seq), reverse=True)
+            return bp_products[0]
+
+    insert_candidates = [insert]
+    if mode == "BP":
+        normalized_insert = copy.deepcopy(insert)
+        if len(normalized_insert._left_end) > 0 and attx1.strand == -1:
+            normalized_insert._left_end = _rc(normalized_insert._left_end)
+        if len(normalized_insert._right_end) > 0 and attx2.strand == -1:
+            normalized_insert._right_end = _rc(normalized_insert._right_end)
+        insert_candidates.append(normalized_insert)
+
+    for insert_cand in insert_candidates:
+        for destination_cand in destination_candidates:
+            try:
+                return joindna(insert_cand, destination_cand, topology="circular", compatibility="complete", autoflip=False, qexparam=qexd, product=product, pn=process_name, pd=process_description)
+            except Exception:
+                pass
+
+    destination_crop = destination_candidates[0]
+    outobj = ligation(insert_candidates[-1], destination_crop, qexd=True, pn=process_name, pd=process_description) 
     outobj = modifyends(outobj, left="", right="", qexd=qexd, product=product, pn=process_name, pd=process_description)
     return outobj
 
@@ -1807,7 +2264,7 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
     kwargs_str = _convert_kwargs(kwargs)
     entry_str  = ", ".join(['QUEEN.dna_dict["{}"]'.format(aentry._product_id) for aentry in entry])
     entry_str  = "[{}]".format(entry_str)
-    qexd = 'golden_gate_assembly(QUEEN.dna_dict["{}"], {}, cutsite="{}"{})'.format(destination._product_id, entry_str, cutsite.name, kwargs_str)
+    qexd = 'goldengate_assembly(QUEEN.dna_dict["{}"], {}, cutsite="{}"{})'.format(destination._product_id, entry_str, cutsite.name, kwargs_str)
     process_description = pd if process_description is None else process_description
 
     if type(entry) == QUEEN:
@@ -1815,10 +2272,17 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
     
     fragments = [] 
     for aentry in entry:
-        if aentry.topology == "linear" and len(aentry.searchsequence(query=cutsite, quinable=0)) == 0:
+        # Pre-digested linear entry fragments may still carry terminal cutsite
+        # annotations. For Golden Gate routing, what matters here is whether the
+        # fragment sequence still contains an internal recognition site, not
+        # whether a cutsite feature annotation is present.
+        has_internal_cutsite = (cutsite.seq in aentry.seq) or (cutsite.rcseq in aentry.seq)
+        if aentry.topology == "linear" and has_internal_cutsite is False:
             insert = aentry
         else: 
             inserts = digestion(aentry, cutsite, qexd=True, product=aentry.project, pn=process_name, pd=process_description)
+            if type(inserts) != list:
+                inserts = [inserts]
             for insert in inserts:
                 if cutsite.seq in insert.seq or cutsite.rcseq in insert.seq:
                     pass
@@ -1828,6 +2292,8 @@ def goldengate_assembly(destination, entry, cutsite=None, product=None, process_
         fragments.append(insert) 
 
     backbones =  digestion(destination, cutsite, qexd=True, product=destination.project, pn=process_name, pd=process_description) 
+    if type(backbones) != list:
+        backbones = [backbones]
     for backbone in backbones:
         if cutsite.seq in backbone.seq or cutsite.rcseq in backbone.seq:
             pass
@@ -1923,13 +2389,14 @@ def topo_cloning(destination, entry, mode="TA", product=None, process_name=None,
         else: 
             if destination._left_end_top == 1 and destination._left_end_bottom == 1 and destination._right_end_top == 1 and destination._right_end_bottom == 1:
                 if destination.seq[0] == "A" and  destination.seq[-1] == "T":
-                    destination = modifyends(destination, "-/*", "*/-") 
+                    destination = flipdna(destination, qexd=True, pn=process_name, pd=process_description)
                 elif destination.seq[0] == "T" and  destination.seq[-1] == "A":
-                    destination = modifyends(destination, "*/-", "-/*") 
+                    pass
                 else:
-                    raise ValueError(f"Incompatible end structures for 'TA' cloning: destination={dest_ends}, entry={entry_ends}. TA cloning requires a 3′-T overhang on the destination and a 3′-A overhang on the entry.")
+                    raise ValueError("Incompatible end structures for 'TA' cloning: the linear destination must be blunt-ended and begin with T and end with A after opening the TOPO backbone.")
+                destination = modifyends(destination, "-/*", "*/-", qexd=True, pn=process_name, pd=process_description)
  
-        entry  = modifyends(entry, "T", "A", qexd=True, pn=process_name, pd=process_description) 
+        entry  = modifyends(entry, "A", "T", qexd=True, pn=process_name, pd=process_description) 
         entry  = modifyends(entry, "-/*", "*/-", qexd=True, pn=process_name, pd=process_description)
         outobj = joindna(destination, entry, autoflip=False, compatibility="complete", homology_length=1, topology="circular", qexd=qexd, product=product, pn=process_name, pd=process_description)
 
@@ -2181,7 +2648,8 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                  rv_partner=None, requirement=None, fw_name="fw_primer", rv_name="rv_primer",
                  mut_pattern=None, target_tm=60.0, nonspecific_limit=3, auto_adjust=1, 
                  homology_length=30, tm_func=None, primer_length=(16, 25), design_num=1,
-                 gap=None, batch_process=False):
+                 gap=None, batch_process=False, product=None, process_name=None,
+                 process_description=None, pn=None, pd=None):
     
     """
     Design PCR primers for a specified target region.
@@ -2394,6 +2862,19 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         Internal flag used in batch homology workflows. If ``True``, the function returns
         an intermediate amplicon region (with adapters applied if provided) and gap
         information instead of primer pairs. Default is ``False``.
+    product : str, optional
+        Reserved metadata field accepted for API symmetry with other QUEEN design/
+        construction helpers. It does not change primer selection.
+    process_name : str, optional
+        Reserved metadata field accepted for API symmetry with other QUEEN design/
+        construction helpers. It does not change primer selection.
+    process_description : str, optional
+        Reserved metadata field accepted for API symmetry with other QUEEN design/
+        construction helpers. It does not change primer selection.
+    pn : str, optional
+        Alias for ``process_name``.
+    pd : str, optional
+        Alias for ``process_description``.
 
     Returns
     -------
@@ -2486,6 +2967,12 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
     
     """ 
     
+    process_name = pn if process_name is None else process_name
+    process_description = pd if process_description is None else process_description
+    _ = product
+    _ = process_name
+    _ = process_description
+
     def search_qexps(dna):
         pattern_dict = {
             "pcr":       r"pcr\((.*)\)",
@@ -2508,12 +2995,107 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         return qexps 
     
     def append_adapter(amplicon_region, filtered_primer_pairs, adapter, partner, mode, homology_length, strand, name, gapseq, auto_adjust): 
+        iupac_map = {
+            "A": {"A"},
+            "C": {"C"},
+            "G": {"G"},
+            "T": {"T"},
+            "R": {"A", "G"},
+            "Y": {"C", "T"},
+            "K": {"G", "T"},
+            "M": {"A", "C"},
+            "S": {"C", "G"},
+            "W": {"A", "T"},
+            "B": {"C", "G", "T"},
+            "D": {"A", "G", "T"},
+            "H": {"A", "C", "T"},
+            "V": {"A", "C", "G"},
+            "N": {"A", "C", "G", "T"},
+        }
+
+        def _endseq_matches(site_endseq, observed_endseq):
+            site_endseq = str(site_endseq).upper()
+            observed_endseq = str(observed_endseq).upper()
+            if site_endseq == observed_endseq:
+                return True
+            if len(site_endseq) != len(observed_endseq):
+                return False
+            for schar, ochar in zip(site_endseq, observed_endseq):
+                if ochar not in iupac_map.get(schar, {schar}):
+                    return False
+            return True
+
+        def _extract_digestion_cutsites(dna):
+            qexps = search_qexps(dna)
+            if len(qexps) == 0 or qexps[-1][0] != "digestion":
+                raise ValueError("When 'adapter_mode' is 'RE', partner value must be a digested QUEEN object.")
+            cutsites = []
+            for arg in qexps[-1][1][1:]:
+                if "selection" in arg:
+                    break
+                token = arg.rstrip(",")
+                if len(token) >= 2 and token[0] == token[-1] and token[0] in ("'", '"'):
+                    token = token[1:-1]
+                cutsites.append(token)
+            return cutsites
+
+        def _resolve_re_partner_context(dna, strand):
+            cutsites = _extract_digestion_cutsites(dna)
+            if strand == "fw":
+                endseq = dna._right_end
+                observed_pair = (dna._right_end_top, dna._right_end_bottom)
+            else:
+                endseq = dna._left_end
+                observed_pair = (dna._left_end_bottom, dna._left_end_top)
+
+            exact_matches = []
+            blunt_matches = []
+            for cutsite in cutsites:
+                site = cs.lib[cutsite]
+                if _endseq_matches(site.endseq, endseq) == False:
+                    continue
+                if (site.top, site.bottom) == observed_pair:
+                    exact_matches.append(cutsite)
+                elif endseq == "":
+                    blunt_matches.append(cutsite)
+
+            matches = exact_matches
+            if len(matches) == 0 and len(blunt_matches) == 1:
+                matches = blunt_matches
+
+            if len(matches) != 1:
+                raise ValueError("Failed to infer the restriction site corresponding to the digested partner end in RE primer design.")
+
+            cutsite = matches[0]
+            if strand == "fw":
+                partner_seq = QUEEN(seq="ATGC" + cs.lib[cutsite].seq, quinable=False)
+                remseq = cutdna(partner_seq, *partner_seq.searchsequence(cs.lib[cutsite], quinable=False), quinable=0)[-1]
+            else:
+                partner_seq = QUEEN(seq="ATGC" + cs.lib[cutsite].rcseq, quinable=False)
+                remseq = cutdna(partner_seq, *partner_seq.searchsequence(cs.lib[cutsite], quinable=False), quinable=0)[0]
+            return cutsite, partner_seq.seq, remseq
+
         if (type(adapter) == str and adapter == "") or (adapter is None):
             for i in range(len(filtered_primer_pairs)):
                 filtered_primer_pairs[i][strand][0] = QUEEN(seq=filtered_primer_pairs[i][strand][0])
             
         else:
-            if type(adapter) == QUEEN or (type(adapter) in (str, Qseq) and set(adapter.upper()) <= set("ATGCRYKMSWBDHVN")):
+            if mode == "BP" and type(adapter) == str and adapter in ("attB1", "attB2"):
+                attb_map = {
+                    "attB1": "GGGGACAAGTTTGTACAAAAAAGCAGGCT",
+                    "attB2": "GGGGACCACTTTGTACAAGAAAGCTGGGT",
+                }
+                adapter = QUEEN(seq=attb_map[adapter])
+                adapter = flipdna(adapter, quinable=0) if strand == "rv" else adapter
+                for i in range(len(filtered_primer_pairs)):
+                    filtered_primer_pairs[i][strand][0] = joindna(
+                        adapter,
+                        QUEEN(seq=filtered_primer_pairs[i][strand][0], quinable=0),
+                        homology_length=0,
+                        quinable=0,
+                    )
+
+            elif type(adapter) == QUEEN or (type(adapter) in (str, Qseq) and set(adapter.upper()) <= set("ATGCRYKMSWBDHVN")):
                 if type(adapter) == QUEEN:
                     pass 
                 else:
@@ -2529,7 +3111,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                     adseq = adapter.rcseq if strand == "rv" else adapter.seq 
                     filtered_primer_pairs[i][strand][0] = QUEEN(seq="ATGC" + adseq + filtered_primer_pairs[i][strand][0]) 
             else:
-                raise ValueError("When 'adapter_mode' is 'standard', adapter value must be a QUEEN, str, or Cutsite object.")
+                raise ValueError("When 'adapter_mode' is 'standard' or 'BP', adapter value must be a QUEEN, DNA string, Cutsite object, or attB1/attB2 token.")
         
         if mode in ("gibson", "infusion", "overlappcr", "RE"):
             if partner is None:
@@ -2537,43 +3119,48 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             else:
                 if type(partner) == QUEEN and partner._ssdna == False:
                     pass
+                elif type(partner) in (str, Qseq) and set(str(partner).upper()) <= set("ATGCRYKMSWBDHVN"):
+                    partner = QUEEN(seq=str(partner))
                 else:
                     raise ValueError("When 'adapter_mode' is 'gibson', 'infusion', or 'overlappcr', partner value must be a dsDNA QUEEN object or str object.")
 
                 partner_features  = [feat for feat in partner.dnafeatures if feat.feature_type not in ("source", "primer", "primer_bind")]
                 amplicon_features = [feat for feat in amplicon_region.dnafeatures if feat.feature_type not in ("source", "primer", "primer_bind")]
                 amplicon_features.sort(key=lambda x: x.start) 
-                    
-                if strand == "fw":
-                    feat1 = partner_features[-1] 
-                    feat2 = amplicon_features[0] 
-
-                if strand == "rv":
-                    feat1 = amplicon_features[-1] 
-                    feat2 = partner_features[0] 
-
-                # Promoter/CDS strand combinations across a partner junction are
-                # not sufficient evidence that the requested overlap direction is
-                # wrong. In modular plasmid assemblies a valid boundary can be
-                # `CDS(-) -> promoter(+)` or `promoter(+) -> CDS(-)` depending on
-                # circular origin choice and which exact donor block is being
-                # preserved. Keep the stricter CDS/CDS check below, but do not
-                # reject promoter/CDS boundaries here.
-                            
-                if feat1.feature_type == "CDS" and feat2.feature_type == "CDS":
-                    if feat1.strand == feat2.strand:
-                        if ("broken_feature" in feat1.qualifiers or "broken_feature" in feat2.qualifiers) and (len(feat1.sequence)%3 != 0 or len(feat2.sequence)%3 != 0):
-                            req = False
-                        else:
-                            req = True
-                    elif auto_adjust == True:
-                        raise ValueError("**Attention**: The directions of the gene in the partner and the gene in the target are inconsistent. Could you confirm whether the direction of the target amplicon is as intended?")
-                    else:
-                        req = False
-                        pass 
+                if len(partner_features) == 0 or len(amplicon_features) == 0:
+                    req = False
                 else:
-                    req = False 
-                
+                    if strand == "fw":
+                        feat1 = partner_features[-1] 
+                        feat2 = amplicon_features[0] 
+
+                    if strand == "rv":
+                        feat1 = amplicon_features[-1] 
+                        feat2 = partner_features[0] 
+
+                    # Promoter/CDS strand combinations across a partner junction are
+                    # not sufficient evidence that the requested overlap direction is
+                    # wrong. In modular plasmid assemblies a valid boundary can be
+                    # `CDS(-) -> promoter(+)` or `promoter(+) -> CDS(-)` depending on
+                    # circular origin choice and which exact donor block is being
+                    # preserved. Keep the stricter CDS/CDS check below, but do not
+                    # reject promoter/CDS boundaries here.
+                                
+                    if feat1.feature_type == "CDS" and feat2.feature_type == "CDS":
+                        if feat1.strand == feat2.strand:
+                            if ("broken_feature" in feat1.qualifiers or "broken_feature" in feat2.qualifiers) and (len(feat1.sequence)%3 != 0 or len(feat2.sequence)%3 != 0):
+                                req = False
+                            else:
+                                req = True
+                        else:
+                            # Opposite-strand CDS/CDS junctions can be valid in modular
+                            # plasmid assemblies, but they do not provide a safe basis for
+                            # codon-frame auto adjustment. Keep primer design going and
+                            # simply skip the frame-aware gap logic for this boundary.
+                            req = False
+                    else:
+                        req = False 
+
                 gapflag = 0 
                 for i in range(len(filtered_primer_pairs)):
                     remseq = ""
@@ -2593,25 +3180,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                             partner_seq = mod_partner.seq[-1*homology_length:]
                         
                         elif mode == "RE":
-                            qexps = search_qexps(partner)
-                            if qexps[-1][0] == "digestion":
-                                cutsites = []
-                                for arg in qexps[-1][1][1:]:
-                                    if "selection" in arg:
-                                        break
-                                    else:
-                                        cutsites.append(arg.rstrip()[1:-2])
-     
-                                cflag = 0 
-                                for cutsite in cutsites:
-                                    if cs.lib[cutsite].endseq == partner._right_end and (cs.lib[cutsite].top, cs.lib[cutsite].bottom) == (partner._right_end_top, partner._right_end_bottom): 
-                                        partner_seq = QUEEN(seq="ATGC" + cs.lib[cutsite].seq, quinable=False)
-                                        remseq      = cutdna(partner_seq, *partner_seq.searchsequence(cs.lib[cutsite], quinable=False), quinable=0)[-1] 
-                                        partner_seq = partner_seq.seq
-                                        cflag = 1
-                                        break  
-                            else:
-                                raise ValueError("When 'adapter_mode' is 'RE', partner value must be a digested QUEEN object.")
+                            cutsite, partner_seq, remseq = _resolve_re_partner_context(partner, strand)
 
                     if strand == "rv":
                         if mode == "gibson":
@@ -2630,25 +3199,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                             partner_seq = mod_partner.rcseq[-1*homology_length:]
      
                         elif mode == "RE":
-                            qexps = search_qexps(partner)
-                            if qexps[-1][0] == "digestion":
-                                cutsites = []
-                                for arg in qexps[-1][1][1:]:
-                                    if "selection" == arg:
-                                        break
-                                    else:
-                                        cutsites.append(arg.rstrip()[1:-2]) 
-                                
-                                cflag = 0 
-                                for cutsite in cutsites:
-                                    if cs.lib[cutsite].endseq == partner._left_end and (cs.lib[cutsite].top, cs.lib[cutsite].bottom) == (partner._left_end_bottom, partner._left_end_top): 
-                                        partner_seq = QUEEN(seq="ATGC" + cs.lib[cutsite].rcseq, quinable=False)
-                                        remseq      = cutdna(partner_seq, *partner_seq.searchsequence(cs.lib[cutsite], quinable=False), quinable=0)[0] 
-                                        partner_seq = partner_seq.seq
-                                        cflag = 1
-                                        break 
-                            else:
-                                raise ValueError("When 'adapter_mode' is 'RE', partner value must be a digested QUEEN object.")
+                            cutsite, partner_seq, remseq = _resolve_re_partner_context(partner, strand)
                     
                     if mode == "RE":
                         if strand == "fw":
@@ -2657,32 +3208,35 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                             mod_partner = partner[len(cs.lib[cutsite].endseq):] 
                    
                     if req == True and auto_adjust == True:
-                        if strand == "fw":
-                            feat1 = partner_features[-1] 
-                            feat2 = amplicon_features[0] 
-                            fragment1 = mod_partner[feat1.start:].seq  
-                            fragment2 = amplicon_region[:feat2.end].seq 
-                            rem = (len(fragment1) + len(fragment2) + len(remseq)) % 3
-                            if i == 0 and gapseq is None:
-                                if rem > 0:
-                                    gapflag = 1
-                                    gapseq  = "".join([random.choice("ATGC") for _ in range(3-rem)])
-                                else:
-                                    gapseq = ""
-                            filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + gapseq + filtered_primer_pairs[i][strand][0]
-                        else:
-                            feat1 = amplicon_features[-1] 
-                            feat2 = partner_features[0] 
-                            fragment1 = amplicon_region[feat1.start:].seq  
-                            fragment2 = mod_partner[:feat2.end].seq 
-                            rem = (len(fragment1) + len(fragment2) + len(remseq)) % 3 
-                            if i == 0 and gapseq is None:
-                                if rem > 0:
-                                    gapflag = 1
-                                    gapseq  = "".join([random.choice("ATGC") for _ in range(3-rem)])
-                                else:
-                                    gapseq = ""
-                            filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + gapseq + filtered_primer_pairs[i][strand][0]
+                        try:
+                            if strand == "fw":
+                                feat1 = partner_features[-1] 
+                                feat2 = amplicon_features[0] 
+                                fragment1 = mod_partner[feat1.start:].seq  
+                                fragment2 = amplicon_region[:feat2.end].seq 
+                                rem = (len(fragment1) + len(fragment2) + len(remseq)) % 3
+                                if i == 0 and gapseq is None:
+                                    if rem > 0:
+                                        gapflag = 1
+                                        gapseq = _deterministic_gap_seq(fragment1, fragment2, remseq, 3-rem)
+                                    else:
+                                        gapseq = ""
+                                filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + gapseq + filtered_primer_pairs[i][strand][0]
+                            else:
+                                feat1 = amplicon_features[-1] 
+                                feat2 = partner_features[0] 
+                                fragment1 = amplicon_region[feat1.start:].seq  
+                                fragment2 = mod_partner[:feat2.end].seq 
+                                rem = (len(fragment1) + len(fragment2) + len(remseq)) % 3 
+                                if i == 0 and gapseq is None:
+                                    if rem > 0:
+                                        gapflag = 1
+                                        gapseq = _deterministic_gap_seq(fragment1, fragment2, remseq, 3-rem)
+                                    else:
+                                        gapseq = ""
+                                filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + gapseq + filtered_primer_pairs[i][strand][0]
+                        except ValueError:
+                            filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + filtered_primer_pairs[i][strand][0]
                     else:
                         filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + partner_seq + filtered_primer_pairs[i][strand][0]
                 
@@ -2838,7 +3392,16 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
 
                 for i, target in enumerate(new_targets):
                     hlen = int(homology_lengths[i] / 2)
-                    shared_fw = str(new_targets[i].seq[:hlen])
+                    # In ordered batch Gibson/Infusion design, the forward-primer
+                    # 5' overlap for fragment i must match the end of the previous
+                    # fragment, while the reverse-primer 5' overlap must match the
+                    # start of the next fragment. Using the current fragment prefix
+                    # on the forward side duplicates the fragment's own 5' sequence
+                    # and diverges from the explicit fw_partner/rv_partner route.
+                    if i > 0:
+                        shared_fw = str(new_targets[i - 1].seq[-hlen:])
+                    else:
+                        shared_fw = str(new_targets[-1].seq[-hlen:])
                     arguments[i][-1] = False
                     arguments[i][7] = shared_fw + _adapter_seq(arguments[i][7])
                     if i < len(new_targets) - 1:
@@ -3012,6 +3575,22 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             aligner.mismatch_score = 1.0
             aligner.target_end_gap_score = -0.1
             aligner.query_end_gap_score  = -0.1
+
+            def _slice_context(seq, start, length, circular):
+                if length <= 0:
+                    return ""
+                if circular:
+                    seq_len = len(seq)
+                    if seq_len == 0:
+                        return ""
+                    start = start % seq_len
+                    end = start + length
+                    if end <= seq_len:
+                        return seq[start:end]
+                    return seq[start:] + seq[:end-seq_len]
+                if start < 0 or start + length > len(seq):
+                    raise ValueError("Deletion primer design exceeds the template boundary. Increase margins or use a circular template.")
+                return seq[start:start+length]
           
             if template.seq == amplicon_region.seq and type(mut_pattern["to"]) not in (tuple, list):
                 if "operation" not in mut_pattern:
@@ -3031,16 +3610,25 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 
                 origins   = amplicon_region.seq[loc[0]:loc[1]] 
                 mutations = mut_pattern["to"]
-                aln  = aligner.align(origins, mutations)[0] 
-                for i, (o, m) in enumerate(zip(aln[0], aln[1])):
-                    if o != m:
-                        mut_pos = loc[0]+i
-                        break 
-            
-                target_seq = QUEEN(seq=amplicon_region.seq[:loc[0]] + aln[0] + amplicon_region.seq[loc[1]:], topology="circular", quinable=0).seq
-                mutate_seq = QUEEN(seq=amplicon_region.seq[:loc[0]] + aln[1] + amplicon_region.seq[loc[1]:], topology="circular", quinable=0).seq
+                deletion_mode = mutations in ("", None)
+
+                if deletion_mode:
+                    target_seq = amplicon_region.seq
+                    mutate_seq = amplicon_region.seq[:loc[0]] + amplicon_region.seq[loc[1]:]
+                    mut_pos = loc[0]
+                else:
+                    aln  = aligner.align(origins, mutations)[0] 
+                    for i, (o, m) in enumerate(zip(aln[0], aln[1])):
+                        if o != m:
+                            mut_pos = loc[0]+i
+                            break 
+                
+                    target_seq = QUEEN(seq=amplicon_region.seq[:loc[0]] + aln[0] + amplicon_region.seq[loc[1]:], topology="circular", quinable=0).seq
+                    mutate_seq = QUEEN(seq=amplicon_region.seq[:loc[0]] + aln[1] + amplicon_region.seq[loc[1]:], topology="circular", quinable=0).seq
                 
                 if operation in ("Q5", "QuickChange"):
+                    if deletion_mode:
+                        raise ValueError("Deletion mutagenesis with 'Q5'/'QuickChange' is not supported. Use operation='gibson' or 'infusion'.")
                     fw_tm_set = [] 
                     rv_tm_set = [] 
                     for plen in range(primer_length[0], primer_length[1]):
@@ -3085,17 +3673,28 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 elif operation in ("gibson", "infusion"):
                     fw_tm_set = [] 
                     rv_tm_set = [] 
-                    for plen in range(primer_length[0], primer_length[1]):
-                        flen = int(homology_length/2) 
-                        rlen = int(homology_length/2)
-                        fw_candidate = target_seq[mut_pos+flen:mut_pos+flen+plen] 
-                        rv_candidate = target_seq[mut_pos-rlen-plen:mut_pos-rlen].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
-                        fw_tm = tm_func(seq=fw_candidate)
-                        rv_tm = tm_func(seq=rv_candidate)
-                        fw_tm_set.append([[fw_candidate, 0], fw_tm])
-                        rv_tm_set.append([[rv_candidate, 0], rv_tm])
-                    fw_adapter = mutate_seq[mut_pos-rlen:mut_pos+flen]
-                    rv_adapter = mutate_seq[mut_pos-rlen:mut_pos+flen]
+                    if deletion_mode:
+                        for plen in range(primer_length[0], primer_length[1]):
+                            fw_candidate = _slice_context(target_seq, loc[1], plen, template.topology == "circular")
+                            rv_candidate = _slice_context(target_seq, loc[0]-plen, plen, template.topology == "circular").translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
+                            fw_tm = tm_func(seq=fw_candidate)
+                            rv_tm = tm_func(seq=rv_candidate)
+                            fw_tm_set.append([[fw_candidate, 0], fw_tm])
+                            rv_tm_set.append([[rv_candidate, 0], rv_tm])
+                        fw_adapter = _slice_context(target_seq, loc[0]-homology_length, homology_length, template.topology == "circular")
+                        rv_adapter = _slice_context(target_seq, loc[1], homology_length, template.topology == "circular")
+                    else:
+                        for plen in range(primer_length[0], primer_length[1]):
+                            flen = int(homology_length/2) 
+                            rlen = int(homology_length/2)
+                            fw_candidate = target_seq[mut_pos+flen:mut_pos+flen+plen] 
+                            rv_candidate = target_seq[mut_pos-rlen-plen:mut_pos-rlen].translate(str.maketrans("ATGCRYKMSWBDHV","TACGYRMKWSVHDB"))[::-1]
+                            fw_tm = tm_func(seq=fw_candidate)
+                            rv_tm = tm_func(seq=rv_candidate)
+                            fw_tm_set.append([[fw_candidate, 0], fw_tm])
+                            rv_tm_set.append([[rv_candidate, 0], rv_tm])
+                        fw_adapter = mutate_seq[mut_pos-rlen:mut_pos+flen]
+                        rv_adapter = mutate_seq[mut_pos-rlen:mut_pos+flen]
                     
                     if flip == 1:
                         fw_tm_set, rv_tm_set       = rv_tm_set, fw_tm_set
@@ -3208,8 +3807,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
         primer_pairs = [] 
         for fw, rv in it.product(fw_tm_set, rv_tm_set):
             primer_pairs.append({"fw":copy.deepcopy(fw[0]), "rv":copy.deepcopy(rv[0]), "fw_tm":fw[1], "rv_tm":rv[1]}) 
-        if target_tm is not None:
-            primer_pairs.sort(key=lambda x: abs(x["fw_tm"]-target_tm) + abs(x["rv_tm"]-target_tm))
+        primer_pairs.sort(key=lambda x: _primer_pair_sort_key(x, target_tm))
         filtered_primer_pairs = [] 
         for primer_pair in primer_pairs:
             if requirement(primer_pair): 

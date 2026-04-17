@@ -164,6 +164,58 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         row = re.sub(r",\s*\)", ")", row)
         return row
 
+    def _parse_args_info(args_text):
+        info = {}
+        if args_text is None or len(args_text) == 0:
+            return info
+        for item in args_text.split("; "):
+            if ": " not in item:
+                continue
+            key, value = item.split(": ", 1)
+            info[key] = value
+        return info
+
+    def _literal_arg(value):
+        if value is None:
+            return None
+        value = value.strip()
+        if len(value) == 0:
+            return None
+        if (value.startswith("'") and value.endswith("'")) or (value.startswith('"') and value.endswith('"')):
+            return value
+        if re.fullmatch(r"-?\d+", value):
+            return value
+        return repr(value)
+
+    def _rewrite_lower_row_from_args(row, args_text):
+        info = _parse_args_info(args_text)
+        if len(info) == 0:
+            return row
+
+        if " = modifyends(" in row:
+            left = _literal_arg(info.get("left"))
+            right = _literal_arg(info.get("right"))
+            if left is not None:
+                row = re.sub(r"left\s*=\s*[^,\)]+", "left={}".format(left), row, count=1)
+            if right is not None:
+                row = re.sub(r"right\s*=\s*[^,\)]+", "right={}".format(right), row, count=1)
+            return row
+
+        if " = cropdna(" in row:
+            start = _literal_arg(info.get("start"))
+            end = _literal_arg(info.get("end"))
+            if start is not None:
+                row = re.sub(r"start\s*=\s*[^,\)]+", "start={}".format(start), row, count=1)
+            if end is not None:
+                row = re.sub(r"end\s*=\s*[^,\)]+", "end={}".format(end), row, count=1)
+            return row
+
+        if " = joindna(" in row and "compatibility=" not in row and "qexparam='gateway_reaction(" in row:
+            row = row.replace("autoflip=False", "autoflip=False, compatibility='complete'")
+            return row
+
+        return row
+
     def _normalize_record_path_row(row):
         def repl(match):
             addgene_id = match.group(1)
@@ -514,7 +566,10 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     #Check quine code is identical with original file.
     identical    = 1
     new_new_rows = [] 
+    new_new_args = []
+    row_args_iter = iter([history[2] for history in new_histories])
     for row in new_rows: 
+        args_text = next(row_args_iter) if row.startswith("QUEEN.") else None
         match        = re.search(r"process_id='([^=]*)'", row)
         if match is not None:
             source1      = match.group(0) + ", "
@@ -527,6 +582,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
                 new_new_rows.append(row.replace(source2, "") + "process_id='{}', original_ids={})".format(process_id, original_ids))
         else:
             new_new_rows.append(row) 
+        new_new_args.append(args_text)
     
     if qexperiment_only == True:
         new_rows = extract_qexd(new_new_rows) 
@@ -534,10 +590,12 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         new_rows = _prune_unused_rows(new_rows)
     else:
         new_rows = []
-        for row in new_new_rows:
+        for row, args_text in zip(new_new_rows, new_new_args):
             if _is_qexperiment_row(row):
                 continue
-            new_rows.append(_strip_qex_metadata(_normalize_record_path_row(_normalize_none_join_row(row))))
+            row = _normalize_record_path_row(_normalize_none_join_row(row))
+            row = _rewrite_lower_row_from_args(row, args_text)
+            new_rows.append(_strip_qex_metadata(row))
 
     project_names = []
     if description_only == False:

@@ -1376,7 +1376,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
                 if tuple([state * -1 for state in flipset]) in execed: 
                     pass 
                 else:
-                    fragment_set = [fragments[num] if flip == 1 else flipdna(fragments[num], pn=process_name, pd=process_description) for num, flip in zip(numset, flipset)] 
+                    fragment_set = [fragments[num] if flip == 1 else flipdna(fragments[num], qexd=True, pn=process_name, pd=process_description) for num, flip in zip(numset, flipset)] 
                     for f in range(len(fragment_set)):
                         fragment = fragment_set[f]
                         if len(fragment.seq) <= max_homology_length: 
@@ -2037,10 +2037,10 @@ def intra_site_specific_recombination(dna, site="loxP", product=None, process_na
             if dna.topology == "circular":
                 fragment1 = _select(fragments, selection="max") 
                 fragment2 = _select(fragments, selection="min") 
-                fragment2 = flipdna(fragment2, pn=process_name, pd=process_description)
+                fragment2 = flipdna(fragment2, pn=process_name, qexd=True, pd=process_description)
                 outobj = joindna(fragment1, fragment2, autoflip=False, compatibility="complete", topology="circular", qexd=qexd, product=product, pn=process_name, pd=process_description)
             else:
-                reversed_fragment = flipdna(fragment[1], pn=process_name, pd=process_description) 
+                reversed_fragment = flipdna(fragment[1], qexd=True, pn=process_name, pd=process_description) 
                 outobj = joindna(fragment[0], reversed_fragment, fragment[2], autoflip=False, compatibility="complete", qexd=qexd, product=product, pn=process_name, pd=process_description) 
         outobj_list.append(outobj)
     

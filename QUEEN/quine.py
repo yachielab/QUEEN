@@ -142,7 +142,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         return any(token in row for token in ("qexd =", "qexd=", "qexparam =", "qexparam="))
 
     def _is_qexperiment_row(row):
-        return re.search(r"=\s*(pcr|digestion|ligation|homology_based_assembly|annealing|gateway_reaction|goldengate_assembly|topo_cloning|intra_site_specific_recombination|homologous_recombination)\(", row) is not None
+        return re.search(r"=\s*(pcr|digestion|ligation|homology_based_assembly|annealing|gateway_reaction|golden_gate_assembly|goldengate_assembly|topo_cloning|intra_site_specific_recombination|homologous_recombination)\(", row) is not None
 
     def _is_seed_row(row):
         stripped = row.strip()

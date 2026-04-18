@@ -2735,7 +2735,7 @@ class QUEEN():
                 return any(token in script for token in ("qexd =", "qexd=", "qexparam =", "qexparam="))
 
             def _is_qexperiment_script(script):
-                return re.search(r"=\s*(pcr|digestion|ligation|homology_based_assembly|annealing|gateway_reaction|goldengate_assembly|topo_cloning|intra_site_specific_recombination|homologous_recombination)\(", script) is not None
+                return re.search(r"=\s*(pcr|digestion|ligation|homology_based_assembly|annealing|gateway_reaction|golden_gate_assembly|goldengate_assembly|topo_cloning|intra_site_specific_recombination|homologous_recombination)\(", script) is not None
 
             def _is_seed_script(script):
                 stripped = script.strip()

@@ -2707,10 +2707,6 @@ class QUEEN():
                         script = re.sub(r"end\s*=\s*[^,\)]+", "end={}".format(end), script, count=1)
                     return script
 
-                if " = joindna(" in script and "compatibility=" not in script and "qexparam='gateway_reaction(" in script:
-                    script = script.replace("autoflip=False", "autoflip=False, compatibility='complete'")
-                    return script
-
                 return script
 
             def _extract_qex_text(script):

@@ -217,10 +217,6 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             row = _replace_kwarg(row, "end", end, ["process_id", "original_ids", "product"])
             return row
 
-        if " = joindna(" in row and "compatibility=" not in row and "qexparam='gateway_reaction(" in row:
-            row = row.replace("autoflip=False", "autoflip=False, compatibility='complete'")
-            return row
-
         return row
 
     def _normalize_record_path_row(row):

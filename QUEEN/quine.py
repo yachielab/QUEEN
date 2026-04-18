@@ -192,22 +192,29 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         if len(info) == 0:
             return row
 
+        def _replace_kwarg(text, key, value, next_keys):
+            if value is None:
+                return text
+            next_pattern = "|".join(re.escape(next_key) for next_key in next_keys)
+            pattern = r"{}\s*=.*?(?=,\s*(?:{})\s*=)".format(re.escape(key), next_pattern)
+            return re.sub(pattern, "{}={}".format(key, value), text, count=1)
+
         if " = modifyends(" in row:
             left = _literal_arg(info.get("left"))
             right = _literal_arg(info.get("right"))
-            if left is not None:
-                row = re.sub(r"left\s*=\s*[^,\)]+", "left={}".format(left), row, count=1)
-            if right is not None:
-                row = re.sub(r"right\s*=\s*[^,\)]+", "right={}".format(right), row, count=1)
+            if left in ("'*/*'", '"*/*"') and right in ("'*/*'", '"*/*"'):
+                match = re.search(r"^(QUEEN\.dna_dict\['[^']+'\]\s*=\s*)modifyends\(([^,]+),", row)
+                if match is not None:
+                    return match.group(1) + match.group(2).strip()
+            row = _replace_kwarg(row, "left", left, ["right", "process_id", "original_ids", "product"])
+            row = _replace_kwarg(row, "right", right, ["process_id", "original_ids", "product"])
             return row
 
         if " = cropdna(" in row:
             start = _literal_arg(info.get("start"))
             end = _literal_arg(info.get("end"))
-            if start is not None:
-                row = re.sub(r"start\s*=\s*[^,\)]+", "start={}".format(start), row, count=1)
-            if end is not None:
-                row = re.sub(r"end\s*=\s*[^,\)]+", "end={}".format(end), row, count=1)
+            row = _replace_kwarg(row, "start", start, ["end", "process_id", "original_ids", "product"])
+            row = _replace_kwarg(row, "end", end, ["process_id", "original_ids", "product"])
             return row
 
         if " = joindna(" in row and "compatibility=" not in row and "qexparam='gateway_reaction(" in row:
@@ -243,6 +250,15 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         if len(args) >= 2:
             return lhs + "joindna(*[" + ", ".join(args) + "]" + suffix + ")"
         return row
+
+    def _normalize_identity_modifyends_row(row):
+        match = re.search(
+            r"^(QUEEN\.dna_dict\['[^']+'\]\s*=\s*)modifyends\(([^,]+),\s*left=(['\"])\*/\*\3,\s*right=(['\"])\*/\*\4(?:,\s*[^)]*)?\)$",
+            row,
+        )
+        if match is None:
+            return row
+        return match.group(1) + match.group(2).strip()
 
     def _normalize_ssdna_helper_row(row, live_products):
         match = re.search(r"^(QUEEN\.dna_dict\['([^']+)'\]\s*=\s*)(.+)$", row)
@@ -586,14 +602,14 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     
     if qexperiment_only == True:
         new_rows = extract_qexd(new_new_rows) 
-        new_rows = [_normalize_record_path_row(_normalize_none_join_row(row)) for row in new_rows]
+        new_rows = [_normalize_record_path_row(_normalize_identity_modifyends_row(_normalize_none_join_row(row))) for row in new_rows]
         new_rows = _prune_unused_rows(new_rows)
     else:
         new_rows = []
         for row, args_text in zip(new_new_rows, new_new_args):
             if _is_qexperiment_row(row):
                 continue
-            row = _normalize_record_path_row(_normalize_none_join_row(row))
+            row = _normalize_record_path_row(_normalize_identity_modifyends_row(_normalize_none_join_row(row)))
             row = _rewrite_lower_row_from_args(row, args_text)
             new_rows.append(_strip_qex_metadata(row))
 

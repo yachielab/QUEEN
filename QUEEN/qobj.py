@@ -517,7 +517,14 @@ class QUEEN():
         else: 
             raise ValueError("'datatype' can take only one of 'ncbi,' 'addgeen,' and 'benchling.'") 
         
-        if dbtype in ("benchling", "googledrive"):
+        if dbtype == "ncbi":
+            headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"}
+            request = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(request) as u:
+                outb.write(u.read())
+            outs.write(outb.getvalue().decode("utf-8", errors="replace"))
+
+        elif dbtype in ("benchling", "googledrive"):
             headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"} 
             request = urllib.request.Request(url, headers=headers) 
             with urllib.request.urlopen(request) as u:

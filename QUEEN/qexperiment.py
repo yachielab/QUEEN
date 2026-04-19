@@ -1821,8 +1821,13 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
                 execed.append(flipset) 
 
     if unique == True:
-        if len(products) > 1: 
+        if len(products) == 0:
+            print(errors) 
+            raise ValueError("Error, Incompatible ends were detected. Maybe you need to reflect the PCR primers or restriction enzymes used to generate the fragments.") 
+        
+        elif len(products) > 1: 
             raise ValueError("Multiple assembled constructs were detected. You should review your assembly design.")
+        
         else:
             try:
                 product = products[0] 
@@ -1836,11 +1841,11 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
                         pass
                 
                 product, _ = _rescue_missing_features_by_exact_sequence(product, fragments)
-                
                 return product
+            
             except Exception as e:
                 print(e, errors) 
-                raise ValueError("Error, Incompatible ends were detected. Maybe you need to reflect the PCR primers or restriction enzymes used to generate the fragments.") 
+                
     else: 
         return products 
 

@@ -925,21 +925,89 @@ def _target_interval_in_source(source, target):
     return matches[0]
 
 
-def _normalize_enzyme_name_set(enzyme_set):
-    if enzyme_set is None:
-        return None
+def _canonical_pair_key(left_enzyme, right_enzyme):
+    return "|".join(sorted((str(left_enzyme), str(right_enzyme))))
 
-    allowed = set()
+
+def _normalize_enzyme_constraints(enzyme_set):
+    if enzyme_set is None:
+        return None, None
+
+    allowed_names = set()
+    allowed_pair_keys = set()
+
+    if hasattr(enzyme_set, "columns"):
+        columns = set(str(col) for col in enzyme_set.columns)
+        if "pair_key" in columns:
+            for pair_key in enzyme_set["pair_key"].dropna().astype(str).tolist():
+                parts = pair_key.split("|")
+                if len(parts) != 2:
+                    raise ValueError("`enzyme_set` DataFrame contains an invalid `pair_key` value.")
+                left_name, right_name = parts
+                if left_name not in cs.lib.keys() or right_name not in cs.lib.keys():
+                    raise ValueError("`enzyme_set` DataFrame contains an unknown restriction enzyme name.")
+                allowed_pair_keys.add(_canonical_pair_key(left_name, right_name))
+                allowed_names.add(left_name)
+                allowed_names.add(right_name)
+            return allowed_names, allowed_pair_keys
+        if "pair" in columns:
+            for pair in enzyme_set["pair"].dropna().astype(str).tolist():
+                parts = pair.split("|")
+                if len(parts) != 2:
+                    raise ValueError("`enzyme_set` DataFrame contains an invalid `pair` value.")
+                left_name, right_name = parts
+                if left_name not in cs.lib.keys() or right_name not in cs.lib.keys():
+                    raise ValueError("`enzyme_set` DataFrame contains an unknown restriction enzyme name.")
+                allowed_pair_keys.add(_canonical_pair_key(left_name, right_name))
+                allowed_names.add(left_name)
+                allowed_names.add(right_name)
+            return allowed_names, allowed_pair_keys
+        if "left_enzyme" in columns and "right_enzyme" in columns:
+            left_series = enzyme_set["left_enzyme"].dropna().astype(str).tolist()
+            right_series = enzyme_set["right_enzyme"].dropna().astype(str).tolist()
+            for left_name, right_name in zip(left_series, right_series):
+                if left_name not in cs.lib.keys() or right_name not in cs.lib.keys():
+                    raise ValueError("`enzyme_set` DataFrame contains an unknown restriction enzyme name.")
+                allowed_pair_keys.add(_canonical_pair_key(left_name, right_name))
+                allowed_names.add(left_name)
+                allowed_names.add(right_name)
+            return allowed_names, allowed_pair_keys
+        raise ValueError("`enzyme_set` DataFrame must contain `pair_key`, `pair`, or both `left_enzyme` and `right_enzyme` columns.")
+
+    if type(enzyme_set) == str:
+        enzyme_set = [enzyme_set]
+
     for enzyme in enzyme_set:
+        if type(enzyme) in (tuple, list) and len(enzyme) == 2:
+            left_name = enzyme[0].name if (type(enzyme[0]) == Cutsite or "cutsite" in getattr(enzyme[0], "__dict__", {})) else str(enzyme[0])
+            right_name = enzyme[1].name if (type(enzyme[1]) == Cutsite or "cutsite" in getattr(enzyme[1], "__dict__", {})) else str(enzyme[1])
+            if left_name not in cs.lib.keys() or right_name not in cs.lib.keys():
+                raise ValueError("`enzyme_set` contains an unknown restriction enzyme name.")
+            allowed_pair_keys.add(_canonical_pair_key(left_name, right_name))
+            allowed_names.add(left_name)
+            allowed_names.add(right_name)
+            continue
+
         if type(enzyme) == Cutsite or "cutsite" in getattr(enzyme, "__dict__", {}):
-            allowed.add(enzyme.name)
+            allowed_names.add(enzyme.name)
             continue
 
         enzyme_name = str(enzyme)
+        if "|" in enzyme_name:
+            parts = enzyme_name.split("|")
+            if len(parts) != 2:
+                raise ValueError("`enzyme_set` contains an invalid pair string.")
+            left_name, right_name = parts
+            if left_name not in cs.lib.keys() or right_name not in cs.lib.keys():
+                raise ValueError("`enzyme_set` contains an unknown restriction enzyme name.")
+            allowed_pair_keys.add(_canonical_pair_key(left_name, right_name))
+            allowed_names.add(left_name)
+            allowed_names.add(right_name)
+            continue
         if enzyme_name not in cs.lib.keys():
                 raise ValueError("`enzyme_set` contains an unknown restriction enzyme name.")
-        allowed.add(enzyme_name)
-    return allowed
+        allowed_names.add(enzyme_name)
+    return allowed_names, (allowed_pair_keys if len(allowed_pair_keys) > 0 else None)
 
 
 def _normalize_max_distance(max_distance):
@@ -959,7 +1027,18 @@ def _normalize_max_distance(max_distance):
     raise TypeError("`max_distance` must be None, an integer, or a tuple/list of two integers.")
 
 
-def _infer_cutsite_candidates(source, target, cuttype="single", enzyme_set=None, max_distance=None):
+def _apply_preferred_max_distance(df, preferred_max_distance):
+    left_pref_distance, right_pref_distance = _normalize_max_distance(preferred_max_distance)
+    mask = (
+        (df["left_site_boundary_distance_bp"] <= left_pref_distance)
+        & (df["right_site_boundary_distance_bp"] <= right_pref_distance)
+    )
+    if bool(mask.any()) is True:
+        return df.loc[mask].reset_index(drop=True)
+    return df
+
+
+def _infer_cutsite_candidates(source, target, cuttype="single", enzyme_set=None, max_distance=None, preferred_max_distance=30):
     """Return a ranked DataFrame of flanking cutsite-pair candidates around a target core."""
 
     if type(source) != QUEEN:
@@ -971,7 +1050,7 @@ def _infer_cutsite_candidates(source, target, cuttype="single", enzyme_set=None,
 
     import pandas as pd
 
-    allowed_enzyme_names = _normalize_enzyme_name_set(enzyme_set)
+    allowed_enzyme_names, allowed_pair_keys = _normalize_enzyme_constraints(enzyme_set)
     left_max_distance, right_max_distance = _normalize_max_distance(max_distance)
 
     source_len = len(source.seq)
@@ -1047,6 +1126,7 @@ def _infer_cutsite_candidates(source, target, cuttype="single", enzyme_set=None,
                 continue
             rows.append({
                 "pair": "{}|{}".format(left["enzyme"], right["enzyme"]),
+                "pair_key": _canonical_pair_key(left["enzyme"], right["enzyme"]),
                 "left_enzyme": left["enzyme"],
                 "right_enzyme": right["enzyme"],
                 "same_enzyme": left["enzyme"] == right["enzyme"],
@@ -1074,6 +1154,10 @@ def _infer_cutsite_candidates(source, target, cuttype="single", enzyme_set=None,
         raise ValueError("No flanking cutsite pair was found within the requested target-boundary distance.")
 
     df = pd.DataFrame(rows)
+    if allowed_pair_keys is not None:
+        df = df[df["pair_key"].isin(allowed_pair_keys)].reset_index(drop=True)
+        if len(df) == 0:
+            raise ValueError("No flanking cutsite pair matched the requested enzyme-pair constraint.")
     df = df.sort_values(
         by=[
             "extra_span_bp",
@@ -1087,10 +1171,12 @@ def _infer_cutsite_candidates(source, target, cuttype="single", enzyme_set=None,
         ],
         ascending=[True, True, True, True, True, True, True, True],
     ).reset_index(drop=True)
+    if preferred_max_distance is not None:
+        df = _apply_preferred_max_distance(df, preferred_max_distance)
     return df
 
 
-def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_distance=None, display=False, return_df=False, **kwargs):
+def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_distance=None, preferred_max_distance=30, display=False, return_df=False, **kwargs):
     """Infer a restriction pair flanking a target core region.
 
     Parameters
@@ -1121,6 +1207,12 @@ def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_d
         sides. If a two-element tuple/list is provided, it is interpreted as
         ``(left_max_bp, right_max_bp)``. If no candidate pair satisfies this
         threshold, a ``ValueError`` is raised.
+    preferred_max_distance : int or tuple(int, int), optional
+        Soft distance preference used after any hard ``max_distance`` filter is
+        applied. If one or more candidate pairs fall within this distance on
+        both sides, only those candidates are retained in the ranking. If no
+        candidate pair satisfies this preference, the full candidate ranking is
+        returned unchanged. Default is ``30``.
     display : bool, optional
         If ``True``, print the ranked candidate table to standard output.
         Default is ``False`` so helper use does not consume unnecessary
@@ -1159,6 +1251,7 @@ def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_d
         cuttype=cuttype,
         enzyme_set=enzyme_set,
         max_distance=max_distance,
+        preferred_max_distance=preferred_max_distance,
     )
 
     if display is True:

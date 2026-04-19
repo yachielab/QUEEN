@@ -1090,7 +1090,7 @@ def _infer_cutsite_candidates(source, target, cuttype="single", enzyme_set=None,
     return df
 
 
-def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_distance=None, display=True, **kwargs):
+def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_distance=None, display=False, return_df=False, **kwargs):
     """Infer a restriction pair flanking a target core region.
 
     Parameters
@@ -1122,16 +1122,20 @@ def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_d
         ``(left_max_bp, right_max_bp)``. If no candidate pair satisfies this
         threshold, a ``ValueError`` is raised.
     display : bool, optional
-        If ``True`` (default), print the ranked candidate table to standard
-        output before returning the best cutsite list.
+        Retained for backward compatibility. This flag no longer prints the
+        ranked candidate table to standard output.
+    return_df : bool, optional
+        If ``True``, return the full ranked candidate DataFrame instead of the
+        best cutsite list.
 
     Returns
     -------
-    list of Cutsite
-        Best-ranked restriction enzyme list ready to pass directly to
-        :func:`digestion`. For dual-cutter same-enzyme cases this may be a
-        one-element list, because ``digestion(source, enzyme)`` already cuts
-        all occurrences of that enzyme in ``source``.
+    list of Cutsite or pandas.DataFrame
+        By default, return the best-ranked restriction enzyme list ready to
+        pass directly to :func:`digestion`. For dual-cutter same-enzyme cases
+        this may be a one-element list, because ``digestion(source, enzyme)``
+        already cuts all occurrences of that enzyme in ``source``. If
+        ``return_df=True``, return the full ranked candidate DataFrame.
 
     Notes
     -----
@@ -1156,8 +1160,8 @@ def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_d
         max_distance=max_distance,
     )
 
-    if display is True:
-        print(df.to_string(index=False))
+    if return_df is True:
+        return df
 
     top_row = df.iloc[0]
     if bool(top_row["same_enzyme"]) is True:

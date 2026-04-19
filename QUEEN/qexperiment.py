@@ -582,7 +582,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
          
     if type(template) != QUEEN: 
         if type(template) == list and False not in [type(element) == QUEEN for element in template]:
-            template = homology_based_assembly(*template, mode="overlappcr") 
+            pass
         else:
             raise TypeError("`template` object must be instance of QUEEN class or list of QUEEN objects") 
 
@@ -601,11 +601,7 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
         rvstr = 'QUEEN.dna_dict["{}"]'.format(rv._product_id)
     else:
         raise TypeError("`rv` object must be instance of QUEEN or str class.") 
-    
-    if template._ssdna == True: 
-        template = copy.deepcopy(template) 
-        template._ssdna = False
-
+     
     process_name = pn if process_name is None else process_name
     if process_name is None:
         process_name = "PCR"
@@ -633,8 +629,20 @@ def pcr(template, fw, rv, bindnum=15, mismatch=0, endlength=3, add_primerbind=Fa
     else:
         aptxt = ""
     
-    qexd = 'pcr(QUEEN.dna_dict["{}"], {}, {}{}{}{}{}{})'.format(template._product_id, fwstr, rvstr, bindnumtxt, mismatchtxt, endlengthtxt, aptxt, kwargs_str)
+    if type(template) == list and False not in [type(element) == QUEEN for element in template]:
+        temps = [] 
+        for atemp in template:
+            temps.append('QUEEN.dna_dict["{}"]'.format(atemp._product_id))
+        temps = "[{}]".format(", ".join(temps))
+        qexd  = 'pcr({}, {}, {}{}{}{}{}{})'.format(temps, fwstr, rvstr, bindnumtxt, mismatchtxt, endlengthtxt, aptxt, kwargs_str)
+        template = homology_based_assembly(*template, mode="overlappcr") 
+    else: 
+        qexd = 'pcr(QUEEN.dna_dict["{}"], {}, {}{}{}{}{}{})'.format(template._product_id, fwstr, rvstr, bindnumtxt, mismatchtxt, endlengthtxt, aptxt, kwargs_str)
     process_description = pd if process_description is None else process_description
+    
+    if template._ssdna == True: 
+        template = joindna(template, QUEEN(seq=template.rcseq, ssdna=True), qexd=True, pn=process_name, pd=process_description)
+
     if -1 in [template._left_end_top, template._left_end_bottom, template._right_end_top, template._right_end_bottom] and template._ssdna == False: 
         template = modifyends(template, qexd=True, pn=process_name, pd=process_description)
     

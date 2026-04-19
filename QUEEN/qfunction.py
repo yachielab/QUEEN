@@ -1853,10 +1853,10 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                                             construct._dnafeatures[feat1_index].type = "CDS"
 
                                         if feat2 in feats:
-                                            del feats[feats.index(feat2)] 
-
-        construct._dnafeatures = construct.dnafeatures + feats
-        construct._dnafeatures = _merge_adjacent_complete_features(construct._dnafeatures, len(construct.seq), "linear")
+                                            del feats[feats.index(feat2)]
+        
+            construct._dnafeatures = construct.dnafeatures + feats
+            construct._dnafeatures = _merge_adjacent_complete_features(construct._dnafeatures, len(construct.seq), "linear")
 
         construct._dnafeatures.sort(key=lambda x:int(x.location.parts[0].start))
         if Alphabet:
@@ -2002,7 +2002,7 @@ def joindna(*dnas, topology="linear", compatibility=None, homology_length=None, 
                 new_feat._id = label.split(":")[1]
                 new_features.append(new_feat)
                 remove_features.append(feat)
-                    
+    
     for feat in remove_features:
         del construct._dnafeatures[construct.dnafeatures.index(feat)]
     
@@ -2544,7 +2544,7 @@ def modifyends(dna, left=None, right=None, add=0, add_right=0, add_left=0, supfe
                     new_feat._id = label.split(":")[1]
                     new_features.append(new_feat)
                     remove_features.append(feat)
-
+        
         for feat in remove_features:
             del new_dna._dnafeatures[new_dna.dnafeatures.index(feat)] 
         

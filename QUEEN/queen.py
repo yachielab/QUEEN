@@ -10,7 +10,15 @@ import quine
 import qgraph 
 import qexperiment
 import argparse
+
+import warnings
 from Bio import SeqIO
+from Bio import BiopythonWarning
+warnings.filterwarnings(
+    "ignore",
+    message=r"Annotation .* too long",
+    category=BiopythonWarning,
+)
 
 __version__ = "1.2.0"
 
@@ -33,6 +41,7 @@ digestion        = qexperiment.digestion
 ligation         = qexperiment.ligation
 annealing        = qexperiment.annealing
 primerdesign     = qexperiment.primerdesign
+infer_cutsites   = qexperiment.infer_cutsites
 Tm_NN            = qexperiment.Tm_NN
 printprotocol    = quine.printprotocol
 quine            = quine.quine
@@ -40,6 +49,19 @@ homology_based_assembly = qexperiment.homology_based_assembly
 goldengate_assembly     = qexperiment.goldengate_assembly
 gateway_reaction        = qexperiment.gateway_reaction
 topo_cloning            = qexperiment.topo_cloning
+
+
+def printfeature(dna, *args, **kwargs):
+    return dna.printfeature(*args, **kwargs)
+
+
+def printcutsite(dna, *args, **kwargs):
+    return dna.printcutsite(*args, **kwargs)
+
+
+def printsequence(dna, *args, **kwargs):
+    return dna.printsequence(*args, **kwargs)
+
 commands = [
             "protocol_description", 
             "script_description", 
@@ -357,4 +379,3 @@ if __name__ == "__main__":
     args = p.parse_args()
 
     main(args) 
-

@@ -424,8 +424,6 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             process_name = "process_name=None"
             names.append(pn)
         
-         
-
         pnflag = 0 
         if process_name is not None and _return_histories == False:
             pnflag = 1
@@ -551,11 +549,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     
     if _return_histories == True:
         return new_histories
-
-    if description_only == False:
-        texts.append("if __name__ == '__main__':") 
-        texts.append("    " + result + ".outputgbk()")
-
+ 
     name_dict = {}
     for row in texts:
         match1 = re.search(r"(QUEEN.queried_features_dict\['[^\[\]]+'\]) = ",row)
@@ -579,6 +573,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     
         
     new_rows = texts 
+    
     #Check quine code is identical with original file.
     identical    = 1
     new_new_rows = [] 
@@ -602,9 +597,9 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     
     live_products = getattr(dnas[0].__class__, "_products", {})
     if qexperiment_only == True:
-        new_rows = extract_qexd(new_new_rows) 
+        new_rows = extract_qexd(new_new_rows)
         new_rows = [_normalize_record_path_row(_normalize_identity_modifyends_row(_normalize_none_join_row(row), live_products)) for row in new_rows]
-        new_rows = _prune_unused_rows(new_rows)
+        #new_rows = _prune_unused_rows(new_rows)
     else:
         new_rows = []
         for row, args_text in zip(new_new_rows, new_new_args):
@@ -630,8 +625,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             print("", file=o) 
         
         scripts = [] 
-        live_products = getattr(dnas[0].__class__, "_products", {})
-        for row in new_rows:
+        for n, row in enumerate(new_rows):
             row = re.sub(r",\s*,", ", ", row)
             row = re.sub(r"\(\s*,", "(", row)
             row = re.sub(r",\s*\)", ")", row)
@@ -669,9 +663,16 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
                         if outname is not None:
                             row = row[:-1] + ", _sourcefile='{}')".format(outname.split("/")[-1].rstrip(".py"))
             scripts.append(row) 
+            if re.match(r"^QUEEN\.dna_dict\['[^']+'\]\s*=", row.strip()):
+                last_line = row.strip()
+            elif n == len(new_rows) - 1 and 'last_line' not in locals():
+                last_line = row.strip() 
+            
             if _return_script == False:
                 print(row, file=o)
-    
+        
+        print("if __name__ == '__main__':", file=o) 
+        print("    " + result + ".outputgbk()", file=o)   
     else:
         if len(source_descriptions_dict) == 1:
             for key in source_descriptions_dict:
@@ -710,7 +711,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         dnas[0].__class__._source = fname
         
         exec("import {}".format(fname), locals(), vardict)
-        exec("queen_objects = {}.QUEEN._products".format(fname), locals(), vardict) 
+        exec("queen_objects = {}.QUEEN.dna_dict".format(fname), locals(), vardict) 
         if flag == 1:
             dnas[0].__class__._namespaceflag = 1
             dnas[0].__class__._namespace = _globalspace
@@ -718,13 +719,15 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         if type(output) is tempfile._TemporaryFileWrapper: 
             os.remove(outname + ".py") 
         
-        dnas[0].__class__._source = None 
-        keys = list(vardict["queen_objects"].keys())
-        if dnas[0] == vardict["queen_objects"][keys[-1]]:
+        
+        dnas[0].__class__._source = None
+        match = re.search(r"QUEEN.dna_dict\['([^\[\]]+)'\] = ", last_line) if last_line is not None else None
+        key   = match.group(1) if match is not None else list(vardict["queen_objects"].keys())[-1] 
+        
+        if dnas[0].seq == vardict["queen_objects"][key].seq:
             if _io == True:
                 print("QUEEN object reconstructed from the quine code and the original QUEEN object are identical.".format(dnas[0].project))
-            dnas[0]._productids = keys[:-1]   
-            return True, vardict["queen_objects"] 
+            return True, dnas[0]
         else:
             if _io == True:
                 raise ValueError("The {} QUEEN object could not be reconstructed using its quine code. There may be bugs in QUEEN implementation. It would be helpful if you could tell us the details about your code on the Github issue (https://github.com/yachielab/QUEEN/issues).".format(dnas[0].project)) 

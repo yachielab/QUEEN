@@ -1038,7 +1038,97 @@ def _apply_preferred_max_distance(df, preferred_max_distance):
     return df
 
 
-def _infer_cutsite_candidates(source, target, cuttype="single", enzyme_set=None, max_distance=None, preferred_max_distance=30):
+def _feature_primary_label(feat):
+    for key in ("label", "ApEinfo_label", "standard_name", "gene"):
+        if key in feat.qualifiers and len(feat.qualifiers[key]) > 0:
+            return str(feat.qualifiers[key][0])
+    return ""
+
+
+def _feature_location_intervals(feat, source_len):
+    parts = getattr(feat.location, "parts", None)
+    if parts is None or len(parts) == 0:
+        parts = [feat.location]
+
+    intervals = []
+    for part in parts:
+        start = int(part.start)
+        end = int(part.end)
+        if end < start:
+            intervals.append((start, source_len))
+            intervals.append((0, end))
+        elif end > start:
+            intervals.append((start, end))
+    return intervals
+
+
+def _interval_overlaps(start1, end1, start2, end2):
+    return start1 < end2 and start2 < end1
+
+
+def _feature_guard_conflicts(
+    source,
+    left_cut,
+    right_cut,
+    target_start,
+    target_end,
+    *,
+    ignored_feature_types=("primer_bind", "source", "primer"),
+    ignored_feature_labels=("MCS",),
+):
+    source_len = len(source.seq)
+    left_extra = (left_cut, target_start)
+    right_extra = (target_end, right_cut)
+    ignored_types = {str(x) for x in ignored_feature_types}
+    ignored_labels = {str(x) for x in ignored_feature_labels}
+    conflicts = set()
+
+    for feat in source.dnafeatures:
+        if "broken_feature" in feat.qualifiers:
+            continue
+        if str(feat.type) in ignored_types:
+            continue
+
+        label = _feature_primary_label(feat)
+        if label in ignored_labels:
+            continue
+
+        for base_start, base_end in _feature_location_intervals(feat, source_len):
+            for shift in (-source_len, 0, source_len):
+                feat_start = int(base_start + shift)
+                feat_end = int(base_end + shift)
+                if feat_end <= left_cut or feat_start >= right_cut:
+                    continue
+
+                if feat_start >= target_start and feat_end <= target_end:
+                    continue
+
+                reason = None
+                if _interval_overlaps(feat_start, feat_end, target_start, target_end):
+                    reason = "target_partial_feature_overlap"
+                elif feat_start < left_cut < feat_end or feat_start < right_cut < feat_end:
+                    reason = "cut_inside_feature"
+                elif _interval_overlaps(feat_start, feat_end, *left_extra) or _interval_overlaps(feat_start, feat_end, *right_extra):
+                    reason = "extra_feature_overlap"
+
+                if reason is not None:
+                    conflicts.add((str(feat.type), label, int(base_start), int(base_end), reason))
+                    break
+
+    return conflicts
+
+
+def _infer_cutsite_candidates(
+    source,
+    target,
+    cuttype="single",
+    enzyme_set=None,
+    max_distance=None,
+    preferred_max_distance=30,
+    protect_features=True,
+    ignored_feature_types=("primer_bind", "source", "primer"),
+    ignored_feature_labels=("MCS",),
+):
     """Return a ranked DataFrame of flanking cutsite-pair candidates around a target core."""
 
     if type(source) != QUEEN:
@@ -1124,6 +1214,17 @@ def _infer_cutsite_candidates(source, target, cuttype="single", enzyme_set=None,
                 continue
             if right_max_distance is not None and right_site_distance > right_max_distance:
                 continue
+            conflicts = set()
+            if protect_features is True:
+                conflicts = _feature_guard_conflicts(
+                    source,
+                    int(left["shifted_cut_hi"]),
+                    int(right["shifted_cut_lo"]),
+                    int(target_start),
+                    int(target_end),
+                    ignored_feature_types=ignored_feature_types,
+                    ignored_feature_labels=ignored_feature_labels,
+                )
             rows.append({
                 "pair": "{}|{}".format(left["enzyme"], right["enzyme"]),
                 "pair_key": _canonical_pair_key(left["enzyme"], right["enzyme"]),
@@ -1146,6 +1247,10 @@ def _infer_cutsite_candidates(source, target, cuttype="single", enzyme_set=None,
                 "extra_span_bp": int(extra_left + extra_right),
                 "fragment_span_bp": int(right["shifted_cut_lo"] - left["shifted_cut_hi"]),
                 "cuttype": cuttype,
+                "protected_feature_conflict_count": int(len(conflicts)),
+                "protected_feature_conflict_labels": ";".join(sorted({label for _, label, _, _, _ in conflicts if label != ""})),
+                "protected_feature_conflict_types": ";".join(sorted({feature_type for feature_type, _, _, _, _ in conflicts})),
+                "protected_feature_conflict_reasons": ";".join(sorted({reason for _, _, _, _, reason in conflicts})),
             })
 
     if len(rows) == 0:
@@ -1158,6 +1263,10 @@ def _infer_cutsite_candidates(source, target, cuttype="single", enzyme_set=None,
         df = df[df["pair_key"].isin(allowed_pair_keys)].reset_index(drop=True)
         if len(df) == 0:
             raise ValueError("No flanking cutsite pair matched the requested enzyme-pair constraint.")
+    if protect_features is True:
+        df = df[df["protected_feature_conflict_count"] == 0].reset_index(drop=True)
+        if len(df) == 0:
+            raise ValueError("No flanking cutsite pair survived protected-feature filtering around the target region.")
     df = df.sort_values(
         by=[
             "extra_span_bp",
@@ -1176,7 +1285,20 @@ def _infer_cutsite_candidates(source, target, cuttype="single", enzyme_set=None,
     return df
 
 
-def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_distance=None, preferred_max_distance=30, display=False, return_df=False, **kwargs):
+def infer_cutsites(
+    source,
+    target=None,
+    cuttype="single",
+    enzyme_set=None,
+    max_distance=None,
+    preferred_max_distance=30,
+    display=False,
+    return_df=False,
+    protect_features=True,
+    ignored_feature_types=("primer_bind", "source", "primer"),
+    ignored_feature_labels=("MCS",),
+    **kwargs
+):
     """Infer a restriction pair flanking a target core region.
 
     Parameters
@@ -1220,6 +1342,17 @@ def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_d
     return_df : bool, optional
         If ``True``, return the full ranked candidate DataFrame instead of the
         best cutsite list.
+    protect_features : bool, optional
+        If ``True`` (default), reject candidate pairs whose extra span or cut
+        boundary would intersect protected features outside the target core.
+        By default, ``primer_bind``, ``source``, and ``primer`` feature types
+        are ignored, and features labeled ``MCS`` are also ignored.
+    ignored_feature_types : tuple/list of str, optional
+        Feature types to ignore during protected-feature filtering. Default is
+        ``("primer_bind", "source", "primer")``.
+    ignored_feature_labels : tuple/list of str, optional
+        Feature labels to ignore during protected-feature filtering regardless
+        of feature type. Default is ``("MCS",)``.
 
     Returns
     -------
@@ -1295,6 +1428,9 @@ def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_d
         enzyme_set=enzyme_set,
         max_distance=max_distance,
         preferred_max_distance=preferred_max_distance,
+        protect_features=protect_features,
+        ignored_feature_types=ignored_feature_types,
+        ignored_feature_labels=ignored_feature_labels,
     )
 
     if display is True:

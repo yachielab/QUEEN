@@ -1124,7 +1124,7 @@ def _infer_cutsite_candidates(
     cuttype="single",
     enzyme_set=None,
     max_distance=None,
-    preferred_max_distance=30,
+    preferred_max_distance=500,
     protect_features=True,
     ignored_feature_types=("primer_bind", "source", "primer"),
     ignored_feature_labels=("MCS",),
@@ -1291,7 +1291,7 @@ def infer_cutsites(
     cuttype="single",
     enzyme_set=None,
     max_distance=None,
-    preferred_max_distance=30,
+    preferred_max_distance=500,
     display=False,
     return_df=False,
     protect_features=True,
@@ -1334,7 +1334,7 @@ def infer_cutsites(
         applied. If one or more candidate pairs fall within this distance on
         both sides, only those candidates are retained in the ranking. If no
         candidate pair satisfies this preference, the full candidate ranking is
-        returned unchanged. Default is ``30``.
+        returned unchanged. Default is ``500``.
     display : bool, optional
         If ``True``, print the ranked candidate table to standard output.
         Default is ``False`` so helper use does not consume unnecessary

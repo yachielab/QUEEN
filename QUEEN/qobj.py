@@ -762,7 +762,7 @@ class QUEEN():
                 raise AttributeError("QUEEN obejct has no attribute '{}'".format(name))
     
 
-    def __init__(self, seq=None, record=None, fileformat=None, dbtype="local", topology="linear", ssdna=False, import_history=True, supfeature=False, project=None, product=None, process_name=None, process_description=None, 
+    def __init__(self, seq=None, record=None, fileformat=None, dbtype="local", topology="linear", ssdna=False, import_history=False, supfeature=False, project=None, product=None, process_name=None, process_description=None, 
         pd=None, pn=None, process_id=None, original_ids=[], quinable=True, normalize_redundant_features=False, redundant_feature_types=("CDS", "gene"), **kwargs):
         
         """
@@ -789,7 +789,7 @@ class QUEEN():
             If True, QUEEN object will handled as ssDNA. ssDNA QUEEN object cannot be 
             processed with modify ends and, be joined with dsDNA QUEEN object. By annealing 
             ssDNA QUEEN object trough `joindna` function, dsDNA QUEEN object can be generated.
-        import_history : bool, default: True
+        import_history : bool, default: False
             If False, it disable the inheritance of operational process histories of previously 
             generated `QUEEN_objects` to a newly producing `QUEEN_object`.   
         normalize_redundant_features : bool, default: False

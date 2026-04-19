@@ -2125,8 +2125,8 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
         attl2_seq = "ACCCAGCTTTCTTGTACAAAGTTGG"
         core_left = len(insert._left_end) if len(insert._left_end) > 0 else 0
         core_right = len(insert.seq) - len(insert._right_end) if len(insert._right_end) > 0 else len(insert.seq)
-        if core_right > core_left:
-            entry_core = insert[core_left:core_right]
+        if core_right > core_left and (core_left > 0 or core_right < len(insert.seq)):
+            entry_core = cropdna(insert, core_left, core_right, qexd=True, pn=process_name, pd=process_description)
         else:
             entry_core = insert
         gateway_insert = modifyends(entry_core, left=attl1_seq, right=attl2_seq, qexd=True, pn=process_name, pd=process_description)

@@ -187,7 +187,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             return value
         return repr(value)
 
-    def _rewrite_lower_row_from_args(row, args_text):
+    def _rewrite_lower_row_from_args(row, args_text, live_products):
         info = _parse_args_info(args_text)
         if len(info) == 0:
             return row
@@ -202,12 +202,9 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         if " = modifyends(" in row:
             left = _literal_arg(info.get("left"))
             right = _literal_arg(info.get("right"))
-            if left in ("'*/*'", '"*/*"') and right in ("'*/*'", '"*/*"'):
-                match = re.search(r"^(QUEEN\.dna_dict\['[^']+'\]\s*=\s*)modifyends\(([^,]+),", row)
-                if match is not None:
-                    return match.group(1) + match.group(2).strip()
             row = _replace_kwarg(row, "left", left, ["right", "process_id", "original_ids", "product"])
             row = _replace_kwarg(row, "right", right, ["process_id", "original_ids", "product"])
+            row = _normalize_identity_modifyends_row(row, live_products)
             return row
 
         if " = cropdna(" in row:
@@ -247,14 +244,21 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             return lhs + "joindna(*[" + ", ".join(args) + "]" + suffix + ")"
         return row
 
-    def _normalize_identity_modifyends_row(row):
+    def _normalize_identity_modifyends_row(row, live_products):
         match = re.search(
             r"^(QUEEN\.dna_dict\['[^']+'\]\s*=\s*)modifyends\(([^,]+),\s*left=(['\"])\*/\*\3,\s*right=(['\"])\*/\*\4(?:,\s*[^)]*)?\)$",
             row,
         )
         if match is None:
             return row
-        return match.group(1) + match.group(2).strip()
+        src_expr = match.group(2).strip()
+        src_match = re.fullmatch(r"QUEEN\.dna_dict\['([^']+)'\]", src_expr)
+        if src_match is None:
+            return row
+        src_obj = live_products.get(src_match.group(1))
+        if src_obj is None or getattr(src_obj, 'topology', None) != 'circular':
+            return row
+        return match.group(1) + src_expr
 
     def _normalize_ssdna_helper_row(row, live_products):
         match = re.search(r"^(QUEEN\.dna_dict\['([^']+)'\]\s*=\s*)(.+)$", row)
@@ -596,17 +600,18 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             new_new_rows.append(row) 
         new_new_args.append(args_text)
     
+    live_products = getattr(dnas[0].__class__, "_products", {})
     if qexperiment_only == True:
         new_rows = extract_qexd(new_new_rows) 
-        new_rows = [_normalize_record_path_row(_normalize_identity_modifyends_row(_normalize_none_join_row(row))) for row in new_rows]
+        new_rows = [_normalize_record_path_row(_normalize_identity_modifyends_row(_normalize_none_join_row(row), live_products)) for row in new_rows]
         new_rows = _prune_unused_rows(new_rows)
     else:
         new_rows = []
         for row, args_text in zip(new_new_rows, new_new_args):
             if _is_qexperiment_row(row):
                 continue
-            row = _normalize_record_path_row(_normalize_identity_modifyends_row(_normalize_none_join_row(row)))
-            row = _rewrite_lower_row_from_args(row, args_text)
+            row = _normalize_record_path_row(_normalize_identity_modifyends_row(_normalize_none_join_row(row), live_products))
+            row = _rewrite_lower_row_from_args(row, args_text, live_products)
             new_rows.append(_strip_qex_metadata(row))
 
     project_names = []

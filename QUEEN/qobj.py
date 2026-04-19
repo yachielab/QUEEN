@@ -2,6 +2,7 @@ import sys
 import copy
 import collections
 import urllib
+import time
 import tempfile
 import requests
 import inspect
@@ -520,8 +521,18 @@ class QUEEN():
         if dbtype == "ncbi":
             headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"}
             request = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(request) as u:
-                outb.write(u.read())
+            last_error = None
+            for _ in range(3):
+                try:
+                    outb = io.BytesIO()
+                    with urllib.request.urlopen(request) as u:
+                        outb.write(u.read())
+                    break
+                except Exception as e:
+                    last_error = e
+                    time.sleep(0.5)
+            else:
+                raise last_error
             outs.write(outb.getvalue().decode("utf-8", errors="replace"))
 
         elif dbtype in ("benchling", "googledrive"):

@@ -1233,6 +1233,49 @@ def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_d
     Notes
     -----
     This helper is intended for a must-keep target core on a source molecule. It can be applied to donor-side excision or to backbone site selection, as long as the target region is already represented as a single contiguous `QUEEN` object on ``source``.
+
+    Examples
+    --------
+    Get the best-ranked cutsite pair as `Cutsite` objects ready for
+    :func:`digestion`::
+
+        cutsites = infer_cutsites(
+            donor,
+            target=payload,
+            cuttype="single",
+        )
+
+    Inspect the full ranked candidate table without printing it::
+
+        donor_df = infer_cutsites(
+            donor,
+            target=payload,
+            cuttype="single",
+            return_df=True,
+        )
+
+    Reuse the donor-side ranked pairs as a pair constraint on the backbone
+    side. This answers the question "which donor-valid pairs are also valid on
+    the backbone?" by passing the donor ranking DataFrame directly into
+    ``enzyme_set``::
+
+        backbone_df = infer_cutsites(
+            backbone,
+            target=removee_window,
+            cuttype="single",
+            enzyme_set=donor_df,
+            return_df=True,
+        )
+
+    If you want the ranked table in stdout for interactive reasoning, use
+    ``display=True``::
+
+        infer_cutsites(
+            donor,
+            target=payload,
+            cuttype="single",
+            display=True,
+        )
     """
 
     payload = kwargs.pop("payload", None)

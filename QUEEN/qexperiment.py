@@ -1783,7 +1783,7 @@ def homology_based_assembly(*fragments, mode="gibson", homology_length=15, uniqu
 
     else:
         nums = list(range(len(fragments)))
-        if (len(fragments) < 6 and follow_order is None) or follow_order == False:
+        if (len(fragments) < 5 and follow_order is None) or follow_order == False:
             nums_orders = list(map(list,it.permutations(nums[:-1])))
             nums_orders = [numlist + [nums[-1]] for numlist in nums_orders]
             flip_status_list = list(it.product(*[[1,-1] for i in range(len(fragments))]))   

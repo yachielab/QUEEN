@@ -1122,8 +1122,9 @@ def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_d
         ``(left_max_bp, right_max_bp)``. If no candidate pair satisfies this
         threshold, a ``ValueError`` is raised.
     display : bool, optional
-        Retained for backward compatibility. This flag no longer prints the
-        ranked candidate table to standard output.
+        If ``True``, print the ranked candidate table to standard output.
+        Default is ``False`` so helper use does not consume unnecessary
+        context unless explicitly requested.
     return_df : bool, optional
         If ``True``, return the full ranked candidate DataFrame instead of the
         best cutsite list.
@@ -1159,6 +1160,9 @@ def infer_cutsites(source, target=None, cuttype="single", enzyme_set=None, max_d
         enzyme_set=enzyme_set,
         max_distance=max_distance,
     )
+
+    if display is True:
+        print(df.to_string(index=False))
 
     if return_df is True:
         return df

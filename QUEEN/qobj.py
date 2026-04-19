@@ -2285,7 +2285,7 @@ class QUEEN():
 
         self._dnafeatures.append(new_feat)
 
-    def printfeature(self, feature_list=None, attribute=None, separation=None, seq=False, output=None, display=True, x_based_index=0, return_df=True):
+    def printfeature(self, feature_list=None, attribute=None, separation=None, seq=False, output=None, display=True, x_based_index=0, return_df=True, include_broken=None):
         """Print a tidy table of annotation features for this `QUEEN` object.
 
         Features (instances of :class:`DNAfeature`) are listed in a tabular
@@ -2329,6 +2329,13 @@ class QUEEN():
             If ``True`` (default), return the feature table as a
             :class:`pandas.DataFrame`. If ``False``, the function returns
             ``None``.
+        include_broken : {None, True, False}, optional
+            Control whether features carrying the ``broken_feature`` qualifier
+            are included when ``feature_list`` is not explicitly provided.
+            ``None`` (default) preserves the historical heuristic and includes
+            only broken features whose retained span is at least half of the
+            original feature length. ``True`` includes all broken features.
+            ``False`` excludes all broken features.
 
         Returns
         -------
@@ -2396,6 +2403,11 @@ class QUEEN():
             selected = [] 
             for feat in features:
                 if "broken_feature" in feat.qualifiers:
+                    if include_broken is True:
+                        selected.append(feat)
+                        continue
+                    if include_broken is False:
+                        continue
                     try:
                         note   = feat.qualifiers["broken_feature"][0]
                         label  = ":".join(note.split(":")[:-1])

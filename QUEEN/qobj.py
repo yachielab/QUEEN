@@ -903,6 +903,8 @@ class QUEEN():
         elif seq is None or (type(seq) == str and "." in seq):
             if "." in str(seq):
                 record = seq
+                fseq = None
+                frecord = record
             
             if type(record) == str:
                 if dbtype == "local":

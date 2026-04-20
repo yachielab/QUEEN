@@ -144,6 +144,9 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     def _is_qexperiment_row(row):
         return re.search(r"=\s*(pcr|digestion|ligation|homology_based_assembly|annealing|gateway_reaction|golden_gate_assembly|goldengate_assembly|topo_cloning|intra_site_specific_recombination|homologous_recombination)\(", row) is not None
 
+    def _is_qexperiment_helper_row(row):
+        return re.search(r"QUEEN\.dna_dict\['[^']+'\]\s*,?\s*=\s*(modifyends|cropdna|flipdna|joindna|cutdna)\(", row.strip()) is not None
+
     def _is_seed_row(row):
         stripped = row.strip()
         return stripped.startswith("QUEEN.dna_dict[") and " = QUEEN(" in stripped
@@ -311,6 +314,8 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             if extracted is not None:
                 extracted_rows.append(extracted)
             elif _is_qexperiment_row(row):
+                extracted_rows.append(_strip_qex_metadata(row))
+            elif _is_qexperiment_helper_row(row):
                 extracted_rows.append(_strip_qex_metadata(row))
             elif _row_has_qex_metadata(row):
                 continue

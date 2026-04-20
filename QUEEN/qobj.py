@@ -2765,6 +2765,9 @@ class QUEEN():
             def _is_qexperiment_script(script):
                 return re.search(r"=\s*(pcr|digestion|ligation|homology_based_assembly|annealing|gateway_reaction|golden_gate_assembly|goldengate_assembly|topo_cloning|intra_site_specific_recombination|homologous_recombination)\(", script) is not None
 
+            def _is_qexperiment_helper_script(script):
+                return re.search(r"QUEEN\.dna_dict\['[^']+'\]\s*,?\s*=\s*(modifyends|cropdna|flipdna|joindna|cutdna)\(", script.strip()) is not None
+
             def _is_seed_script(script):
                 stripped = script.strip()
                 return stripped.startswith("QUEEN.dna_dict[") and " = QUEEN(" in stripped
@@ -2789,7 +2792,7 @@ class QUEEN():
                 if "_script" in key: 
                     if qexperiment_only == True:
                         if _has_qex_metadata(history[key]) is False:
-                            if _is_seed_script(history[key]) or _is_qexperiment_script(history[key]):
+                            if _is_seed_script(history[key]) or _is_qexperiment_script(history[key]) or _is_qexperiment_helper_script(history[key]):
                                 pass
                             else:
                                 del new_history[key]

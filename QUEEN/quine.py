@@ -622,9 +622,12 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             print("import sys", file=o)  
             print("sys.path = [\"{}] + sys.path".format("/".join(__file__.split("/")[:-2])  + "\""), file=o)
             print("from QUEEN.queen import *", file=o) 
-            print("from QUEEN import cutsite as cs", file=o) 
-            for cutsite in list(cs.new_cutsites):
-                print("cs.lib[{}] = {}".format(repr(cutsite[0]), repr(cutsite[1])), file=o) 
+            print("import cutsite as cs", file=o) 
+            custom_cutsites = {}
+            for cutsite_name, _ in list(cs.new_cutsites):
+                custom_cutsites[cutsite_name] = repr(cs.lib[cutsite_name].cutsite)
+            for cutsite_name in sorted(custom_cutsites):
+                print("cs.lib[{}] = {}".format(repr(cutsite_name), custom_cutsites[cutsite_name]), file=o) 
             if dna.__class__._namespaceflag == 1 and execution == False:
                 print("set_namespace(globals())", file=o)
             print("", file=o) 
@@ -729,7 +732,14 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         match = re.search(r"QUEEN.dna_dict\['([^\[\]]+)'\] = ", last_line) if last_line is not None else None
         key   = match.group(1) if match is not None else list(vardict["queen_objects"].keys())[-1] 
         
-        if dnas[0].seq == vardict["queen_objects"][key].seq:
+        original_seq = str(dnas[0].seq)
+        reconstructed = vardict["queen_objects"][key]
+        reconstructed_seq = str(reconstructed.seq)
+        same_seq = original_seq == reconstructed_seq
+        if same_seq is False and getattr(dnas[0], "topology", None) == "circular" and getattr(reconstructed, "topology", None) == "circular" and len(original_seq) == len(reconstructed_seq):
+            same_seq = original_seq in (reconstructed_seq + reconstructed_seq)
+
+        if same_seq:
             if _io == True:
                 print("QUEEN object reconstructed from the quine code and the original QUEEN object are identical.".format(dnas[0].project))
             return True, dnas[0]

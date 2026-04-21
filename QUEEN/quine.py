@@ -4,6 +4,7 @@ import sys
 import random
 import datetime
 import tempfile
+import subprocess
 import collections
 import regex as re
 sys.path.append("/".join(__file__.split("/")[:-1]))
@@ -63,6 +64,34 @@ def export(names, descriptions, histories, o=None, do=False, qexp_only=False):
         pre_process_name = process_name 
         pre_process_description = process_description
     return o 
+
+
+def _execute_quine_script_isolated(script_path, result_key, cwd=None, python_executable=None):
+    cwd = os.getcwd() if cwd is None else cwd
+    python_executable = sys.executable if python_executable is None else python_executable
+    module_name = os.path.splitext(os.path.basename(script_path))[0]
+    fd, gbk_path = tempfile.mkstemp(suffix=".gbk")
+    os.close(fd)
+    runner = "\n".join(
+        [
+            "import importlib.util",
+            "import sys",
+            "script_path, module_name, result_key, output_gbk = sys.argv[1:5]",
+            "spec = importlib.util.spec_from_file_location(module_name, script_path)",
+            "if spec is None or spec.loader is None:",
+            "    raise RuntimeError(f'failed to load {script_path}')",
+            "module = importlib.util.module_from_spec(spec)",
+            "spec.loader.exec_module(module)",
+            "module.QUEEN.dna_dict[result_key].outputgbk(output_gbk)",
+        ]
+    )
+    proc = subprocess.run(
+        [python_executable, "-c", runner, script_path, module_name, result_key, gbk_path],
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+    )
+    return proc, gbk_path
 
 def quine(*dnas, output=None, author=None, project=None, process_description=False, qexperiment_only=True, execution=False, _return_histories=False, _return_script=False, _io=False): 
     """Generate "quine code" of `QUEEN_object` that produces the same `QUEEN_object`. A quine code can be executed as a Python script.
@@ -310,17 +339,17 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
     def extract_qexd(rows): 
         extracted_rows = [] 
         for row in rows:
+            if _row_has_qex_metadata(row) is False:
+                if _is_seed_row(row) or _is_qexperiment_row(row) or _is_qexperiment_helper_row(row):
+                    extracted_rows.append(_strip_qex_metadata(row))
+                continue
+
+            if "qexd = True" in row or "qexd=True" in row or "qexparam = True" in row or "qexparam=True" in row:
+                continue
+
             extracted = _extract_qexd_row(row)
             if extracted is not None:
                 extracted_rows.append(extracted)
-            elif _is_qexperiment_row(row):
-                extracted_rows.append(_strip_qex_metadata(row))
-            elif _is_qexperiment_helper_row(row):
-                extracted_rows.append(_strip_qex_metadata(row))
-            elif _row_has_qex_metadata(row):
-                continue
-            elif _is_seed_row(row):
-                extracted_rows.append(row)
         return extracted_rows
 
     def _prune_unused_rows(rows):
@@ -699,41 +728,37 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         return scripts 
 
     if execution == True:
-        intermediate_products = {} 
-        sys.path.append("/".join(outname.split("/")[:-1]) if len(outname.split("/")) > 1 else ".")
-         
-        if outname[-3:] != ".py":
-            os.rename(outname, outname + ".py") 
-        
-        flag = 0 
-        if dnas[0].__class__._namespaceflag == 1:
-            _globalspace = dnas[0].__class__._namespace
-            dnas[0].__class__._namespace     = {} 
-            dnas[0].__class__._namespaceflag = 0
-            flag = 1
+        script_path = outname
+        if script_path[-3:] != ".py":
+            os.rename(script_path, script_path + ".py")
+            script_path = script_path + ".py"
 
-        fname = outname.split("/")[-1]
-        if fname[-3:] == ".py":
-            fname = fname[:-3] 
-        vardict = {}
-        dnas[0].__class__._source = fname
-        
-        exec("import {}".format(fname), locals(), vardict)
-        exec("queen_objects = {}.QUEEN.dna_dict".format(fname), locals(), vardict) 
-        if flag == 1:
-            dnas[0].__class__._namespaceflag = 1
-            dnas[0].__class__._namespace = _globalspace
-        
-        if type(output) is tempfile._TemporaryFileWrapper: 
-            os.remove(outname + ".py") 
-        
-        
-        dnas[0].__class__._source = None
         match = re.search(r"QUEEN.dna_dict\['([^\[\]]+)'\] = ", last_line) if last_line is not None else None
-        key   = match.group(1) if match is not None else list(vardict["queen_objects"].keys())[-1] 
-        
+        key = match.group(1) if match is not None else dnas[0]._product_id
+
+        proc, reconstructed_path = _execute_quine_script_isolated(script_path, key, cwd=os.getcwd())
+        if type(output) is tempfile._TemporaryFileWrapper and os.path.exists(script_path):
+            os.remove(script_path)
+
+        dnas[0].__class__._source = None
+        if proc.returncode != 0:
+            if os.path.exists(reconstructed_path):
+                os.remove(reconstructed_path)
+            if _io == True:
+                stderr = proc.stderr[-2000:] if proc.stderr is not None else ""
+                raise ValueError(
+                    "The {} QUEEN object could not be reconstructed using its quine code in an isolated subprocess. STDERR tail:\n{}".format(
+                        dnas[0].project,
+                        stderr,
+                    )
+                )
+            return False
+
+        reconstructed = dnas[0].__class__(record=reconstructed_path, dbtype="local", import_history=False)
+        if os.path.exists(reconstructed_path):
+            os.remove(reconstructed_path)
+
         original_seq = str(dnas[0].seq)
-        reconstructed = vardict["queen_objects"][key]
         reconstructed_seq = str(reconstructed.seq)
         same_seq = original_seq == reconstructed_seq
         if same_seq is False and getattr(dnas[0], "topology", None) == "circular" and getattr(reconstructed, "topology", None) == "circular" and len(original_seq) == len(reconstructed_seq):

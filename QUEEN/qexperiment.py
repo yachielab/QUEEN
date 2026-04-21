@@ -1,3 +1,4 @@
+import ast
 import copy
 import regex as re
 import itertools as it
@@ -3326,18 +3327,34 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             return True
 
         def _extract_digestion_cutsites(dna):
-            qexps = search_qexps(dna)
-            if len(qexps) == 0 or qexps[-1][0] != "digestion":
-                raise ValueError("When 'adapter_mode' is 'RE', partner value must be a digested QUEEN object.")
-            cutsites = []
-            for arg in qexps[-1][1][1:]:
-                if "selection" in arg:
-                    break
-                token = arg.rstrip(",")
-                if len(token) >= 2 and token[0] == token[-1] and token[0] in ("'", '"'):
-                    token = token[1:-1]
-                cutsites.append(token)
-            return cutsites
+            for line in reversed(quine(dna, _return_script=True)):
+                try:
+                    node = ast.parse(line)
+                except SyntaxError:
+                    continue
+
+                if len(node.body) != 1 or type(node.body[0]).__name__ != "Assign":
+                    continue
+                call = node.body[0].value
+                if type(call).__name__ != "Call":
+                    continue
+                if getattr(call.func, "id", None) != "digestion":
+                    continue
+
+                cutsites = []
+                for arg in call.args[1:]:
+                    if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+                        cutsites.append(arg.value)
+                    elif hasattr(ast, "Str") and isinstance(arg, ast.Str):
+                        cutsites.append(arg.s)
+                    else:
+                        cutsites.append(ast.unparse(arg).strip("'\""))
+
+                if len(cutsites) > 0:
+                    return cutsites
+                break
+
+            raise ValueError("When 'adapter_mode' is 'RE', partner value must be a digested QUEEN object.")
 
         def _resolve_re_partner_context(dna, strand):
             cutsites = _extract_digestion_cutsites(dna)

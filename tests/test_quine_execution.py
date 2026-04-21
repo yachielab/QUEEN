@@ -8,10 +8,12 @@ from pathlib import Path
 warnings.filterwarnings('ignore', category=ResourceWarning)
 
 ROOT = Path(__file__).resolve().parents[1]
+WORKSPACE_ROOT = ROOT.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from QUEEN.queen import QUEEN, pcr, quine
+from QUEEN.qexperiment import digestion, ligation, primerdesign
 
 
 class QuineExecutionIsolationTests(unittest.TestCase):
@@ -113,6 +115,60 @@ class QuineExecutionIsolationTests(unittest.TestCase):
             proc = self._run_exported_script(script_path, 'amp', gbk_path)
             self.assertEqual(proc.returncode, 0, msg=proc.stderr)
             self.assertTrue(gbk_path.exists())
+
+    def test_re_partner_primerdesign_uses_digested_fragment_context(self):
+        backbone_donor = QUEEN(
+            record=str(WORKSPACE_ROOT / 'gbks' / 'new_107036.gbk'),
+            project='backbone_donor',
+        )
+        insert_donor = QUEEN(
+            record=str(WORKSPACE_ROOT / 'gbks' / 'new_112213.gbk'),
+            project='insert_donor',
+        )
+        restriction_pair = ['Acc65I', 'HindIII']
+        backbone_fragment = digestion(
+            backbone_donor,
+            *restriction_pair,
+            selection='!label:mCherry',
+            product='mCherry_removed_backbone_fragment',
+        )
+        primer_pairs = primerdesign(
+            insert_donor,
+            insert_donor['EGFP'],
+            adapter_mode='RE',
+            fw_partner=backbone_fragment,
+            rv_partner=backbone_fragment,
+            target_tm=62.0,
+            design_num=1,
+            fw_name='Primer_F1',
+            rv_name='Primer_R1',
+        )
+        insert_amplicon = pcr(
+            insert_donor,
+            primer_pairs[0]['fw'],
+            primer_pairs[0]['rv'],
+            product='EGFP_restriction_adapter_amplicon',
+        )
+        insert_fragment = digestion(
+            insert_amplicon,
+            *restriction_pair,
+            selection='max',
+            product='EGFP_insert_fragment',
+        )
+        final_product = ligation(
+            backbone_fragment,
+            insert_fragment,
+            follow_order=False,
+            product='mCherry_to_EGFP_replacement_construct',
+        )
+
+        self.assertIn('GGTACC', str(primer_pairs[0]['fw'].seq).upper())
+        self.assertIn('AAGCTT', str(primer_pairs[0]['rv'].seq).upper())
+        self.assertEqual(final_product.project, 'mCherry_to_EGFP_replacement_construct')
+        self.assertGreaterEqual(
+            len(final_product.searchfeature(key_attribute='qualifier:label', query='^EGFP$')),
+            1,
+        )
 
 
 if __name__ == '__main__':

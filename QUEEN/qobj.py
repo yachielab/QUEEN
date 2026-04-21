@@ -6,12 +6,14 @@ import time
 import tempfile
 import requests
 import inspect
+import warnings
 import regex as re 
 import cutsite as cs
 from bs4 import BeautifulSoup 
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature, FeatureLocation, CompoundLocation, FeatureLocation, ExactPosition
+from Bio import BiopythonWarning
 from functools import total_ordering
 
 sys.path.append("/".join(__file__.split("/")[:-1]))
@@ -2984,7 +2986,13 @@ class QUEEN():
             else:
                 self.record.annotations["structured_comment"] = None  
         
-        SeqIO.write(self.record, handle, format)
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=r"Increasing length of locus line to allow long name\..*",
+                category=BiopythonWarning,
+            )
+            SeqIO.write(self.record, handle, format)
         self.record.features = self.dnafeatures
         if stdIOflag == 1:
             if _return == True:

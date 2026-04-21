@@ -3672,12 +3672,20 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 argument[-1] = False
             
             # For Gibson/Infusion batch primer design, each junction must share
-            # one common overlap on both adjacent fragments. The previous
-            # partner-based implementation derived the left and right overlaps
-            # independently from opposite partner ends, which can yield
-            # incompatible junctions when fragment boundaries are not identical.
-            # When no frame-adjustment gap is required, derive explicit shared
-            # overlaps from the ordered batch targets instead.
+            # one common overlap on both adjacent fragments.
+            #
+            # Deriving that overlap from the raw ordered targets is not robust
+            # when unique primer sites require margins or auto-adjustment,
+            # because the actual PCR amplicon boundaries can shift away from the
+            # nominal target start/end. In that situation a second-pass
+            # primerdesign() call can still succeed, but the resulting amplicons
+            # no longer carry the overlaps that were inferred from the probe
+            # targets, yielding incompatible Gibson fragments downstream.
+            #
+            # To keep batch Gibson deterministic, first choose the actual
+            # no-adapter primer binding sites for each fragment, build the
+            # corresponding base amplicons, and then derive one explicit shared
+            # overlap per junction from those real amplicon boundaries.
             #
             # Important: preserve any user-specified payload adapters already
             # assigned to fw_adapter/rv_adapter. For example, a Gibson insert may
@@ -3685,8 +3693,6 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             # linker. In that case the final amplicon must encode:
             #   fw end = shared overlap + user fw payload
             #   rv end = user rv payload + shared overlap
-            # The earlier second-pass patch for Q003 replaced the user adapter
-            # with the shared overlap and silently truncated such payloads.
             if adapter_mode in ("gibson", "infusion") and False not in [arguments[i][-2] == [None, None] for i in range(len(arguments))]:
                 def _adapter_seq(adapter):
                     if adapter is None:
@@ -3695,28 +3701,53 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                         return str(adapter.seq)
                     return str(adapter)
 
+                base_primer_pairs = []
+                base_amplicons = []
+                for i in range(len(arguments)):
+                    base_arguments = copy.deepcopy(arguments[i])
+                    # Freeze the actual primer-binding sites first, without any
+                    # assembly adapters or partner-derived overlaps.
+                    base_arguments[6] = "standard"
+                    base_arguments[7] = None
+                    base_arguments[8] = None
+                    base_arguments[9] = None
+                    base_arguments[10] = None
+                    base_arguments[-2] = None
+                    base_arguments[-1] = False
+                    base_primer_pair = primerdesign(*base_arguments)[0]
+                    base_primer_pairs.append(base_primer_pair)
+                    base_amplicons.append(
+                        pcr(
+                            base_arguments[0],
+                            base_primer_pair["fw"],
+                            base_primer_pair["rv"],
+                            add_primerbind=False,
+                        )
+                    )
+
                 for i, target in enumerate(new_targets):
                     hlen = int(homology_lengths[i] / 2)
-                    # In ordered batch Gibson/Infusion design, the forward-primer
-                    # 5' overlap for fragment i must match the end of the previous
-                    # fragment, while the reverse-primer 5' overlap must match the
-                    # start of the next fragment. Using the current fragment prefix
-                    # on the forward side duplicates the fragment's own 5' sequence
-                    # and diverges from the explicit fw_partner/rv_partner route.
-                    if i > 0:
-                        shared_fw = str(new_targets[i - 1].seq[-hlen:])
+                    shared_fw = str(base_amplicons[i].seq[:hlen])
+                    if i < len(base_amplicons) - 1:
+                        shared_rv = str(base_amplicons[i + 1].seq[:hlen])
                     else:
-                        shared_fw = str(new_targets[-1].seq[-hlen:])
-                    arguments[i][-1] = False
-                    arguments[i][7] = shared_fw + _adapter_seq(arguments[i][7])
-                    if i < len(new_targets) - 1:
-                        shared_rv = str(new_targets[i + 1].seq[:hlen])
-                    else:
-                        shared_rv = str(new_targets[0].seq[:hlen])
-                    arguments[i][8] = _adapter_seq(arguments[i][8]) + shared_rv
-                    arguments[i][9] = None
-                    arguments[i][10] = None
-                    primer_pair = primerdesign(*arguments[i])
+                        shared_rv = str(base_amplicons[0].seq[:hlen])
+
+                    final_arguments = copy.deepcopy(arguments[i])
+                    final_arguments[0] = base_amplicons[i]
+                    final_arguments[1] = base_amplicons[i]
+                    final_arguments[2] = None
+                    final_arguments[3] = None
+                    final_arguments[4] = 0
+                    final_arguments[5] = 0
+                    final_arguments[6] = "standard"
+                    final_arguments[7] = shared_fw + _adapter_seq(arguments[i][7])
+                    final_arguments[8] = _adapter_seq(arguments[i][8]) + shared_rv
+                    final_arguments[9] = None
+                    final_arguments[10] = None
+                    final_arguments[-2] = None
+                    final_arguments[-1] = False
+                    primer_pair = primerdesign(*final_arguments)
                     primer_pair_set.append(primer_pair)
             else:
                 for i, argument in enumerate(arguments):

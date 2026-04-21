@@ -3465,7 +3465,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 for i in range(len(filtered_primer_pairs)):
                     remseq = ""
                     if strand == "fw": 
-                        if mode == "gibson":
+                        if mode in ("gibson", "overlappcr"):
                             if partner._right_end_bottom == 1 and partner._right_end_top == -1: 
                                 mod_partner = partner[:len(partner.seq) - len(partner._right_end)]
                             else:
@@ -3483,7 +3483,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                             cutsite, partner_seq, remseq = _resolve_re_partner_context(partner, strand)
 
                     if strand == "rv":
-                        if mode == "gibson":
+                        if mode in ("gibson", "overlappcr"):
                             if partner._left_end_bottom == -1 and partner._left_end_top == 1: 
                                 mod_partner = partner[len(partner._left_end):] 
                             else:

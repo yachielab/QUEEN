@@ -2417,23 +2417,30 @@ def gateway_reaction(destination, entry, mode="BP", product=None, process_name=N
     if mode == "BP":
         attl1_seq = "CCAACTTTGTACAAAAAAGCAGGCT"
         attl2_seq = "ACCCAGCTTTCTTGTACAAAGTTGG"
-        core_left = len(insert._left_end) if len(insert._left_end) > 0 else 0
-        core_right = len(insert.seq) - len(insert._right_end) if len(insert._right_end) > 0 else len(insert.seq)
-        if core_right > core_left and (core_left > 0 or core_right < len(insert.seq)):
-            entry_core = cropdna(insert, core_left, core_right, qexd=True, pn=process_name, pd=process_description)
+        # For BP, replace the full attB arms on the PCR product with attL arms.
+        # Trimming only the sticky-end residues leaves attB fragments duplicated
+        # in the product junctions.
+        if attx1.strand == 1:
+            entry_core = cropdna(entry, attx1.end, attx2.start, qexd=True, pn=process_name, pd=process_description)
         else:
-            entry_core = insert
+            entry_core = cropdna(entry, attx2.end, attx1.start, qexd=True, pn=process_name, pd=process_description)
         gateway_insert = modifyends(entry_core, left=attl1_seq, right=attl2_seq, qexd=True, pn=process_name, pd=process_description)
         bp_products = []
         cs.lib["attL1"] = "CCAACTTT^GTACAAA_AAAGCAGGCT"
         cs.lib["attL2"] = "ACCCAGCTTT^CTTGTAC_AAAGTTGG"
-        for destination_crop in destination_candidates:
-            left_ovhg = len(destination_crop._left_end) if len(destination_crop._left_end) > 0 else 0
-            right_ovhg = len(destination_crop._right_end) if len(destination_crop._right_end) > 0 else 0
-            crop_end = len(destination_crop.seq) - right_ovhg
-            if crop_end <= left_ovhg:
+        for dest_obj in (destination, flipdna(destination, quinable=0)):
+            cand_y1 = dest_obj.searchsequence(cs.lib["attY1"], quinable=False)
+            cand_y2 = dest_obj.searchsequence(cs.lib["attY2"], quinable=False)
+            if len(cand_y1) != 1 or len(cand_y2) != 1:
                 continue
-            backbone_internal = cropdna(destination_crop, left_ovhg, crop_end, qexd=True, pn=process_name, pd=process_description)
+            cand_y1 = cand_y1[0]
+            cand_y2 = cand_y2[0]
+            if cand_y1.strand == 1:
+                backbone_internal = cropdna(dest_obj, cand_y2.end, cand_y1.start, qexd=True, pn=process_name, pd=process_description)
+            elif cand_y1.strand == -1:
+                backbone_internal = cropdna(dest_obj, cand_y1.end, cand_y2.start, qexd=True, pn=process_name, pd=process_description)
+            else:
+                continue
             try:
                 product_obj = joindna(gateway_insert, backbone_internal, topology="circular", qexparam=qexd, product=product, pn=process_name, pd=process_description)
             except Exception:

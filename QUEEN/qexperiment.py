@@ -3069,11 +3069,18 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
 
         MutSpec keys (dict)
             operation : {"Q5","QuickChange","gibson","infusion","overlappcr"}, optional
-                Mutagenesis strategy. If omitted, a default strategy is chosen:
+                Mutagenesis strategy. Currently implemented mutagenesis support is
+                limited to a single scalar edit with ``template == target``. In that
+                supported case, if ``operation`` is omitted, the default strategy is
+                ``"Q5"``.
 
-                - template == target AND exactly 1 site  → "Q5"
-                - template == target AND ≥2 sites        → "gibson"
-                - otherwise (target ⊂ template, any #)   → "overlappcr"
+                Current implementation limits
+                    - vectorized ``MutSpec`` fields are not implemented
+                    - batch ``primerdesign(template=[...], target=[...], mut_pattern=...)``
+                      is not implemented
+                    - ``template != target`` mutagenesis (for example junction /
+                      overlap-PCR mutagenesis) is not implemented
+                    - ``operation="overlappcr"`` is reserved but not yet implemented
 
             relative : {"target"} or QUEEN or str, optional
                 Reference subsequence for interpreting ``loc``/``find``. If omitted or
@@ -3102,11 +3109,11 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
               broadcast.
             - For each site k, specify either ``loc[k]`` OR ``find[k]`` (not both).
             - Deletion: ``to[k]`` in {``""``, ``None``}. Insertion: ``loc[k] == (i, i)``.
+            - Note: vectorized mutagenesis is documented for future extension but is
+              not implemented in the current runtime.
 
         Batch mode (MutSpec)
-            - When ``template``/``target`` are lists, pass ``mut_pattern`` as a list whose
-              length equals the number of templates; each element is one MutSpec dict (with
-              vectorized fields) for the corresponding template–target pair.
+            - Batch mutagenesis is not implemented in the current runtime.
 
     target_tm : float or sequence of float or None, optional
         Desired melting temperature (Tm) for primers in degrees Celsius. Default is ``60.0``.
@@ -3595,6 +3602,11 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             raise ValueError("target sequence to be amplified is not included in template sequence.") 
 
     if type(template) in (tuple, list):
+        if mut_pattern is not None:
+            raise NotImplementedError(
+                "Batch primerdesign with mut_pattern is not implemented yet. "
+                "For now, MutSpec is supported only in single-template, single-target calls."
+            )
         fw_primers     = [fw_primer] * len(template) if type(fw_primer) not in (tuple, list) else fw_primer
         rv_primers     = [rv_primer] * len(template) if type(rv_primer) not in (tuple, list) else rv_primer
         fw_margins     = [fw_margin] * len(template) if type(fw_margin) not in (tuple, list) else fw_margin
@@ -3869,6 +3881,17 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             aligner.target_end_gap_score = -0.1
             aligner.query_end_gap_score  = -0.1
 
+            if type(mut_pattern.get("to")) in (tuple, list):
+                raise NotImplementedError(
+                    "Vectorized MutSpec is not implemented yet. Pass one scalar edit per primerdesign() call."
+                )
+
+            if template.seq != amplicon_region.seq:
+                raise NotImplementedError(
+                    "MutSpec with template != target is not implemented yet. "
+                    "Junction/overlap-PCR mutagenesis should be modeled explicitly rather than through mut_pattern."
+                )
+
             def _slice_context(seq, start, length, circular):
                 if length <= 0:
                     return ""
@@ -3890,6 +3913,11 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                     operation = "Q5"
                 else:
                     operation = mut_pattern["operation"]  
+
+                if operation == "overlappcr":
+                    raise NotImplementedError(
+                        "MutSpec operation='overlappcr' is documented but not implemented yet."
+                    )
                 
                 if "loc" in mut_pattern:
                     loc = mut_pattern["loc"]

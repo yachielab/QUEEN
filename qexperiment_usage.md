@@ -402,6 +402,14 @@ Design forward and reverse primers for PCR amplification of a target region, all
 - **adapter_mode**: `"standard"`, `"gibson"`, `"infusion"`, `"overlappcr"`, `"RE"`, or `"BP"`. Default is `"standard"`.   
   The mode value specifies the the format of `fw_adapter` and `rv_adapter`. In batch process mode, this value should be common for all processes 
 
+- **mut_pattern**: site-directed mutagenesis specification.  
+  Current runtime support is limited to a **single scalar edit** with `template == target`.  
+  The following are **not implemented yet**:
+  - vectorized/list-style `MutSpec`
+  - batch `primerdesign(..., mut_pattern=...)`
+  - `template != target` mutagenesis
+  - `operation="overlappcr"`
+
 - **fw_adapter** `ssDNA QUEEN object` or `str`, optional  
   If mode is `"standard"`, the value must be a QUEEN object or a `str` object representing a DNA sequence. The sequence will be added at the beginning of any forward primers designed.  
   If the mode is "gibson", "infusion", or "overlappcr", the value must be a dsDNA QUEEN object or `None`. If the value is `None` and the target is specified as a list of QUEEN objects, the QUEEN object immediately preceding the target used for the current primer design will be automatically specified. The adapter sequence overlapping the specified QUEEN object will be automatically designed and prepended to the forward primer. 

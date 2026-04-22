@@ -708,8 +708,10 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
             if _return_script == False:
                 print(row, file=o)
         
+        result_match = re.search(r"^QUEEN\.dna_dict\['([^\[\]]+)'\]\s*=", last_line) if 'last_line' in locals() and last_line is not None else None
+        result_expr = "QUEEN.dna_dict[{}]".format(repr(result_match.group(1))) if result_match is not None else result
         print("if __name__ == '__main__':", file=o) 
-        print("    " + result + ".outputgbk()", file=o)   
+        print("    " + result_expr + ".outputgbk()", file=o)   
     else:
         if len(source_descriptions_dict) == 1:
             for key in source_descriptions_dict:

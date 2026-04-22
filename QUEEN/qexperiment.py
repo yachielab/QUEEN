@@ -2684,9 +2684,20 @@ def topo_cloning(destination, entry, mode="TA", product=None, process_name=None,
 
     if mode == "TA":
         if destination.topology == "circular":
-            destination = digestion(destination, "AflII", selection="max", qexd=True, product=destination.project, pn=process_name, pd=process_description)
-            destination = modifyends(destination, qexd=True, pn=process_name, pd=process_description) 
-            destination = modifyends(destination, "-/*", "*/-", qexd=True, pn=process_name, pd=process_description) 
+            try:
+                destination = digestion(destination, "AflII", selection="max", qexd=True, product=destination.project, pn=process_name, pd=process_description)
+                destination = modifyends(destination, qexd=True, pn=process_name, pd=process_description) 
+                destination = modifyends(destination, "-/*", "*/-", qexd=True, pn=process_name, pd=process_description) 
+            except ValueError as exc:
+                if str(exc) != "No cutting sites were found.":
+                    raise
+                ccd_feats = destination.searchfeature(key_attribute="qualifier:label", query="^ccdB$", qexd=True, pn=process_name, pd=process_description)
+                if len(ccd_feats) == 0:
+                    raise
+                ccd_feat = ccd_feats[0]
+                destination = cropdna(destination, ccd_feat.end, ccd_feat.start, qexd=True, product=destination.project, pn=process_name, pd=process_description)
+                destination = modifyends(destination, "T", "A", qexd=True, pn=process_name, pd=process_description)
+                destination = modifyends(destination, "-/*", "*/-", qexd=True, pn=process_name, pd=process_description)
         else: 
             if destination._left_end_top == 1 and destination._left_end_bottom == 1 and destination._right_end_top == 1 and destination._right_end_bottom == 1:
                 if destination.seq[0] == "A" and  destination.seq[-1] == "T":
@@ -3695,36 +3706,22 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 argument[-2] = [gap_fw, gap_rv] 
                 argument[-1] = False
             
-            # For Gibson/Infusion batch primer design, each junction must share
-            # one common overlap on both adjacent fragments.
+            # For Gibson/Infusion batch primer design, first freeze the actual
+            # no-adapter primer binding sites for each fragment. This keeps the
+            # second pass deterministic even when margins or auto-adjustment are
+            # needed to find unique primer sites.
             #
-            # Deriving that overlap from the raw ordered targets is not robust
-            # when unique primer sites require margins or auto-adjustment,
-            # because the actual PCR amplicon boundaries can shift away from the
-            # nominal target start/end. In that situation a second-pass
-            # primerdesign() call can still succeed, but the resulting amplicons
-            # no longer carry the overlaps that were inferred from the probe
-            # targets, yielding incompatible Gibson fragments downstream.
-            #
-            # To keep batch Gibson deterministic, first choose the actual
-            # no-adapter primer binding sites for each fragment, build the
-            # corresponding base amplicons, and then derive one explicit shared
-            # overlap per junction from those real amplicon boundaries.
-            #
-            # Important: preserve any user-specified payload adapters already
-            # assigned to fw_adapter/rv_adapter. For example, a Gibson insert may
-            # need both a homology overlap and a coding payload such as a tag or
-            # linker. In that case the final amplicon must encode:
-            #   fw end = shared overlap + user fw payload
-            #   rv end = user rv payload + shared overlap
+            # The second pass must still use the same public partner-aware
+            # semantics as ordinary single-fragment primerdesign(). In
+            # particular, seamless assembly should not increase the assembled
+            # product length: with margin=0, the final product must equal the
+            # sum of the target fragment lengths. Therefore we must not inject
+            # one explicit overlap sequence into both adjacent fragments, which
+            # duplicates the junction sequence in the final product. Instead,
+            # reuse the actual base amplicons as the fixed targets and let the
+            # normal partner-aware logic add one-sided overlaps exactly as in
+            # non-batch Gibson/Infusion calls.
             if adapter_mode in ("gibson", "infusion") and False not in [arguments[i][-2] == [None, None] for i in range(len(arguments))]:
-                def _adapter_seq(adapter):
-                    if adapter is None:
-                        return ""
-                    if type(adapter) == QUEEN:
-                        return str(adapter.seq)
-                    return str(adapter)
-
                 base_primer_pairs = []
                 base_amplicons = []
                 for i in range(len(arguments)):
@@ -3750,13 +3747,6 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                     )
 
                 for i, target in enumerate(new_targets):
-                    hlen = int(homology_lengths[i] / 2)
-                    shared_fw = str(base_amplicons[i].seq[:hlen])
-                    if i < len(base_amplicons) - 1:
-                        shared_rv = str(base_amplicons[i + 1].seq[:hlen])
-                    else:
-                        shared_rv = str(base_amplicons[0].seq[:hlen])
-
                     final_arguments = copy.deepcopy(arguments[i])
                     final_arguments[0] = base_amplicons[i]
                     final_arguments[1] = base_amplicons[i]
@@ -3764,11 +3754,13 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                     final_arguments[3] = None
                     final_arguments[4] = 0
                     final_arguments[5] = 0
-                    final_arguments[6] = "standard"
-                    final_arguments[7] = shared_fw + _adapter_seq(arguments[i][7])
-                    final_arguments[8] = _adapter_seq(arguments[i][8]) + shared_rv
-                    final_arguments[9] = None
-                    final_arguments[10] = None
+                    final_arguments[6] = adapter_mode
+                    if i < len(base_amplicons) - 1:
+                        final_arguments[9] = base_amplicons[i-1]
+                        final_arguments[10] = base_amplicons[i+1]
+                    else:
+                        final_arguments[9] = base_amplicons[i-1]
+                        final_arguments[10] = base_amplicons[0]
                     final_arguments[-2] = None
                     final_arguments[-1] = False
                     primer_pair = primerdesign(*final_arguments)

@@ -345,6 +345,9 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
                 continue
 
             if "qexd = True" in row or "qexd=True" in row or "qexparam = True" in row or "qexparam=True" in row:
+                stripped = _strip_qex_metadata(row)
+                if _is_qexperiment_helper_row(row) and "QUEEN.queried_" not in stripped:
+                    extracted_rows.append(stripped)
                 continue
 
             extracted = _extract_qexd_row(row)

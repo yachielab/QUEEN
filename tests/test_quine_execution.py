@@ -13,7 +13,14 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from QUEEN.queen import QUEEN, pcr, quine
-from QUEEN.qexperiment import digestion, homology_based_assembly, ligation, primerdesign
+from QUEEN.qexperiment import (
+    annealing,
+    digestion,
+    goldengate_assembly,
+    homology_based_assembly,
+    ligation,
+    primerdesign,
+)
 
 
 class QuineExecutionIsolationTests(unittest.TestCase):
@@ -113,6 +120,39 @@ class QuineExecutionIsolationTests(unittest.TestCase):
             self.assertNotIn("queried_features_dict", text)
 
             proc = self._run_exported_script(script_path, 'amp', gbk_path)
+            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            self.assertTrue(gbk_path.exists())
+
+    def test_qexperiment_only_export_script_is_self_contained_for_goldengate(self):
+        backbone = QUEEN(
+            record=str(WORKSPACE_ROOT / 'gbks' / 'new_174368.gbk'),
+            project='pJEC625 gRNA backbone',
+        )
+        top = QUEEN(seq='TAGTAAGTGTGAGGCCGATCTTAT', ssdna=True, project='GuideTop1')
+        bottom = QUEEN(seq='AAACATAAGATCGGCCTCACACTT', ssdna=True, project='GuideBottom1')
+        duplex = annealing(top, bottom, homology_length=20, product='goldengate_guide_duplex')
+        product = goldengate_assembly(
+            destination=backbone,
+            entry=[duplex],
+            cutsite='BbsI',
+            product='goldengate_guide_vector',
+        )
+        if isinstance(product, list):
+            product = product[0] if len(product) == 1 else max(product, key=lambda x: len(x.seq))
+
+        self.assertTrue(quine(product, execution=True, qexperiment_only=True))
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            script_path = Path(tmpdir) / 'goldengate_qexp.py'
+            gbk_path = Path(tmpdir) / 'goldengate_qexp.gbk'
+            quine(product, output=str(script_path), qexperiment_only=True, execution=False)
+            text = script_path.read_text()
+
+            self.assertIn("goldengate_assembly(", text)
+            self.assertIn("searchsequence(", text)
+            self.assertIn("cutdna(", text)
+
+            proc = self._run_exported_script(script_path, 'goldengate_guide_vector', gbk_path)
             self.assertEqual(proc.returncode, 0, msg=proc.stderr)
             self.assertTrue(gbk_path.exists())
 

@@ -174,7 +174,13 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
         return re.search(r"=\s*(pcr|digestion|ligation|homology_based_assembly|annealing|gateway_reaction|golden_gate_assembly|goldengate_assembly|topo_cloning|intra_site_specific_recombination|homologous_recombination)\(", row) is not None
 
     def _is_qexperiment_helper_row(row):
-        return re.search(r"QUEEN\.dna_dict\['[^']+'\]\s*,?\s*=\s*(modifyends|cropdna|flipdna|joindna|cutdna)\(", row.strip()) is not None
+        stripped = row.strip()
+        helper_patterns = (
+            r"^QUEEN\.dna_dict\['[^']+'\](?:\s*,\s*QUEEN\.dna_dict\['[^']+'\])*\s*=\s*(modifyends|cropdna|flipdna|joindna|cutdna)\(",
+            r"^QUEEN\.queried_feature_dict\['[^']+'\]\s*=\s*.*searchfeature\(",
+            r"^QUEEN\.queried_features_dict\['[^']+'\]\s*=\s*.*searchsequence\(",
+        )
+        return any(re.search(pattern, stripped) is not None for pattern in helper_patterns)
 
     def _is_seed_row(row):
         stripped = row.strip()
@@ -346,7 +352,7 @@ def quine(*dnas, output=None, author=None, project=None, process_description=Fal
 
             if "qexd = True" in row or "qexd=True" in row or "qexparam = True" in row or "qexparam=True" in row:
                 stripped = _strip_qex_metadata(row)
-                if _is_qexperiment_helper_row(row) and "QUEEN.queried_" not in stripped:
+                if _is_qexperiment_helper_row(row):
                     extracted_rows.append(stripped)
                 continue
 

@@ -321,12 +321,9 @@ if __name__ == "__main__":
                     "When --joindna (-j) is specified, --input (-i) and --output (-o) options are valid.")
     
     p.add_argument("--database", "-db", type=str, default="ncbi", choices=("ncbi", "addgene", "benchling"), 
-                   help="For '--db ncbi', set a NCBI accession number. " + 
-                    "For '--db addgene', set a plasmid ID. Sometimes different full sequence maps are provided " + 
-                    "by the depositor and adgene, respectively, for a single plasmid. In this case, " + 
-                    "please specify the plasmid ID followed by 'addgene' or 'depositor' (Ex. 50005:addgene or 50005:depositor) " +
-                    "If you set only plasmid ID, the value will be specified as 'plsmidID:addgene'. " +
-                    "For 'benchling', set a benchling shaared link. ")
+                   help="For --db ncbi, set an NCBI accession number. " + 
+                    "For --db benchling, set a Benchling share link. " +
+                    "--db addgene is deprecated because Addgene sequence downloads require login; use a local GenBank mirror instead.")
     
     p.add_argument("--seqid", "-si", type=str, default=None, 
                    help="Sequence ID for the corresponding database specified by '--database'.")  

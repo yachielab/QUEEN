@@ -348,8 +348,8 @@ class QUEEN():
         * ``"local"`` (default) – treat ``record`` as a local file path.
         * ``"ncbi"`` – interpret ``record`` as an NCBI nucleotide
           accession.
-        * ``"addgene"`` – interpret ``record`` as an identifier in an
-          external plasmid repository.
+        * ``"addgene"`` - deprecated for remote fetches because Addgene
+          sequence downloads require login. Use a mirrored local GenBank file instead.
         * ``"benchling"`` – interpret ``record`` as a share link to an
           online sequence editor.
         * ``"googledrive"`` – interpret ``record`` as a share link to a
@@ -466,13 +466,10 @@ class QUEEN():
     def _get_genbank(_id, dbtype="ncbi"):
         """
         
-        Dbtype can be selected from "ncbi", "addgene", "benchling".   
+        Dbtype can be selected from "ncbi", "benchling", or "googledrive".
+        "addgene" is deprecated for remote fetches because Addgene sequence
+        downloads now require an authenticated account session.
         For "ncbi", set NCBI accession number.  
-        For "addgene", set plasmid ID. Sometimes different full sequence maps are 
-        provided by the depositor and adgene, respectively, for a single plasmid.  
-        In this case, please specify the plasmid ID followed by "addgene" or 
-        "depositor" (Ex. 50005:addgene or 50005:depositor). If you set only plasmid ID, 
-        the value will be specified as "plsmidID:addgene".  
         For "benchling", set a benchling shaared link
         
         """ 
@@ -481,28 +478,14 @@ class QUEEN():
         if dbtype == "ncbi":
             url = "https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?tool=portal&save=file&log$=seqview&db=nuccore&report=gbwithparts&id={}&withparts=on".format(_id) 
         
-        elif dbtype == "addgene": 
-            if _id[0] == "#":
-                _id = _id[1:]
-            refer = "https://www.addgene.org/{}/".format(_id) 
-            try:
-                if ":" not in _id:
-                    _id = _id + ":addgene"
-                site = "https://www.addgene.org/{}/sequences/".format(_id.split(":")[0]) 
-                html = requests.get(site)
-                soup = BeautifulSoup(html.content, "html.parser")
-                url  = soup.find(id="{}-full".format(_id.split(":")[1])).find(class_="genbank-file-download").get("href")
-            
-            except Exception as e:
-                if _id.split(":")[1] == "addgene":
-                    _id = _id.split(":")[0] + ":depositor"
-                else:
-                    _id = _id.split(":")[0] + ":addgene"
-                site = "https://www.addgene.org/{}/sequences/".format(_id.split(":")[0]) 
-                html = requests.get(site)
-                soup = BeautifulSoup(html.content, "html.parser")
-                url  = soup.find(id="{}-full".format(_id.split(":")[1])).find(class_="genbank-file-download").get("href")
-
+        elif dbtype == "addgene":
+            raise ValueError(
+                "dbtype=addgene is deprecated because Addgene sequence downloads "
+                "require a logged-in account session. Use a local GenBank mirror "
+                "instead, for example QUEEN(record=gbks/new_ID.gbk, dbtype=local). "
+                "If live Addgene access is required, add support through the official "
+                "Addgene Developers API rather than HTML scraping."
+            )
         elif dbtype == "benchling":
             if "https://benchling.com/" not in _id:
                 raise ValueError("Please specify a proper benchling share link")
@@ -518,7 +501,7 @@ class QUEEN():
             url = "https://drive.google.com/uc?export=download&id=" + fileid
         
         else: 
-            raise ValueError("'datatype' can take only one of 'ncbi,' 'addgeen,' and 'benchling.'") 
+            raise ValueError("dbtype must be ncbi, benchling, googledrive, or deprecated addgene.") 
         
         if dbtype == "ncbi":
             headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"}
@@ -544,22 +527,6 @@ class QUEEN():
                 outb.write(u.read())
             outs.write(outb.getvalue().decode())
         
-        elif dbtype == "addgene":
-            sess = requests.Session()
-            sess.headers.update({
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
-            })
-
-            sess.get(refer, timeout=30)
-            r = sess.get(url, headers={"Referer": refer}, stream=True, timeout=60)
-            r.raise_for_status()
-
-            buf = io.BytesIO()
-            for chunk in r.iter_content(chunk_size=1024 * 256):
-                if chunk:
-                    buf.write(chunk)
-            outs.write(buf.getvalue().decode("utf-8", errors="replace"))
-
         return outs
 
     def _check_seq(seq):
@@ -938,8 +905,10 @@ class QUEEN():
                         dbtype = "benchling"
                     
                     elif record.isdigit():
-                        dbflag = 1 
-                        dbtype = "addgene"
+                        raise TypeError(
+                            "Digit-only remote records are no longer inferred as Addgene IDs. "
+                            "Use a local mirror path such as gbks/new_ID.gbk with dbtype=local."
+                        )
                     
                     elif record.isalnum() and "http" not in record:
                         dbflag = 1 
@@ -955,7 +924,7 @@ class QUEEN():
                             record = SeqIO.parse(o,fmt)
                             record  = next(record)
                     else:
-                        raise TypeError("`dbtype` must be 'local', 'ncbi', 'addgene' or 'benchling'.")
+                        raise TypeError("`dbtype` must be local, ncbi, benchling, googledrive, or deprecated addgene.")
 
             elif type(record) == SeqRecord:
                 record = record 

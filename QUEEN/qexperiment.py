@@ -3332,6 +3332,19 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
             "N": {"A", "C", "G", "T"},
         }
 
+        def _finalize_named_primer(primer, name):
+            """Create the returned primer from its final sequence so history is replayable."""
+            primer_seq = str(primer.seq) if type(primer) == QUEEN else str(primer)
+            finalized = QUEEN(seq=primer_seq, product=name, ssdna=True)
+            if type(primer) == QUEEN and len(primer.dnafeatures) > 0:
+                finalized._dnafeatures = [
+                    feat.__class__(feature=feat, subject=finalized)
+                    for feat in primer.dnafeatures
+                ]
+                finalized._supfeatureids()
+                finalized.record.features = finalized.dnafeatures
+            return finalized
+
         def _endseq_matches(site_endseq, observed_endseq):
             site_endseq = str(site_endseq).upper()
             observed_endseq = str(observed_endseq).upper()
@@ -3585,7 +3598,7 @@ def primerdesign(template, target, fw_primer=None, rv_primer=None, fw_margin=0, 
                 filtered_primer_pairs[i][strand][0] = QUEEN(seq="", product=name) + filtered_primer_pairs[i][strand][0]  
         
         for i in range(len(filtered_primer_pairs)):
-            filtered_primer_pairs[i][strand][0]._ssdna = True
+            filtered_primer_pairs[i][strand][0] = _finalize_named_primer(filtered_primer_pairs[i][strand][0], name)
         
         return filtered_primer_pairs
      
